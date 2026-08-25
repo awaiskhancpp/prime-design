@@ -8,7 +8,7 @@ export function LandscapingServiceAreas() {
   const { heading, cities, trailingLabel, trailingHref } = website.serviceAreas
 
   return (
-    <Section className="bg-paper text-ink">
+    <Section className="bg-white text-ink">
       <div className="grid gap-10  pt-10 lg:grid-cols-[0.85fr_1.15fr] lg:items-start lg:gap-20">
         <div>
           <p className="text-xs font-semibold uppercase tracking-[0.2em] text-brass">{heading}</p>

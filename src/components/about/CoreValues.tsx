@@ -27,14 +27,9 @@ export function CoreValues() {
           const Icon = valueIcons[index]
 
           return (
-            <article
-              key={value.title}
-              className="bg-white px-6 py-8 md:px-7 lg:px-8 lg:first:pl-0 lg:last:pr-0"
-            >
+            <article key={value.title} className="bg-white px-6 py-8 md:px-7 lg:px-8 ">
               <Icon aria-hidden="true" className="h-7 w-7 text-brass" strokeWidth={1.5} />
-              <h3 className="mt-6 font-display text-2xl font-medium text-ink-2">
-                {value.title}
-              </h3>
+              <h3 className="mt-6 font-display text-2xl font-medium text-ink-2">{value.title}</h3>
               <p className="mt-3 text-sm leading-6 text-ink-2/70">{value.description}</p>
             </article>
           )
