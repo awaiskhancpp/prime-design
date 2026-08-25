@@ -230,7 +230,38 @@
     "body": "At Prime Design & Build, we stand proud as one of Silicon Valley's premium remodeling and construction authorities, specializing in a wide range of high-quality services tailored to meet your specific needs. Our well-established reputation is built on a foundation of quality craftsmanship and unparalleled customer service. Our dedicated team ensures a custom-tailored interaction with every client, guaranteeing that our high standards are consistently met with each project we undertake.",
     "ctaLabel": "Let's get started",
     "ctaHref": "/contact",
-    "kicker": "Need a new kitchen, bathroom, or complete home renovation?"
+    "kicker": "Need a new kitchen, bathroom, or complete home renovation?",
+    "coreValues": {
+      "eyebrow": "Our principles",
+      "heading": "What guides every project",
+      "description": "The way we work matters as much as the spaces we create. These principles shape every conversation, decision, and detail from the first sketch to the final handoff.",
+      "items": [
+        {
+          "title": "Customer Focus",
+          "description": "We listen closely to each homeowner and keep the project grounded in their goals, lifestyle, and experience."
+        },
+        {
+          "title": "Uncompromising Quality",
+          "description": "We hold every stage of the work to a high standard, from the first design decision to the final detail."
+        },
+        {
+          "title": "Integrity and Transparency",
+          "description": "We communicate honestly, take responsibility, and make decisions with respect for the trust our clients place in us."
+        },
+        {
+          "title": "Innovative Solutions",
+          "description": "We bring thoughtful ideas and practical problem-solving to create spaces that feel distinctive and work beautifully."
+        },
+        {
+          "title": "Seamless Process",
+          "description": "We coordinate design, construction, and communication carefully so the journey feels clear from consultation to completion."
+        },
+        {
+          "title": "Expertise and Knowledge",
+          "description": "Our experienced team combines design insight, construction knowledge, and local understanding to guide each project well."
+        }
+      ]
+    }
   },
 
   "reviewSummary": {

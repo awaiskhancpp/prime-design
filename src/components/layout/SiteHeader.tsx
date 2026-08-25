@@ -23,9 +23,17 @@ export function SiteHeader() {
             </Button>
           ))}
         </nav>
-        <Button href="/contact" size="lg" variant="outline-light">
-          Talk to an expert
-        </Button>
+        <div className="flex items-center gap-5">
+          <a
+            href={`tel:${website.header.phoneCta.replace(/[^\d+]/g, '')}`}
+            className="hidden text-sm font-semibold tracking-wide text-white transition-colors hover:text-brass xl:block"
+          >
+            {website.header.phoneCta}
+          </a>
+          <Button href="/contact" size="lg" variant="outline-light">
+            Talk to an expert
+          </Button>
+        </div>
       </Container>
     </header>
   )

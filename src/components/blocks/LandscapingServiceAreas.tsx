@@ -15,7 +15,7 @@ export function LandscapingServiceAreas() {
           <h2 className="mt-3 max-w-sm font-display text-3xl font-medium leading-tight tracking-tight md:text-4xl">
             Built across Silicon Valley, one neighborhood at a time.
           </h2>
-          <Button href={trailingHref} variant="line" className="text-white inline-flex">
+          <Button href={trailingHref} variant="line" className="mt-6 text-ink">
             {trailingLabel}
             <ArrowUpRight className="h-4 w-4" aria-hidden />
           </Button>
