@@ -1,0 +1,332 @@
+{
+  "meta": {
+    "siteName": "Prime Design & Build",
+    "tagline": "Silicon Valley's Premier Home Remodeling Experts",
+    "license": "LIC #1087809"
+  },
+
+  "header": {
+    "location": "Silicon Valley",
+    "email": "office@primedesignandbuild.com",
+    "phoneOffice": "(650) 220-9600",
+    "phoneCta": "(650) 235-4863",
+    "hours": "Open: 8am - 6pm (Mon - Fri)",
+    "ctaLabel": "Talk to an expert",
+    "ctaSubtext": "Let one of our representatives help you!"
+  },
+
+  "nav": [
+    { "label": "Home", "href": "/" },
+    { "label": "About", "href": "/about" },
+    {
+      "label": "Services",
+      "href": "/services",
+      "children": [
+        { "label": "ADU", "href": "/adu" },
+        { "label": "Additions", "href": "/additions" },
+        { "label": "Complete Renovation", "href": "/complete-renovation" },
+        {
+          "label": "Kitchen Remodeling",
+          "href": "/kitchen-remodeling",
+          "children": [
+            {
+              "label": "European Kitchen",
+              "href": "/kitchen-remodeling/european-kitchen-silicon-valley"
+            },
+            {
+              "label": "Custom Kitchen",
+              "href": "/kitchen-remodeling/custom-kitchen-silicon-valley"
+            },
+            {
+              "label": "Shaker Kitchen",
+              "href": "/kitchen-remodeling/shaker-kitchen-silicon-valley"
+            }
+          ]
+        },
+        { "label": "Bathroom Remodeling", "href": "/bathroom-remodeling" },
+        { "label": "Home Remodeling", "href": "/home-remodeling" },
+        { "label": "Home Repair Services", "href": "/home-repair-installation-services" }
+      ]
+    },
+    { "label": "Projects", "href": "/our-projects" },
+    { "label": "Gallery", "href": "/gallery" },
+    {
+      "label": "Resources",
+      "href": "#",
+      "children": [
+        { "label": "Testimonials", "href": "/testimonials" },
+        { "label": "Blog", "href": "/blog" },
+        { "label": "FAQ", "href": "/faq" }
+      ]
+    },
+    { "label": "Contact", "href": "/contact" }
+  ],
+
+  "hero": {
+    "eyebrow": null,
+    "headline": "Top-rated design and build firm in the Bay Area",
+    "subheadline": "Discover the Prime experience with a new home renovation, ADU, home addition or kitchen and bathroom remodel",
+    "body": "Where we transform blueprints into reality with unwavering dedication and unmatched expertise. Your vision is our foundation, and together, we construct a future of enduring quality and innovation. Let's build something extraordinary.",
+    "ctaLabel": "Schedule a Consultation",
+    "ctaHref": "/contact",
+    "backgroundImageNote": "living room / sofa interior photo"
+  },
+
+  "trustBadges": [
+    { "platform": "Yelp", "rating": 4.9 },
+    { "platform": "Google", "rating": 4.9 },
+    { "platform": "Houzz", "note": "5 Star Rating on Houzz" },
+    { "platform": "BBB", "note": "Accredited Business" }
+  ],
+
+  "primeDifference": {
+    "heading": "The Prime Difference",
+    "statLine": "Over 350+ Projects in Silicon Valley",
+    "bullets": [
+      "Experts on-site for interior design",
+      "Certified general contractor, fully licensed",
+      "Family-owned and operated business",
+      "Competitive pricing for our services",
+      "Quick response for customer satisfaction"
+    ]
+  },
+
+  "projectVideos": [
+    {
+      "title": "Rosewood Dr, Atherton",
+      "projectManager": "Noam",
+      "videoUrl": "https://tagmediaspace.b-cdn.net/Prime%20Design%20and%20Build/03.09.2024%20Noam%20Prime%2041%20Rosewood%20Dr%20Atherton.mp4"
+    },
+    {
+      "title": "Bluebonnet Ct, Morgan Hill (Full House)",
+      "projectManager": "Josef",
+      "videoUrl": "https://tagmediaspace.b-cdn.net/Prime%20Design%20and%20Build/07.18.2024%20Josef%20Prime%20Full%20House%201840%20Bluebonnet%20Ct%20Morgan%20Hill.mp4"
+    },
+    {
+      "title": "Alice Ave, Mountain View (Kitchen)",
+      "projectManager": "Ilay",
+      "videoUrl": "https://tagmediaspace.b-cdn.net/Prime%20Design%20and%20Build/09.04.2024%20Ilay%20Prime%20Kitchen%20700%20Alice%20Ave%20Mountain%20View.mp4"
+    },
+    {
+      "title": "Client walkthrough",
+      "speaker": "Noah, Co-Owner",
+      "videoUrl": "https://tagmediaspace.b-cdn.net/Prime%20Design%20and%20Build/Prime%20Vid%20Noah.mp4"
+    },
+    {
+      "title": "First floor renovation",
+      "videoUrl": "https://tagmediaspace.b-cdn.net/Prime%20Design%20and%20Build/First%20Floor.mp4"
+    }
+  ],
+
+  "latestProjects": [
+    {
+      "title": "Atherton Kitchen Remodeling Projects",
+      "slug": "atherton-kitchen-remodeling-projects"
+    },
+    { "title": "New Home Construction Los Gatos", "slug": "full-home-remodeling-los-gatos" },
+    { "title": "Sunnyvale Complete Home Renovation", "slug": "sunnyvale-complete-home-renovation" },
+    { "title": "San Mateo Complete Home Remodel", "slug": "san-mateo-complete-home-remodel" },
+    { "title": "Full Home Remodeling Cupertino", "slug": "full-home-remodeling-cupertino" },
+    { "title": "San Jose Complete Home Remodel", "slug": "san-jose-complete-home-remodel" }
+  ],
+
+  "services": [
+    {
+      "title": "Home Remodeling",
+      "description": "Transform your home from ground up with our full home remodeling services.",
+      "href": "/home-remodeling",
+      "image": "/services/home-remodeling.jpeg"
+    },
+    {
+      "title": "Kitchen Remodeling",
+      "description": "Experience the transformation of your home with our kitchen remodeling service.",
+      "href": "/kitchen-remodeling",
+      "image": "/services/kitchen-remodeling.jpeg"
+    },
+    {
+      "title": "ADU & Garage Conversions",
+      "description": "Creating versatile and functional ADUs that provide homeowners with additional living space or rental opportunities.",
+      "href": "/adu",
+      "image": "/services/home-remodeling.jpeg"
+    },
+    {
+      "title": "Home Additions",
+      "description": "Tailored to help you expand and enhance your living space without the hassle of moving.",
+      "href": "/additions",
+      "image": "/services/kitchen-remodeling.jpeg"
+    },
+    {
+      "title": "New Construction / Complete Renovation",
+      "description": "Dedicated to creating custom-built homes that reflect your unique style.",
+      "href": "/complete-renovation",
+      "image": "/services/home-remodeling.jpeg"
+    },
+    {
+      "title": "Bathroom Remodeling",
+      "description": "Breathe new life into your bathroom with our bathroom remodeling service.",
+      "href": "/bathroom-remodeling",
+      "image": "/services/kitchen-remodeling.jpeg"
+    }
+  ],
+
+  "featureBlocks": [
+    {
+      "title": "Bathroom Remodeling",
+      "body": "Let our expert team transform your bathroom into a space of beauty and functionality. Your dream bathroom becomes a reality as we work closely with you to bring your vision to life.",
+      "ctaLabel": "Learn more",
+      "ctaHref": "/bathroom-remodeling",
+      "beforeImage": "/before-after/bathroom_remodeling_before.jpg",
+      "afterImage": "/before-after/bathroom_remodeling_after.jpeg"
+    },
+    {
+      "title": "Complete Home Renovation",
+      "body": "With a keen eye for detail and a commitment to craftsmanship, we employ innovative designs to create a home renovation that exceeds your expectations. Whether it's a full-scale renovation or specific room transformations, we approach each project with the utmost care and professionalism.",
+      "ctaLabel": "Learn more",
+      "ctaHref": "/home-remodeling",
+      "beforeImage": "/before-after/complete_remodeling_before.jpeg",
+      "afterImage": "/before-after/complete_remodeling_after.jpeg"
+    }
+  ],
+
+  "contactForm": {
+    "heading": "Contact our team today!",
+    "sectionLabel": "Contact Form",
+    "fields": [
+      "First Name",
+      "Last Name",
+      "Email",
+      "Phone",
+      "Subject",
+      "Tell Us About Your Project"
+    ],
+    "submitLabel": "Request A Quote"
+  },
+
+  "serviceAreas": {
+    "heading": "Areas we service",
+    "cities": [
+      "Saratoga",
+      "Los Altos",
+      "Milpitas",
+      "Fremont",
+      "Redwood City",
+      "Menlo Park",
+      "Cupertino",
+      "Santa Clara",
+      "Sunnyvale",
+      "Mountain View",
+      "Palo Alto",
+      "San Jose",
+      "Campbell",
+      "Los Gatos",
+      "Silicon Valley"
+    ],
+    "trailingLabel": "And surrounding cities!",
+    "trailingHref": "/contact"
+  },
+
+  "about": {
+    "heading": "Silicon Valley's Luxury Home Contractor",
+    "body": "At Prime Design & Build, we stand proud as one of Silicon Valley's premium remodeling and construction authorities, specializing in a wide range of high-quality services tailored to meet your specific needs. Our well-established reputation is built on a foundation of quality craftsmanship and unparalleled customer service. Our dedicated team ensures a custom-tailored interaction with every client, guaranteeing that our high standards are consistently met with each project we undertake.",
+    "ctaLabel": "Let's get started",
+    "ctaHref": "/contact",
+    "kicker": "Need a new kitchen, bathroom, or complete home renovation?"
+  },
+
+  "reviewSummary": {
+    "google": {
+      "rating": 4.9,
+      "count": 56,
+      "url": "https://maps.google.com/?cid=11837063325613881352"
+    },
+    "yelp": {
+      "rating": 4.9,
+      "count": 64,
+      "url": "https://www.yelp.com/biz/prime-kitchens-santa-clara"
+    },
+    "note": "Full review lists should be fetched live from Google/Yelp APIs at build time, not hardcoded — the current site embeds 100+ reviews client-side via a plugin, which is a major page-weight/CWV problem. Curate 6-10 into the Testimonials collection below for static rendering."
+  },
+
+  "testimonialsFeatured": [
+    {
+      "author": "Avinash Komanduri",
+      "source": "Google",
+      "rating": 5,
+      "projectManager": "David",
+      "summary": "Year-long whole-home renovation led by project manager David, with 3D exterior design work from designer Mimi."
+    },
+    {
+      "author": "Gerald Lewis",
+      "source": "Google",
+      "rating": 5,
+      "summary": "Returned for a kitchen and full home remodel after a positive bathroom renovation experience."
+    },
+    {
+      "author": "Krishna Kumar",
+      "source": "Google",
+      "rating": 5,
+      "projectManager": "Isabella, Fernando",
+      "summary": "Major bathroom, kitchen, and flooring renovation while living in the home during construction."
+    },
+    {
+      "author": "Ariel Diaz",
+      "source": "Google",
+      "rating": 5,
+      "projectManager": "Noah",
+      "summary": "Kitchen and two bathrooms completed on time and to a high standard."
+    },
+    {
+      "author": "Rachel Lansing",
+      "source": "Google",
+      "rating": 5,
+      "summary": "Modest home renovation with strong cost management and a clean jobsite throughout."
+    },
+    {
+      "author": "Stan Monarch",
+      "source": "Google",
+      "rating": 5,
+      "projectManager": "Noah",
+      "summary": "Two projects (ADU and home addition) completed over 9 months."
+    },
+    {
+      "author": "Glenn Douglas",
+      "source": "Google",
+      "rating": 5,
+      "projectManager": "Daniel Zinger",
+      "summary": "Roofing, new windows, and household upgrades for a 30-year Palo Alto homeowner."
+    },
+    {
+      "author": "Edward L.",
+      "source": "Yelp",
+      "rating": 5,
+      "summary": "Full kitchen renovation — countertops, backsplash, cabinets, electrical, plus a new bidet toilet."
+    }
+  ],
+
+  "footer": {
+    "addresses": [
+      "416 East Campbell Ave, Campbell CA 95008",
+      "3 E 3rd Ave Suite 200, San Mateo, CA 94401"
+    ],
+    "phone": "(650) 220-9600",
+    "email": "office@primedesignandbuild.com",
+    "license": "LIC #1087809",
+    "quickLinks": [
+      { "label": "Home", "href": "/" },
+      { "label": "About", "href": "/about" },
+      { "label": "Testimonials", "href": "/testimonials" },
+      { "label": "Finance", "href": "/finance" },
+      { "label": "FAQs", "href": "/faq" }
+    ],
+    "serviceLinks": [
+      { "label": "Home Remodel in Silicon Valley", "href": "/complete-renovation" },
+      { "label": "Kitchen Remodeling in Silicon Valley", "href": "/kitchen-remodeling" },
+      { "label": "Bathroom Remodel in Silicon Valley", "href": "/bathroom-remodeling" },
+      { "label": "ADU in Silicon Valley", "href": "/adu" },
+      { "label": "Garage Conversion in Silicon Valley", "href": "/adu" },
+      { "label": "House Additions in Silicon Valley", "href": "/additions" }
+    ],
+    "copyright": "Copyright © 2026 • Prime Design & Build",
+    "privacyPolicyHref": "/privacy-policy"
+  }
+}

@@ -1,0 +1,44 @@
+import { ArrowUpRight } from 'lucide-react'
+
+import website from '../../../website.json'
+import { Section } from '@/components/ui/Section'
+import { Button } from '../ui/Button'
+
+export function LandscapingServiceAreas() {
+  const { heading, cities, trailingLabel, trailingHref } = website.serviceAreas
+
+  return (
+    <Section className="bg-paper text-ink">
+      <div className="grid gap-10  pt-10 lg:grid-cols-[0.85fr_1.15fr] lg:items-start lg:gap-20">
+        <div>
+          <p className="text-xs font-semibold uppercase tracking-[0.2em] text-brass">{heading}</p>
+          <h2 className="mt-3 max-w-sm font-display text-3xl font-medium leading-tight tracking-tight md:text-4xl">
+            Built across Silicon Valley, one neighborhood at a time.
+          </h2>
+          <Button href={trailingHref} variant="line" className="text-white inline-flex">
+            {trailingLabel}
+            <ArrowUpRight className="h-4 w-4" aria-hidden />
+          </Button>
+          {/* <Link
+            href={trailingHref}
+            className="mt-6 inline-flex items-center gap-2 text-sm font-semibold text-ink/70 transition-colors hover:text-brass-deep"
+          >
+            
+            <ArrowUpRight className="h-4 w-4" aria-hidden />
+          </Link> */}
+        </div>
+
+        <div className="flex flex-wrap gap-3">
+          {cities.map((city) => (
+            <span
+              key={city}
+              className=" border border-line px-4 py-2 text-sm text-ink/75 transition-colors hover:border-brass hover:text-brass-deep"
+            >
+              {city}
+            </span>
+          ))}
+        </div>
+      </div>
+    </Section>
+  )
+}
