@@ -1,34 +1,56 @@
-import { ArrowUpRight, Check } from 'lucide-react'
+import Image from 'next/image'
 
 import website from '../../../website.json'
-import { Button } from '@/components/ui/Button'
 import { Section } from '@/components/ui/Section'
+
+const reviewBadges = [
+  { src: '/social/Google.png', alt: 'Google rating' },
+  { src: '/social/houzz.png', alt: 'Houzz rating' },
+  { src: '/social/Yelp.png', alt: 'Yelp rating' },
+]
 
 export function ExpertsSection() {
   const { experts } = website.about
 
   return (
-    <Section className="bg-paper-2">
-      <div className="grid gap-12 lg:grid-cols-[0.8fr_1.2fr] lg:gap-24">
-        <div>
-          <p className="text-xs font-semibold uppercase tracking-[0.24em] text-brass-deep">{experts.eyebrow}</p>
-          <h2 className="mt-5 max-w-xl font-display text-4xl font-medium leading-tight tracking-tight text-ink-2 md:text-6xl">
-            {experts.heading}
-          </h2>
-        </div>
-        <div>
-          <p className="max-w-2xl text-lg leading-8 text-ink-2/75">{experts.description}</p>
-          <div className="mt-10 grid gap-0 border-y border-line sm:grid-cols-2">
-            {experts.items.map((item) => (
-              <div key={item} className="flex gap-4 border-b border-line py-5 text-ink-2 last:border-b-0 sm:even:border-l sm:even:pl-6">
-                <Check className="mt-1 h-5 w-5 shrink-0 text-brass" aria-hidden />
-                <span className="text-base leading-7">{item}</span>
-              </div>
+    <Section className="bg-white">
+      <div className="flex flex-col items-center text-center">
+        <p className="text-xs font-semibold uppercase tracking-[0.24em] text-brass">{experts.eyebrow}</p>
+        <h2 className="mt-4 max-w-3xl font-display text-4xl font-medium leading-tight tracking-tight text-ink-2 md:text-6xl">
+          {experts.heading}
+        </h2>
+      </div>
+
+      <div className="mt-14 grid grid-cols-1 gap-12 lg:grid-cols-12 lg:gap-16">
+        <div className="flex flex-col justify-center lg:col-span-5">
+          <p className="max-w-xl text-lg leading-8 text-ink-2/75">{experts.description}</p>
+          <div className="mt-10 flex flex-wrap items-center gap-5 border-t border-line pt-8">
+            {reviewBadges.map((badge) => (
+              <Image
+                key={badge.src}
+                src={badge.src}
+                alt={badge.alt}
+                width={112}
+                height={52}
+                className="h-auto w-auto max-w-28 object-contain"
+              />
             ))}
           </div>
-          <Button href={experts.ctaHref} variant="line" className="mt-8 text-ink-2">
-            {experts.ctaLabel} <ArrowUpRight className="h-4 w-4" aria-hidden />
-          </Button>
+        </div>
+
+        <div className="overflow-hidden bg-ink lg:col-span-7">
+          <video
+            className="aspect-video h-full w-full object-cover"
+            controls
+            muted
+            loop
+            playsInline
+            poster={experts.videoPoster}
+            preload="metadata"
+          >
+            <source src={experts.videoUrl} type="video/mp4" />
+            Your browser does not support the video tag.
+          </video>
         </div>
       </div>
     </Section>

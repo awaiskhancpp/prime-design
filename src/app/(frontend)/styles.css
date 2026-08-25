@@ -37,9 +37,6 @@ html {
 }
 
 body {
-  margin: 0;
-  background: var(--color-paper);
-  color: var(--color-ink);
   font-family: var(--font-sans);
   -webkit-font-smoothing: antialiased;
 }
