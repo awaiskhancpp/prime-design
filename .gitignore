@@ -42,6 +42,9 @@ next-env.d.ts
 
 /media
 
+# Large local video assets should be hosted outside the Git repository.
+/public/*.mp4
+
 # Playwright
 node_modules/
 /test-results/
