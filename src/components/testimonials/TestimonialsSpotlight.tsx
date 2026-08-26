@@ -34,7 +34,7 @@ export function TestimonialsSpotlight() {
   ]
 
   return (
-    <Section className="bg-paper">
+    <Section className="bg-white">
       <div className="grid gap-12 lg:grid-cols-[0.9fr_1.1fr] lg:items-center lg:gap-24">
         <div>
           <p className="text-sm font-semibold uppercase tracking-[0.2em] text-brass">
@@ -81,7 +81,7 @@ export function TestimonialsSpotlight() {
             speed={4200}
             spaceBetween={10}
             slidesPerView={1}
-            className="mt-8 h-[290px]"
+            className="mt-8 max-h-[290px]"
           >
             {spotlightReviews.map((review, index) => (
               <SwiperSlide key={index}>

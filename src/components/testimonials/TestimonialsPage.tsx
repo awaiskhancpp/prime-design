@@ -55,7 +55,6 @@ export function TestimonialsPage() {
         </div>
       </Section>
 
-      <TestimonialsSpotlight />
       <TestimonialVideos />
 
       <Section className="bg-white pt-0">
@@ -122,6 +121,7 @@ export function TestimonialsPage() {
           </div>
         </div>
       </Section>
+      <TestimonialsSpotlight />
 
       <LandscapingServiceAreas />
       <LandscapingCta />
