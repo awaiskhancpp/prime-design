@@ -1,0 +1,20 @@
+import Image from 'next/image'
+import Link from 'next/link'
+import { HomeContact } from '@/components/blocks/HomeContact'
+import { LandscapingCta } from '@/components/blocks/LandscapingCta'
+import { LandscapingServiceAreas } from '@/components/blocks/LandscapingServiceAreas'
+import { ProjectsReviews } from '@/components/projects/ProjectsReviews'
+import { SiteFooter } from '@/components/layout/SiteFooter'
+import { SiteHeader } from '@/components/layout/SiteHeader'
+import { Section } from '@/components/ui/Section'
+import type { ServiceDetail } from '@/lib/services'
+
+export function ServiceDetailPage({ service }: { service: ServiceDetail }) {
+  return <div className="min-h-screen bg-white"><SiteHeader tone="light" /><main className="pt-20 md:pt-28">
+    <section className="relative overflow-hidden bg-paper"><div className="mx-auto grid max-w-7xl gap-8 px-5 py-10 sm:px-8 md:grid-cols-[0.9fr_1.1fr] md:items-center md:py-16 lg:px-12"><div><p className="text-xs font-semibold uppercase tracking-[0.2em] text-brass-deep">{service.eyebrow}</p><h1 className="mt-4 max-w-2xl font-display text-4xl font-medium leading-tight tracking-tight text-ink md:text-6xl">{service.title}</h1><p className="mt-5 max-w-xl text-base leading-7 text-ink-2/75">{service.lead}</p><div className="mt-7 flex flex-wrap gap-3"><Link href="/contact" className="bg-ink px-5 py-3 text-sm font-semibold text-white hover:bg-ink-2">Start your renovation</Link><Link href="/our-projects" className="bg-brass px-5 py-3 text-sm font-semibold text-white hover:bg-brass-deep">Explore our portfolio</Link></div></div><div className="relative aspect-[4/3] overflow-hidden"><Image src={service.image} alt={service.title} fill priority className="object-cover" sizes="(min-width: 768px) 60vw, 100vw" /></div></div></section>
+    <Section><div className="grid gap-10 lg:grid-cols-[0.85fr_1.15fr] lg:gap-16"><div><h2 className="font-display text-3xl font-semibold text-ink">{service.introHeading || `${service.title} — expanding your living space`}</h2><div className="mt-3 h-px w-20 bg-brass" /></div><div className="grid gap-9"><div><h3 className="font-display text-xl font-semibold text-ink">Key Features:</h3><ul className="mt-4 grid gap-3 text-sm leading-6 text-ink-2/75">{service.keyFeatures.map((item) => <li key={item} className="flex gap-3"><span className="text-brass">•</span>{item}</li>)}</ul></div><div><h3 className="font-display text-xl font-semibold text-ink">Benefits of {service.title}:</h3><ul className="mt-4 grid gap-3 text-sm leading-6 text-ink-2/75">{service.benefits.map((item) => <li key={item} className="flex gap-3"><span className="text-brass">•</span>{item}</li>)}</ul></div><div><h3 className="font-display text-xl font-semibold text-ink">Our Process:</h3><ol className="mt-4 grid gap-3 text-sm leading-6 text-ink-2/75">{service.process.map((item, index) => <li key={item} className="flex gap-3"><span className="font-semibold text-brass">{index + 1}.</span>{item}</li>)}</ol></div></div></div></Section>
+    <Section className="bg-paper"><div className="grid gap-5 md:grid-cols-2">{service.gallery.map((image, index) => <div key={`${image}-${index}`} className="relative aspect-[4/3] overflow-hidden bg-paper-2"><Image src={image} alt={`${service.title} project example ${index + 1}`} fill className="object-cover" sizes="(min-width: 768px) 50vw, 100vw" /></div>)}</div></Section>
+    <section className="bg-brass"><div className="mx-auto flex max-w-7xl flex-wrap items-center justify-between gap-5 px-5 py-9 sm:px-8 lg:px-12"><div><h2 className="font-display text-3xl font-semibold text-white">Ready to schedule your free estimate?</h2><p className="mt-2 text-sm text-white/85">Contact us here or reach us at <a href="tel:6502354863" className="underline">(650) 235-4863</a> →</p></div><Link href="/contact" className="bg-white px-5 py-3 text-sm font-semibold text-ink hover:bg-paper">Get started</Link></div></section>
+    <ProjectsReviews /><HomeContact />
+  </main><LandscapingServiceAreas /><LandscapingCta /><SiteFooter /></div>
+}

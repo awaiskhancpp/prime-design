@@ -12,9 +12,10 @@ src/lib/projects.ts ────────┤
 src/lib/gallery.ts ─────────┘
                               └─ gallery categories and image grids
 src/lib/testimonials.ts ─────── testimonials page and review summaries
+src/lib/blog.ts ─────────────── blog index and detail routes
 ```
 
-The current frontend is intentionally working from local data while the page designs are being finalized. `website.json`, `src/lib/projects.ts`, `src/lib/gallery.ts`, and `src/lib/testimonials.ts` are the temporary content sources.
+The current frontend is intentionally working from local data while the page designs are being finalized. `website.json`, `src/lib/projects.ts`, `src/lib/gallery.ts`, `src/lib/testimonials.ts`, and `src/lib/blog.ts` are the temporary content sources. The frontend still uses local service data by design; the Payload collections provide the normalized CMS shape for the later data migration.
 
 ## Planned Payload collections
 
@@ -61,6 +62,28 @@ Flow: project pages can show related testimonials; projects index and About can 
 Fields: `title`, `slug`, `description`, `image`, `icon`, `featured`, `sortOrder`.
 
 Flow: shared service cards and project metadata use one service record instead of repeating labels.
+
+### Locations
+
+Fields: `name`, `slug`, `seoDescription`, `featuredImage`, and reusable SEO fields.
+
+Flow: one city record can be related to many service/location pages.
+
+### Service Locations
+
+Fields: `title`, `slug`, `service`, `location`, legacy `city`, optional `featuredImage`, optional hero/intro overrides, rich-text content, and SEO fields.
+
+Flow: `/[serviceSlug]/[locationSlug]` resolves the relationship and renders the existing shared `ServiceDetailPage`. It does not duplicate the service layout or create one schema per city.
+
+### Blog Posts
+
+Now exists as the `blog-posts` collection. It models the current blog listing and detail page fields: title, slug, excerpt, categories, author, published date, hero image, intro, and ordered article sections.
+
+## Repository audit
+
+Currently registered in Payload: `users`, `media`, `landscaping-pages`, `blog-posts`, `faqs`, `services`, `locations`, and `service-locations`.
+
+Still needed for the planned migration: `projects`, `gallery-categories`, and `testimonials`. The FAQ page now uses the hardcoded source extracted from the supplied FAQ markup; its `faqs` collection is ready for a later data migration. The site-wide settings currently living in `website.json` are better represented as globals: Site Settings, Navigation, Footer Settings, Review Settings, and Service Areas.
 
 ## Planned Payload globals
 
@@ -112,3 +135,7 @@ Payload Admin
 5. Create Site Settings, Navigation, Footer Settings, and Service Areas globals.
 6. Replace local imports with server-side Payload queries.
 7. Keep the component APIs unchanged so the visual layer does not need to be rewritten.
+
+## WordPress service/location transform
+
+`scripts/transform-wordpress-service-locations.ts` reads the WXR export and emits normalized records for the three WordPress parent service IDs (327, 337, and 335). It extracts the page ID, title, slug, parent service, `city`, thumbnail ID, and Rank Math description. It found 45 records and 15 cities in the supplied export. The script is intentionally a dry transformation step; media upload and Payload API import can run after the destination media records are available.

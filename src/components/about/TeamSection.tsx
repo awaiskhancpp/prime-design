@@ -113,11 +113,20 @@ const team: TeamMember[] = [
   },
 ]
 
-function Portrait({ member, large = false }: { member: TeamMember; large?: boolean }) {
+function Portrait({
+  member,
+  variant = 'grid',
+}: {
+  member: TeamMember
+  variant?: 'grid' | 'modal'
+}) {
+  const aspectClasses =
+    variant === 'modal' ? 'aspect-[4/3] md:aspect-auto md:h-full md:min-h-[26rem]' : 'aspect-[4/5]'
+
   return (
-    <div className={`relative overflow-hidden bg-ink-2 ${large ? 'aspect-[4/3]' : 'aspect-[4/5]'}`}>
+    <div className={`relative overflow-hidden bg-ink-2 ${aspectClasses}`}>
       {member.image ? (
-        <Image src={member.image} alt={member.image} fill className="object-cover" />
+        <Image src={member.image} alt={member.image} fill className="object-cover object-top" />
       ) : (
         <div className="flex h-full items-center justify-center bg-[radial-gradient(circle_at_50%_20%,#c19a5b_0%,#1f3358_46%,#14213d_100%)]">
           <span className="font-display text-7xl font-medium text-white/85">{member.initials}</span>
@@ -193,7 +202,7 @@ export function TeamSection() {
             >
               ×
             </button>
-            <Portrait member={selectedMember} large />
+            <Portrait member={selectedMember} variant="modal" />
             <div className="flex flex-col justify-center p-8 md:p-12">
               <p className="text-xs font-semibold uppercase tracking-[0.2em] text-brass-deep">
                 Prime Design & Build
@@ -206,14 +215,6 @@ export function TeamSection() {
               </h2>
               <p className="mt-4 text-xl text-ink-2/75">{selectedMember.role}</p>
               <p className="mt-7 text-base leading-8 text-ink-2/75">{selectedMember.description}</p>
-              <Button
-                type="button"
-                variant="line"
-                className="mt-8 w-fit text-ink-2"
-                onClick={() => setSelectedMember(null)}
-              >
-                Close details
-              </Button>
             </div>
           </div>
         </div>

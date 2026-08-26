@@ -70,6 +70,11 @@ export interface Config {
     users: User;
     media: Media;
     'landscaping-pages': LandscapingPage;
+    'blog-posts': BlogPost;
+    faqs: Faq;
+    services: Service;
+    locations: Location;
+    'service-locations': ServiceLocation;
     'payload-kv': PayloadKv;
     'payload-locked-documents': PayloadLockedDocument;
     'payload-preferences': PayloadPreference;
@@ -80,6 +85,11 @@ export interface Config {
     users: UsersSelect<false> | UsersSelect<true>;
     media: MediaSelect<false> | MediaSelect<true>;
     'landscaping-pages': LandscapingPagesSelect<false> | LandscapingPagesSelect<true>;
+    'blog-posts': BlogPostsSelect<false> | BlogPostsSelect<true>;
+    faqs: FaqsSelect<false> | FaqsSelect<true>;
+    services: ServicesSelect<false> | ServicesSelect<true>;
+    locations: LocationsSelect<false> | LocationsSelect<true>;
+    'service-locations': ServiceLocationsSelect<false> | ServiceLocationsSelect<true>;
     'payload-kv': PayloadKvSelect<false> | PayloadKvSelect<true>;
     'payload-locked-documents': PayloadLockedDocumentsSelect<false> | PayloadLockedDocumentsSelect<true>;
     'payload-preferences': PayloadPreferencesSelect<false> | PayloadPreferencesSelect<true>;
@@ -203,6 +213,170 @@ export interface LandscapingPage {
   createdAt: string;
 }
 /**
+ * Long-form articles used by the blog listing and detail pages.
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "blog-posts".
+ */
+export interface BlogPost {
+  id: number;
+  title: string;
+  slug: string;
+  excerpt: string;
+  categories?:
+    | {
+        label: string;
+        id?: string | null;
+      }[]
+    | null;
+  author: string;
+  publishedAt: string;
+  heroImage: number | Media;
+  intro?: string | null;
+  sections?:
+    | {
+        eyebrow?: string | null;
+        heading: string;
+        body: string;
+        image?: (number | null) | Media;
+        imageAlt?: string | null;
+        imagePosition?: ('left' | 'right' | 'center') | null;
+        id?: string | null;
+      }[]
+    | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * Frequently asked questions grouped by remodeling service.
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "faqs".
+ */
+export interface Faq {
+  id: number;
+  question: string;
+  answer: string;
+  category: string;
+  sortOrder?: number | null;
+  visible?: boolean | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * Reusable remodeling and construction services shared by service and location pages.
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "services".
+ */
+export interface Service {
+  id: number;
+  title: string;
+  slug: string;
+  shortDescription?: string | null;
+  description?: string | null;
+  heroImage?: (number | null) | Media;
+  featured?: boolean | null;
+  sortOrder?: number | null;
+  benefits?:
+    | {
+        text: string;
+        id?: string | null;
+      }[]
+    | null;
+  process?:
+    | {
+        title?: string | null;
+        description: string;
+        id?: string | null;
+      }[]
+    | null;
+  faqs?: (number | Faq)[] | null;
+  relatedServices?: (number | Service)[] | null;
+  seo?: {
+    metaTitle?: string | null;
+    metaDescription?: string | null;
+    canonicalUrl?: string | null;
+    noIndex?: boolean | null;
+    ogTitle?: string | null;
+    ogDescription?: string | null;
+    ogImage?: (number | null) | Media;
+  };
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * Reusable Silicon Valley service-area locations.
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "locations".
+ */
+export interface Location {
+  id: number;
+  name: string;
+  slug: string;
+  seoDescription?: string | null;
+  featuredImage?: (number | null) | Media;
+  seo?: {
+    metaTitle?: string | null;
+    metaDescription?: string | null;
+    canonicalUrl?: string | null;
+    noIndex?: boolean | null;
+    ogTitle?: string | null;
+    ogDescription?: string | null;
+    ogImage?: (number | null) | Media;
+  };
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * The small service + location record. Shared page layout comes from the frontend template.
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "service-locations".
+ */
+export interface ServiceLocation {
+  id: number;
+  title: string;
+  slug: string;
+  service: number | Service;
+  location: number | Location;
+  /**
+   * Legacy WordPress city value; retained for import compatibility.
+   */
+  city?: string | null;
+  featuredImage?: (number | null) | Media;
+  heroHeading?: string | null;
+  heroDescription?: string | null;
+  intro?: string | null;
+  content?: {
+    root: {
+      type: string;
+      children: {
+        type: any;
+        version: number;
+        [k: string]: unknown;
+      }[];
+      direction: ('ltr' | 'rtl') | null;
+      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+      indent: number;
+      version: number;
+    };
+    [k: string]: unknown;
+  } | null;
+  seo?: {
+    metaTitle?: string | null;
+    metaDescription?: string | null;
+    canonicalUrl?: string | null;
+    noIndex?: boolean | null;
+    ogTitle?: string | null;
+    ogDescription?: string | null;
+    ogImage?: (number | null) | Media;
+  };
+  updatedAt: string;
+  createdAt: string;
+}
+/**
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "payload-kv".
  */
@@ -237,6 +411,26 @@ export interface PayloadLockedDocument {
     | ({
         relationTo: 'landscaping-pages';
         value: number | LandscapingPage;
+      } | null)
+    | ({
+        relationTo: 'blog-posts';
+        value: number | BlogPost;
+      } | null)
+    | ({
+        relationTo: 'faqs';
+        value: number | Faq;
+      } | null)
+    | ({
+        relationTo: 'services';
+        value: number | Service;
+      } | null)
+    | ({
+        relationTo: 'locations';
+        value: number | Location;
+      } | null)
+    | ({
+        relationTo: 'service-locations';
+        value: number | ServiceLocation;
       } | null);
   globalSlug?: string | null;
   user: {
@@ -356,6 +550,144 @@ export interface LandscapingPagesSelect<T extends boolean = true> {
     | {
         city?: T;
         id?: T;
+      };
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "blog-posts_select".
+ */
+export interface BlogPostsSelect<T extends boolean = true> {
+  title?: T;
+  slug?: T;
+  excerpt?: T;
+  categories?:
+    | T
+    | {
+        label?: T;
+        id?: T;
+      };
+  author?: T;
+  publishedAt?: T;
+  heroImage?: T;
+  intro?: T;
+  sections?:
+    | T
+    | {
+        eyebrow?: T;
+        heading?: T;
+        body?: T;
+        image?: T;
+        imageAlt?: T;
+        imagePosition?: T;
+        id?: T;
+      };
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "faqs_select".
+ */
+export interface FaqsSelect<T extends boolean = true> {
+  question?: T;
+  answer?: T;
+  category?: T;
+  sortOrder?: T;
+  visible?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "services_select".
+ */
+export interface ServicesSelect<T extends boolean = true> {
+  title?: T;
+  slug?: T;
+  shortDescription?: T;
+  description?: T;
+  heroImage?: T;
+  featured?: T;
+  sortOrder?: T;
+  benefits?:
+    | T
+    | {
+        text?: T;
+        id?: T;
+      };
+  process?:
+    | T
+    | {
+        title?: T;
+        description?: T;
+        id?: T;
+      };
+  faqs?: T;
+  relatedServices?: T;
+  seo?:
+    | T
+    | {
+        metaTitle?: T;
+        metaDescription?: T;
+        canonicalUrl?: T;
+        noIndex?: T;
+        ogTitle?: T;
+        ogDescription?: T;
+        ogImage?: T;
+      };
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "locations_select".
+ */
+export interface LocationsSelect<T extends boolean = true> {
+  name?: T;
+  slug?: T;
+  seoDescription?: T;
+  featuredImage?: T;
+  seo?:
+    | T
+    | {
+        metaTitle?: T;
+        metaDescription?: T;
+        canonicalUrl?: T;
+        noIndex?: T;
+        ogTitle?: T;
+        ogDescription?: T;
+        ogImage?: T;
+      };
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "service-locations_select".
+ */
+export interface ServiceLocationsSelect<T extends boolean = true> {
+  title?: T;
+  slug?: T;
+  service?: T;
+  location?: T;
+  city?: T;
+  featuredImage?: T;
+  heroHeading?: T;
+  heroDescription?: T;
+  intro?: T;
+  content?: T;
+  seo?:
+    | T
+    | {
+        metaTitle?: T;
+        metaDescription?: T;
+        canonicalUrl?: T;
+        noIndex?: T;
+        ogTitle?: T;
+        ogDescription?: T;
+        ogImage?: T;
       };
   updatedAt?: T;
   createdAt?: T;
