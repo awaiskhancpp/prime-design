@@ -19,7 +19,7 @@ export function HomeServices() {
   const swiperRef = useRef<SwiperType | null>(null)
 
   return (
-    <Section className="bg-paper">
+    <Section className="">
       <div className="flex items-end justify-between gap-6">
         <SectionHeader eyebrow="What we do" title="Our services" />
         <div className="hidden shrink-0 items-center gap-3 sm:flex">
@@ -35,7 +35,7 @@ export function HomeServices() {
             type="button"
             aria-label="Next services"
             onClick={() => swiperRef.current?.slideNext()}
-            className="flex h-10 w-10 rounded-full[] items-center justify-center border border-line text-ink-2 transition-colors hover:border-brass hover:text-brass-deep"
+            className="flex h-10 w-10 rounded-full items-center justify-center border border-line text-ink-2 transition-colors hover:border-brass hover:text-brass-deep"
           >
             <ChevronRight className="h-4 w-4" aria-hidden />
           </button>

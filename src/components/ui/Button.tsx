@@ -61,7 +61,9 @@ function LineButton({
   )
   const content = (
     <>
-      <span className="relative z-10 inline-flex items-center gap-2 whitespace-nowrap">{children}</span>
+      <span className="relative z-10 inline-flex items-center gap-2 whitespace-nowrap">
+        {children}
+      </span>
       <span className="absolute inset-x-0 bottom-0 h-px overflow-hidden" aria-hidden="true">
         <span className="absolute inset-0 -translate-x-full bg-current transition-transform duration-300 ease-out group-hover:translate-x-0" />
       </span>

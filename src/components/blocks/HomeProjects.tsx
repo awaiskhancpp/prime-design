@@ -22,7 +22,7 @@ export function HomeProjects() {
   const { latestProjects } = website
 
   return (
-    <Section className="bg-paper">
+    <Section className="bg-white">
       <SectionHeader align="center" eyebrow="Recent work" title="Our latest remodeling projects" />
 
       <div className="mt-10 grid grid-cols-1 gap-1 overflow-hidden  sm:grid-cols-2 lg:grid-cols-3">

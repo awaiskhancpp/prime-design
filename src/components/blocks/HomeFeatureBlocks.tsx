@@ -14,7 +14,7 @@ export function HomeFeatureBlocks() {
         const reversed = index % 2 === 1
 
         return (
-          <Section key={block.title} className={'bg-paper'}>
+          <Section key={block.title} className={'bg-white'}>
             <div className="grid items-center gap-10 lg:grid-cols-2 lg:gap-16">
               <div className={cn(reversed && 'lg:order-2')}>
                 <h2 className="font-display text-3xl font-medium leading-tight text-ink-2 md:text-4xl">

@@ -1,3 +1,5 @@
+import { ChevronDown, ChevronRight } from 'lucide-react'
+
 import website from '../../../website.json'
 import { Button } from '@/components/ui/Button'
 import { Container } from '@/components/ui/Container'
@@ -37,21 +39,40 @@ export function SiteHeader({ tone = 'dark' }: { tone?: 'dark' | 'light' }) {
 
             return (
               <div key={item.label} className="group relative">
-                <Button href={item.href === '#' ? undefined : item.href} variant="line" className={linkClassName}>
+                <Button
+                  href={item.href === '#' ? undefined : item.href}
+                  variant="line"
+                  className={linkClassName}
+                >
                   {item.label}
-                  <span aria-hidden="true" className="text-base leading-none">⌄</span>
+                  {/* Clean SVG chevron replacement with automatic smooth rotation on hover */}
+                  <ChevronDown
+                    className="h-3.5 w-3.5 transition-transform duration-200 group-hover:rotate-180"
+                    aria-hidden
+                  />
                 </Button>
-                <div className="invisible absolute left-0 top-full z-30 min-w-56 translate-y-2 border border-line bg-white py-2 opacity-0 shadow-lg transition duration-200 group-hover:visible group-hover:translate-y-0 group-hover:opacity-100 group-focus-within:visible group-focus-within:translate-y-0 group-focus-within:opacity-100">
+
+                {/* Dropdown Menu - Centered using left-1/2 -translate-x-1/2 */}
+                <div className="invisible absolute left-1/2 top-full z-30 min-w-56 -translate-x-1/2 translate-y-2 border border-line bg-white py-2 opacity-0 shadow-lg transition-all duration-200 group-hover:visible group-hover:translate-y-0 group-hover:opacity-100 group-focus-within:visible group-focus-within:translate-y-0 group-focus-within:opacity-100">
                   {item.children.map((child) => (
                     <div key={child.label} className="group/sub relative">
-                      <a href={child.href} className="flex items-center justify-between gap-5 px-5 py-2 text-sm font-medium normal-case tracking-normal text-ink-2 transition-colors hover:bg-paper-2 hover:text-brass">
+                      <a
+                        href={child.href}
+                        className="flex items-center justify-between gap-5 px-5 py-2 text-sm font-medium normal-case tracking-normal text-ink-2 transition-colors hover:bg-paper-2 hover:text-brass"
+                      >
                         {child.label}
-                        {child.children?.length ? <span aria-hidden="true" className="text-base leading-none">›</span> : null}
+                        {child.children?.length ? (
+                          <ChevronRight className="h-4 w-4 text-ink-2/60" aria-hidden />
+                        ) : null}
                       </a>
                       {child.children?.length ? (
                         <div className="invisible absolute left-full top-0 z-30 min-w-56 border border-line bg-white py-2 opacity-0 shadow-lg transition duration-200 group-hover/sub:visible group-hover/sub:opacity-100">
                           {child.children.map((nested) => (
-                            <a key={nested.label} href={nested.href} className="block px-5 py-2 text-sm font-medium normal-case tracking-normal text-ink-2 transition-colors hover:bg-paper-2 hover:text-brass">
+                            <a
+                              key={nested.label}
+                              href={nested.href}
+                              className="block px-5 py-2 text-sm font-medium normal-case tracking-normal text-ink-2 transition-colors hover:bg-paper-2 hover:text-brass"
+                            >
                               {nested.label}
                             </a>
                           ))}

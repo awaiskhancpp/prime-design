@@ -10,7 +10,7 @@ import { HomeProjects } from './blocks/HomeProjects'
 
 export function LandscapingPage() {
   return (
-    <div className="min-h-screen ">
+    <div className="min-h-screen bg-white">
       <LandscapingHero />
       <LandscapingIntro />
       <HomeProjects />

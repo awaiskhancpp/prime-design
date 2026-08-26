@@ -19,8 +19,8 @@ const contactDetails = [
 
 export function HomeContact() {
   return (
-    <Section id="contact" className="bg-paper">
-      <div className="grid gap-12  border border-line bg-paper p-8 md:p-12 lg:grid-cols-[0.85fr_1.15fr] lg:gap-20">
+    <Section id="contact" className="bg-white">
+      <div className="grid gap-12  border border-line  p-8 md:p-12 lg:grid-cols-[0.85fr_1.15fr] lg:gap-20">
         <div>
           <SectionHeader
             eyebrow="Contact"

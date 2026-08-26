@@ -6,7 +6,7 @@ import { ArrowRight, CalendarDays } from 'lucide-react'
 
 export function LandscapingHero() {
   return (
-    <section className="relative isolate flex min-h-screen items-end overflow-hidden bg-ink pb-16 pt-36 text-white lg:pb-24">
+    <section className="relative isolate flex min-h-screen items-end overflow-hidden bg-ink pb-16 pt-36 text-white  lg:pb-24">
       <video
         className="absolute inset-0 z-0 h-full w-full object-cover"
         autoPlay

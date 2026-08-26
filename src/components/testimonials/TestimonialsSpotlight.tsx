@@ -81,10 +81,10 @@ export function TestimonialsSpotlight() {
             speed={4200}
             spaceBetween={10}
             slidesPerView={1}
-            className="mt-8 h-[190px]"
+            className="mt-8 h-[290px]"
           >
-            {spotlightReviews.map((review) => (
-              <SwiperSlide key={review.author}>
+            {spotlightReviews.map((review, index) => (
+              <SwiperSlide key={index}>
                 <article className="flex h-full min-h-0 flex-col overflow-hidden border border-line bg-paper p-4">
                   <p className="line-clamp-3 break-words text-base leading-6 text-ink-2/80">
                     &ldquo;{review.summary}&rdquo;
