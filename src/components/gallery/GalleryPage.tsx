@@ -4,7 +4,7 @@ import { SiteFooter } from '@/components/layout/SiteFooter'
 import { SiteHeader } from '@/components/layout/SiteHeader'
 import { Section } from '@/components/ui/Section'
 import { galleryCategories } from '@/lib/gallery'
-import { GallerySection } from './GallerySection'
+import { GalleryTabs } from './GalleryTab'
 import { Contact } from './Contact'
 import { WhyChooseUs } from './WhyChooseUs'
 
@@ -25,9 +25,7 @@ export function GalleryPage() {
       </Section>
 
       <main>
-        {galleryCategories.map((category) => (
-          <GallerySection key={category.slug} category={category} />
-        ))}
+        <GalleryTabs categories={galleryCategories} />
       </main>
       <WhyChooseUs />
       <Contact />

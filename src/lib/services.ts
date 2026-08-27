@@ -13,7 +13,29 @@ export type ServiceDetail = Service & {
   process: string[]
   gallery: string[]
   introHeading?: string
+  contentBlocks?: ServiceContentBlock[]
+  seo?: {
+    metaTitle?: string | null
+    metaDescription?: string | null
+    canonicalUrl?: string | null
+    noIndex?: boolean | null
+    ogTitle?: string | null
+    ogDescription?: string | null
+  }
 }
+
+export type ServiceContentItem = { text: string }
+export type ServiceContentStep = { title: string; description: string; image?: string }
+export type ServiceContentBlock =
+  | { blockType: 'intro'; eyebrow?: string; heading: string; body: string; image?: string; imageSide?: 'left' | 'right' }
+  | { blockType: 'image-text'; eyebrow?: string; heading: string; body: string; image?: string; imageSide?: 'left' | 'right' }
+  | { blockType: 'feature-list'; heading: string; items: ServiceContentItem[] }
+  | { blockType: 'benefits'; heading: string; items: ServiceContentItem[] }
+  | { blockType: 'process'; heading: string; steps: ServiceContentStep[] }
+  | { blockType: 'gallery'; heading?: string; images: string[] }
+  | { blockType: 'sub-services'; heading: string; items: Array<{ title: string; description: string; image?: string; link?: string }> }
+  | { blockType: 'video'; heading?: string; videoUrl: string; poster?: string }
+  | { blockType: 'quote'; quote: string; attribution?: string }
 
 const kitchen = '/services/kitchen-remodeling.jpeg'
 const home = '/services/home-remodeling.jpeg'
@@ -30,6 +52,7 @@ export const services: Service[] = [
   { slug: 'custom-kitchens', title: 'Custom Kitchens', description: 'Unleash your creativity with a custom kitchen designed around your preferences and everyday routines.', image: kitchen },
   { slug: 'bathroom-remodeling', title: 'Bathroom Remodeling', description: 'Refresh and reimagine your bathroom with carefully selected fixtures, finishes, and layouts.', image: bathroom },
   { slug: 'home-remodeling', title: 'Home Remodeling', description: 'Transform your home from top to bottom with thoughtful planning and expert construction.', image: home },
+  { slug: 'home-repair-installation-services', title: 'Home Repair Services', description: 'Keep your home comfortable, functional, and beautiful with dependable repair and installation services from Prime Design & Build.', image: home },
   { slug: 'financing', title: 'Financing', description: 'Explore flexible financing options to help bring your remodeling vision to life within your budget.', image: home },
 ]
 
@@ -116,3 +139,63 @@ export function getServiceDetail(slug: string): ServiceDetail | undefined {
     ...defaultDetailCopy,
   }
 }
+
+type PayloadMedia = { url?: string | null }
+type PayloadServiceRecord = {
+  title: string
+  slug: string
+  description?: string | null
+  shortDescription?: string | null
+  hero?: { eyebrow?: string | null; heading?: string | null; lead?: string | null; image?: number | PayloadMedia | null } | null
+  contentBlocks?: Array<Record<string, unknown>> | null
+  seo?: ServiceDetail['seo']
+}
+
+const payloadImageUrl = (value: unknown) => typeof value === 'object' && value !== null && 'url' in value && typeof value.url === 'string' ? value.url : undefined
+
+function normalizePayloadBlocks(value: PayloadServiceRecord['contentBlocks']): ServiceContentBlock[] | undefined {
+  if (!value?.length) return undefined
+  return value.flatMap((block): ServiceContentBlock[] => {
+    const blockType = block.blockType
+    if (blockType === 'intro' || blockType === 'image-text') return [{ blockType, eyebrow: typeof block.eyebrow === 'string' ? block.eyebrow : undefined, heading: String(block.heading || ''), body: String(block.body || ''), image: payloadImageUrl(block.image), imageSide: block.imageSide === 'left' ? 'left' : 'right' }] as ServiceContentBlock[]
+    if (blockType === 'feature-list' || blockType === 'benefits') return [{ blockType, heading: String(block.heading || ''), items: Array.isArray(block.items) ? block.items.map((item) => ({ text: String((item as Record<string, unknown>).text || '') })) : [] }] as ServiceContentBlock[]
+    if (blockType === 'process') return [{ blockType, heading: String(block.heading || ''), steps: Array.isArray(block.steps) ? block.steps.map((step) => { const item = step as Record<string, unknown>; return { title: String(item.title || ''), description: String(item.description || ''), image: payloadImageUrl(item.image) } }) : [] }] as ServiceContentBlock[]
+    if (blockType === 'gallery') return [{ blockType, heading: typeof block.heading === 'string' ? block.heading : undefined, images: Array.isArray(block.images) ? block.images.map(payloadImageUrl).filter((image): image is string => Boolean(image)) : [] }] as ServiceContentBlock[]
+    if (blockType === 'sub-services') return [{ blockType, heading: String(block.heading || ''), items: Array.isArray(block.items) ? block.items.map((item) => { const entry = item as Record<string, unknown>; return { title: String(entry.title || ''), description: String(entry.description || ''), image: payloadImageUrl(entry.image), link: typeof entry.link === 'string' ? entry.link : undefined } }) : [] }] as ServiceContentBlock[]
+    if (blockType === 'video') return [{ blockType, heading: typeof block.heading === 'string' ? block.heading : undefined, videoUrl: String(block.videoUrl || ''), poster: payloadImageUrl(block.poster) }] as ServiceContentBlock[]
+    if (blockType === 'quote') return [{ blockType, quote: String(block.quote || ''), attribution: typeof block.attribution === 'string' ? block.attribution : undefined }] as ServiceContentBlock[]
+    return []
+  }) as unknown as ServiceContentBlock[]
+}
+
+export async function resolveServiceDetail(slug: string): Promise<ServiceDetail | undefined> {
+  const fallback = getServiceDetail(slug)
+  if (!process.env.DATABASE_URL) return fallback
+  const payload = await getPayload({ config: configPromise })
+  const result = await payload.find({ collection: 'services', where: { slug: { equals: slug } }, depth: 2, limit: 1 })
+  const record = result.docs[0] as unknown as PayloadServiceRecord | undefined
+  if (!record) return fallback
+  const base = fallback || {
+    slug: record.slug,
+    title: record.title,
+    description: record.description || record.shortDescription || '',
+    image: '/services/home-remodeling.jpeg',
+    eyebrow: record.hero?.eyebrow || record.title,
+    lead: record.hero?.lead || record.description || record.shortDescription || '',
+    keyFeatures: [],
+    benefits: [],
+    process: [],
+    gallery: [],
+  }
+  return {
+    ...base,
+    title: record.hero?.heading || record.title,
+    description: record.description || base.description,
+    lead: record.hero?.lead || base.lead,
+    eyebrow: record.hero?.eyebrow || base.eyebrow,
+    image: payloadImageUrl(record.hero?.image) || base.image,
+    contentBlocks: normalizePayloadBlocks(record.contentBlocks),
+  }
+}
+import { getPayload } from 'payload'
+import configPromise from '@payload-config'

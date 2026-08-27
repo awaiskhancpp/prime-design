@@ -5,7 +5,7 @@ const { Client } = createRequire(import.meta.url)('../node_modules/.pnpm/pg@8.20
 
 const client = new Client({ connectionString: process.env.DATABASE_URL })
 await client.connect()
-for (const table of ['services', 'locations', 'service_locations', 'media']) {
+for (const table of ['services', 'locations', 'service_locations', 'media', 'services_rels']) {
   const result = await client.query(`select column_name, data_type from information_schema.columns where table_name = '${table}' order by ordinal_position`)
   console.log(table, JSON.stringify(result.rows))
 }

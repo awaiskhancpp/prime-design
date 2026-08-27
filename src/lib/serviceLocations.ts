@@ -97,7 +97,7 @@ export async function getServiceLocation(serviceSlug: string, locationSlugValue:
         title: doc.heroHeading || serviceDetail.title,
         eyebrow: doc.heroHeading || serviceDetail.eyebrow,
         lead: doc.heroDescription || doc.intro || serviceDetail.lead,
-        image: mediaUrl(doc.featuredImage) || mediaUrl(relatedLocation.featuredImage) || mediaUrl(relatedService.heroImage) || serviceDetail.image,
+        image: mediaUrl(doc.featuredImage) || mediaUrl(relatedLocation.featuredImage) || mediaUrl(relatedService.hero?.image) || serviceDetail.image,
       },
     }
   }

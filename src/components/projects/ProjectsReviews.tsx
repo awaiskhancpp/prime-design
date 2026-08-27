@@ -2,7 +2,7 @@
 
 import Image from 'next/image'
 import { Star } from 'lucide-react'
-import { useRef } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import type { Swiper as SwiperType } from 'swiper'
 import { Autoplay } from 'swiper/modules'
 import { Swiper, SwiperSlide } from 'swiper/react'
@@ -38,6 +38,12 @@ export function ProjectsReviews() {
   const { testimonialsFeatured, reviewSummary } = website
   const totalReviews = reviewSummary.google.count + reviewSummary.yelp.count
   const swiperRef = useRef<SwiperType | null>(null)
+  const [mounted, setMounted] = useState(false)
+
+  useEffect(() => {
+    const timer = window.setTimeout(() => setMounted(true), 0)
+    return () => window.clearTimeout(timer)
+  }, [])
 
   return (
     <Section className="bg-white pt-0">
@@ -84,66 +90,70 @@ export function ProjectsReviews() {
           {/* Vertical ticker: 3 cards visible at once. Autoplay drives the
               scroll — the top card exits upward and the next one slides in
               to take its place, on a loop. */}
-          <Swiper
-            modules={[Autoplay]}
-            direction="vertical"
-            loop
-            onBeforeInit={(swiper) => {
-              swiperRef.current = swiper
-            }}
-            autoplay={{ delay: 1800, disableOnInteraction: false, pauseOnMouseEnter: true }}
-            speed={700}
-            spaceBetween={16}
-            slidesPerView={3}
-            className="mt-10 h-[400px]"
-          >
-            {testimonialsFeatured.map((testimonial) => (
-              <SwiperSlide key={testimonial.author}>
-                <div className="flex h-full flex-col justify-center gap-2 border border-line bg-paper px-5 py-3">
-                  <div className="flex items-center gap-3">
-                    <div
-                      aria-hidden="true"
-                      className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-paper-2 font-display text-xs text-ink-2"
-                    >
-                      {initials(testimonial.author)}
-                    </div>
-                    <div>
-                      <p className="text-sm font-semibold text-ink-2">
-                        {testimonial.author}
-                        {testimonial.timeAgo && (
-                          <span className="ml-1.5 text-xs font-normal text-ink-2/50">
-                            {testimonial.timeAgo}
+          {mounted ? (
+            <Swiper
+              modules={[Autoplay]}
+              direction="vertical"
+              loop
+              onBeforeInit={(swiper) => {
+                swiperRef.current = swiper
+              }}
+              autoplay={{ delay: 1800, disableOnInteraction: false, pauseOnMouseEnter: true }}
+              speed={700}
+              spaceBetween={16}
+              slidesPerView={3}
+              className="mt-10 h-[400px]"
+            >
+              {testimonialsFeatured.map((testimonial) => (
+                <SwiperSlide key={testimonial.author}>
+                  <div className="flex h-full flex-col justify-center gap-2 border border-line bg-paper px-5 py-3">
+                    <div className="flex items-center gap-3">
+                      <div
+                        aria-hidden="true"
+                        className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-paper-2 font-display text-xs text-ink-2"
+                      >
+                        {initials(testimonial.author)}
+                      </div>
+                      <div>
+                        <p className="text-sm font-semibold text-ink-2">
+                          {testimonial.author}
+                          {testimonial.timeAgo && (
+                            <span className="ml-1.5 text-xs font-normal text-ink-2/50">
+                              {testimonial.timeAgo}
+                            </span>
+                          )}
+                        </p>
+                        <div className="mt-0.5 flex items-center gap-2">
+                          <span
+                            className="flex items-center gap-0.5 text-brass"
+                            aria-label={`${testimonial.rating} out of 5 stars`}
+                          >
+                            {Array.from({ length: 5 }).map((_, i) => (
+                              <Star key={i} className="h-3 w-3 fill-current" />
+                            ))}
                           </span>
-                        )}
-                      </p>
-                      <div className="mt-0.5 flex items-center gap-2">
-                        <span
-                          className="flex items-center gap-0.5 text-brass"
-                          aria-label={`${testimonial.rating} out of 5 stars`}
-                        >
-                          {Array.from({ length: 5 }).map((_, i) => (
-                            <Star key={i} className="h-3 w-3 fill-current" />
-                          ))}
-                        </span>
-                        {sourceIcon[testimonial.source] && (
-                          <Image
-                            src={sourceIcon[testimonial.source]}
-                            alt={`${testimonial.source} review`}
-                            width={40}
-                            height={16}
-                            className="h-3 w-auto object-contain opacity-70"
-                          />
-                        )}
+                          {sourceIcon[testimonial.source] && (
+                            <Image
+                              src={sourceIcon[testimonial.source]}
+                              alt={`${testimonial.source} review`}
+                              width={40}
+                              height={16}
+                              className="h-3 w-auto object-contain opacity-70"
+                            />
+                          )}
+                        </div>
                       </div>
                     </div>
+                    <p className="text-sm leading-6 text-ink-2/75 line-clamp-2">
+                      &ldquo;{testimonial.summary}&rdquo;
+                    </p>
                   </div>
-                  <p className="text-sm leading-6 text-ink-2/75 line-clamp-2">
-                    &ldquo;{testimonial.summary}&rdquo;
-                  </p>
-                </div>
-              </SwiperSlide>
-            ))}
-          </Swiper>
+                </SwiperSlide>
+              ))}
+            </Swiper>
+          ) : (
+            <div className="mt-10 h-[400px]" aria-hidden="true" />
+          )}
         </div>
       </div>
     </Section>

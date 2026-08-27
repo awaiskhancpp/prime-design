@@ -275,21 +275,112 @@ export interface Service {
   slug: string;
   shortDescription?: string | null;
   description?: string | null;
-  heroImage?: (number | null) | Media;
+  hero?: {
+    eyebrow?: string | null;
+    heading?: string | null;
+    lead?: string | null;
+    image?: (number | null) | Media;
+  };
   featured?: boolean | null;
   sortOrder?: number | null;
-  benefits?:
-    | {
-        text: string;
-        id?: string | null;
-      }[]
-    | null;
-  process?:
-    | {
-        title?: string | null;
-        description: string;
-        id?: string | null;
-      }[]
+  contentBlocks?:
+    | (
+        | {
+            eyebrow?: string | null;
+            heading: string;
+            body: string;
+            image?: (number | null) | Media;
+            imageSide?: ('left' | 'right') | null;
+            id?: string | null;
+            blockName?: string | null;
+            blockType: 'intro';
+          }
+        | {
+            heading: string;
+            items?:
+              | {
+                  text: string;
+                  id?: string | null;
+                }[]
+              | null;
+            id?: string | null;
+            blockName?: string | null;
+            blockType: 'feature-list';
+          }
+        | {
+            heading: string;
+            items?:
+              | {
+                  text: string;
+                  id?: string | null;
+                }[]
+              | null;
+            id?: string | null;
+            blockName?: string | null;
+            blockType: 'benefits';
+          }
+        | {
+            heading: string;
+            steps?:
+              | {
+                  title: string;
+                  description: string;
+                  image?: (number | null) | Media;
+                  id?: string | null;
+                }[]
+              | null;
+            id?: string | null;
+            blockName?: string | null;
+            blockType: 'process';
+          }
+        | {
+            eyebrow?: string | null;
+            heading: string;
+            body: string;
+            image?: (number | null) | Media;
+            imageSide?: ('left' | 'right') | null;
+            id?: string | null;
+            blockName?: string | null;
+            blockType: 'image-text';
+          }
+        | {
+            heading?: string | null;
+            images?: (number | Media)[] | null;
+            id?: string | null;
+            blockName?: string | null;
+            blockType: 'gallery';
+          }
+        | {
+            heading: string;
+            items?:
+              | {
+                  title: string;
+                  description: string;
+                  image?: (number | null) | Media;
+                  link?: string | null;
+                  id?: string | null;
+                }[]
+              | null;
+            id?: string | null;
+            blockName?: string | null;
+            blockType: 'sub-services';
+          }
+        | {
+            heading?: string | null;
+            videoUrl: string;
+            poster?: (number | null) | Media;
+            id?: string | null;
+            blockName?: string | null;
+            blockType: 'video';
+          }
+        | {
+            quote: string;
+            attribution?: string | null;
+            id?: string | null;
+            blockName?: string | null;
+            blockType: 'quote';
+          }
+      )[]
     | null;
   faqs?: (number | Faq)[] | null;
   relatedServices?: (number | Service)[] | null;
@@ -608,21 +699,123 @@ export interface ServicesSelect<T extends boolean = true> {
   slug?: T;
   shortDescription?: T;
   description?: T;
-  heroImage?: T;
+  hero?:
+    | T
+    | {
+        eyebrow?: T;
+        heading?: T;
+        lead?: T;
+        image?: T;
+      };
   featured?: T;
   sortOrder?: T;
-  benefits?:
+  contentBlocks?:
     | T
     | {
-        text?: T;
-        id?: T;
-      };
-  process?:
-    | T
-    | {
-        title?: T;
-        description?: T;
-        id?: T;
+        intro?:
+          | T
+          | {
+              eyebrow?: T;
+              heading?: T;
+              body?: T;
+              image?: T;
+              imageSide?: T;
+              id?: T;
+              blockName?: T;
+            };
+        'feature-list'?:
+          | T
+          | {
+              heading?: T;
+              items?:
+                | T
+                | {
+                    text?: T;
+                    id?: T;
+                  };
+              id?: T;
+              blockName?: T;
+            };
+        benefits?:
+          | T
+          | {
+              heading?: T;
+              items?:
+                | T
+                | {
+                    text?: T;
+                    id?: T;
+                  };
+              id?: T;
+              blockName?: T;
+            };
+        process?:
+          | T
+          | {
+              heading?: T;
+              steps?:
+                | T
+                | {
+                    title?: T;
+                    description?: T;
+                    image?: T;
+                    id?: T;
+                  };
+              id?: T;
+              blockName?: T;
+            };
+        'image-text'?:
+          | T
+          | {
+              eyebrow?: T;
+              heading?: T;
+              body?: T;
+              image?: T;
+              imageSide?: T;
+              id?: T;
+              blockName?: T;
+            };
+        gallery?:
+          | T
+          | {
+              heading?: T;
+              images?: T;
+              id?: T;
+              blockName?: T;
+            };
+        'sub-services'?:
+          | T
+          | {
+              heading?: T;
+              items?:
+                | T
+                | {
+                    title?: T;
+                    description?: T;
+                    image?: T;
+                    link?: T;
+                    id?: T;
+                  };
+              id?: T;
+              blockName?: T;
+            };
+        video?:
+          | T
+          | {
+              heading?: T;
+              videoUrl?: T;
+              poster?: T;
+              id?: T;
+              blockName?: T;
+            };
+        quote?:
+          | T
+          | {
+              quote?: T;
+              attribution?: T;
+              id?: T;
+              blockName?: T;
+            };
       };
   faqs?: T;
   relatedServices?: T;
