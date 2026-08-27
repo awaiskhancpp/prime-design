@@ -34,9 +34,7 @@ const serviceAreaLabels: Record<string, string> = {
 export function getServiceAreaLocations(serviceSlug: string) {
   return serviceLocations
     .filter((entry) => entry.serviceSlug === serviceSlug)
-    .sort(
-      (a, b) => cityOrder.indexOf(a.location.name) - cityOrder.indexOf(b.location.name),
-    )
+    .sort((a, b) => cityOrder.indexOf(a.location.name) - cityOrder.indexOf(b.location.name))
 }
 
 export function ServiceAreasSection({ service }: { service: ServiceDetail }) {
@@ -54,7 +52,7 @@ export function ServiceAreasSection({ service }: { service: ServiceDetail }) {
         description="Prime Design & Build works across Silicon Valley. Choose your city to see how we approach this work in your neighborhood."
       />
 
-      <div className="mx-auto mt-12 grid max-w-6xl gap-x-8 gap-y-10 sm:grid-cols-2 lg:grid-cols-3">
+      <div className=" mt-12 grid  gap-x-8 gap-y-10 sm:grid-cols-2 lg:grid-cols-4">
         {locations.map((entry) => {
           const href = `/${entry.serviceSlug}/${entry.slug}`
           const description = `Bring ${serviceLabel.toLowerCase()} in ${entry.location.name} to life with thoughtful design, quality craftsmanship, and a process built around your home.`

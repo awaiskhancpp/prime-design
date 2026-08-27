@@ -1,34 +1,25 @@
-import Image from 'next/image'
-import Link from 'next/link'
 import { ChevronDown } from 'lucide-react'
 
 import { LandscapingCta } from '@/components/blocks/LandscapingCta'
 import { LandscapingServiceAreas } from '@/components/blocks/LandscapingServiceAreas'
 import { SiteFooter } from '@/components/layout/SiteFooter'
-import { SiteHeader } from '@/components/layout/SiteHeader'
+import { PageHero } from '@/components/layout/PageHero'
 import { Section } from '@/components/ui/Section'
 import { faqCategories } from '@/lib/faq'
 
 export function FaqPage() {
   return (
     <div className="min-h-screen bg-white">
-      <SiteHeader tone="light" />
+      <PageHero
+        eyebrow="Frequently asked questions"
+        title="Explore the FAQs: Your Comprehensive Guide to Home Remodeling"
+        description="Find helpful answers about our design process, remodeling services, timelines, materials, and more."
+        image="/services/kitchen-remodeling.jpeg"
+        imageAlt="Bright remodeled kitchen"
+        cta={{ label: 'Browse questions', href: '#faq-list' }}
+      />
 
-      <main className="pt-20 md:pt-28">
-        <section className="border-b border-line bg-paper">
-          <div className="mx-auto grid max-w-7xl gap-8 px-5 py-10 sm:px-8 md:grid-cols-[0.8fr_1.2fr] md:items-center md:gap-14 md:py-16 lg:px-12">
-            <div className="relative aspect-[4/3] overflow-hidden bg-paper-2 md:order-2">
-              <Image src="/services/kitchen-remodeling.jpeg" alt="Bright remodeled kitchen" fill priority className="object-cover" sizes="(min-width: 768px) 60vw, 100vw" />
-              <div className="absolute inset-0 bg-ink/10" />
-            </div>
-            <div className="md:order-1">
-              <p className="text-xs font-semibold uppercase tracking-[0.2em] text-brass-deep">Frequently asked questions</p>
-              <h1 className="mt-4 max-w-xl font-display text-4xl font-medium leading-tight tracking-tight text-ink md:text-6xl">Explore the FAQs: Your Comprehensive Guide to Home Remodeling</h1>
-              <p className="mt-5 max-w-lg text-base leading-7 text-ink-2/70">Find helpful answers about our design process, remodeling services, timelines, materials, and more.</p>
-              <Link href="#faq-list" className="mt-7 inline-flex text-sm font-semibold text-brass-deep hover:text-brass">Browse questions ↓</Link>
-            </div>
-          </div>
-        </section>
+      <main>
 
         <Section id="faq-list" className="bg-white py-12 md:py-20">
           <div className="mx-auto max-w-5xl">

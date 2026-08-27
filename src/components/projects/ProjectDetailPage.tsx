@@ -75,7 +75,7 @@ export function ProjectDetailPage({ project }: { project: Project }) {
       )}
 
       <Section className="bg-white pt-0">
-        <div className="grid gap-2 md:grid-cols-2">
+        <div className="grid gap-2 md:grid-cols-3">
           {project.gallery.map((image, index) => (
             <div
               key={`${image}-${index}`}

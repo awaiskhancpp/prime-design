@@ -88,7 +88,15 @@ const contentBlocks: Block[] = [
     labels: { singular: 'Video', plural: 'Videos' },
     fields: [
       { name: 'heading', type: 'text' },
-      { name: 'videoUrl', type: 'text', required: true },
+      {
+        name: 'video',
+        type: 'upload',
+        relationTo: 'media',
+        admin: {
+          description: 'Optional uploaded video. If empty, the external video URL can be used.',
+        },
+      },
+      { name: 'videoUrl', type: 'text' },
       { name: 'poster', type: 'upload', relationTo: 'media' },
     ],
   },
@@ -123,6 +131,15 @@ export const Services: CollectionConfig = {
         { name: 'heading', type: 'text' },
         { name: 'lead', type: 'textarea' },
         { name: 'image', type: 'upload', relationTo: 'media' },
+        {
+          name: 'video',
+          type: 'upload',
+          relationTo: 'media',
+          admin: {
+            description:
+              'Optional uploaded background video. Use this instead of an external video URL when available.',
+          },
+        },
       ],
     },
     { name: 'featured', type: 'checkbox', defaultValue: false },

@@ -13,6 +13,7 @@ export type ServiceDetail = Service & {
   process: string[]
   gallery: string[]
   introHeading?: string
+  heroVideoUrl?: string
   contentBlocks?: ServiceContentBlock[]
   seo?: {
     metaTitle?: string | null
@@ -155,7 +156,7 @@ type PayloadServiceRecord = {
   slug: string
   description?: string | null
   shortDescription?: string | null
-  hero?: { eyebrow?: string | null; heading?: string | null; lead?: string | null; image?: number | PayloadMedia | null } | null
+  hero?: { eyebrow?: string | null; heading?: string | null; lead?: string | null; image?: number | PayloadMedia | null; video?: number | PayloadMedia | null } | null
   contentBlocks?: Array<Record<string, unknown>> | null
   seo?: ServiceDetail['seo']
 }
@@ -171,7 +172,11 @@ function normalizePayloadBlocks(value: PayloadServiceRecord['contentBlocks']): S
     if (blockType === 'process') return [{ blockType, heading: String(block.heading || ''), steps: Array.isArray(block.steps) ? block.steps.map((step) => { const item = step as Record<string, unknown>; return { title: String(item.title || ''), description: String(item.description || ''), image: payloadImageUrl(item.image) } }) : [] }] as ServiceContentBlock[]
     if (blockType === 'gallery') return [{ blockType, heading: typeof block.heading === 'string' ? block.heading : undefined, images: Array.isArray(block.images) ? block.images.map(payloadImageUrl).filter((image): image is string => Boolean(image)) : [] }] as ServiceContentBlock[]
     if (blockType === 'sub-services') return [{ blockType, heading: String(block.heading || ''), items: Array.isArray(block.items) ? block.items.map((item) => { const entry = item as Record<string, unknown>; return { title: String(entry.title || ''), description: String(entry.description || ''), image: payloadImageUrl(entry.image), link: typeof entry.link === 'string' ? entry.link : undefined } }) : [] }] as ServiceContentBlock[]
-    if (blockType === 'video') return [{ blockType, heading: typeof block.heading === 'string' ? block.heading : undefined, videoUrl: String(block.videoUrl || ''), poster: payloadImageUrl(block.poster) }] as ServiceContentBlock[]
+    if (blockType === 'video') {
+      const videoUrl = payloadImageUrl(block.video) || (typeof block.videoUrl === 'string' ? block.videoUrl : '')
+      if (!videoUrl) return []
+      return [{ blockType, heading: typeof block.heading === 'string' ? block.heading : undefined, videoUrl, poster: payloadImageUrl(block.poster) }] as ServiceContentBlock[]
+    }
     if (blockType === 'quote') return [{ blockType, quote: String(block.quote || ''), attribution: typeof block.attribution === 'string' ? block.attribution : undefined }] as ServiceContentBlock[]
     return []
   }) as unknown as ServiceContentBlock[]
@@ -191,6 +196,7 @@ export async function resolveServiceDetail(slug: string): Promise<ServiceDetail 
     image: '/services/home-remodeling.jpeg',
     eyebrow: record.hero?.eyebrow || record.title,
     lead: record.hero?.lead || record.description || record.shortDescription || '',
+    heroVideoUrl: payloadImageUrl(record.hero?.video),
     keyFeatures: [],
     benefits: [],
     process: [],
@@ -203,6 +209,7 @@ export async function resolveServiceDetail(slug: string): Promise<ServiceDetail 
     lead: record.hero?.lead || base.lead,
     eyebrow: record.hero?.eyebrow || base.eyebrow,
     image: payloadImageUrl(record.hero?.image) || base.image,
+    heroVideoUrl: payloadImageUrl(record.hero?.video) || base.heroVideoUrl,
     contentBlocks: normalizePayloadBlocks(record.contentBlocks),
   }
 }

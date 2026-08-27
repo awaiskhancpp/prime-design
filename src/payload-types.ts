@@ -280,6 +280,10 @@ export interface Service {
     heading?: string | null;
     lead?: string | null;
     image?: (number | null) | Media;
+    /**
+     * Optional uploaded background video. Use this instead of an external video URL when available.
+     */
+    video?: (number | null) | Media;
   };
   featured?: boolean | null;
   sortOrder?: number | null;
@@ -367,7 +371,11 @@ export interface Service {
           }
         | {
             heading?: string | null;
-            videoUrl: string;
+            /**
+             * Optional uploaded video. If empty, the external video URL can be used.
+             */
+            video?: (number | null) | Media;
+            videoUrl?: string | null;
             poster?: (number | null) | Media;
             id?: string | null;
             blockName?: string | null;
@@ -706,6 +714,7 @@ export interface ServicesSelect<T extends boolean = true> {
         heading?: T;
         lead?: T;
         image?: T;
+        video?: T;
       };
   featured?: T;
   sortOrder?: T;
@@ -803,6 +812,7 @@ export interface ServicesSelect<T extends boolean = true> {
           | T
           | {
               heading?: T;
+              video?: T;
               videoUrl?: T;
               poster?: T;
               id?: T;

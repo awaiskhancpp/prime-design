@@ -1,4 +1,4 @@
-import { Mail, MapPin, Phone, Star } from 'lucide-react'
+import { Mail, MapPin, Phone } from 'lucide-react'
 
 import website from '../../../website.json'
 import { Button } from '@/components/ui/Button'

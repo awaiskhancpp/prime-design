@@ -3,14 +3,12 @@ import { HomeContact } from '@/components/blocks/HomeContact'
 import { LandscapingCta } from '@/components/blocks/LandscapingCta'
 import { LandscapingServiceAreas } from '@/components/blocks/LandscapingServiceAreas'
 import { ProjectsReviews } from '@/components/projects/ProjectsReviews'
+import { WhyChooseUs } from '@/components/gallery/WhyChooseUs'
 import { SiteFooter } from '@/components/layout/SiteFooter'
 import { SiteHeader } from '@/components/layout/SiteHeader'
 import { Section } from '@/components/ui/Section'
 import type { ServiceContentBlock, ServiceDetail } from '@/lib/services'
-import {
-  getServiceOfferings,
-  ServiceOfferingsSection,
-} from './ServiceOfferingsSection'
+import { getServiceOfferings, ServiceOfferingsSection } from './ServiceOfferingsSection'
 import { getServiceProcess, ServiceProcessSection } from './ServiceProcessSection'
 import { getServiceVideo, ServiceVideoSection } from './ServiceVideoSection'
 import { ServiceAreasSection } from './ServiceAreasSection'
@@ -26,7 +24,131 @@ function splitLabeledLine(line: string) {
   return { title: line.slice(0, separator).trim(), description: line.slice(separator + 1).trim() }
 }
 
-function ServiceOverview({ service }: { service: ServiceDetail }) {
+type ServicePageSections = {
+  video: boolean
+  process: boolean
+  inlineProcess: boolean
+  offerings: boolean
+  gallery: boolean
+  quote: boolean
+  whyChooseUs: boolean
+  faq: boolean
+  estimate: boolean
+  reviews: boolean
+  contact: boolean
+}
+
+const defaultServicePageSections: ServicePageSections = {
+  video: false,
+  process: false,
+  inlineProcess: false,
+  offerings: false,
+  gallery: false,
+  quote: false,
+  whyChooseUs: false,
+  faq: false,
+  estimate: false,
+  reviews: false,
+  contact: false,
+}
+
+const servicePageSections: Record<string, ServicePageSections> = {
+  adu: {
+    ...defaultServicePageSections,
+    inlineProcess: true,
+    quote: true,
+    whyChooseUs: true,
+    estimate: true,
+    reviews: true,
+    contact: true,
+  },
+  additions: {
+    ...defaultServicePageSections,
+    video: true,
+    inlineProcess: true,
+    whyChooseUs: true,
+    estimate: true,
+    reviews: true,
+    contact: true,
+  },
+  'complete-renovation': {
+    ...defaultServicePageSections,
+    process: true,
+    inlineProcess: true,
+    quote: true,
+    estimate: true,
+    reviews: true,
+    contact: true,
+  },
+  'kitchen-remodeling': {
+    ...defaultServicePageSections,
+    video: true,
+    process: true,
+    offerings: true,
+    gallery: true,
+    quote: true,
+    faq: true,
+    reviews: true,
+    contact: true,
+  },
+  'bathroom-remodeling': {
+    ...defaultServicePageSections,
+    process: true,
+    offerings: true,
+    gallery: true,
+    quote: true,
+    whyChooseUs: true,
+    faq: true,
+    estimate: true,
+    reviews: true,
+    contact: true,
+  },
+  'home-remodeling': {
+    ...defaultServicePageSections,
+    video: true,
+    process: true,
+    gallery: true,
+    quote: true,
+    whyChooseUs: true,
+    faq: true,
+    estimate: true,
+    reviews: true,
+    contact: true,
+  },
+  'home-repair-installation-services': {
+    ...defaultServicePageSections,
+  },
+  'european-kitchen-silicon-valley': {
+    ...defaultServicePageSections,
+    whyChooseUs: true,
+    estimate: true,
+    reviews: true,
+    contact: true,
+  },
+  'shaker-kitchen-silicon-valley': {
+    ...defaultServicePageSections,
+    whyChooseUs: true,
+    estimate: true,
+    reviews: true,
+    contact: true,
+  },
+  'custom-kitchen-silicon-valley': {
+    ...defaultServicePageSections,
+    reviews: true,
+  },
+}
+
+function getServicePageSections(slug: string) {
+  return servicePageSections[slug] || defaultServicePageSections
+}
+
+function ServiceOverview({
+  service,
+  showInlineProcess,
+}: {
+  service: ServiceDetail
+  showInlineProcess: boolean
+}) {
   const sideImages = [...new Set([service.image, ...service.gallery].filter(Boolean))].slice(0, 2)
   const hasVisualProcess = Boolean(
     service.slug === 'kitchen-remodeling' || service.slug === 'bathroom-remodeling',
@@ -66,7 +188,8 @@ function ServiceOverview({ service }: { service: ServiceDetail }) {
                     <span>
                       {description ? (
                         <>
-                          <strong className="font-semibold text-ink-2">{title}:</strong> {description}
+                          <strong className="font-semibold text-ink-2">{title}:</strong>{' '}
+                          {description}
                         </>
                       ) : (
                         item
@@ -78,7 +201,7 @@ function ServiceOverview({ service }: { service: ServiceDetail }) {
             </ul>
           </div>
 
-          {!hasVisualProcess && service.process.length > 0 ? (
+          {showInlineProcess && !hasVisualProcess && service.process.length > 0 ? (
             <div>
               <h3 className="font-display text-xl font-medium text-ink-2">Process:</h3>
               <p className="mt-3 text-base leading-7 text-ink-2/70">
@@ -106,7 +229,10 @@ function ServiceOverview({ service }: { service: ServiceDetail }) {
 
       <div className="grid gap-5">
         {sideImages.map((image, index) => (
-          <div key={`${image}-${index}`} className="relative aspect-[4/3] overflow-hidden bg-paper-2">
+          <div
+            key={`${image}-${index}`}
+            className="relative aspect-[4/3] overflow-hidden bg-paper-2"
+          >
             <Image
               src={image}
               alt={`${service.title} project photo ${index + 1}`}
@@ -208,8 +334,9 @@ function ServiceContentBlocks({ blocks }: { blocks: NonNullable<ServiceDetail['c
 }
 
 export function ServiceDetailPage({ service }: { service: ServiceDetail }) {
+  const sections = getServicePageSections(service.slug)
   const offerings = getServiceOfferings(service.slug)
-  const fallbackVideo = getServiceVideo(service.slug)
+  const fallbackVideo = sections.video ? getServiceVideo(service.slug) : undefined
   const process = getServiceProcess(service)
   const fallbackQuote = getServiceQuote(service.slug)
   const cmsQuote = service.contentBlocks?.find((block) => block.blockType === 'quote')
@@ -235,41 +362,42 @@ export function ServiceDetailPage({ service }: { service: ServiceDetail }) {
           {contentBlocks?.length ? (
             <ServiceContentBlocks blocks={contentBlocks} />
           ) : (
-            <ServiceOverview service={service} />
+            <ServiceOverview service={service} showInlineProcess={sections.inlineProcess} />
           )}
         </Section>
-        {cmsVideos.length
-          ? cmsVideos.map((block, index) =>
-              block.blockType === 'video' ? (
-                <ServiceVideoSection
-                  key={`video-${index}`}
-                  title={block.heading || 'See the difference'}
-                  videoUrl={block.videoUrl}
-                  poster={block.poster}
-                />
-              ) : null,
-            )
-          : fallbackVideo
-            ? <ServiceVideoSection {...fallbackVideo} />
-            : null}
-        {offerings ? <ServiceOfferingsSection {...offerings} /> : null}
-        {process ? <ServiceProcessSection {...process} /> : null}
-        <ServiceGallery service={service} />
+        {cmsVideos.length ? (
+          cmsVideos.map((block, index) =>
+            block.blockType === 'video' ? (
+              <ServiceVideoSection
+                key={`video-${index}`}
+                title={block.heading || 'See the difference'}
+                videoUrl={block.videoUrl}
+                poster={block.poster}
+              />
+            ) : null,
+          )
+        ) : fallbackVideo ? (
+          <ServiceVideoSection {...fallbackVideo} />
+        ) : null}
+        {sections.offerings && offerings ? <ServiceOfferingsSection {...offerings} /> : null}
+        {sections.process && process ? <ServiceProcessSection {...process} /> : null}
+        {sections.gallery ? <ServiceGallery service={service} /> : null}
         <ServiceAreasSection service={service} />
-        {cmsQuote && cmsQuote.blockType === 'quote' ? (
+        {sections.quote && cmsQuote && cmsQuote.blockType === 'quote' ? (
           <ServiceQuoteSection
             heading="Our promise"
             quote={cmsQuote.quote}
             attribution={cmsQuote.attribution || 'Prime Design & Build'}
             image={service.image}
           />
-        ) : fallbackQuote ? (
+        ) : sections.quote && fallbackQuote ? (
           <ServiceQuoteSection {...fallbackQuote} />
         ) : null}
-        <ServiceFaq slug={service.slug} />
-        <ServiceEstimateCta />
-        <ProjectsReviews />
-        <HomeContact />
+        {sections.whyChooseUs ? <WhyChooseUs /> : null}
+        {sections.faq ? <ServiceFaq slug={service.slug} /> : null}
+        {sections.estimate ? <ServiceEstimateCta /> : null}
+        {sections.reviews ? <ProjectsReviews /> : null}
+        {sections.contact ? <HomeContact /> : null}
       </main>
       <LandscapingServiceAreas />
       <LandscapingCta />

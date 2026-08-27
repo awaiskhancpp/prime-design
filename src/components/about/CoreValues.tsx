@@ -1,9 +1,16 @@
-import { ClipboardCheck, Handshake, Hammer, Home, Lightbulb, ShieldCheck } from 'lucide-react'
+import Image from 'next/image'
 
 import website from '../../../website.json'
 import { Section } from '@/components/ui/Section'
 
-const valueIcons = [Home, ShieldCheck, Handshake, Lightbulb, ClipboardCheck, Hammer]
+const valueIcons = [
+  '/about/about-customer-focused.svg',
+  '/about/about-uncompromising-quality.svg',
+  '/about/about-integrity-and-transparency.svg',
+  '/about/about-innovative-solutions.svg',
+  '/about/about-seamless-process.svg',
+  '/about/about-expertise-and-knowledge.svg',
+]
 
 export function CoreValues() {
   const { coreValues } = website.about
@@ -24,11 +31,11 @@ export function CoreValues() {
 
       <div className="mt-14 grid gap-px bg-line md:grid-cols-2 lg:grid-cols-3">
         {coreValues.items.map((value, index) => {
-          const Icon = valueIcons[index]
+          const icon = valueIcons[index]
 
           return (
             <article key={value.title} className="bg-white px-6 py-8 md:px-7 lg:px-8 ">
-              <Icon aria-hidden="true" className="h-7 w-7 text-brass" strokeWidth={1.5} />
+              <Image src={icon} alt="" aria-hidden="true" width={120} height={120} />
               <h3 className="mt-6 font-display text-2xl font-medium text-ink-2">{value.title}</h3>
               <p className="mt-3 text-sm leading-6 text-ink-2/70">{value.description}</p>
             </article>

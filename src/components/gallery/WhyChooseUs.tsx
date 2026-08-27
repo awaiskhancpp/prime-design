@@ -1,25 +1,25 @@
-import { Award, BrainCircuit, HeartHandshake, Workflow } from 'lucide-react'
+import Image from 'next/image'
 
 import { Section } from '@/components/ui/Section'
 
 const reasons = [
   {
-    icon: BrainCircuit,
+    icon: '/attention-to-detail.svg',
     title: 'Attention to Detail',
     body: 'We meticulously plan and execute every project with precision and attention to detail.',
   },
   {
-    icon: Workflow,
+    icon: '/quality-craftsmanship.svg',
     title: 'Quality Craftsmanship',
     body: 'Our commitment to quality ensures outstanding and beautiful home transformations.',
   },
   {
-    icon: Award,
+    icon: '/professional-expertise.svg',
     title: 'Professional Expertise',
     body: 'With years of industry experience, we create exceptional, tailored home remodels.',
   },
   {
-    icon: HeartHandshake,
+    icon: '/customer-satisfaction.svg',
     title: 'Customer Satisfaction',
     body: 'We prioritize your satisfaction with exceptional service and communication.',
   },
@@ -41,7 +41,7 @@ export function WhyChooseUs() {
       </div>
 
       <div className="mt-14 grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
-        {reasons.map(({ icon: Icon, title, body }, index) => (
+        {reasons.map(({ icon, title, body }, index) => (
           <div
             key={title}
             className="group relative border border-line bg-paper p-8 transition-shadow duration-300 hover:shadow-lg hover:shadow-ink/5"
@@ -55,8 +55,15 @@ export function WhyChooseUs() {
               {String(index + 1).padStart(2, '0')}
             </span>
 
-            <div className="mt-5 flex h-14 w-14 items-center justify-center ">
-              <Icon className="h-6 w-6" strokeWidth={1.5} aria-hidden />
+            <div className="mt-5 flex h-[120px] w-[120px] items-center justify-center">
+              <Image
+                src={icon}
+                alt=""
+                aria-hidden="true"
+                width={120}
+                height={120}
+                className="h-[120px] w-[120px] object-contain"
+              />
             </div>
 
             <h3 className="mt-6 font-display text-xl font-medium text-ink">{title}</h3>

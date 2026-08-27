@@ -122,9 +122,117 @@ const bathroomProcess: ServiceProcessContent = {
   ),
 }
 
+const aduProcess: ServiceProcessContent = {
+  eyebrow: 'Our process',
+  title: 'We make it easy for you',
+  description:
+    'Our ADU construction process is designed to be seamless and stress-free. Here’s an overview of how we work:',
+  steps: [
+    {
+      title: 'Initial consultation',
+      description: 'Discuss your requirements, budget, and design preferences with our team.',
+    },
+    {
+      title: 'Design and planning',
+      description: 'Our experts will create detailed blueprints and obtain necessary permits.',
+    },
+    {
+      title: 'Construction',
+      description:
+        'Our skilled builders will construct your ADU with attention to detail and quality craftsmanship.',
+    },
+    {
+      title: 'Finishing touches',
+      description: 'We’ll add the final touches, ensuring your ADU meets your expectations.',
+    },
+    {
+      title: 'Completion and handover',
+      description:
+        'We’ll conduct a thorough inspection and hand over the keys to your beautifully finished ADU.',
+    },
+  ],
+}
+
+const additionsProcess: ServiceProcessContent = {
+  eyebrow: 'Our process',
+  title: 'We make it easy for you',
+  description:
+    'Our home addition process is designed to be seamless and efficient. Here’s an overview of how we work:',
+  steps: [
+    {
+      title: 'Consultation',
+      description:
+        'Our team will meet with you to understand your goals, requirements, and budget for the home addition project.',
+    },
+    {
+      title: 'Design and Planning',
+      description:
+        'Our expert designers will create detailed plans that integrate seamlessly with your existing home structure, considering aesthetics, functionality, and your specific needs.',
+    },
+    {
+      title: 'Permitting and Approvals',
+      description:
+        'We’ll handle the necessary permits and ensure compliance with local building codes and regulations.',
+    },
+    {
+      title: 'Construction',
+      description:
+        'Our skilled builders will execute the construction phase with attention to detail and craftsmanship, minimizing disruptions to your daily life.',
+    },
+    {
+      title: 'Project Management',
+      description:
+        'We’ll manage the project timeline, coordinate subcontractors, and keep you informed throughout the process.',
+    },
+    {
+      title: 'Finishing Touches',
+      description:
+        'Once the construction is complete, we’ll add the finishing touches, ensuring a cohesive and polished result.',
+    },
+    {
+      title: 'Final Inspection and Handover',
+      description:
+        'We’ll conduct a thorough inspection to ensure quality and address any final details. Then, we’ll hand over your new and enhanced living space.',
+    },
+  ],
+}
+
+const homeProcess: ServiceProcessContent = {
+  eyebrow: 'Our process',
+  title: 'A Client-Centered Approach to Home Remodeling',
+  description:
+    'No matter the type of project we take on, the entire process, from start to finish.',
+  steps: [
+    {
+      title: 'Free Consultation',
+      description:
+        'We begin by understanding your vision, lifestyle, and goals for your home. Our experienced team listens attentively to your ideas, providing valuable insights and expert advice.',
+    },
+    {
+      title: 'Customized Design',
+      description:
+        'Our talented designers translate your vision into a personalized design plan that captures your unique style and preferences.',
+    },
+    {
+      title: 'Skilled Project Management',
+      description:
+        'Our dedicated project managers oversee every aspect of the renovation process, ensuring seamless coordination of contractors, timelines, and resources. We keep you informed at every stage, providing peace of mind.',
+    },
+    {
+      title: 'Quality Craftsmanship',
+      description:
+        'Our skilled craftsmen bring precision and artistry to every detail of your project.',
+    },
+  ],
+}
+
 const processBySlug: Record<string, ServiceProcessContent> = {
   'kitchen-remodeling': kitchenProcess,
   'bathroom-remodeling': bathroomProcess,
+  adu: aduProcess,
+  additions: additionsProcess,
+  'complete-renovation': homeProcess,
+  'home-remodeling': homeProcess,
 }
 
 export function getServiceProcess(service: ServiceDetail): ServiceProcessContent | undefined {
@@ -201,7 +309,9 @@ export function ServiceProcessSection({
                 <h3 className="mt-3 font-display text-2xl font-medium leading-tight text-ink-2 md:text-3xl">
                   {step.title}
                 </h3>
-                <p className="mt-4 max-w-xl text-base leading-7 text-ink-2/70">{step.description}</p>
+                <p className="mt-4 max-w-xl text-base leading-7 text-ink-2/70">
+                  {step.description}
+                </p>
               </div>
             </li>
           )
