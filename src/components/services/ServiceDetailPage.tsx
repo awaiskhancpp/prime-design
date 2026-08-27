@@ -17,6 +17,20 @@ import { ServiceFaq } from './ServiceFaq'
 import { ServiceGallery } from './ServiceGallery'
 import { ServiceHero } from './ServiceHero'
 import { getServiceQuote, ServiceQuoteSection } from './ServiceQuoteSection'
+import {
+  getCraftsmanshipContent,
+  ServiceCraftsmanshipTransformsSection,
+} from './sections/ServiceCraftsmanshipTransformsSection'
+import {
+  ServiceHomeRepairCategoriesSection,
+  homeRepairCategoriesContent,
+} from './sections/ServiceHomeRepairCategoriesSection'
+import { ServiceWhyChooseUsSection } from './sections/ServiceWhyChooseUsSection'
+import {
+  getRealHomesContent,
+  ServiceRealHomesStoriesSection,
+} from './sections/ServiceRealHomesStoriesSection'
+import { ServiceSiliconValleyLovesSection } from './sections/ServiceSiliconValleyLovesSection'
 
 function splitLabeledLine(line: string) {
   const separator = line.indexOf(':')
@@ -31,7 +45,12 @@ type ServicePageSections = {
   offerings: boolean
   gallery: boolean
   quote: boolean
+  craftsmanship: boolean
+  realHomes: boolean
+  siliconValleyLoves: boolean
   whyChooseUs: boolean
+  homeRepairCategories: boolean
+  homeRepairWhyChooseUs: boolean
   faq: boolean
   estimate: boolean
   reviews: boolean
@@ -45,7 +64,12 @@ const defaultServicePageSections: ServicePageSections = {
   offerings: false,
   gallery: false,
   quote: false,
+  craftsmanship: false,
+  realHomes: false,
+  siliconValleyLoves: false,
   whyChooseUs: false,
+  homeRepairCategories: false,
+  homeRepairWhyChooseUs: false,
   faq: false,
   estimate: false,
   reviews: false,
@@ -57,6 +81,7 @@ const servicePageSections: Record<string, ServicePageSections> = {
     ...defaultServicePageSections,
     inlineProcess: true,
     quote: true,
+    craftsmanship: true,
     whyChooseUs: true,
     estimate: true,
     reviews: true,
@@ -66,6 +91,8 @@ const servicePageSections: Record<string, ServicePageSections> = {
     ...defaultServicePageSections,
     video: true,
     inlineProcess: true,
+    realHomes: true,
+    siliconValleyLoves: true,
     whyChooseUs: true,
     estimate: true,
     reviews: true,
@@ -76,6 +103,7 @@ const servicePageSections: Record<string, ServicePageSections> = {
     process: true,
     inlineProcess: true,
     quote: true,
+    craftsmanship: true,
     estimate: true,
     reviews: true,
     contact: true,
@@ -97,6 +125,8 @@ const servicePageSections: Record<string, ServicePageSections> = {
     offerings: true,
     gallery: true,
     quote: true,
+    craftsmanship: true,
+    siliconValleyLoves: true,
     whyChooseUs: true,
     faq: true,
     estimate: true,
@@ -109,6 +139,9 @@ const servicePageSections: Record<string, ServicePageSections> = {
     process: true,
     gallery: true,
     quote: true,
+    craftsmanship: true,
+    realHomes: true,
+    siliconValleyLoves: true,
     whyChooseUs: true,
     faq: true,
     estimate: true,
@@ -117,6 +150,8 @@ const servicePageSections: Record<string, ServicePageSections> = {
   },
   'home-repair-installation-services': {
     ...defaultServicePageSections,
+    homeRepairCategories: true,
+    homeRepairWhyChooseUs: true,
   },
   'european-kitchen-silicon-valley': {
     ...defaultServicePageSections,
@@ -359,12 +394,18 @@ export function ServiceDetailPage({ service }: { service: ServiceDetail }) {
       <main>
         <ServiceHero service={service} />
         <Section>
-          {contentBlocks?.length ? (
+          {sections.homeRepairCategories ? (
+            <ServiceHomeRepairCategoriesSection categories={homeRepairCategoriesContent} />
+          ) : contentBlocks?.length ? (
             <ServiceContentBlocks blocks={contentBlocks} />
           ) : (
             <ServiceOverview service={service} showInlineProcess={sections.inlineProcess} />
           )}
         </Section>
+        {sections.homeRepairWhyChooseUs ? <ServiceWhyChooseUsSection /> : null}
+        {sections.realHomes ? (
+          <ServiceRealHomesStoriesSection {...getRealHomesContent(service)} />
+        ) : null}
         {cmsVideos.length ? (
           cmsVideos.map((block, index) =>
             block.blockType === 'video' ? (
@@ -382,6 +423,9 @@ export function ServiceDetailPage({ service }: { service: ServiceDetail }) {
         {sections.offerings && offerings ? <ServiceOfferingsSection {...offerings} /> : null}
         {sections.process && process ? <ServiceProcessSection {...process} /> : null}
         {sections.gallery ? <ServiceGallery service={service} /> : null}
+        {sections.craftsmanship ? (
+          <ServiceCraftsmanshipTransformsSection {...getCraftsmanshipContent(service)} />
+        ) : null}
         <ServiceAreasSection service={service} />
         {sections.quote && cmsQuote && cmsQuote.blockType === 'quote' ? (
           <ServiceQuoteSection
@@ -396,6 +440,7 @@ export function ServiceDetailPage({ service }: { service: ServiceDetail }) {
         {sections.whyChooseUs ? <WhyChooseUs /> : null}
         {sections.faq ? <ServiceFaq slug={service.slug} /> : null}
         {sections.estimate ? <ServiceEstimateCta /> : null}
+        {sections.siliconValleyLoves ? <ServiceSiliconValleyLovesSection /> : null}
         {sections.reviews ? <ProjectsReviews /> : null}
         {sections.contact ? <HomeContact /> : null}
       </main>
