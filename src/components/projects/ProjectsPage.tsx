@@ -25,7 +25,7 @@ export function ProjectsPage() {
       </section>
 
       <Section className="bg-white pt-0">
-        <div className="mx-auto grid max-w-6xl gap-x-8 gap-y-10 sm:grid-cols-2">
+        <div className="grid max-w-[1440px]  gap-x-4 gap-y-6 sm:grid-cols-3">
           {projects.map((project) => (
             <ProjectCard key={project.slug} project={project} />
           ))}

@@ -28,45 +28,45 @@
       "children": [
         {
           "label": "ADU",
-          "href": "/adu"
+          "href": "/services/adu"
         },
         {
           "label": "Additions",
-          "href": "/additions"
+          "href": "/services/additions"
         },
         {
           "label": "Complete Renovation",
-          "href": "/complete-renovation"
+          "href": "/services/complete-renovation"
         },
         {
           "label": "Kitchen Remodeling",
-          "href": "/kitchen-remodeling",
+          "href": "/services/kitchen-remodeling",
           "children": [
             {
               "label": "European Kitchen",
-              "href": "/kitchen-remodeling/european-kitchen-silicon-valley"
+              "href": "/services/kitchen-remodeling/european-kitchen-silicon-valley"
             },
             {
               "label": "Custom Kitchen",
-              "href": "/kitchen-remodeling/custom-kitchen-silicon-valley"
+              "href": "/services/kitchen-remodeling/custom-kitchen-silicon-valley"
             },
             {
               "label": "Shaker Kitchen",
-              "href": "/kitchen-remodeling/shaker-kitchen-silicon-valley"
+              "href": "/services/kitchen-remodeling/shaker-kitchen-silicon-valley"
             }
           ]
         },
         {
           "label": "Bathroom Remodeling",
-          "href": "/bathroom-remodeling"
+          "href": "/services/bathroom-remodeling"
         },
         {
           "label": "Home Remodeling",
-          "href": "/home-remodeling"
+          "href": "/services/home-remodeling"
         },
         {
           "label": "Home Repair Services",
-          "href": "/home-repair-installation-services"
+          "href": "/services/home-repair-installation-services"
         }
       ]
     },
@@ -195,37 +195,37 @@
     {
       "title": "Home Remodeling",
       "description": "Transform your home from ground up with our full home remodeling services.",
-      "href": "/home-remodeling",
+      "href": "/services/home-remodeling",
       "image": "/services/home-remodeling.jpeg"
     },
     {
       "title": "Kitchen Remodeling",
       "description": "Experience the transformation of your home with our kitchen remodeling service.",
-      "href": "/kitchen-remodeling",
+      "href": "/services/kitchen-remodeling",
       "image": "/services/kitchen-remodeling.jpeg"
     },
     {
       "title": "ADU & Garage Conversions",
       "description": "Creating versatile and functional ADUs that provide homeowners with additional living space or rental opportunities.",
-      "href": "/adu",
+      "href": "/services/adu",
       "image": "/services/home-remodeling.jpeg"
     },
     {
       "title": "Home Additions",
       "description": "Tailored to help you expand and enhance your living space without the hassle of moving.",
-      "href": "/additions",
+      "href": "/services/additions",
       "image": "/services/kitchen-remodeling.jpeg"
     },
     {
       "title": "New Construction / Complete Renovation",
       "description": "Dedicated to creating custom-built homes that reflect your unique style.",
-      "href": "/complete-renovation",
+      "href": "/services/complete-renovation",
       "image": "/services/home-remodeling.jpeg"
     },
     {
       "title": "Bathroom Remodeling",
       "description": "Breathe new life into your bathroom with our bathroom remodeling service.",
-      "href": "/bathroom-remodeling",
+      "href": "/services/bathroom-remodeling",
       "image": "/services/kitchen-remodeling.jpeg"
     }
   ],
@@ -474,27 +474,27 @@
     "serviceLinks": [
       {
         "label": "Home Remodel in Silicon Valley",
-        "href": "/complete-renovation"
+        "href": "/services/complete-renovation"
       },
       {
         "label": "Kitchen Remodeling in Silicon Valley",
-        "href": "/kitchen-remodeling"
+        "href": "/services/kitchen-remodeling"
       },
       {
         "label": "Bathroom Remodel in Silicon Valley",
-        "href": "/bathroom-remodeling"
+        "href": "/services/bathroom-remodeling"
       },
       {
         "label": "ADU in Silicon Valley",
-        "href": "/adu"
+        "href": "/services/adu"
       },
       {
         "label": "Garage Conversion in Silicon Valley",
-        "href": "/adu"
+        "href": "/services/adu"
       },
       {
         "label": "House Additions in Silicon Valley",
-        "href": "/additions"
+        "href": "/services/additions"
       }
     ],
     "copyright": "Copyright \u00a9 2026 \u2022 Prime Design & Build",

@@ -68,9 +68,18 @@ export const serviceDetails: Record<string, ServiceDetail> = {
   additions: {
     ...services[1], eyebrow: 'Home Additions',
     lead: 'Our experienced team works closely with you to understand your needs and create a functional, beautiful addition that seamlessly integrates with the existing structure of your home.',
-    keyFeatures: ['Expertise in designing additions that seamlessly integrate with your existing home', 'Attention to architectural aesthetics and cohesive design to enhance the overall look of your home', 'Quality construction materials and techniques for a seamless finish', 'Comprehensive project management from start to finish', 'Collaborative approach, working closely with you to ensure your vision is reflected in the final result'],
-    benefits: ['Increased space: Add more living space to accommodate a growing family, create a dedicated home office, or improve functionality.', 'Personalization: Tailor the design and layout of your addition to match your unique style and preferences.', 'Property value: A well-designed and executed addition can significantly increase the value of your property.', 'Avoiding the cost and stress of moving: Expand your home without the hassle of a full-scale move, allowing you to stay in your beloved neighborhood.'],
-    process: ['Consultation: Our team will meet with you to understand your goals, requirements, and budget for the home addition project.', 'Design and planning: Our expert designers will create detailed plans that integrate seamlessly with your existing home structure.', 'Permitting and approvals: We handle the necessary permits and ensure compliance with all building codes and regulations.', 'Construction: Our skilled builders will execute the construction phase with attention to detail and quality craftsmanship.', 'Project management: We manage the project from start to finish, coordinating subcontractors and keeping you informed throughout the process.', 'Final inspection and handover: We conduct a thorough inspection to ensure quality and address any final details.'],
+    introHeading: 'Home Additions — Enhancing Your Living Space',
+    keyFeatures: ['Customized home addition designs tailored to your unique needs and preferences', 'Attention to architectural aesthetics and cohesive design to enhance the overall look of your home', 'Quality construction materials and techniques for a seamless finish', 'Comprehensive project management from start to finish', 'Collaborative approach, working closely with you to ensure your vision is reflected in the final result'],
+    benefits: ['Increased living space: Add more living space to accommodate a growing family, create a dedicated home office, or improve functionality.', 'Personalization: Tailor the design and layout of your addition to match your unique style and preferences.', 'Value enhancement: A well-designed and executed addition can significantly increase the value of your property.', 'Avoiding the cost and stress of moving: Expand your home without the hassle of a full-scale move, allowing you to stay in your beloved neighborhood.'],
+    process: [
+      'Consultation: Our team will meet with you to understand your goals, requirements, and budget for the home addition project.',
+      'Design and Planning: Our expert designers will create detailed plans that integrate seamlessly with your existing home structure, considering aesthetics, functionality, and your specific needs.',
+      'Permitting and Approvals: We’ll handle the necessary permits and ensure compliance with local building codes and regulations.',
+      'Construction: Our skilled builders will execute the construction phase with attention to detail and craftsmanship, minimizing disruptions to your daily life.',
+      'Project Management: We’ll manage the project timeline, coordinate subcontractors, and keep you informed throughout the process.',
+      'Finishing Touches: Once the construction is complete, we’ll add the finishing touches, ensuring a cohesive and polished result.',
+      'Final Inspection and Handover: We’ll conduct a thorough inspection to ensure quality and address any final details. Then, we’ll hand over your new and enhanced living space.',
+    ],
     gallery: [home, beforeAfter],
   },
   'kitchen-remodeling': {

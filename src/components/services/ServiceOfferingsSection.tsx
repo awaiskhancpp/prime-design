@@ -37,19 +37,19 @@ const kitchenOfferings: ServiceOfferingsContent = {
       title: 'Custom Kitchen',
       description: 'Create a kitchen that reflects your unique style and vision.',
       image: kitchenImage,
-      href: '/kitchen-remodeling/custom-kitchen-silicon-valley',
+      href: '/services/kitchen-remodeling/custom-kitchen-silicon-valley',
     },
     {
       title: 'European Kitchen',
       description: 'Experience the perfect blend of sophistication and functionality.',
       image: kitchenImage,
-      href: '/kitchen-remodeling/european-kitchen-silicon-valley',
+      href: '/services/kitchen-remodeling/european-kitchen-silicon-valley',
     },
     {
       title: 'Shaker Kitchen',
       description: 'Discover the classic beauty and versatility of Shaker kitchens.',
       image: kitchenImage,
-      href: '/kitchen-remodeling/shaker-kitchen-silicon-valley',
+      href: '/services/kitchen-remodeling/shaker-kitchen-silicon-valley',
     },
   ],
 }
@@ -130,7 +130,10 @@ export function ServiceOfferingsSection({
       <div className="mx-auto mt-12 grid max-w-6xl gap-x-8 gap-y-10 sm:grid-cols-2">
         {cards.map((card) => (
           <article key={card.title} className="group flex h-full flex-col">
-            <Link href={card.href} className="relative block aspect-[4/3] overflow-hidden bg-paper-2">
+            <Link
+              href={card.href}
+              className="relative block aspect-[4/3] overflow-hidden bg-paper-2"
+            >
               <Image
                 src={card.image}
                 alt={card.title}
@@ -144,7 +147,9 @@ export function ServiceOfferingsSection({
               <h3 className="font-display text-2xl font-medium leading-tight text-ink-2 md:text-3xl">
                 {card.title}
               </h3>
-              <p className="mt-3 line-clamp-2 text-base leading-7 text-ink-2/70">{card.description}</p>
+              <p className="mt-3 line-clamp-2 text-base leading-7 text-ink-2/70">
+                {card.description}
+              </p>
               <div className="mt-auto pt-5">
                 <Link
                   href={card.href}

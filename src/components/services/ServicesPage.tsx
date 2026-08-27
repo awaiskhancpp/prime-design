@@ -11,13 +11,13 @@ import { Section } from '@/components/ui/Section'
 import { services } from '@/lib/services'
 
 const kitchenSubpageHrefs: Record<string, string> = {
-  'european-kitchen': '/kitchen-remodeling/european-kitchen-silicon-valley',
-  'shaker-kitchens': '/kitchen-remodeling/shaker-kitchen-silicon-valley',
-  'custom-kitchens': '/kitchen-remodeling/custom-kitchen-silicon-valley',
+  'european-kitchen': '/services/kitchen-remodeling/european-kitchen-silicon-valley',
+  'shaker-kitchens': '/services/kitchen-remodeling/shaker-kitchen-silicon-valley',
+  'custom-kitchens': '/services/kitchen-remodeling/custom-kitchen-silicon-valley',
 }
 
 function serviceHref(slug: string) {
-  return kitchenSubpageHrefs[slug] || `/${slug}`
+  return kitchenSubpageHrefs[slug] || `/services/${slug}`
 }
 
 export function ServicesPage() {
@@ -38,12 +38,16 @@ export function ServicesPage() {
 
       <main>
         <Section className="bg-white pt-0">
-          <div className="mx-auto grid max-w-6xl gap-x-8 gap-y-10 sm:grid-cols-2">
+          <div className=" grid gap-x-8 gap-y-10 sm:grid-cols-2">
             {services.map((service) => {
               const href = serviceHref(service.slug)
 
               return (
-                <article key={service.slug} id={service.slug} className="group flex h-full flex-col">
+                <article
+                  key={service.slug}
+                  id={service.slug}
+                  className="group flex h-full flex-col"
+                >
                   <Link
                     href={href}
                     className="relative block aspect-[4/3] overflow-hidden bg-paper-2"

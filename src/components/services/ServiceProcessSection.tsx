@@ -21,20 +21,6 @@ const bathroomPhotos = [
   '/services/kitchen-remodeling.jpeg',
 ]
 
-const homePhotos = [
-  '/services/home-remodeling.jpeg',
-  '/before-after/complete_remodeling_after.jpeg',
-  '/services/kitchen-remodeling.jpeg',
-]
-
-export type ServiceProcessContent = {
-  eyebrow?: string
-  title: string
-  description?: string
-  cta?: { label: string; href: string }
-  steps: ServiceContentStep[]
-}
-
 function withPhotos(steps: ServiceContentStep[], photos: string[]) {
   return steps.map((step, index) => ({
     ...step,
@@ -42,20 +28,12 @@ function withPhotos(steps: ServiceContentStep[], photos: string[]) {
   }))
 }
 
-function parseProcessLines(lines: string[], photos: string[]): ServiceContentStep[] {
-  return withPhotos(
-    lines.map((line, index) => {
-      const separator = line.indexOf(':')
-      if (separator > 0) {
-        return {
-          title: line.slice(0, separator).trim(),
-          description: line.slice(separator + 1).trim(),
-        }
-      }
-      return { title: `Step ${index + 1}`, description: line }
-    }),
-    photos,
-  )
+export type ServiceProcessContent = {
+  eyebrow?: string
+  title: string
+  description?: string
+  cta?: { label: string; href: string }
+  steps: ServiceContentStep[]
 }
 
 const kitchenProcess: ServiceProcessContent = {
@@ -162,16 +140,7 @@ export function getServiceProcess(service: ServiceDetail): ServiceProcessContent
     }
   }
 
-  if (!service.process.length) return undefined
-
-  return {
-    eyebrow: 'Our process',
-    title: 'We make it easy for you',
-    description:
-      'From the first visit to the final walkthrough, we keep the work sequenced, communicated, and tied to the plan you approved.',
-    cta: { label: 'Schedule your free consultation', href: '/contact' },
-    steps: parseProcessLines(service.process, [service.image, ...service.gallery, ...homePhotos]),
-  }
+  return undefined
 }
 
 export function ServiceProcessSection({

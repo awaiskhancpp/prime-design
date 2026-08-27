@@ -20,6 +20,107 @@ import { ServiceGallery } from './ServiceGallery'
 import { ServiceHero } from './ServiceHero'
 import { getServiceQuote, ServiceQuoteSection } from './ServiceQuoteSection'
 
+function splitLabeledLine(line: string) {
+  const separator = line.indexOf(':')
+  if (separator <= 0) return { title: line, description: '' }
+  return { title: line.slice(0, separator).trim(), description: line.slice(separator + 1).trim() }
+}
+
+function ServiceOverview({ service }: { service: ServiceDetail }) {
+  const sideImages = [...new Set([service.image, ...service.gallery].filter(Boolean))].slice(0, 2)
+  const hasVisualProcess = Boolean(
+    service.slug === 'kitchen-remodeling' || service.slug === 'bathroom-remodeling',
+  )
+
+  return (
+    <div className="grid gap-10 lg:grid-cols-[1.1fr_0.9fr] lg:items-start lg:gap-16">
+      <div>
+        <h2 className="font-display text-3xl font-medium leading-tight text-ink-2 md:text-4xl">
+          {service.introHeading || `${service.title} — expanding your living space`}
+        </h2>
+        <div className="mt-3 h-px w-20 bg-brass" />
+
+        <div className="mt-10 grid gap-10">
+          <div>
+            <h3 className="font-display text-xl font-medium text-ink-2">Key Features:</h3>
+            <ul className="mt-4 grid gap-3 text-base leading-7 text-ink-2/70">
+              {service.keyFeatures.map((item) => (
+                <li key={item} className="flex gap-3">
+                  <span className="mt-2 h-1.5 w-1.5 shrink-0 bg-brass" />
+                  {item}
+                </li>
+              ))}
+            </ul>
+          </div>
+
+          <div>
+            <h3 className="font-display text-xl font-medium text-ink-2">
+              Benefits of {service.title}:
+            </h3>
+            <ul className="mt-4 grid gap-3 text-base leading-7 text-ink-2/70">
+              {service.benefits.map((item) => {
+                const { title, description } = splitLabeledLine(item)
+                return (
+                  <li key={item} className="flex gap-3">
+                    <span className="mt-2 h-1.5 w-1.5 shrink-0 bg-brass" />
+                    <span>
+                      {description ? (
+                        <>
+                          <strong className="font-semibold text-ink-2">{title}:</strong> {description}
+                        </>
+                      ) : (
+                        item
+                      )}
+                    </span>
+                  </li>
+                )
+              })}
+            </ul>
+          </div>
+
+          {!hasVisualProcess && service.process.length > 0 ? (
+            <div>
+              <h3 className="font-display text-xl font-medium text-ink-2">Process:</h3>
+              <p className="mt-3 text-base leading-7 text-ink-2/70">
+                Our {service.slug === 'additions' ? 'home addition' : service.title.toLowerCase()}{' '}
+                process is designed to be seamless and efficient. Here’s an overview of how we work:
+              </p>
+              <ol className="mt-5 grid gap-4 text-base leading-7 text-ink-2/70">
+                {service.process.map((item, index) => {
+                  const { title, description } = splitLabeledLine(item)
+                  return (
+                    <li key={item} className="flex gap-3">
+                      <span className="font-semibold text-brass">{index + 1}.</span>
+                      <span>
+                        <strong className="font-semibold text-ink-2">{title}:</strong>{' '}
+                        {description || item}
+                      </span>
+                    </li>
+                  )
+                })}
+              </ol>
+            </div>
+          ) : null}
+        </div>
+      </div>
+
+      <div className="grid gap-5">
+        {sideImages.map((image, index) => (
+          <div key={`${image}-${index}`} className="relative aspect-[4/3] overflow-hidden bg-paper-2">
+            <Image
+              src={image}
+              alt={`${service.title} project photo ${index + 1}`}
+              fill
+              className="object-cover"
+              sizes="(min-width: 1024px) 40vw, 100vw"
+            />
+          </div>
+        ))}
+      </div>
+    </div>
+  )
+}
+
 function ServiceContentBlocks({ blocks }: { blocks: NonNullable<ServiceDetail['contentBlocks']> }) {
   return (
     <div className="grid gap-14">
@@ -134,40 +235,7 @@ export function ServiceDetailPage({ service }: { service: ServiceDetail }) {
           {contentBlocks?.length ? (
             <ServiceContentBlocks blocks={contentBlocks} />
           ) : (
-            <div className="grid gap-10 lg:grid-cols-[0.85fr_1.15fr] lg:gap-16">
-              <div>
-                <h2 className="font-display text-3xl font-semibold text-ink">
-                  {service.introHeading || `${service.title} — expanding your living space`}
-                </h2>
-                <div className="mt-3 h-px w-20 bg-brass" />
-              </div>
-              <div className="grid gap-9">
-                <div>
-                  <h3 className="font-display text-xl font-semibold text-ink">Key Features:</h3>
-                  <ul className="mt-4 grid gap-3 text-sm leading-6 text-ink-2/75">
-                    {service.keyFeatures.map((item) => (
-                      <li key={item} className="flex gap-3">
-                        <span className="text-brass">•</span>
-                        {item}
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-                <div>
-                  <h3 className="font-display text-xl font-semibold text-ink">
-                    Benefits of {service.title}:
-                  </h3>
-                  <ul className="mt-4 grid gap-3 text-sm leading-6 text-ink-2/75">
-                    {service.benefits.map((item) => (
-                      <li key={item} className="flex gap-3">
-                        <span className="text-brass">•</span>
-                        {item}
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-              </div>
-            </div>
+            <ServiceOverview service={service} />
           )}
         </Section>
         {cmsVideos.length

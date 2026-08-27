@@ -11,14 +11,13 @@ function galleryImagesFor(service: ServiceDetail) {
   const cmsGallery = service.contentBlocks?.find((block) => block.blockType === 'gallery')
   const fromCms = cmsGallery && cmsGallery.blockType === 'gallery' ? cmsGallery.images : []
 
-  const category =
-    service.slug.includes('kitchen')
-      ? galleryCategories.find((item) => item.slug === 'kitchens')
-      : service.slug.includes('bathroom')
-        ? galleryCategories.find((item) => item.slug === 'bathrooms')
-        : service.slug === 'adu' || service.slug === 'additions'
-          ? galleryCategories.find((item) => item.slug === 'adu-additions')
-          : undefined
+  const category = service.slug.includes('kitchen')
+    ? galleryCategories.find((item) => item.slug === 'kitchens')
+    : service.slug.includes('bathroom')
+      ? galleryCategories.find((item) => item.slug === 'bathrooms')
+      : service.slug === 'adu' || service.slug === 'additions'
+        ? galleryCategories.find((item) => item.slug === 'adu-additions')
+        : undefined
 
   const combined = [...fromCms, ...service.gallery, ...(category?.images ?? []), service.image]
   return [...new Set(combined.filter(Boolean))].slice(0, 6)
@@ -37,7 +36,7 @@ export function ServiceGallery({ service }: { service: ServiceDetail }) {
         description="See the kind of work we do—from first concept through the finished space—and imagine what the same care would look like in your home."
       />
 
-      <div className="mx-auto mt-10 grid max-w-6xl gap-5 sm:grid-cols-2">
+      <div className=" mt-10 grid gap-5 sm:grid-cols-3">
         {images.map((image, index) => (
           <div
             key={`${image}-${index}`}

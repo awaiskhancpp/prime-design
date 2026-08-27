@@ -1,5 +1,6 @@
 import type { Metadata } from 'next'
-import { notFound, redirect } from 'next/navigation'
+import { notFound } from 'next/navigation'
+import { ServiceDetailPage } from '@/components/services/ServiceDetailPage'
 import { resolveServiceDetail, services } from '@/lib/services'
 
 export function generateStaticParams() {
@@ -14,21 +15,19 @@ export async function generateMetadata({
   const { serviceSlug } = await params
   const service = await resolveServiceDetail(serviceSlug)
   if (!service) return {}
-
   return {
     title: service.seo?.metaTitle || `${service.title} | Prime Design & Build`,
     description: service.seo?.metaDescription || service.description,
-    alternates: service.seo?.canonicalUrl ? { canonical: service.seo.canonicalUrl } : undefined,
-    robots: service.seo?.noIndex ? { index: false, follow: false } : undefined,
   }
 }
 
-export default async function ServiceSlugRoute({
+export default async function ServicePage({
   params,
 }: {
   params: Promise<{ serviceSlug: string }>
 }) {
   const { serviceSlug } = await params
-  if (!services.some((service) => service.slug === serviceSlug)) notFound()
-  redirect(`/services/${serviceSlug}`)
+  const service = await resolveServiceDetail(serviceSlug)
+  if (!service) notFound()
+  return <ServiceDetailPage service={service} />
 }
