@@ -75,6 +75,7 @@ export interface Config {
     services: Service;
     locations: Location;
     'service-locations': ServiceLocation;
+    'consultation-types': ConsultationType;
     'payload-kv': PayloadKv;
     'payload-locked-documents': PayloadLockedDocument;
     'payload-preferences': PayloadPreference;
@@ -90,6 +91,7 @@ export interface Config {
     services: ServicesSelect<false> | ServicesSelect<true>;
     locations: LocationsSelect<false> | LocationsSelect<true>;
     'service-locations': ServiceLocationsSelect<false> | ServiceLocationsSelect<true>;
+    'consultation-types': ConsultationTypesSelect<false> | ConsultationTypesSelect<true>;
     'payload-kv': PayloadKvSelect<false> | PayloadKvSelect<true>;
     'payload-locked-documents': PayloadLockedDocumentsSelect<false> | PayloadLockedDocumentsSelect<true>;
     'payload-preferences': PayloadPreferencesSelect<false> | PayloadPreferencesSelect<true>;
@@ -477,6 +479,22 @@ export interface ServiceLocation {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "consultation-types".
+ */
+export interface ConsultationType {
+  id: number;
+  title: string;
+  slug: string;
+  duration: string;
+  image: number | Media;
+  bookingUrl: string;
+  active?: boolean | null;
+  sortOrder?: number | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "payload-kv".
  */
 export interface PayloadKv {
@@ -530,6 +548,10 @@ export interface PayloadLockedDocument {
     | ({
         relationTo: 'service-locations';
         value: number | ServiceLocation;
+      } | null)
+    | ({
+        relationTo: 'consultation-types';
+        value: number | ConsultationType;
       } | null);
   globalSlug?: string | null;
   user: {
@@ -892,6 +914,21 @@ export interface ServiceLocationsSelect<T extends boolean = true> {
         ogDescription?: T;
         ogImage?: T;
       };
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "consultation-types_select".
+ */
+export interface ConsultationTypesSelect<T extends boolean = true> {
+  title?: T;
+  slug?: T;
+  duration?: T;
+  image?: T;
+  bookingUrl?: T;
+  active?: T;
+  sortOrder?: T;
   updatedAt?: T;
   createdAt?: T;
 }

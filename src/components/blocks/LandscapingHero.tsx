@@ -27,17 +27,17 @@ export function LandscapingHero() {
       <SiteHeader />
       <Container className="relative z-10 w-full">
         <div className="max-w-3xl">
-          <p className="mb-5 text-xs font-semibold uppercase tracking-[0.2em] text-brass">
+          <p className="text-xs font-semibold uppercase tracking-[0.2em] text-brass">
             Landscaping & outdoor living
           </p>
           <h1 className="max-w-2xl font-display text-5xl font-medium leading-tight tracking-tight md:text-7xl">
             Outside should feel like part of home.
           </h1>
-          <p className="mt-7 max-w-xl text-base leading-7 text-white/75 md:text-lg">
+          <p className="mt-2 max-w-xl text-base leading-7 text-white/75 md:text-lg">
             We design and build calm, purposeful outdoor spaces that make everyday life better—from
             the first planting plan to the last piece of stone.
           </p>
-          <div className="mt-9 flex flex-wrap gap-2">
+          <div className="mt-6 flex flex-wrap gap-2">
             <Button href="/contact" variant="primary">
               <CalendarDays /> Schedule a Consultation <ArrowRight />
             </Button>
