@@ -127,7 +127,7 @@ export function ServiceOfferingsSection({
         </div>
       )}
 
-      <div className="mx-auto mt-12 grid max-w-6xl gap-x-8 gap-y-10 sm:grid-cols-2">
+      <div className=" mt-12 grid  gap-x-8 gap-y-10 sm:grid-cols-3">
         {cards.map((card) => (
           <article key={card.title} className="group flex h-full flex-col">
             <Link

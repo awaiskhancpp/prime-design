@@ -1,11 +1,19 @@
 import { ArrowUpRight } from 'lucide-react'
+import Link from 'next/link'
 
 import website from '../../../website.json'
 import { Section } from '@/components/ui/Section'
 import { Button } from '../ui/Button'
 
-export function LandscapingServiceAreas() {
+const citySlug = (city: string) =>
+  city
+    .toLowerCase()
+    .replace(/\s+/g, '-')
+    .replace(/[^a-z0-9-]/g, '')
+
+export function LandscapingServiceAreas({ serviceSlug }: { serviceSlug?: string } = {}) {
   const { heading, cities, trailingLabel, trailingHref } = website.serviceAreas
+  const targetServiceSlug = serviceSlug || 'kitchen-remodeling'
 
   return (
     <Section className="bg-white text-ink">
@@ -30,12 +38,13 @@ export function LandscapingServiceAreas() {
 
         <div className="flex flex-wrap gap-3">
           {cities.map((city) => (
-            <span
+            <Link
               key={city}
-              className=" border border-line px-4 py-2 text-sm text-ink/75 transition-colors hover:border-brass hover:text-brass-deep"
+              href={`/${targetServiceSlug}/${targetServiceSlug}-in-${citySlug(city)}`}
+              className="border border-line px-4 py-2 text-sm text-ink/75 transition-colors hover:border-brass hover:text-brass-deep"
             >
               {city}
-            </span>
+            </Link>
           ))}
         </div>
       </div>

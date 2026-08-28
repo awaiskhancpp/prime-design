@@ -7,16 +7,17 @@ import { HomeServices } from './blocks/HomeServices'
 import { HomeFeatureBlocks } from './blocks/HomeFeatureBlocks'
 import { HomeContact } from './blocks/HomeContact'
 import { HomeProjects } from './blocks/HomeProjects'
+import { LandscapingDifference } from './blocks/LandscapingDifference'
 
 export function LandscapingPage() {
   return (
     <div className="min-h-screen bg-white">
       <LandscapingHero />
       <LandscapingIntro />
+      <LandscapingDifference />
       <HomeProjects />
       {/* <LandscapingServices /> */}
       <HomeServices />
-      {/* <LandscapingDifference /> */}
 
       <HomeFeatureBlocks />
       <HomeContact />

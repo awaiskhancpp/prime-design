@@ -442,7 +442,7 @@ export function ServiceDetailPage({ service }: { service: ServiceDetail }) {
         {sections.reviews ? <ProjectsReviews /> : null}
         {sections.contact ? <HomeContact /> : null}
       </main>
-      <LandscapingServiceAreas />
+      <LandscapingServiceAreas serviceSlug={service.slug} />
       <LandscapingCta />
       <SiteFooter />
     </div>

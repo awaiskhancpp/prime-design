@@ -46,7 +46,7 @@ export function PageHero({
       <SiteHeader />
 
       <Container className="relative z-10 w-full max-w-none">
-        <div className="max-w-4xl">
+        <div className="max-w-3xl">
           <p className="text-xs font-semibold uppercase tracking-[0.24em] text-brass">{eyebrow}</p>
           <h1 className="mt-1 max-w-4xl font-display text-5xl font-medium leading-tight tracking-tight md:text-7xl">
             {title}
