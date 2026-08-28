@@ -2,7 +2,7 @@ import type { Metadata } from 'next'
 import { notFound } from 'next/navigation'
 
 import { ProjectDetailPage } from '@/components/projects/ProjectDetailPage'
-import { getProjectBySlug, projects } from '@/lib/projects'
+import { projects, resolveProjectBySlug } from '@/lib/projects'
 
 export function generateStaticParams() {
   return projects.map((project) => ({ slug: project.slug }))
@@ -10,7 +10,7 @@ export function generateStaticParams() {
 
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
   const { slug } = await params
-  const project = getProjectBySlug(slug)
+  const project = await resolveProjectBySlug(slug)
 
   return {
     title: project ? `${project.title} | Prime Design & Build` : 'Project | Prime Design & Build',
@@ -20,7 +20,7 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
 
 export default async function ProjectDetailRoute({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params
-  const project = getProjectBySlug(slug)
+  const project = await resolveProjectBySlug(slug)
 
   if (!project) notFound()
 

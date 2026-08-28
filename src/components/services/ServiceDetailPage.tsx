@@ -194,8 +194,23 @@ function ServiceOverview({
           {service.introHeading || `${service.title} — expanding your living space`}
         </h2>
         <div className="mt-3 h-px w-20 bg-brass" />
+        <div className="grid gap-5">
+          {sideImages.map((image, index) => (
+            <div key={`${image}-${index}`} className="relative aspect-[4/3] overflow-hidden ">
+              <Image
+                src={image}
+                alt={`${service.title} project photo ${index + 1}`}
+                fill
+                className="object-cover"
+                sizes="(min-width: 1024px) 40vw, 100vw"
+              />
+            </div>
+          ))}
+        </div>
+      </div>
 
-        <div className="mt-10 grid gap-10">
+      <div className="grid gap-5">
+        <div className="mt-3 grid gap-10">
           <div>
             <h3 className="font-display text-xl font-medium text-ink-2">Key Features:</h3>
             <ul className="mt-4 grid gap-3 text-base leading-7 text-ink-2/70">
@@ -259,28 +274,17 @@ function ServiceOverview({
           ) : null}
         </div>
       </div>
-
-      <div className="grid gap-5">
-        {sideImages.map((image, index) => (
-          <div
-            key={`${image}-${index}`}
-            className="relative aspect-[4/3] overflow-hidden bg-paper-2"
-          >
-            <Image
-              src={image}
-              alt={`${service.title} project photo ${index + 1}`}
-              fill
-              className="object-cover"
-              sizes="(min-width: 1024px) 40vw, 100vw"
-            />
-          </div>
-        ))}
-      </div>
     </div>
   )
 }
 
-function ServiceContentBlocks({ blocks }: { blocks: NonNullable<ServiceDetail['contentBlocks']> }) {
+function ServiceContentBlocks({
+  service,
+  blocks,
+}: {
+  service: ServiceDetail
+  blocks: NonNullable<ServiceDetail['contentBlocks']>
+}) {
   return (
     <div className="grid gap-14">
       {blocks.map((block: ServiceContentBlock, index) => {
@@ -335,7 +339,32 @@ function ServiceContentBlocks({ blocks }: { blocks: NonNullable<ServiceDetail['c
               steps={block.steps}
             />
           )
-        if (block.blockType === 'gallery') return null
+        if (block.blockType === 'gallery')
+          return (
+            <div key={`${block.blockType}-${index}`}>
+              {block.heading && (
+                <h2 className="mb-6 font-display text-3xl font-semibold text-ink">
+                  {block.heading}
+                </h2>
+              )}
+              <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+                {block.images.map((image, imageIndex) => (
+                  <div
+                    key={`${image}-${imageIndex}`}
+                    className="relative aspect-[4/3] overflow-hidden bg-paper-2"
+                  >
+                    <Image
+                      src={image}
+                      alt={`${service.title} image ${imageIndex + 1}`}
+                      fill
+                      className="object-cover"
+                      sizes="(min-width: 1024px) 33vw, 100vw"
+                    />
+                  </div>
+                ))}
+              </div>
+            </div>
+          )
         if (block.blockType === 'sub-services')
           return (
             <ServiceOfferingsSection
@@ -360,7 +389,16 @@ function ServiceContentBlocks({ blocks }: { blocks: NonNullable<ServiceDetail['c
               poster={block.poster}
             />
           )
-        if (block.blockType === 'quote') return null
+        if (block.blockType === 'quote')
+          return (
+            <ServiceQuoteSection
+              key={`${block.blockType}-${index}`}
+              heading="Our promise"
+              quote={block.quote}
+              attribution={block.attribution || 'Prime Design & Build'}
+              image={service.image}
+            />
+          )
       })}
     </div>
   )
@@ -368,6 +406,7 @@ function ServiceContentBlocks({ blocks }: { blocks: NonNullable<ServiceDetail['c
 
 export function ServiceDetailPage({ service }: { service: ServiceDetail }) {
   const sections = getServicePageSections(service.slug)
+  const hasCmsBlocks = Boolean(service.contentBlocks?.length)
   const offerings = getServiceOfferings(service.slug)
   const fallbackVideo = sections.video ? getServiceVideo(service.slug) : undefined
   const process = getServiceProcess(service)
@@ -391,58 +430,72 @@ export function ServiceDetailPage({ service }: { service: ServiceDetail }) {
       <SiteHeader />
       <main>
         <ServiceHero service={service} />
-        <Section>
-          {sections.homeRepairCategories ? (
-            <ServiceHomeRepairCategoriesSection categories={homeRepairCategoriesContent} />
-          ) : contentBlocks?.length ? (
-            <ServiceContentBlocks blocks={contentBlocks} />
-          ) : (
-            <ServiceOverview service={service} showInlineProcess={sections.inlineProcess} />
-          )}
-        </Section>
-        {sections.homeRepairWhyChooseUs ? <ServiceWhyChooseUsSection /> : null}
-        {sections.realHomes ? (
-          <ServiceRealHomesStoriesSection {...getRealHomesContent(service)} />
-        ) : null}
-        {cmsVideos.length ? (
-          cmsVideos.map((block, index) =>
-            block.blockType === 'video' ? (
-              <ServiceVideoSection
-                key={`video-${index}`}
-                title={block.heading || 'See the difference'}
-                videoUrl={block.videoUrl}
-                poster={block.poster}
+        {hasCmsBlocks ? (
+          <Section>
+            <ServiceContentBlocks service={service} blocks={service.contentBlocks!} />
+          </Section>
+        ) : (
+          <>
+            <Section>
+              {sections.homeRepairCategories ? (
+                <ServiceHomeRepairCategoriesSection categories={homeRepairCategoriesContent} />
+              ) : contentBlocks?.length ? (
+                <ServiceContentBlocks service={service} blocks={contentBlocks} />
+              ) : (
+                <ServiceOverview service={service} showInlineProcess={sections.inlineProcess} />
+              )}
+            </Section>
+            {sections.homeRepairWhyChooseUs ? <ServiceWhyChooseUsSection /> : null}
+            {sections.realHomes ? (
+              <ServiceRealHomesStoriesSection {...getRealHomesContent(service)} />
+            ) : null}
+            {cmsVideos.length ? (
+              cmsVideos.map((block, index) =>
+                block.blockType === 'video' ? (
+                  <ServiceVideoSection
+                    key={`video-${index}`}
+                    title={block.heading || 'See the difference'}
+                    videoUrl={block.videoUrl}
+                    poster={block.poster}
+                  />
+                ) : null,
+              )
+            ) : fallbackVideo ? (
+              <ServiceVideoSection {...fallbackVideo} />
+            ) : null}
+            {sections.offerings && offerings ? <ServiceOfferingsSection {...offerings} /> : null}
+            {sections.process && process ? <ServiceProcessSection {...process} /> : null}
+            {sections.gallery ? <ServiceGallery service={service} /> : null}
+            {sections.craftsmanship ? (
+              <ServiceCraftsmanshipTransformsSection {...getCraftsmanshipContent(service)} />
+            ) : null}
+            <ServiceAreasSection service={service} />
+            {sections.quote && cmsQuote && cmsQuote.blockType === 'quote' ? (
+              <ServiceQuoteSection
+                heading="Our promise"
+                quote={cmsQuote.quote}
+                attribution={cmsQuote.attribution || 'Prime Design & Build'}
+                image={service.image}
               />
-            ) : null,
-          )
-        ) : fallbackVideo ? (
-          <ServiceVideoSection {...fallbackVideo} />
+            ) : sections.quote && fallbackQuote ? (
+              <ServiceQuoteSection {...fallbackQuote} />
+            ) : null}
+            {sections.whyChooseUs ? <WhyChooseUs /> : null}
+            {sections.faq ? <ServiceFaq slug={service.slug} /> : null}
+            {sections.estimate ? <ServiceEstimateCta /> : null}
+            {sections.siliconValleyLoves ? <ServiceSiliconValleyLovesSection /> : null}
+            {sections.reviews ? <ProjectsReviews /> : null}
+            {sections.contact ? <HomeContact /> : null}
+          </>
+        )}
+        {hasCmsBlocks ? (
+          <>
+            <ProjectsReviews />
+            <HomeContact />
+          </>
         ) : null}
-        {sections.offerings && offerings ? <ServiceOfferingsSection {...offerings} /> : null}
-        {sections.process && process ? <ServiceProcessSection {...process} /> : null}
-        {sections.gallery ? <ServiceGallery service={service} /> : null}
-        {sections.craftsmanship ? (
-          <ServiceCraftsmanshipTransformsSection {...getCraftsmanshipContent(service)} />
-        ) : null}
-        <ServiceAreasSection service={service} />
-        {sections.quote && cmsQuote && cmsQuote.blockType === 'quote' ? (
-          <ServiceQuoteSection
-            heading="Our promise"
-            quote={cmsQuote.quote}
-            attribution={cmsQuote.attribution || 'Prime Design & Build'}
-            image={service.image}
-          />
-        ) : sections.quote && fallbackQuote ? (
-          <ServiceQuoteSection {...fallbackQuote} />
-        ) : null}
-        {sections.whyChooseUs ? <WhyChooseUs /> : null}
-        {sections.faq ? <ServiceFaq slug={service.slug} /> : null}
-        {sections.estimate ? <ServiceEstimateCta /> : null}
-        {sections.siliconValleyLoves ? <ServiceSiliconValleyLovesSection /> : null}
-        {sections.reviews ? <ProjectsReviews /> : null}
-        {sections.contact ? <HomeContact /> : null}
       </main>
-      <LandscapingServiceAreas serviceSlug={service.slug} />
+      <LandscapingServiceAreas />
       <LandscapingCta />
       <SiteFooter />
     </div>

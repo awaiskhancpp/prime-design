@@ -1,14 +1,12 @@
 import type { Metadata } from 'next'
-import { notFound, redirect } from 'next/navigation'
-import { WordPressPageShell } from '@/components/pages/WordPressPageShell'
+import { notFound, permanentRedirect, redirect } from 'next/navigation'
+import { PayloadPage } from '@/components/pages/PayloadPage'
 import { resolveServiceDetail, services } from '@/lib/services'
-import { getWordPressPage, wordpressPages } from '@/lib/wordpressPages'
+import { resolvePageBySlug } from '@/lib/pages'
+import { resolveRedirect } from '@/lib/redirects'
 
 export function generateStaticParams() {
-  return [
-    ...services.map((service) => ({ serviceSlug: service.slug })),
-    ...wordpressPages.map((page) => ({ serviceSlug: page.slug })),
-  ]
+  return services.map((service) => ({ serviceSlug: service.slug }))
 }
 
 export async function generateMetadata({
@@ -17,23 +15,33 @@ export async function generateMetadata({
   params: Promise<{ serviceSlug: string }>
 }): Promise<Metadata> {
   const { serviceSlug } = await params
-  const service = await resolveServiceDetail(serviceSlug)
-  if (!service) {
-    const page = getWordPressPage(serviceSlug)
-    return page
-      ? {
-          title: page.seoTitle || `${page.title} | Prime Design & Build`,
-          description: page.seoDescription,
-        }
-      : {}
+  const legacyRedirect = await resolveRedirect(`/${serviceSlug}`)
+  if (legacyRedirect) {
+    if (legacyRedirect.statusCode === '301' || legacyRedirect.statusCode === '308') {
+      permanentRedirect(legacyRedirect.newPath)
+    }
+    redirect(legacyRedirect.newPath)
   }
 
-  return {
-    title: service.seo?.metaTitle || `${service.title} | Prime Design & Build`,
-    description: service.seo?.metaDescription || service.description,
-    alternates: service.seo?.canonicalUrl ? { canonical: service.seo.canonicalUrl } : undefined,
-    robots: service.seo?.noIndex ? { index: false, follow: false } : undefined,
+  const service = await resolveServiceDetail(serviceSlug)
+  if (service) {
+    return {
+      title: service.seo?.metaTitle || `${service.title} | Prime Design & Build`,
+      description: service.seo?.metaDescription || service.description,
+      alternates: service.seo?.canonicalUrl ? { canonical: service.seo.canonicalUrl } : undefined,
+      robots: service.seo?.noIndex ? { index: false, follow: false } : undefined,
+    }
   }
+
+  const page = await resolvePageBySlug(serviceSlug)
+  return page
+    ? {
+        title: page.seo?.metaTitle || `${page.title} | Prime Design & Build`,
+        description: page.seo?.metaDescription || page.hero?.description,
+        alternates: page.seo?.canonicalUrl ? { canonical: page.seo.canonicalUrl } : undefined,
+        robots: page.seo?.noIndex ? { index: false, follow: false } : undefined,
+      }
+    : {}
 }
 
 export default async function ServiceSlugRoute({
@@ -43,10 +51,10 @@ export default async function ServiceSlugRoute({
 }) {
   const { serviceSlug } = await params
   if (services.some((service) => service.slug === serviceSlug)) {
-    redirect(`/services/${serviceSlug}`)
+    permanentRedirect(`/services/${serviceSlug}`)
   }
 
-  const page = getWordPressPage(serviceSlug)
+  const page = await resolvePageBySlug(serviceSlug)
   if (!page) notFound()
-  return <WordPressPageShell page={page} />
+  return <PayloadPage page={page} />
 }

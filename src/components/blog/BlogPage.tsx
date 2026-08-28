@@ -4,10 +4,12 @@ import { LandscapingServiceAreas } from '@/components/blocks/LandscapingServiceA
 import { SiteFooter } from '@/components/layout/SiteFooter'
 import { PageHero } from '@/components/layout/PageHero'
 import { Section } from '@/components/ui/Section'
-import { blogPosts } from '@/lib/blog'
+import { resolveBlogPosts } from '@/lib/blog'
 import { BlogCard } from './BlogCard'
 
-export function BlogPage() {
+export async function BlogPage() {
+  const blogPosts = await resolveBlogPosts()
+
   return (
     <div className="min-h-screen bg-white">
       <PageHero

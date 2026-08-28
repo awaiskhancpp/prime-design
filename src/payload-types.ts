@@ -69,13 +69,18 @@ export interface Config {
   collections: {
     users: User;
     media: Media;
-    'landscaping-pages': LandscapingPage;
-    'blog-posts': BlogPost;
     faqs: Faq;
+    'faq-categories': FaqCategory;
     services: Service;
     locations: Location;
     'service-locations': ServiceLocation;
-    'consultation-types': ConsultationType;
+    pages: Page;
+    projects: Project;
+    redirects: Redirect;
+    team: Team;
+    testimonials: Testimonial;
+    blog: Blog;
+    'blog-categories': BlogCategory;
     'payload-kv': PayloadKv;
     'payload-locked-documents': PayloadLockedDocument;
     'payload-preferences': PayloadPreference;
@@ -85,13 +90,18 @@ export interface Config {
   collectionsSelect: {
     users: UsersSelect<false> | UsersSelect<true>;
     media: MediaSelect<false> | MediaSelect<true>;
-    'landscaping-pages': LandscapingPagesSelect<false> | LandscapingPagesSelect<true>;
-    'blog-posts': BlogPostsSelect<false> | BlogPostsSelect<true>;
     faqs: FaqsSelect<false> | FaqsSelect<true>;
+    'faq-categories': FaqCategoriesSelect<false> | FaqCategoriesSelect<true>;
     services: ServicesSelect<false> | ServicesSelect<true>;
     locations: LocationsSelect<false> | LocationsSelect<true>;
     'service-locations': ServiceLocationsSelect<false> | ServiceLocationsSelect<true>;
-    'consultation-types': ConsultationTypesSelect<false> | ConsultationTypesSelect<true>;
+    pages: PagesSelect<false> | PagesSelect<true>;
+    projects: ProjectsSelect<false> | ProjectsSelect<true>;
+    redirects: RedirectsSelect<false> | RedirectsSelect<true>;
+    team: TeamSelect<false> | TeamSelect<true>;
+    testimonials: TestimonialsSelect<false> | TestimonialsSelect<true>;
+    blog: BlogSelect<false> | BlogSelect<true>;
+    'blog-categories': BlogCategoriesSelect<false> | BlogCategoriesSelect<true>;
     'payload-kv': PayloadKvSelect<false> | PayloadKvSelect<true>;
     'payload-locked-documents': PayloadLockedDocumentsSelect<false> | PayloadLockedDocumentsSelect<true>;
     'payload-preferences': PayloadPreferencesSelect<false> | PayloadPreferencesSelect<true>;
@@ -101,8 +111,12 @@ export interface Config {
     defaultIDType: number;
   };
   fallbackLocale: null;
-  globals: {};
-  globalsSelect: {};
+  globals: {
+    'site-settings': SiteSetting;
+  };
+  globalsSelect: {
+    'site-settings': SiteSettingsSelect<false> | SiteSettingsSelect<true>;
+  };
   locale: null;
   widgets: {
     collections: CollectionsWidget;
@@ -137,6 +151,10 @@ export interface UserAuthOperations {
  */
 export interface User {
   id: number;
+  /**
+   * Displayed as the author byline on blog posts. Falls back to email if blank.
+   */
+  name?: string | null;
   updatedAt: string;
   createdAt: string;
   email: string;
@@ -163,6 +181,11 @@ export interface User {
 export interface Media {
   id: number;
   alt: string;
+  caption?: string | null;
+  description?: string | null;
+  wordpressId?: number | null;
+  sourceUrl?: string | null;
+  sourcePath?: string | null;
   updatedAt: string;
   createdAt: string;
   url?: string | null;
@@ -176,80 +199,6 @@ export interface Media {
   focalY?: number | null;
 }
 /**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "landscaping-pages".
- */
-export interface LandscapingPage {
-  id: number;
-  title: string;
-  slug: string;
-  hero: {
-    eyebrow?: string | null;
-    headline: string;
-    subheadline?: string | null;
-    image?: (number | null) | Media;
-    ctaLabel?: string | null;
-    ctaHref?: string | null;
-  };
-  services?:
-    | {
-        number: string;
-        title: string;
-        description: string;
-        id?: string | null;
-      }[]
-    | null;
-  principles?:
-    | {
-        text: string;
-        id?: string | null;
-      }[]
-    | null;
-  serviceAreas?:
-    | {
-        city: string;
-        id?: string | null;
-      }[]
-    | null;
-  updatedAt: string;
-  createdAt: string;
-}
-/**
- * Long-form articles used by the blog listing and detail pages.
- *
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "blog-posts".
- */
-export interface BlogPost {
-  id: number;
-  title: string;
-  slug: string;
-  excerpt: string;
-  categories?:
-    | {
-        label: string;
-        id?: string | null;
-      }[]
-    | null;
-  author: string;
-  publishedAt: string;
-  heroImage: number | Media;
-  intro?: string | null;
-  sections?:
-    | {
-        eyebrow?: string | null;
-        heading: string;
-        body: string;
-        image?: (number | null) | Media;
-        imageAlt?: string | null;
-        imagePosition?: ('left' | 'right' | 'center') | null;
-        id?: string | null;
-      }[]
-    | null;
-  updatedAt: string;
-  createdAt: string;
-}
-/**
  * Frequently asked questions grouped by remodeling service.
  *
  * This interface was referenced by `Config`'s JSON-Schema
@@ -259,9 +208,22 @@ export interface Faq {
   id: number;
   question: string;
   answer: string;
-  category: string;
+  category: number | FaqCategory;
   sortOrder?: number | null;
   visible?: boolean | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * Controlled categories used to organize service and page FAQs.
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "faq-categories".
+ */
+export interface FaqCategory {
+  id: number;
+  title: string;
+  slug: string;
   updatedAt: string;
   createdAt: string;
 }
@@ -275,6 +237,10 @@ export interface Service {
   id: number;
   title: string;
   slug: string;
+  /**
+   * Optional parent service for a service subcategory.
+   */
+  parentService?: (number | null) | Service;
   shortDescription?: string | null;
   description?: string | null;
   hero?: {
@@ -288,6 +254,7 @@ export interface Service {
     video?: (number | null) | Media;
   };
   featured?: boolean | null;
+  showInConsultationForm?: boolean | null;
   sortOrder?: number | null;
   contentBlocks?:
     | (
@@ -478,18 +445,351 @@ export interface ServiceLocation {
   createdAt: string;
 }
 /**
+ * CMS-managed pages rendered by the shared page route.
+ *
  * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "consultation-types".
+ * via the `definition` "pages".
  */
-export interface ConsultationType {
+export interface Page {
   id: number;
   title: string;
   slug: string;
-  duration: string;
-  image: number | Media;
-  bookingUrl: string;
+  hero?: {
+    eyebrow?: string | null;
+    heading?: string | null;
+    description?: string | null;
+    image?: (number | null) | Media;
+    video?: (number | null) | Media;
+  };
+  layout?:
+    | (
+        | {
+            eyebrow?: string | null;
+            heading: string;
+            body: string;
+            id?: string | null;
+            blockName?: string | null;
+            blockType: 'content';
+          }
+        | {
+            eyebrow?: string | null;
+            heading: string;
+            body: string;
+            image?: (number | null) | Media;
+            imageSide?: ('left' | 'right') | null;
+            id?: string | null;
+            blockName?: string | null;
+            blockType: 'image-text';
+          }
+        | {
+            heading?: string | null;
+            images?: (number | Media)[] | null;
+            id?: string | null;
+            blockName?: string | null;
+            blockType: 'gallery';
+          }
+        | {
+            heading: string;
+            body?: string | null;
+            label?: string | null;
+            href?: string | null;
+            id?: string | null;
+            blockName?: string | null;
+            blockType: 'cta';
+          }
+      )[]
+    | null;
+  isGoogleAdsPage?: boolean | null;
+  seo?: {
+    metaTitle?: string | null;
+    metaDescription?: string | null;
+    canonicalUrl?: string | null;
+    noIndex?: boolean | null;
+    ogTitle?: string | null;
+    ogDescription?: string | null;
+    ogImage?: (number | null) | Media;
+  };
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * Completed remodeling and construction projects.
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "projects".
+ */
+export interface Project {
+  id: number;
+  title: string;
+  slug: string;
+  summary?: string | null;
+  description?: string | null;
+  content?: {
+    root: {
+      type: string;
+      children: {
+        type: any;
+        version: number;
+        [k: string]: unknown;
+      }[];
+      direction: ('ltr' | 'rtl') | null;
+      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+      indent: number;
+      version: number;
+    };
+    [k: string]: unknown;
+  } | null;
+  location?: string | null;
+  category?: string | null;
+  featuredImage?: (number | null) | Media;
+  gallery?: (number | Media)[] | null;
+  address?: string | null;
+  videoUrl?: string | null;
+  seo?: {
+    metaTitle?: string | null;
+    metaDescription?: string | null;
+    canonicalUrl?: string | null;
+    noIndex?: boolean | null;
+    ogTitle?: string | null;
+    ogDescription?: string | null;
+    ogImage?: (number | null) | Media;
+  };
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * Permanent and temporary URL redirects used during migration.
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "redirects".
+ */
+export interface Redirect {
+  id: number;
+  oldPath: string;
+  newPath: string;
+  statusCode: '308' | '301' | '307' | '302';
   active?: boolean | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * Team members displayed on the company page.
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "team".
+ */
+export interface Team {
+  id: number;
+  name: string;
+  slug: string;
+  position?: string | null;
+  image?: (number | null) | Media;
+  bio?: {
+    root: {
+      type: string;
+      children: {
+        type: any;
+        version: number;
+        [k: string]: unknown;
+      }[];
+      direction: ('ltr' | 'rtl') | null;
+      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+      indent: number;
+      version: number;
+    };
+    [k: string]: unknown;
+  } | null;
+  seo?: {
+    metaTitle?: string | null;
+    metaDescription?: string | null;
+    canonicalUrl?: string | null;
+    noIndex?: boolean | null;
+    ogTitle?: string | null;
+    ogDescription?: string | null;
+    ogImage?: (number | null) | Media;
+  };
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * Reusable customer testimonials and review quotes.
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "testimonials".
+ */
+export interface Testimonial {
+  id: number;
+  name: string;
+  quote: string;
+  location?: string | null;
+  rating?: number | null;
+  source?: string | null;
+  image?: (number | null) | Media;
+  featured?: boolean | null;
   sortOrder?: number | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "blog".
+ */
+export interface Blog {
+  id: number;
+  title: string;
+  /**
+   * Auto-generated from title but editable
+   */
+  slug: string;
+  /**
+   * Original WordPress post ID — used to make the migration script idempotent.
+   */
+  wordpressId?: number | null;
+  /**
+   * Original WordPress URL, for legacy redirects.
+   */
+  sourceUrl?: string | null;
+  /**
+   * Set to "Scheduled" and pick a go-live time below. A background job publishes it automatically (checked every 6 hours).
+   */
+  status: 'draft' | 'published' | 'scheduled';
+  /**
+   * Calendar date to publish (interpreted in US Pacific Time). Must be tomorrow or later.
+   */
+  scheduledPublishDate?: string | null;
+  /**
+   * Go-live time slot in US Pacific Time. The scheduler checks every 6 hours, so the post goes live at the next check after this slot.
+   */
+  scheduledPublishSlot?: ('0' | '6' | '12' | '18') | null;
+  scheduledPublishAt?: string | null;
+  /**
+   * Auto-set to current date/time on save. Can be manually overridden.
+   */
+  publishedDate?: string | null;
+  author?: (number | null) | User;
+  /**
+   * Short summary for the blog listing (150–300 characters). None of the migrated WordPress posts had one — write these after import.
+   */
+  excerpt?: string | null;
+  /**
+   * Main blog post image
+   */
+  featuredImage: number | Media;
+  /**
+   * Larger intro paragraph shown right under the title.
+   */
+  intro?: string | null;
+  sections?:
+    | {
+        eyebrow?: string | null;
+        heading: string;
+        body: string;
+        image?: (number | null) | Media;
+        imageAlt?: string | null;
+        imagePosition?: ('left' | 'right' | 'center') | null;
+        id?: string | null;
+      }[]
+    | null;
+  content?: {
+    root: {
+      type: string;
+      children: {
+        type: any;
+        version: number;
+        [k: string]: unknown;
+      }[];
+      direction: ('ltr' | 'rtl') | null;
+      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+      indent: number;
+      version: number;
+    };
+    [k: string]: unknown;
+  } | null;
+  /**
+   * Only applies to the free-form content field above.
+   */
+  enableTOC?: boolean | null;
+  tocTitle?: string | null;
+  /**
+   * Auto-generated from H2 headings in the free-form content field.
+   */
+  tableOfContents?:
+    | {
+        anchorId?: string | null;
+        text: string;
+        id?: string | null;
+      }[]
+    | null;
+  faqHeading?: string | null;
+  faq?:
+    | {
+        question: string;
+        answer: {
+          root: {
+            type: string;
+            children: {
+              type: any;
+              version: number;
+              [k: string]: unknown;
+            }[];
+            direction: ('ltr' | 'rtl') | null;
+            format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+            indent: number;
+            version: number;
+          };
+          [k: string]: unknown;
+        };
+        id?: string | null;
+      }[]
+    | null;
+  categories?: (number | BlogCategory)[] | null;
+  /**
+   * Enter tags and press enter to add multiple tags
+   */
+  tags?: string[] | null;
+  relatedPosts?: (number | Blog)[] | null;
+  seo?: {
+    /**
+     * Overrides the default title. Keep under 55 characters.
+     */
+    meta_title?: string | null;
+    /**
+     * SEO description for search results (150–155 characters recommended)
+     */
+    meta_description?: string | null;
+    /**
+     * Social sharing image (OG image). Leave blank to use featured image.
+     */
+    meta_image?: (number | null) | Media;
+    keywords?: string | null;
+    canonical_url?: string | null;
+    no_index?: boolean | null;
+  };
+  /**
+   * Feature on homepage
+   */
+  featured?: boolean | null;
+  readingTime?: number | null;
+  createdBy?: (number | null) | User;
+  updatedBy?: (number | null) | User;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "blog-categories".
+ */
+export interface BlogCategory {
+  id: number;
+  name: string;
+  /**
+   * Auto-generated from the category name but editable if needed
+   */
+  slug: string;
+  status?: ('draft' | 'published') | null;
+  description?: string | null;
+  createdBy?: (number | null) | User;
+  updatedBy?: (number | null) | User;
   updatedAt: string;
   createdAt: string;
 }
@@ -526,16 +826,12 @@ export interface PayloadLockedDocument {
         value: number | Media;
       } | null)
     | ({
-        relationTo: 'landscaping-pages';
-        value: number | LandscapingPage;
-      } | null)
-    | ({
-        relationTo: 'blog-posts';
-        value: number | BlogPost;
-      } | null)
-    | ({
         relationTo: 'faqs';
         value: number | Faq;
+      } | null)
+    | ({
+        relationTo: 'faq-categories';
+        value: number | FaqCategory;
       } | null)
     | ({
         relationTo: 'services';
@@ -550,8 +846,32 @@ export interface PayloadLockedDocument {
         value: number | ServiceLocation;
       } | null)
     | ({
-        relationTo: 'consultation-types';
-        value: number | ConsultationType;
+        relationTo: 'pages';
+        value: number | Page;
+      } | null)
+    | ({
+        relationTo: 'projects';
+        value: number | Project;
+      } | null)
+    | ({
+        relationTo: 'redirects';
+        value: number | Redirect;
+      } | null)
+    | ({
+        relationTo: 'team';
+        value: number | Team;
+      } | null)
+    | ({
+        relationTo: 'testimonials';
+        value: number | Testimonial;
+      } | null)
+    | ({
+        relationTo: 'blog';
+        value: number | Blog;
+      } | null)
+    | ({
+        relationTo: 'blog-categories';
+        value: number | BlogCategory;
       } | null);
   globalSlug?: string | null;
   user: {
@@ -600,6 +920,7 @@ export interface PayloadMigration {
  * via the `definition` "users_select".
  */
 export interface UsersSelect<T extends boolean = true> {
+  name?: T;
   updatedAt?: T;
   createdAt?: T;
   email?: T;
@@ -623,6 +944,11 @@ export interface UsersSelect<T extends boolean = true> {
  */
 export interface MediaSelect<T extends boolean = true> {
   alt?: T;
+  caption?: T;
+  description?: T;
+  wordpressId?: T;
+  sourceUrl?: T;
+  sourcePath?: T;
   updatedAt?: T;
   createdAt?: T;
   url?: T;
@@ -634,78 +960,6 @@ export interface MediaSelect<T extends boolean = true> {
   height?: T;
   focalX?: T;
   focalY?: T;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "landscaping-pages_select".
- */
-export interface LandscapingPagesSelect<T extends boolean = true> {
-  title?: T;
-  slug?: T;
-  hero?:
-    | T
-    | {
-        eyebrow?: T;
-        headline?: T;
-        subheadline?: T;
-        image?: T;
-        ctaLabel?: T;
-        ctaHref?: T;
-      };
-  services?:
-    | T
-    | {
-        number?: T;
-        title?: T;
-        description?: T;
-        id?: T;
-      };
-  principles?:
-    | T
-    | {
-        text?: T;
-        id?: T;
-      };
-  serviceAreas?:
-    | T
-    | {
-        city?: T;
-        id?: T;
-      };
-  updatedAt?: T;
-  createdAt?: T;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "blog-posts_select".
- */
-export interface BlogPostsSelect<T extends boolean = true> {
-  title?: T;
-  slug?: T;
-  excerpt?: T;
-  categories?:
-    | T
-    | {
-        label?: T;
-        id?: T;
-      };
-  author?: T;
-  publishedAt?: T;
-  heroImage?: T;
-  intro?: T;
-  sections?:
-    | T
-    | {
-        eyebrow?: T;
-        heading?: T;
-        body?: T;
-        image?: T;
-        imageAlt?: T;
-        imagePosition?: T;
-        id?: T;
-      };
-  updatedAt?: T;
-  createdAt?: T;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -722,11 +976,22 @@ export interface FaqsSelect<T extends boolean = true> {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "faq-categories_select".
+ */
+export interface FaqCategoriesSelect<T extends boolean = true> {
+  title?: T;
+  slug?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "services_select".
  */
 export interface ServicesSelect<T extends boolean = true> {
   title?: T;
   slug?: T;
+  parentService?: T;
   shortDescription?: T;
   description?: T;
   hero?:
@@ -739,6 +1004,7 @@ export interface ServicesSelect<T extends boolean = true> {
         video?: T;
       };
   featured?: T;
+  showInConsultationForm?: T;
   sortOrder?: T;
   contentBlocks?:
     | T
@@ -919,16 +1185,237 @@ export interface ServiceLocationsSelect<T extends boolean = true> {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "consultation-types_select".
+ * via the `definition` "pages_select".
  */
-export interface ConsultationTypesSelect<T extends boolean = true> {
+export interface PagesSelect<T extends boolean = true> {
   title?: T;
   slug?: T;
-  duration?: T;
-  image?: T;
-  bookingUrl?: T;
+  hero?:
+    | T
+    | {
+        eyebrow?: T;
+        heading?: T;
+        description?: T;
+        image?: T;
+        video?: T;
+      };
+  layout?:
+    | T
+    | {
+        content?:
+          | T
+          | {
+              eyebrow?: T;
+              heading?: T;
+              body?: T;
+              id?: T;
+              blockName?: T;
+            };
+        'image-text'?:
+          | T
+          | {
+              eyebrow?: T;
+              heading?: T;
+              body?: T;
+              image?: T;
+              imageSide?: T;
+              id?: T;
+              blockName?: T;
+            };
+        gallery?:
+          | T
+          | {
+              heading?: T;
+              images?: T;
+              id?: T;
+              blockName?: T;
+            };
+        cta?:
+          | T
+          | {
+              heading?: T;
+              body?: T;
+              label?: T;
+              href?: T;
+              id?: T;
+              blockName?: T;
+            };
+      };
+  isGoogleAdsPage?: T;
+  seo?:
+    | T
+    | {
+        metaTitle?: T;
+        metaDescription?: T;
+        canonicalUrl?: T;
+        noIndex?: T;
+        ogTitle?: T;
+        ogDescription?: T;
+        ogImage?: T;
+      };
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "projects_select".
+ */
+export interface ProjectsSelect<T extends boolean = true> {
+  title?: T;
+  slug?: T;
+  summary?: T;
+  description?: T;
+  content?: T;
+  location?: T;
+  category?: T;
+  featuredImage?: T;
+  gallery?: T;
+  address?: T;
+  videoUrl?: T;
+  seo?:
+    | T
+    | {
+        metaTitle?: T;
+        metaDescription?: T;
+        canonicalUrl?: T;
+        noIndex?: T;
+        ogTitle?: T;
+        ogDescription?: T;
+        ogImage?: T;
+      };
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "redirects_select".
+ */
+export interface RedirectsSelect<T extends boolean = true> {
+  oldPath?: T;
+  newPath?: T;
+  statusCode?: T;
   active?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "team_select".
+ */
+export interface TeamSelect<T extends boolean = true> {
+  name?: T;
+  slug?: T;
+  position?: T;
+  image?: T;
+  bio?: T;
+  seo?:
+    | T
+    | {
+        metaTitle?: T;
+        metaDescription?: T;
+        canonicalUrl?: T;
+        noIndex?: T;
+        ogTitle?: T;
+        ogDescription?: T;
+        ogImage?: T;
+      };
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "testimonials_select".
+ */
+export interface TestimonialsSelect<T extends boolean = true> {
+  name?: T;
+  quote?: T;
+  location?: T;
+  rating?: T;
+  source?: T;
+  image?: T;
+  featured?: T;
   sortOrder?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "blog_select".
+ */
+export interface BlogSelect<T extends boolean = true> {
+  title?: T;
+  slug?: T;
+  wordpressId?: T;
+  sourceUrl?: T;
+  status?: T;
+  scheduledPublishDate?: T;
+  scheduledPublishSlot?: T;
+  scheduledPublishAt?: T;
+  publishedDate?: T;
+  author?: T;
+  excerpt?: T;
+  featuredImage?: T;
+  intro?: T;
+  sections?:
+    | T
+    | {
+        eyebrow?: T;
+        heading?: T;
+        body?: T;
+        image?: T;
+        imageAlt?: T;
+        imagePosition?: T;
+        id?: T;
+      };
+  content?: T;
+  enableTOC?: T;
+  tocTitle?: T;
+  tableOfContents?:
+    | T
+    | {
+        anchorId?: T;
+        text?: T;
+        id?: T;
+      };
+  faqHeading?: T;
+  faq?:
+    | T
+    | {
+        question?: T;
+        answer?: T;
+        id?: T;
+      };
+  categories?: T;
+  tags?: T;
+  relatedPosts?: T;
+  seo?:
+    | T
+    | {
+        meta_title?: T;
+        meta_description?: T;
+        meta_image?: T;
+        keywords?: T;
+        canonical_url?: T;
+        no_index?: T;
+      };
+  featured?: T;
+  readingTime?: T;
+  createdBy?: T;
+  updatedBy?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "blog-categories_select".
+ */
+export interface BlogCategoriesSelect<T extends boolean = true> {
+  name?: T;
+  slug?: T;
+  status?: T;
+  description?: T;
+  createdBy?: T;
+  updatedBy?: T;
   updatedAt?: T;
   createdAt?: T;
 }
@@ -971,6 +1458,102 @@ export interface PayloadMigrationsSelect<T extends boolean = true> {
   batch?: T;
   updatedAt?: T;
   createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "site-settings".
+ */
+export interface SiteSetting {
+  id: number;
+  company?: {
+    name?: string | null;
+    email?: string | null;
+    emailLink?: string | null;
+    phone?: string | null;
+    phoneClean?: string | null;
+    license?: string | null;
+    addresses?:
+      | {
+          address?: string | null;
+          id?: string | null;
+        }[]
+      | null;
+  };
+  socialLinks?: {
+    googleBusiness?: string | null;
+    yelp?: string | null;
+    houzz?: string | null;
+    bbb?: string | null;
+  };
+  serviceAreas?:
+    | {
+        location?: (number | null) | Location;
+        id?: string | null;
+      }[]
+    | null;
+  defaultOgImage?: (number | null) | Media;
+  seo?: {
+    metaTitle?: string | null;
+    metaDescription?: string | null;
+    canonicalUrl?: string | null;
+    noIndex?: boolean | null;
+    ogTitle?: string | null;
+    ogDescription?: string | null;
+    ogImage?: (number | null) | Media;
+  };
+  updatedAt?: string | null;
+  createdAt?: string | null;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "site-settings_select".
+ */
+export interface SiteSettingsSelect<T extends boolean = true> {
+  company?:
+    | T
+    | {
+        name?: T;
+        email?: T;
+        emailLink?: T;
+        phone?: T;
+        phoneClean?: T;
+        license?: T;
+        addresses?:
+          | T
+          | {
+              address?: T;
+              id?: T;
+            };
+      };
+  socialLinks?:
+    | T
+    | {
+        googleBusiness?: T;
+        yelp?: T;
+        houzz?: T;
+        bbb?: T;
+      };
+  serviceAreas?:
+    | T
+    | {
+        location?: T;
+        id?: T;
+      };
+  defaultOgImage?: T;
+  seo?:
+    | T
+    | {
+        metaTitle?: T;
+        metaDescription?: T;
+        canonicalUrl?: T;
+        noIndex?: T;
+        ogTitle?: T;
+        ogDescription?: T;
+        ogImage?: T;
+      };
+  updatedAt?: T;
+  createdAt?: T;
+  globalType?: T;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema

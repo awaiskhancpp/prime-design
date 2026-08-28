@@ -8,7 +8,7 @@ import { ProjectsReviews } from '@/components/projects/ProjectsReviews'
 import { SiteFooter } from '@/components/layout/SiteFooter'
 import { PageHero } from '@/components/layout/PageHero'
 import { Section } from '@/components/ui/Section'
-import { services } from '@/lib/services'
+import { resolveServices } from '@/lib/services'
 
 const kitchenSubpageHrefs: Record<string, string> = {
   'european-kitchen': '/services/kitchen-remodeling/european-kitchen-silicon-valley',
@@ -20,7 +20,8 @@ function serviceHref(slug: string) {
   return kitchenSubpageHrefs[slug] || `/services/${slug}`
 }
 
-export function ServicesPage() {
+export async function ServicesPage() {
+  const services = await resolveServices()
   return (
     <div className="min-h-screen bg-white">
       <PageHero

@@ -67,8 +67,7 @@ export function ProjectDetailPage({ project }: { project: Project }) {
           {(project.video.title || project.video.projectManager) && (
             <p className="mt-4 text-sm text-ink-2/60">
               {project.video.title}
-              {project.video.projectManager &&
-                ` — Project manager: ${project.video.projectManager}`}
+              {project.video.projectManager}
             </p>
           )}
         </Section>

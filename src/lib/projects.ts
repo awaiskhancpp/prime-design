@@ -1,3 +1,8 @@
+import { getPayload } from 'payload'
+
+import configPromise from '@payload-config'
+import { shouldUseLocalFallback } from './runtime'
+
 export type ProjectVideo = {
   url: string
   title?: string
@@ -243,4 +248,68 @@ export const projects: Project[] = [
 
 export function getProjectBySlug(slug: string) {
   return projects.find((project) => project.slug === slug)
+}
+
+type PayloadMedia = { url?: string | null }
+type PayloadProject = {
+  title: string
+  slug: string
+  location?: string | null
+  category?: string | null
+  summary?: string | null
+  description?: string | null
+  featuredImage?: number | PayloadMedia | null
+  gallery?: Array<number | PayloadMedia> | null
+  videoUrl?: string | null
+}
+
+const payloadMediaUrl = (value: unknown) =>
+  typeof value === 'object' && value !== null && 'url' in value && typeof value.url === 'string'
+    ? value.url
+    : undefined
+
+function normalizeProject(project: PayloadProject): Project {
+  const fallback = getProjectBySlug(project.slug)
+  const gallery = project.gallery?.map(payloadMediaUrl).filter((url): url is string => Boolean(url))
+
+  return {
+    slug: project.slug,
+    title: project.title,
+    location: project.location || fallback?.location || '',
+    category: project.category || fallback?.category || '',
+    summary: project.summary || fallback?.summary || '',
+    description: project.description || fallback?.description || '',
+    heroImage: payloadMediaUrl(project.featuredImage) || fallback?.heroImage || home,
+    gallery: gallery?.length ? gallery : fallback?.gallery || [],
+    video: project.videoUrl
+      ? { url: project.videoUrl, title: project.title }
+      : fallback?.video,
+  }
+}
+
+export async function resolveProjects(): Promise<Project[]> {
+  if (!process.env.DATABASE_URL) return shouldUseLocalFallback() ? projects : []
+
+  const payload = await getPayload({ config: configPromise })
+  const result = await payload.find({ collection: 'projects', sort: '-createdAt', depth: 2, limit: 100 })
+  return result.docs.length
+    ? (result.docs as unknown as PayloadProject[]).map(normalizeProject)
+    : shouldUseLocalFallback()
+      ? projects
+      : []
+}
+
+export async function resolveProjectBySlug(slug: string): Promise<Project | undefined> {
+  if (!process.env.DATABASE_URL) return shouldUseLocalFallback() ? getProjectBySlug(slug) : undefined
+
+  const payload = await getPayload({ config: configPromise })
+  const result = await payload.find({
+    collection: 'projects',
+    where: { slug: { equals: slug } },
+    depth: 2,
+    limit: 1,
+  })
+  const record = result.docs[0] as unknown as PayloadProject | undefined
+
+  return record ? normalizeProject(record) : shouldUseLocalFallback() ? getProjectBySlug(slug) : undefined
 }

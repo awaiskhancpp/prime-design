@@ -121,6 +121,13 @@ export const Services: CollectionConfig = {
   fields: [
     { name: 'title', type: 'text', required: true },
     { name: 'slug', type: 'text', required: true, unique: true, index: true },
+    {
+      name: 'parentService',
+      type: 'relationship',
+      relationTo: 'services' as CollectionSlug,
+      index: true,
+      admin: { description: 'Optional parent service for a service subcategory.' },
+    },
     { name: 'shortDescription', type: 'textarea' },
     { name: 'description', type: 'textarea' },
     {
@@ -143,6 +150,12 @@ export const Services: CollectionConfig = {
       ],
     },
     { name: 'featured', type: 'checkbox', defaultValue: false },
+    {
+      name: 'showInConsultationForm',
+      type: 'checkbox',
+      defaultValue: true,
+      label: 'Show in Consultation Form',
+    },
     { name: 'sortOrder', type: 'number', defaultValue: 0 },
     { name: 'contentBlocks', type: 'blocks', blocks: contentBlocks },
     { name: 'faqs', type: 'relationship', relationTo: 'faqs', hasMany: true },

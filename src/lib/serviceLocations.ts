@@ -2,6 +2,7 @@ import { getPayload } from 'payload'
 import configPromise from '@payload-config'
 import { getServiceDetail, type ServiceDetail } from './services'
 import type { Location as PayloadLocation, Service as PayloadService, ServiceLocation as PayloadServiceLocation } from '@/payload-types'
+import { shouldUseLocalFallback } from './runtime'
 
 export type Location = { name: string; slug: string }
 export type ServiceLocation = {
@@ -56,11 +57,15 @@ export function getFallbackServiceLocation(serviceSlug: string, locationSlugValu
   if (!entry) return undefined
   const service = getServiceDetail(serviceSlug)
   if (!service) return undefined
-  return { ...entry, service }
+  return { ...entry, service: getServiceLocationDetail(service, entry.location.name) }
 }
 
 export async function getServiceLocation(serviceSlug: string, locationSlugValue: string) {
-  if (!process.env.DATABASE_URL) return getFallbackServiceLocation(serviceSlug, locationSlugValue)
+  if (!process.env.DATABASE_URL) {
+    return shouldUseLocalFallback()
+      ? getFallbackServiceLocation(serviceSlug, locationSlugValue)
+      : undefined
+  }
 
   const payload = await getPayload({ config: configPromise })
 
@@ -103,7 +108,9 @@ export async function getServiceLocation(serviceSlug: string, locationSlugValue:
   }
 
   // A valid Payload connection with no matching record is the only fallback case.
-  return getFallbackServiceLocation(serviceSlug, locationSlugValue)
+  return shouldUseLocalFallback()
+    ? getFallbackServiceLocation(serviceSlug, locationSlugValue)
+    : undefined
 }
 
 export function getServiceLocationDetail(service: ServiceDetail, city: string): ServiceDetail {

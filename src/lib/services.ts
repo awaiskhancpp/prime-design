@@ -1,8 +1,13 @@
+import { getPayload } from 'payload'
+import configPromise from '@payload-config'
+import { shouldUseLocalFallback } from './runtime'
+
 export type Service = {
   slug: string
   title: string
   description: string
   image: string
+  showInConsultationForm?: boolean
 }
 
 export type ServiceDetail = Service & {
@@ -159,6 +164,7 @@ type PayloadServiceRecord = {
   hero?: { eyebrow?: string | null; heading?: string | null; lead?: string | null; image?: number | PayloadMedia | null; video?: number | PayloadMedia | null } | null
   contentBlocks?: Array<Record<string, unknown>> | null
   seo?: ServiceDetail['seo']
+  showInConsultationForm?: boolean | null
 }
 
 const payloadImageUrl = (value: unknown) => typeof value === 'object' && value !== null && 'url' in value && typeof value.url === 'string' ? value.url : undefined
@@ -184,11 +190,11 @@ function normalizePayloadBlocks(value: PayloadServiceRecord['contentBlocks']): S
 
 export async function resolveServiceDetail(slug: string): Promise<ServiceDetail | undefined> {
   const fallback = getServiceDetail(slug)
-  if (!process.env.DATABASE_URL) return fallback
+  if (!process.env.DATABASE_URL) return shouldUseLocalFallback() ? fallback : undefined
   const payload = await getPayload({ config: configPromise })
   const result = await payload.find({ collection: 'services', where: { slug: { equals: slug } }, depth: 2, limit: 1 })
   const record = result.docs[0] as unknown as PayloadServiceRecord | undefined
-  if (!record) return fallback
+  if (!record) return shouldUseLocalFallback() ? fallback : undefined
   const base = fallback || {
     slug: record.slug,
     title: record.title,
@@ -213,5 +219,29 @@ export async function resolveServiceDetail(slug: string): Promise<ServiceDetail 
     contentBlocks: normalizePayloadBlocks(record.contentBlocks),
   }
 }
-import { getPayload } from 'payload'
-import configPromise from '@payload-config'
+
+export async function resolveServices(): Promise<Service[]> {
+  if (!process.env.DATABASE_URL) return services
+
+  const payload = await getPayload({ config: configPromise })
+  const result = await payload.find({
+    collection: 'services',
+    sort: 'sortOrder',
+    depth: 2,
+    limit: 100,
+  })
+
+  if (!result.docs.length) return shouldUseLocalFallback() ? services : []
+
+  return (result.docs as unknown as PayloadServiceRecord[]).map((record) => {
+    const fallback = services.find((service) => service.slug === record.slug)
+    return {
+      slug: record.slug,
+      title: record.title,
+      description: record.description || record.shortDescription || fallback?.description || '',
+      image:
+        payloadImageUrl(record.hero?.image) || fallback?.image || '/services/home-remodeling.jpeg',
+      showInConsultationForm: record.showInConsultationForm ?? true,
+    }
+  })
+}

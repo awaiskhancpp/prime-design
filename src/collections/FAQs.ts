@@ -10,7 +10,13 @@ export const FAQs: CollectionConfig = {
   fields: [
     { name: 'question', type: 'text', required: true },
     { name: 'answer', type: 'textarea', required: true },
-    { name: 'category', type: 'text', required: true, index: true },
+    {
+      name: 'category',
+      type: 'relationship',
+      relationTo: 'faq-categories',
+      required: true,
+      index: true,
+    },
     { name: 'sortOrder', type: 'number', defaultValue: 0 },
     { name: 'visible', type: 'checkbox', defaultValue: true },
   ],

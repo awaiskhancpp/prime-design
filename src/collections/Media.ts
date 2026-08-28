@@ -11,6 +11,11 @@ export const Media: CollectionConfig = {
       type: 'text',
       required: true,
     },
+    { name: 'caption', type: 'text' },
+    { name: 'description', type: 'textarea' },
+    { name: 'wordpressId', type: 'number', unique: true, index: true },
+    { name: 'sourceUrl', type: 'text' },
+    { name: 'sourcePath', type: 'text' },
   ],
   upload: true,
 }

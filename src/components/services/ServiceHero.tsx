@@ -19,7 +19,7 @@ const heroVideos: Record<string, string> = {
 }
 
 export function ServiceHero({ service }: { service: ServiceDetail }) {
-  const heroVideo = heroVideos[service.slug]
+  const heroVideo = service.heroVideoUrl || heroVideos[service.slug]
 
   return (
     <section className="relative isolate flex min-h-screen items-end overflow-hidden bg-ink pb-16 pt-16 text-white lg:pb-24">

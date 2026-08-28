@@ -1,8 +1,9 @@
 import type { Metadata } from 'next'
-import { notFound, redirect } from 'next/navigation'
+import { notFound, permanentRedirect } from 'next/navigation'
 import { ServiceLocationPage } from '@/components/services/ServiceLocationPage'
 import { resolveServiceDetail } from '@/lib/services'
 import { getServiceLocation, serviceLocations } from '@/lib/serviceLocations'
+import { resolveRedirect } from '@/lib/redirects'
 
 export function generateStaticParams() {
   const locations = serviceLocations.map(({ serviceSlug, slug }) => ({
@@ -24,6 +25,8 @@ export async function generateMetadata({
   params: Promise<{ serviceSlug: string; pageSlug: string }>
 }): Promise<Metadata> {
   const { serviceSlug, pageSlug } = await params
+  const legacyRedirect = await resolveRedirect(`/${serviceSlug}/${pageSlug}`)
+  if (legacyRedirect) permanentRedirect(legacyRedirect.newPath)
   const location = await getServiceLocation(serviceSlug, pageSlug)
 
   if (location) {
@@ -58,5 +61,5 @@ export default async function ServiceChildRoute({
 
   const service = await resolveServiceDetail(pageSlug)
   if (!service || serviceSlug !== 'kitchen-remodeling') notFound()
-  redirect(`/services/${serviceSlug}/${pageSlug}`)
+  permanentRedirect(`/services/${serviceSlug}/${pageSlug}`)
 }

@@ -4,8 +4,11 @@ import website from '../../../website.json'
 import { Container } from '@/components/ui/Container'
 
 import { BrandMark } from './BrandMark'
+import { resolveSiteSettings } from '@/lib/siteSettings'
 
-export function SiteFooter() {
+export async function SiteFooter() {
+  const siteSettings = await resolveSiteSettings()
+
   return (
     <footer className="bg-ink-2 text-white">
       <Container className="grid gap-12 py-12 md:grid-cols-[1fr_0.7fr_0.8fr_0.9fr] lg:py-16">
@@ -15,7 +18,7 @@ export function SiteFooter() {
             Thoughtful design and careful building for homes across Silicon Valley.
           </p>
           <p className="mt-5 text-xs uppercase tracking-[0.14em] text-brass">
-            {website.meta.license}
+            {siteSettings.license}
           </p>
         </div>
 
@@ -50,9 +53,9 @@ export function SiteFooter() {
             Contact
           </p>
           <address className="grid gap-3 text-sm not-italic leading-6 text-white/70">
-            <a href={`tel:${website.footer.phone}`}>{website.footer.phone}</a>
-            <a href={`mailto:${website.footer.email}`}>{website.footer.email}</a>
-            {website.footer.addresses.map((address) => (
+            <a href={`tel:${siteSettings.phoneClean}`}>{siteSettings.phone}</a>
+            <a href={`mailto:${siteSettings.email}`}>{siteSettings.email}</a>
+            {siteSettings.addresses.map((address) => (
               <span key={address}>{address}</span>
             ))}
           </address>

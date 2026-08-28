@@ -3,6 +3,7 @@ import Link from 'next/link'
 
 import website from '../../../website.json'
 import { Section } from '@/components/ui/Section'
+import { resolveSiteAreas } from '@/lib/siteSettings'
 import { Button } from '../ui/Button'
 
 const citySlug = (city: string) =>
@@ -11,9 +12,10 @@ const citySlug = (city: string) =>
     .replace(/\s+/g, '-')
     .replace(/[^a-z0-9-]/g, '')
 
-export function LandscapingServiceAreas({ serviceSlug }: { serviceSlug?: string } = {}) {
+export async function LandscapingServiceAreas() {
   const { heading, cities, trailingLabel, trailingHref } = website.serviceAreas
-  const targetServiceSlug = serviceSlug || 'kitchen-remodeling'
+  const configuredAreas = await resolveSiteAreas()
+  const areaNames = configuredAreas.length ? configuredAreas.map((area) => area.name) : cities
 
   return (
     <Section className="bg-white text-ink">
@@ -37,10 +39,10 @@ export function LandscapingServiceAreas({ serviceSlug }: { serviceSlug?: string 
         </div>
 
         <div className="flex flex-wrap gap-3">
-          {cities.map((city) => (
+          {areaNames.map((city) => (
             <Link
               key={city}
-              href={`/${targetServiceSlug}/${targetServiceSlug}-in-${citySlug(city)}`}
+              href={`/kitchen-remodeling/kitchen-remodeling-in-${citySlug(city)}`}
               className="border border-line px-4 py-2 text-sm text-ink/75 transition-colors hover:border-brass hover:text-brass-deep"
             >
               {city}

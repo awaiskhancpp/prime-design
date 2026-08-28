@@ -4,10 +4,12 @@ import website from '../../../website.json'
 import { Button } from '@/components/ui/Button'
 import { Container } from '@/components/ui/Container'
 import { cn } from '@/lib/utils'
+import { resolveSiteSettings } from '@/lib/siteSettings'
 
 import { BrandMark } from './BrandMark'
 
-export function SiteHeader({ tone = 'dark' }: { tone?: 'dark' | 'light' }) {
+export async function SiteHeader({ tone = 'dark' }: { tone?: 'dark' | 'light' }) {
+  const siteSettings = await resolveSiteSettings()
   const isLight = tone === 'light'
   const primaryLinks = website.nav.filter(({ label }) =>
     ['Home', 'About', 'Services', 'Projects', 'Gallery', 'Resources'].includes(label),
@@ -87,13 +89,13 @@ export function SiteHeader({ tone = 'dark' }: { tone?: 'dark' | 'light' }) {
         </nav>
         <div className="flex items-center gap-5">
           <a
-            href={`tel:${website.header.phoneCta.replace(/[^\d+]/g, '')}`}
+            href={`tel:${siteSettings.phoneClean}`}
             className={cn(
               'hidden text-sm font-semibold tracking-wide transition-colors hover:text-brass xl:block',
               isLight ? 'text-ink-2' : 'text-white',
             )}
           >
-            {website.header.phoneCta}
+            {siteSettings.phone}
           </a>
           <Button href="/contact" size="lg" variant={isLight ? 'outline' : 'outline-light'}>
             Talk to an expert

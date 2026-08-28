@@ -4,6 +4,7 @@ import { useState } from 'react'
 
 import { Section } from '@/components/ui/Section'
 import { cn } from '@/lib/utils'
+import { Check } from 'lucide-react'
 
 const statLine = 'Over 350+ Projects in Silicon Valley'
 
@@ -96,9 +97,9 @@ export function LandscapingDifference() {
               <li key={bullet.lead + bullet.text} className="flex items-start gap-3">
                 <span
                   aria-hidden
-                  className="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-ink text-[10px] text-paper"
+                  className=" flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-ink text-[10px] text-paper"
                 >
-                  ✓
+                  <Check />
                 </span>
                 <span className="italic leading-relaxed text-ink-2/80">
                   {bullet.lead && (

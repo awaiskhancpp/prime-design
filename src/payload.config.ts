@@ -7,13 +7,19 @@ import sharp from 'sharp'
 
 import { Users } from './collections/Users'
 import { Media } from './collections/Media'
-import { LandscapingPages } from './collections/LandscapingPages'
-import { BlogPosts } from './collections/BlogPosts'
 import { FAQs } from './collections/FAQs'
+import { FAQCategories } from './collections/FAQCategories'
 import { Services } from './collections/Services'
 import { Locations } from './collections/Locations'
 import { ServiceLocations } from './collections/ServiceLocations'
-import { ConsultationTypes } from './collections/ConsultationTypes'
+import { Pages } from './collections/Pages'
+import { Projects } from './collections/Projects'
+import { Redirects } from './collections/Redirects'
+import { Team } from './collections/Team'
+import { Testimonials } from './collections/Testimonials'
+import { SiteSettings } from './globals/SiteSettings'
+import { Blog } from './collections/Blog'
+import { BlogCategories } from './collections/BlogCategories'
 
 const filename = fileURLToPath(import.meta.url)
 const dirname = path.dirname(filename)
@@ -28,14 +34,20 @@ export default buildConfig({
   collections: [
     Users,
     Media,
-    LandscapingPages,
-    BlogPosts,
     FAQs,
+    FAQCategories,
     Services,
     Locations,
     ServiceLocations,
-    ConsultationTypes,
+    Pages,
+    Projects,
+    Redirects,
+    Team,
+    Testimonials,
+    Blog,
+    BlogCategories,
   ],
+  globals: [SiteSettings],
   editor: lexicalEditor(),
   secret: process.env.PAYLOAD_SECRET || '',
   typescript: {

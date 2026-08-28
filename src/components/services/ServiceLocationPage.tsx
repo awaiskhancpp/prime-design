@@ -8,14 +8,15 @@ import { getServiceOfferings, ServiceOfferingsSection } from './ServiceOfferings
 import { getServiceVideo, ServiceVideoSection } from './ServiceVideoSection'
 import { ServiceLocationHero } from './ServiceLocationHero'
 import { ServiceSiliconValleyLovesSection } from './sections/ServiceSiliconValleyLovesSection'
-import { getServiceLocationDetail, type ServiceLocation } from '@/lib/serviceLocations'
+import type { ServiceLocation } from '@/lib/serviceLocations'
+import type { ServiceDetail } from '@/lib/services'
 
 export function ServiceLocationPage({
   entry,
 }: {
-  entry: ServiceLocation & { service: Parameters<typeof getServiceLocationDetail>[0] }
+  entry: ServiceLocation & { service: ServiceDetail }
 }) {
-  const service = getServiceLocationDetail(entry.service, entry.location.name)
+  const service = entry.service
   const video = getServiceVideo(entry.serviceSlug)
   const offerings = getServiceOfferings(entry.serviceSlug)
   const quote = getServiceQuote(entry.serviceSlug)

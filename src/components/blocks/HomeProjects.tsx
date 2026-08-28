@@ -27,7 +27,11 @@ export function HomeProjects() {
 
       <div className="mt-10 grid grid-cols-1 gap-1 overflow-hidden  sm:grid-cols-2 lg:grid-cols-3">
         {latestProjects.map((project, index) => (
-          <div key={project.slug} className="group relative aspect-[4/3] overflow-hidden bg-ink">
+          <a
+            key={project.slug}
+            href={`/our-projects/${project.slug}`}
+            className="group relative aspect-[4/3] overflow-hidden bg-ink"
+          >
             <Image
               src={projectImages[index % projectImages.length]}
               alt={project.title}
@@ -39,7 +43,7 @@ export function HomeProjects() {
             <p className="absolute bottom-4 left-4 right-4 text-sm font-semibold leading-snug text-white md:text-base">
               {project.title}
             </p>
-          </div>
+          </a>
         ))}
       </div>
       <div className="flex justify-center">

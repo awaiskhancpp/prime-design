@@ -3,12 +3,14 @@ import { LandscapingCta } from '@/components/blocks/LandscapingCta'
 import { LandscapingServiceAreas } from '@/components/blocks/LandscapingServiceAreas'
 import { PageHero } from '@/components/layout/PageHero'
 import { SiteFooter } from '@/components/layout/SiteFooter'
-import { projects } from '@/lib/projects'
+import { resolveProjects } from '@/lib/projects'
 import { ProjectCard } from './ProjectCard'
 import { ProjectsReviews } from './ProjectsReviews'
 import { ProjectsTrustIntro } from './ProjectsTrustIntro'
 
-export function ProjectsPage() {
+export async function ProjectsPage() {
+  const projects = await resolveProjects()
+
   return (
     <div className="min-h-screen ">
       <PageHero

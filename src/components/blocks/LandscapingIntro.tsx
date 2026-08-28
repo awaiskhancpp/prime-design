@@ -37,12 +37,6 @@ export function LandscapingIntro() {
       <div className="grid items-center gap-12 lg:grid-cols-2 lg:gap-16">
         <div>
           <RevealLine>
-            <p className="text-xs font-semibold uppercase tracking-[0.2em] text-brass-deep">
-              The Prime experience
-            </p>
-          </RevealLine>
-
-          <RevealLine>
             <h2 className="mt-4 font-display text-3xl font-medium leading-tight text-ink-2 md:text-4xl lg:text-[2.5rem] lg:leading-[3rem]">
               Discover the Prime experience with a new home renovation, ADU, home addition or
               kitchen and bathroom remodel
@@ -61,9 +55,6 @@ export function LandscapingIntro() {
                 Your vision is our foundation, and together, we construct a future of enduring
                 quality and innovation.
               </p>
-            </RevealLine>
-            <RevealLine>
-              <p className="font-medium text-ink-2">Let&apos;s build something extraordinary.</p>
             </RevealLine>
           </div>
         </div>

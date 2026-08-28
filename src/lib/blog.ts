@@ -1,3 +1,8 @@
+import { getPayload } from 'payload'
+
+import configPromise from '@payload-config'
+import { shouldUseLocalFallback } from './runtime'
+
 export type BlogPost = {
   slug: string
   title: string
@@ -8,6 +13,12 @@ export type BlogPost = {
   heroImage: string
   intro?: string
   sections?: BlogSection[]
+  seo?: {
+    metaTitle?: string | null
+    metaDescription?: string | null
+    canonicalUrl?: string | null
+    noIndex?: boolean | null
+  }
 }
 
 export type BlogSection = {
@@ -121,4 +132,104 @@ export const blogPosts: BlogPost[] = [
 
 export function getBlogPostBySlug(slug: string) {
   return blogPosts.find((post) => post.slug === slug)
+}
+
+type PayloadMedia = { url?: string | null }
+type PayloadBlogPost = {
+  title: string
+  slug: string
+  excerpt?: string | null
+  categories?: Array<{ name?: string | null }> | null
+  author?: number | { name?: string | null } | null
+  publishedDate?: string | null
+  featuredImage?: number | PayloadMedia | null
+  intro?: string | null
+  sections?: Array<{
+    eyebrow?: string | null
+    heading?: string | null
+    body?: string | null
+    image?: number | PayloadMedia | null
+    imageAlt?: string | null
+    imagePosition?: 'left' | 'right' | 'center' | null
+  }> | null
+  seo?: {
+    meta_title?: string | null
+    meta_description?: string | null
+    canonical_url?: string | null
+    no_index?: boolean | null
+  } | null
+}
+
+const payloadMediaUrl = (value: unknown) =>
+  typeof value === 'object' && value !== null && 'url' in value && typeof value.url === 'string'
+    ? value.url
+    : undefined
+
+const displayDate = (value: string | null | undefined) =>
+  value
+    ? new Intl.DateTimeFormat('en-US', { dateStyle: 'long' }).format(new Date(value))
+    : ''
+
+function normalizePost(post: PayloadBlogPost): BlogPost {
+  const fallback = getBlogPostBySlug(post.slug)
+  const author =
+    typeof post.author === 'object' && post.author !== null && 'name' in post.author
+      ? post.author.name
+      : undefined
+  return {
+    slug: post.slug,
+    title: post.title,
+    excerpt: post.excerpt || fallback?.excerpt || '',
+    categories: post.categories?.map((category) => category.name || '').filter(Boolean) || fallback?.categories || [],
+    author: author || fallback?.author || 'Prime Design & Build',
+    date: displayDate(post.publishedDate) || fallback?.date || '',
+    heroImage: payloadMediaUrl(post.featuredImage) || fallback?.heroImage || '/services/kitchen-remodeling.jpeg',
+    intro: post.intro || fallback?.intro,
+    sections: post.sections?.map((section) => ({
+      eyebrow: section.eyebrow || undefined,
+      heading: section.heading || '',
+      body: section.body || '',
+      image: payloadMediaUrl(section.image),
+      imageAlt: section.imageAlt || undefined,
+      imagePosition: section.imagePosition || 'center',
+    })) || fallback?.sections,
+    seo: post.seo
+      ? {
+          metaTitle: post.seo.meta_title,
+          metaDescription: post.seo.meta_description,
+          canonicalUrl: post.seo.canonical_url,
+          noIndex: post.seo.no_index,
+        }
+      : fallback?.seo,
+  }
+}
+
+export async function resolveBlogPosts(): Promise<BlogPost[]> {
+  if (!process.env.DATABASE_URL) return shouldUseLocalFallback() ? blogPosts : []
+  const payload = await getPayload({ config: configPromise })
+  const result = await payload.find({
+    collection: 'blog',
+    where: { status: { equals: 'published' } },
+    sort: '-publishedDate',
+    depth: 2,
+    limit: 100,
+  })
+  if (!result.docs.length) return shouldUseLocalFallback() ? blogPosts : []
+  return (result.docs as unknown as PayloadBlogPost[]).map(normalizePost)
+}
+
+export async function resolveBlogPostBySlug(slug: string): Promise<BlogPost | undefined> {
+  if (!process.env.DATABASE_URL) return shouldUseLocalFallback() ? getBlogPostBySlug(slug) : undefined
+  const payload = await getPayload({ config: configPromise })
+  const result = await payload.find({
+    collection: 'blog',
+    where: {
+      and: [{ slug: { equals: slug } }, { status: { equals: 'published' } }],
+    },
+    depth: 2,
+    limit: 1,
+  })
+  const record = result.docs[0] as unknown as PayloadBlogPost | undefined
+  if (record) return normalizePost(record)
+  return shouldUseLocalFallback() ? getBlogPostBySlug(slug) : undefined
 }

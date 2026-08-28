@@ -7,7 +7,12 @@ export const Users: CollectionConfig = {
   },
   auth: true,
   fields: [
-    // Email added by default
-    // Add more fields as needed
+    {
+      name: 'name',
+      type: 'text',
+      admin: {
+        description: 'Displayed as the author byline on blog posts. Falls back to email if blank.',
+      },
+    },
   ],
 }

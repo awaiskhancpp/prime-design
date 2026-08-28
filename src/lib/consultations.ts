@@ -1,6 +1,7 @@
 import { getPayload } from 'payload'
 
 import configPromise from '@payload-config'
+import { shouldUseLocalFallback } from './runtime'
 
 export type ConsultationType = {
   title: string
@@ -56,31 +57,34 @@ const fallbackConsultations: ConsultationType[] = [
 ]
 
 type PayloadMedia = { url?: string | null }
-type PayloadConsultation = Omit<ConsultationType, 'image'> & {
-  image?: number | PayloadMedia | null
+type PayloadConsultation = Pick<ConsultationType, 'title' | 'slug'> & {
+  hero?: { image?: number | PayloadMedia | null } | null
 }
 
 export async function resolveConsultations(): Promise<ConsultationType[]> {
-  if (!process.env.DATABASE_URL) return fallbackConsultations
-  try {
-    const payload = await getPayload({ config: configPromise })
-    const result = await payload.find({
-      collection: 'consultation-types',
-      where: { active: { equals: true } },
-      sort: 'sortOrder',
-      depth: 1,
-      limit: 50,
-    })
-    if (!result.docs.length) return fallbackConsultations
-    return (result.docs as unknown as PayloadConsultation[]).map((item, index) => ({
-      ...item,
+  if (!process.env.DATABASE_URL) return shouldUseLocalFallback() ? fallbackConsultations : []
+  const payload = await getPayload({ config: configPromise })
+  const result = await payload.find({
+    collection: 'services',
+    where: { showInConsultationForm: { equals: true } },
+    sort: 'sortOrder',
+    depth: 2,
+    limit: 50,
+  })
+
+  if (!result.docs.length) return shouldUseLocalFallback() ? fallbackConsultations : []
+
+  return (result.docs as unknown as Array<PayloadConsultation & { showInConsultationForm?: boolean }>).map(
+    (item, index) => ({
+      title: item.title,
+      slug: item.slug,
+      duration: '~1 Hour',
       image:
-        typeof item.image === 'object' && item.image?.url
-          ? item.image.url
-          : fallbackConsultations[index % fallbackConsultations.length].image,
-      bookingUrl: item.bookingUrl || '#contact',
-    }))
-  } catch {
-    return fallbackConsultations
-  }
+        typeof item.hero?.image === 'object' && item.hero.image?.url
+          ? item.hero.image.url
+          : fallbackConsultations.find((fallback) => fallback.slug === item.slug)?.image ||
+            fallbackConsultations[index % fallbackConsultations.length].image,
+      bookingUrl: '#contact',
+    }),
+  )
 }

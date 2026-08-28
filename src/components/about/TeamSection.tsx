@@ -155,11 +155,14 @@ export function TeamSection() {
           </p>
         </div>
 
-        <div className="mt-16 grid gap-5 md:grid-cols-2 lg:grid-cols-3">
+        <div className="mt-16 grid gap-6 md:grid-cols-2 lg:grid-cols-3">
           {team.map((member) => (
-            <article key={member.name} className="bg-paper p-4">
+            <article
+              key={member.name}
+              className="border border-line bg-white transition-colors hover:border-brass"
+            >
               <Portrait member={member} />
-              <div className="flex items-end justify-between gap-4 px-2 pb-2 pt-5">
+              <div className="flex items-end justify-between gap-4 border-t border-line px-6 py-6">
                 <div>
                   <h3 className="font-display text-2xl font-medium text-ink-2">{member.name}</h3>
                   <p className="mt-1 text-xs font-semibold uppercase tracking-[0.1em] text-ink-2/60">
