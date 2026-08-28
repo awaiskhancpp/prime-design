@@ -193,8 +193,10 @@ The copied “Home Additions” text visible on the source Complete Renovation p
 
 - Hero
 - Video
+- Ready to schedule your free estimate
 - Kitchen sub-services
 - We make it easy / six-step process
+- Silicon Valley Loves Working With Us
 - Crafting Your Dream Home, Our Promise
 - Service areas and location cards
 - FAQs
