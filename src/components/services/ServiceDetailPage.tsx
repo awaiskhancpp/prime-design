@@ -11,6 +11,7 @@ import type { ServiceContentBlock, ServiceDetail } from '@/lib/services'
 import { getServiceOfferings, ServiceOfferingsSection } from './ServiceOfferingsSection'
 import { getServiceProcess, ServiceProcessSection } from './ServiceProcessSection'
 import { getServiceVideo, ServiceVideoSection } from './ServiceVideoSection'
+import { HomeRemodelingProcessSection } from './sections/HomeRemodelingProcessSection'
 import { ServiceAreasSection } from './ServiceAreasSection'
 import { ServiceEstimateCta } from './ServiceEstimateCta'
 import { ServiceFaq } from './ServiceFaq'
@@ -464,7 +465,13 @@ export function ServiceDetailPage({ service }: { service: ServiceDetail }) {
               <ServiceVideoSection {...fallbackVideo} />
             ) : null}
             {sections.offerings && offerings ? <ServiceOfferingsSection {...offerings} /> : null}
-            {sections.process && process ? <ServiceProcessSection {...process} /> : null}
+            {service.slug === 'complete-renovation' || service.slug === 'home-remodeling' ? (
+              sections.process ? (
+                <HomeRemodelingProcessSection />
+              ) : null
+            ) : sections.process && process ? (
+              <ServiceProcessSection {...process} />
+            ) : null}
             {sections.gallery ? <ServiceGallery service={service} /> : null}
             {sections.craftsmanship ? (
               <ServiceCraftsmanshipTransformsSection {...getCraftsmanshipContent(service)} />

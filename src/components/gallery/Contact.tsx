@@ -29,9 +29,14 @@ const featuredVideo = website.projectVideos.find((video) => video.title === 'Cli
 
 export function Contact() {
   return (
-    <Section id="contact" className="">
-      <div className="grid gap-14 lg:grid-cols-[1fr_1fr] lg:gap-20">
-        <div>
+    <Section id="contact" className="relative ">
+      {/* 
+        Added `items-start` to the grid. 
+        This is required for CSS `sticky` to work in a grid layout. 
+      */}
+      <div className="grid gap-14 lg:grid-cols-[1fr_1fr] lg:gap-20 items-start">
+        {/* Left Column: Form & Details */}
+        <div className="flex flex-col">
           <p className="mb-4 font-display text-lg italic text-brass-deep">
             Start crafting your dream project today
           </p>
@@ -47,54 +52,80 @@ export function Contact() {
             2&ndash;3 hours on business days.
           </p>
 
-          <form className="mt-8 grid gap-5">
+          <div className="grid gap-3 pt-6 sm:grid-cols-1">
+            {contactDetails.map(({ icon: Icon, label, href }) =>
+              href ? (
+                <a
+                  key={label}
+                  href={href}
+                  className="flex items-center gap-3 text-sm text-ink-2/75 transition-colors hover:text-brass-deep"
+                >
+                  <span className="flex h-8 w-8 items-center justify-center ">
+                    <Icon className="h-4 w-4 shrink-0 text-brass" aria-hidden />
+                  </span>
+                  {label}
+                </a>
+              ) : (
+                <span key={label} className="flex items-center gap-3 text-sm text-ink-2/75">
+                  <span className="flex h-8 w-8 items-center justify-center ">
+                    <Icon className="h-4 w-4 shrink-0 text-brass" aria-hidden />
+                  </span>
+                  {label}
+                </span>
+              ),
+            )}
+          </div>
+
+          <form className="mt-10 grid gap-6 bg-white p-8 shadow-sm border border-black/5 ">
             <div className="grid gap-5 sm:grid-cols-2">
               <label className="grid gap-2 text-sm font-medium text-ink-2">
                 First Name*
-                <Input name="firstName" autoComplete="given-name" required />
+                <Input name="firstName" autoComplete="given-name" required className="mt-1" />
               </label>
               <label className="grid gap-2 text-sm font-medium text-ink-2">
                 Last Name*
-                <Input name="lastName" autoComplete="family-name" required />
+                <Input name="lastName" autoComplete="family-name" required className="mt-1" />
               </label>
             </div>
 
             <div className="grid gap-5 sm:grid-cols-2">
               <label className="grid gap-2 text-sm font-medium text-ink-2">
                 Email*
-                <Input type="email" name="email" autoComplete="email" required />
+                <Input type="email" name="email" autoComplete="email" required className="mt-1" />
               </label>
               <label className="grid gap-2 text-sm font-medium text-ink-2">
                 Phone*
-                <Input type="tel" name="phone" autoComplete="tel" required />
+                <Input type="tel" name="phone" autoComplete="tel" required className="mt-1" />
               </label>
             </div>
 
             <label className="grid gap-2 text-sm font-medium text-ink-2">
               Subject
-              <Input name="subject" />
+              <Input name="subject" className="mt-1" />
             </label>
 
             <label className="grid gap-2 text-sm font-medium text-ink-2">
               Tell Us About Your Project
-              <Textarea name="message" placeholder="Type your message..." />
+              <Textarea
+                name="message"
+                placeholder="Type your message..."
+                className="mt-1 min-h-[120px]"
+              />
             </label>
 
-            <Button type="submit" variant="primary" className="w-fit">
+            <Button type="submit" variant="primary" className="w-full sm:w-fit mt-2">
               {website.contactForm.submitLabel}
             </Button>
           </form>
         </div>
 
-        <div>
-          {/* Offset brass frame — same motif as the intro section's photo —
-              peeking out bottom-right behind the video panel. */}
-          <div className="relative">
-            <div
-              className="absolute inset-0 translate-x-4 translate-y-4 border border-brass"
-              aria-hidden
-            />
-            <div className="relative aspect-video overflow-hidden bg-ink">
+        {/* Right Column: Sticky Media */}
+        {/* Added sticky positioning and height limits */}
+        <div className="sticky top-24 lg:top-32 h-fit hidden lg:block">
+          <div className="relative w-full ml-auto">
+            {/* The implemented brass offset frame from your comments */}
+
+            <div className="relative  w-full overflow-hidden  bg-ink z-10">
               {featuredVideo ? (
                 <video
                   className="h-full w-full object-cover"
@@ -108,37 +139,6 @@ export function Contact() {
                 <div className="flex h-full items-center justify-center text-sm text-white/60">
                   Video coming soon
                 </div>
-              )}
-            </div>
-          </div>
-
-          <div className="mt-10 flex flex-col gap-4">
-            {/* <p className="mt-5 text-base font-semibold text-ink-2">
-              Give us a call at{' '}
-              <a
-                href={`tel:${website.footer.phone.replace(/[^\d+]/g, '')}`}
-                className="text-brass-deep underline decoration-brass/50 underline-offset-4 hover:text-brass"
-              >
-                {website.footer.phone}
-              </a>
-            </p> */}
-            <div className=" grid gap-3 pt-6 sm:grid-cols-1">
-              {contactDetails.map(({ icon: Icon, label, href }) =>
-                href ? (
-                  <a
-                    key={label}
-                    href={href}
-                    className="flex items-center gap-2 text-xs text-ink-2/75 transition-colors hover:text-brass-deep"
-                  >
-                    <Icon className="h-3.5 w-3.5 shrink-0 text-brass" aria-hidden />
-                    {label}
-                  </a>
-                ) : (
-                  <span key={label} className="flex items-center gap-2 text-xs text-ink-2/75">
-                    <Icon className="h-3.5 w-3.5 shrink-0 text-brass" aria-hidden />
-                    {label}
-                  </span>
-                ),
               )}
             </div>
           </div>

@@ -1,15 +1,18 @@
-import { HomeContact } from '@/components/blocks/HomeContact'
 import { ProjectsReviews } from '@/components/projects/ProjectsReviews'
 import { WhyChooseUs } from '@/components/gallery/WhyChooseUs'
-import { SiteFooter } from '@/components/layout/SiteFooter'
 import { Section } from '@/components/ui/Section'
 import { getServiceQuote, ServiceQuoteSection } from './ServiceQuoteSection'
 import { getServiceOfferings, ServiceOfferingsSection } from './ServiceOfferingsSection'
-import { getServiceVideo, ServiceVideoSection } from './ServiceVideoSection'
-import { ServiceLocationHero } from './ServiceLocationHero'
+import { getLocationVideoContent, ServiceVideoSection } from './ServiceVideoSection'
+import { ServiceLocationHeroForm } from './ServiceLocationHeroForm'
+import { getDontSettleContent, ServiceDontSettleSection } from './sections/ServiceDontSettleSection'
 import { ServiceSiliconValleyLovesSection } from './sections/ServiceSiliconValleyLovesSection'
 import type { ServiceLocation } from '@/lib/serviceLocations'
 import type { ServiceDetail } from '@/lib/services'
+import {
+  getPrimeDifferenceContent,
+  ServicePrimeDifferenceSection,
+} from './sections/ServicePrimeDifferenceSection'
 
 export function ServiceLocationPage({
   entry,
@@ -17,27 +20,26 @@ export function ServiceLocationPage({
   entry: ServiceLocation & { service: ServiceDetail }
 }) {
   const service = entry.service
-  const video = getServiceVideo(entry.serviceSlug)
+  const video = getLocationVideoContent(entry.serviceSlug, entry.location)
   const offerings = getServiceOfferings(entry.serviceSlug)
   const quote = getServiceQuote(entry.serviceSlug)
 
   return (
     <div className="min-h-screen bg-white">
-      <ServiceLocationHero service={service} />
+      <ServiceLocationHeroForm service={service} location={entry.location} />
       <main>
         {video ? (
           <Section>
             <ServiceVideoSection {...video} embedded />
           </Section>
         ) : null}
+        <ServiceDontSettleSection {...getDontSettleContent(service, entry.location)} />
         {offerings ? <ServiceOfferingsSection {...offerings} /> : null}
         {quote ? <ServiceQuoteSection {...quote} /> : null}
         <ProjectsReviews />
-        <WhyChooseUs />
+        <ServicePrimeDifferenceSection {...getPrimeDifferenceContent(service)} />
         <ServiceSiliconValleyLovesSection />
-        <HomeContact />
       </main>
-      <SiteFooter />
     </div>
   )
 }
