@@ -1,5 +1,7 @@
+import { Check } from 'lucide-react'
 import Image from 'next/image'
 import { HomeContact } from '@/components/blocks/HomeContact'
+import { Contact as GalleryContact } from '@/components/gallery/Contact'
 import { LandscapingCta } from '@/components/blocks/LandscapingCta'
 import { LandscapingServiceAreas } from '@/components/blocks/LandscapingServiceAreas'
 import { ProjectsReviews } from '@/components/projects/ProjectsReviews'
@@ -303,6 +305,101 @@ function ServiceContentBlocks({
                   {block.heading}
                 </h2>
                 <p className="mt-4 text-base leading-8 text-ink-2/75">{block.body}</p>
+                {block.items && block.items.length > 0 && (
+                  <ul className="mt-5 grid gap-3 text-base leading-7 text-ink-2/70">
+                    {block.items.map((item) => (
+                      <li key={item.text} className="flex gap-3">
+                        <span className="mt-2 h-1.5 w-1.5 shrink-0 bg-brass" />
+                        {item.text}
+                      </li>
+                    ))}
+                  </ul>
+                )}
+              </div>
+              {block.image && (
+                <div className="relative aspect-[4/3] overflow-hidden bg-paper-2">
+                  <Image
+                    src={block.image}
+                    alt={block.heading}
+                    fill
+                    className="object-cover"
+                    sizes="(min-width: 768px) 50vw, 100vw"
+                  />
+                </div>
+              )}
+            </div>
+          )
+        if (block.blockType === 'iconFeatureList')
+          return (
+            <div
+              key={`${block.blockType}-${index}`}
+              className={`grid gap-8 md:grid-cols-2 md:items-center ${block.imageSide === 'right' ? '' : 'md:[&>div:first-child]:order-2'}`}
+            >
+              <div>
+                <h2 className="font-display text-3xl font-semibold text-ink">{block.heading}</h2>
+                {block.intro && (
+                  <p className="mt-3 text-base leading-7 text-ink-2/70">{block.intro}</p>
+                )}
+                <div className="mt-6 divide-y divide-line border-t border-line">
+                  {block.items.map((item) => (
+                    <div key={item.title} className="flex items-start gap-3 py-4">
+                      <span className="mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-brass text-white">
+                        <Check className="h-3.5 w-3.5" strokeWidth={3} aria-hidden />
+                      </span>
+                      <div>
+                        <p className="font-semibold text-ink-2">{item.title}</p>
+                        <p className="mt-1 text-sm leading-6 text-ink-2/70">{item.description}</p>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+              {block.image && (
+                <div className="relative aspect-[4/3] overflow-hidden bg-paper-2">
+                  <Image
+                    src={block.image}
+                    alt={block.heading}
+                    fill
+                    className="object-cover"
+                    sizes="(min-width: 768px) 50vw, 100vw"
+                  />
+                </div>
+              )}
+            </div>
+          )
+        if (block.blockType === 'checklist')
+          return (
+            <div
+              key={`${block.blockType}-${index}`}
+              className={`grid gap-8 md:grid-cols-2 md:items-center ${block.imageSide === 'right' ? '' : 'md:[&>div:first-child]:order-2'}`}
+            >
+              <div>
+                {block.eyebrow && (
+                  <p className="text-xs font-semibold uppercase tracking-[0.2em] text-brass">
+                    {block.eyebrow}
+                  </p>
+                )}
+                <h2 className="mt-3 font-display text-3xl font-semibold text-ink">
+                  {block.heading}
+                </h2>
+                {block.description && (
+                  <p className="mt-3 text-base italic leading-7 text-ink-2/70">
+                    {block.description}
+                  </p>
+                )}
+                <ul className="mt-5 grid gap-3">
+                  {block.items.map((item) => (
+                    <li
+                      key={item.text}
+                      className="flex items-start gap-3 text-base leading-7 text-ink-2/75"
+                    >
+                      <span className="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-brass/15 text-brass">
+                        <Check className="h-3 w-3" strokeWidth={3} aria-hidden />
+                      </span>
+                      {item.text}
+                    </li>
+                  ))}
+                </ul>
               </div>
               {block.image && (
                 <div className="relative aspect-[4/3] overflow-hidden bg-paper-2">
@@ -408,6 +505,16 @@ function ServiceContentBlocks({
 export function ServiceDetailPage({ service }: { service: ServiceDetail }) {
   const sections = getServicePageSections(service.slug)
   const hasCmsBlocks = Boolean(service.contentBlocks?.length)
+  // Slug-robust: the kitchen sub-service slugs exist in two different forms
+  // across this codebase right now (`shaker-kitchens` per the admin guide's
+  // table vs. `shaker-kitchen-silicon-valley` from the older nav config) —
+  // matching on prefix means this works no matter which one is actually
+  // live in Payload, instead of silently missing one.
+  const isKitchenSubService =
+    service.slug.startsWith('european-kitchen') ||
+    service.slug.startsWith('shaker-kitchen') ||
+    service.slug.startsWith('custom-kitchen')
+  const ContactSection = isKitchenSubService ? GalleryContact : HomeContact
   const offerings = getServiceOfferings(service.slug)
   const fallbackVideo = sections.video ? getServiceVideo(service.slug) : undefined
   const process = getServiceProcess(service)
@@ -492,13 +599,13 @@ export function ServiceDetailPage({ service }: { service: ServiceDetail }) {
             {sections.estimate ? <ServiceEstimateCta /> : null}
             {sections.siliconValleyLoves ? <ServiceSiliconValleyLovesSection /> : null}
             {sections.reviews ? <ProjectsReviews /> : null}
-            {sections.contact ? <HomeContact /> : null}
+            {sections.contact ? <ContactSection /> : null}
           </>
         )}
         {hasCmsBlocks ? (
           <>
             <ProjectsReviews />
-            <HomeContact />
+            <ContactSection />
           </>
         ) : null}
       </main>

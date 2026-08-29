@@ -101,6 +101,47 @@ const contentBlocks: Block[] = [
     ],
   },
   {
+    slug: 'iconFeatureList',
+    labels: {
+      singular: 'Feature List with Titles (e.g. "The Power of Customization")',
+      plural: 'Feature Lists with Titles',
+    },
+    fields: [
+      { name: 'heading', type: 'text', required: true },
+      { name: 'intro', type: 'textarea' },
+      imageField,
+      { name: 'imageSide', type: 'select', defaultValue: 'left', options: ['left', 'right'] },
+      {
+        name: 'items',
+        type: 'array',
+        minRows: 1,
+        fields: [
+          { name: 'title', type: 'text', required: true },
+          { name: 'description', type: 'textarea', required: true },
+        ],
+      },
+    ],
+  },
+  {
+    slug: 'checklist',
+    labels: { singular: 'Feature Checklist (image + checklist)', plural: 'Feature Checklists' },
+    fields: [
+      { name: 'eyebrow', type: 'text' },
+      { name: 'heading', type: 'text', required: true },
+      {
+        name: 'description',
+        type: 'text',
+        admin: {
+          description:
+            'Short italic lead-in line above the checklist, e.g. "Unleash the Beauty and Durability:"',
+        },
+      },
+      imageField,
+      { name: 'imageSide', type: 'select', defaultValue: 'left', options: ['left', 'right'] },
+      textItems(),
+    ],
+  },
+  {
     slug: 'quote',
     labels: { singular: 'Quote', plural: 'Quotes' },
     fields: [

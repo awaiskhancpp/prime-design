@@ -351,6 +351,41 @@ export interface Service {
             blockType: 'video';
           }
         | {
+            heading: string;
+            intro?: string | null;
+            image?: (number | null) | Media;
+            imageSide?: ('left' | 'right') | null;
+            items?:
+              | {
+                  title: string;
+                  description: string;
+                  id?: string | null;
+                }[]
+              | null;
+            id?: string | null;
+            blockName?: string | null;
+            blockType: 'iconFeatureList';
+          }
+        | {
+            eyebrow?: string | null;
+            heading: string;
+            /**
+             * Short italic lead-in line above the checklist, e.g. "Unleash the Beauty and Durability:"
+             */
+            description?: string | null;
+            image?: (number | null) | Media;
+            imageSide?: ('left' | 'right') | null;
+            items?:
+              | {
+                  text: string;
+                  id?: string | null;
+                }[]
+              | null;
+            id?: string | null;
+            blockName?: string | null;
+            blockType: 'checklist';
+          }
+        | {
             quote: string;
             attribution?: string | null;
             id?: string | null;
@@ -1103,6 +1138,40 @@ export interface ServicesSelect<T extends boolean = true> {
               video?: T;
               videoUrl?: T;
               poster?: T;
+              id?: T;
+              blockName?: T;
+            };
+        iconFeatureList?:
+          | T
+          | {
+              heading?: T;
+              intro?: T;
+              image?: T;
+              imageSide?: T;
+              items?:
+                | T
+                | {
+                    title?: T;
+                    description?: T;
+                    id?: T;
+                  };
+              id?: T;
+              blockName?: T;
+            };
+        checklist?:
+          | T
+          | {
+              eyebrow?: T;
+              heading?: T;
+              description?: T;
+              image?: T;
+              imageSide?: T;
+              items?:
+                | T
+                | {
+                    text?: T;
+                    id?: T;
+                  };
               id?: T;
               blockName?: T;
             };

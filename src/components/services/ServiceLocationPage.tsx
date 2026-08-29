@@ -13,6 +13,8 @@ import {
   getPrimeDifferenceContent,
   ServicePrimeDifferenceSection,
 } from './sections/ServicePrimeDifferenceSection'
+import { Contact } from '../gallery/Contact'
+import { ServiceLocationFooter } from './ServiceLocationFooter'
 
 export function ServiceLocationPage({
   entry,
@@ -39,6 +41,8 @@ export function ServiceLocationPage({
         <ProjectsReviews />
         <ServicePrimeDifferenceSection {...getPrimeDifferenceContent(service)} />
         <ServiceSiliconValleyLovesSection />
+        <Contact />
+        <ServiceLocationFooter />
       </main>
     </div>
   )

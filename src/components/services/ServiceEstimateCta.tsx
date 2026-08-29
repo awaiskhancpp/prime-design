@@ -3,7 +3,7 @@ import Link from 'next/link'
 export function ServiceEstimateCta() {
   return (
     <section className="bg-brass">
-      <div className="mx-auto flex max-w-7xl flex-wrap items-center justify-between gap-5 px-5 py-9 sm:px-8 lg:px-12">
+      <div className=" flex flex-wrap items-center justify-between gap-5 px-5 py-9 sm:px-8 lg:px-12">
         <div>
           <h2 className="font-display text-3xl font-semibold text-white">
             Ready to schedule your free estimate?

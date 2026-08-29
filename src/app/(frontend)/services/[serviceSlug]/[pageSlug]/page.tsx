@@ -4,8 +4,11 @@ import { ServiceDetailPage } from '@/components/services/ServiceDetailPage'
 import { resolveServiceDetail } from '@/lib/services'
 
 const kitchenDetails = [
+  'european-kitchen',
   'european-kitchen-silicon-valley',
+  'shaker-kitchens',
   'shaker-kitchen-silicon-valley',
+  'custom-kitchens',
   'custom-kitchen-silicon-valley',
 ]
 
