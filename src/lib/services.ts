@@ -8,6 +8,7 @@ export type Service = {
   description: string
   image: string
   showInConsultationForm?: boolean
+  pageTemplate?: 'service-detail' | 'google-ads'
 }
 
 export type ServiceDetail = Service & {
@@ -439,6 +440,7 @@ type PayloadMedia = { url?: string | null }
 type PayloadServiceRecord = {
   title: string
   slug: string
+  pageTemplate?: 'service-detail' | 'google-ads' | null
   description?: string | null
   shortDescription?: string | null
   hero?: {
@@ -626,6 +628,7 @@ export async function resolveServiceDetail(slug: string): Promise<ServiceDetail 
     image: payloadImageUrl(record.hero?.image) || base.image,
     heroVideoUrl: payloadImageUrl(record.hero?.video) || base.heroVideoUrl,
     contentBlocks: normalizePayloadBlocks(record.contentBlocks),
+    pageTemplate: record.pageTemplate || 'service-detail',
   }
 }
 

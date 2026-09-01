@@ -163,6 +163,19 @@ export const Services: CollectionConfig = {
     { name: 'title', type: 'text', required: true },
     { name: 'slug', type: 'text', required: true, unique: true, index: true },
     {
+      name: 'pageTemplate',
+      type: 'select',
+      defaultValue: 'service-detail',
+      options: [
+        { label: 'Service detail', value: 'service-detail' },
+        { label: 'Google Ads information page', value: 'google-ads' },
+      ],
+      admin: {
+        description:
+          'Use Google Ads information page for the seven WordPress pages whose slugs end in -information.',
+      },
+    },
+    {
       name: 'parentService',
       type: 'relationship',
       relationTo: 'services' as CollectionSlug,

@@ -183,7 +183,19 @@ const servicePageSections: Record<string, ServicePageSections> = {
   },
 }
 
-function getServicePageSections(slug: string) {
+function getServicePageSections(
+  slug: string,
+  pageTemplate?: ServiceDetail['pageTemplate'],
+) {
+  if (pageTemplate === 'google-ads') {
+    return {
+      ...defaultServicePageSections,
+      whyChooseUs: true,
+      estimate: true,
+      reviews: true,
+      contact: true,
+    }
+  }
   return servicePageSections[slug] || defaultServicePageSections
 }
 
@@ -512,7 +524,7 @@ function ServiceContentBlocks({
 }
 
 export function ServiceDetailPage({ service }: { service: ServiceDetail }) {
-  const sections = getServicePageSections(service.slug)
+  const sections = getServicePageSections(service.slug, service.pageTemplate)
   const hasCmsBlocks = Boolean(service.contentBlocks?.length)
   // Verified against the real WordPress export: these three pages only
   // ever existed at the `-silicon-valley` suffixed slug.

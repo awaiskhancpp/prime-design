@@ -1,6 +1,7 @@
 import type { Metadata } from 'next'
 import { notFound, permanentRedirect, redirect } from 'next/navigation'
 import { PayloadPage } from '@/components/pages/PayloadPage'
+import { ServiceDetailPage } from '@/components/services/ServiceDetailPage'
 import { resolveServiceDetail, services } from '@/lib/services'
 import { resolvePageBySlug } from '@/lib/pages'
 import { resolveRedirect } from '@/lib/redirects'
@@ -50,7 +51,11 @@ export default async function ServiceSlugRoute({
   params: Promise<{ serviceSlug: string }>
 }) {
   const { serviceSlug } = await params
-  if (services.some((service) => service.slug === serviceSlug)) {
+  const service = await resolveServiceDetail(serviceSlug)
+  if (service?.pageTemplate === 'google-ads') {
+    return <ServiceDetailPage service={service} />
+  }
+  if (service || services.some((item) => item.slug === serviceSlug)) {
     permanentRedirect(`/services/${serviceSlug}`)
   }
 

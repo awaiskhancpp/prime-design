@@ -238,6 +238,10 @@ export interface Service {
   title: string;
   slug: string;
   /**
+   * Use Google Ads information page for the seven WordPress pages whose slugs end in -information.
+   */
+  pageTemplate?: ('service-detail' | 'google-ads') | null;
+  /**
    * Optional parent service for a service subcategory.
    */
   parentService?: (number | null) | Service;
@@ -1026,6 +1030,7 @@ export interface FaqCategoriesSelect<T extends boolean = true> {
 export interface ServicesSelect<T extends boolean = true> {
   title?: T;
   slug?: T;
+  pageTemplate?: T;
   parentService?: T;
   shortDescription?: T;
   description?: T;
