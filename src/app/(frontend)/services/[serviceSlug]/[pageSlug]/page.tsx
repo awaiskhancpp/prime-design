@@ -1,6 +1,6 @@
 import type { Metadata } from 'next'
 import { notFound } from 'next/navigation'
-import { ServiceDetailPage } from '@/components/services/ServiceDetailPage'
+import { ServiceTemplate } from '@/components/services/ServiceTemplate'
 import { resolveServiceDetail } from '@/lib/services'
 
 const kitchenDetails = [
@@ -37,5 +37,5 @@ export default async function ServiceSubpage({
   const service =
     serviceSlug === 'kitchen-remodeling' ? await resolveServiceDetail(pageSlug) : undefined
   if (!service) notFound()
-  return <ServiceDetailPage service={service} />
+  return <ServiceTemplate service={service} />
 }

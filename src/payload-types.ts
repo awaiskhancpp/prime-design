@@ -81,6 +81,7 @@ export interface Config {
     testimonials: Testimonial;
     blog: Blog;
     'blog-categories': BlogCategory;
+    'landing-pages': LandingPage;
     'payload-kv': PayloadKv;
     'payload-locked-documents': PayloadLockedDocument;
     'payload-preferences': PayloadPreference;
@@ -102,6 +103,7 @@ export interface Config {
     testimonials: TestimonialsSelect<false> | TestimonialsSelect<true>;
     blog: BlogSelect<false> | BlogSelect<true>;
     'blog-categories': BlogCategoriesSelect<false> | BlogCategoriesSelect<true>;
+    'landing-pages': LandingPagesSelect<false> | LandingPagesSelect<true>;
     'payload-kv': PayloadKvSelect<false> | PayloadKvSelect<true>;
     'payload-locked-documents': PayloadLockedDocumentsSelect<false> | PayloadLockedDocumentsSelect<true>;
     'payload-preferences': PayloadPreferencesSelect<false> | PayloadPreferencesSelect<true>;
@@ -238,10 +240,6 @@ export interface Service {
   title: string;
   slug: string;
   /**
-   * Use Google Ads information page for the seven WordPress pages whose slugs end in -information.
-   */
-  pageTemplate?: ('service-detail' | 'google-ads') | null;
-  /**
    * Optional parent service for a service subcategory.
    */
   parentService?: (number | null) | Service;
@@ -260,6 +258,31 @@ export interface Service {
   featured?: boolean | null;
   showInConsultationForm?: boolean | null;
   sortOrder?: number | null;
+  /**
+   * The complete ordered section sequence for this service. Use section keys once each; empty means legacy fallback while content is being migrated.
+   */
+  sectionOrder?:
+    | {
+        section:
+          | 'hero'
+          | 'intro'
+          | 'video'
+          | 'process'
+          | 'offerings'
+          | 'gallery'
+          | 'quote'
+          | 'craftsmanship'
+          | 'real-homes'
+          | 'why-choose-us'
+          | 'faq'
+          | 'estimate'
+          | 'reviews'
+          | 'silicon-valley-loves'
+          | 'home-repair-categories'
+          | 'contact';
+        id?: string | null;
+      }[]
+    | null;
   contentBlocks?:
     | (
         | {
@@ -471,6 +494,32 @@ export interface ServiceLocation {
     };
     [k: string]: unknown;
   } | null;
+  /**
+   * Optional location-only changes. Leave empty to inherit the complete service template.
+   */
+  sectionOverrides?:
+    | {
+        sectionKey:
+          | 'hero'
+          | 'intro'
+          | 'video'
+          | 'offerings'
+          | 'quote'
+          | 'reviews'
+          | 'prime-difference'
+          | 'silicon-valley-loves'
+          | 'contact';
+        /**
+         * Turn this inherited section on or off for this location.
+         */
+        enabled?: boolean | null;
+        heading?: string | null;
+        body?: string | null;
+        image?: (number | null) | Media;
+        videoUrl?: string | null;
+        id?: string | null;
+      }[]
+    | null;
   seo?: {
     metaTitle?: string | null;
     metaDescription?: string | null;
@@ -833,6 +882,195 @@ export interface BlogCategory {
   createdAt: string;
 }
 /**
+ * Google Ads landing pages and marketing landing pages.
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "landing-pages".
+ */
+export interface LandingPage {
+  id: number;
+  title: string;
+  slug: string;
+  status?: ('draft' | 'published') | null;
+  /**
+   * Information pages are for Google Ads campaigns with simplified layouts.
+   */
+  template?: ('default' | 'information') | null;
+  hero: {
+    eyebrow?: string | null;
+    heading: string;
+    lead?: string | null;
+    image?: (number | null) | Media;
+  };
+  /**
+   * Add landing-page sections in their exact display order. Use only the sections needed for this campaign.
+   */
+  sections?:
+    | (
+        | {
+            eyebrow?: string | null;
+            heading: string;
+            body: string;
+            image?: (number | null) | Media;
+            imageSide?: ('left' | 'right') | null;
+            id?: string | null;
+            blockName?: string | null;
+            blockType: 'intro';
+          }
+        | {
+            heading: string;
+            items?:
+              | {
+                  text: string;
+                  id?: string | null;
+                }[]
+              | null;
+            id?: string | null;
+            blockName?: string | null;
+            blockType: 'feature-list';
+          }
+        | {
+            heading: string;
+            items?:
+              | {
+                  text: string;
+                  id?: string | null;
+                }[]
+              | null;
+            id?: string | null;
+            blockName?: string | null;
+            blockType: 'benefits';
+          }
+        | {
+            heading: string;
+            steps?:
+              | {
+                  title: string;
+                  description: string;
+                  image?: (number | null) | Media;
+                  id?: string | null;
+                }[]
+              | null;
+            id?: string | null;
+            blockName?: string | null;
+            blockType: 'process';
+          }
+        | {
+            eyebrow?: string | null;
+            heading: string;
+            body: string;
+            image?: (number | null) | Media;
+            imageSide?: ('left' | 'right') | null;
+            id?: string | null;
+            blockName?: string | null;
+            blockType: 'image-text';
+          }
+        | {
+            heading?: string | null;
+            images?: (number | Media)[] | null;
+            id?: string | null;
+            blockName?: string | null;
+            blockType: 'gallery';
+          }
+        | {
+            heading: string;
+            items?:
+              | {
+                  title: string;
+                  description: string;
+                  image?: (number | null) | Media;
+                  link?: string | null;
+                  id?: string | null;
+                }[]
+              | null;
+            id?: string | null;
+            blockName?: string | null;
+            blockType: 'sub-services';
+          }
+        | {
+            heading?: string | null;
+            /**
+             * Optional uploaded video. If empty, the external video URL can be used.
+             */
+            video?: (number | null) | Media;
+            videoUrl?: string | null;
+            poster?: (number | null) | Media;
+            id?: string | null;
+            blockName?: string | null;
+            blockType: 'video';
+          }
+        | {
+            heading: string;
+            intro?: string | null;
+            image?: (number | null) | Media;
+            imageSide?: ('left' | 'right') | null;
+            items?:
+              | {
+                  title: string;
+                  description: string;
+                  id?: string | null;
+                }[]
+              | null;
+            id?: string | null;
+            blockName?: string | null;
+            blockType: 'icon-feature-list';
+          }
+        | {
+            eyebrow?: string | null;
+            heading: string;
+            /**
+             * Short italic lead-in line above the checklist, e.g. "Unleash the Beauty and Durability:"
+             */
+            description?: string | null;
+            image?: (number | null) | Media;
+            imageSide?: ('left' | 'right') | null;
+            items?:
+              | {
+                  text: string;
+                  id?: string | null;
+                }[]
+              | null;
+            id?: string | null;
+            blockName?: string | null;
+            blockType: 'checklist';
+          }
+        | {
+            quote: string;
+            attribution?: string | null;
+            id?: string | null;
+            blockName?: string | null;
+            blockType: 'quote';
+          }
+      )[]
+    | null;
+  cta?: {
+    text?: string | null;
+    link?: string | null;
+    showForm?: boolean | null;
+  };
+  /**
+   * Campaign tracking fields for Google Ads and other marketing campaigns.
+   */
+  campaignTracking?: {
+    campaignName?: string | null;
+    campaignSource?: string | null;
+    campaignMedium?: string | null;
+    campaignTerm?: string | null;
+    campaignContent?: string | null;
+  };
+  seo?: {
+    metaTitle?: string | null;
+    metaDescription?: string | null;
+    canonicalUrl?: string | null;
+    noIndex?: boolean | null;
+    ogTitle?: string | null;
+    ogDescription?: string | null;
+    ogImage?: (number | null) | Media;
+  };
+  updatedAt: string;
+  createdAt: string;
+}
+/**
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "payload-kv".
  */
@@ -911,6 +1149,10 @@ export interface PayloadLockedDocument {
     | ({
         relationTo: 'blog-categories';
         value: number | BlogCategory;
+      } | null)
+    | ({
+        relationTo: 'landing-pages';
+        value: number | LandingPage;
       } | null);
   globalSlug?: string | null;
   user: {
@@ -1030,7 +1272,6 @@ export interface FaqCategoriesSelect<T extends boolean = true> {
 export interface ServicesSelect<T extends boolean = true> {
   title?: T;
   slug?: T;
-  pageTemplate?: T;
   parentService?: T;
   shortDescription?: T;
   description?: T;
@@ -1046,6 +1287,12 @@ export interface ServicesSelect<T extends boolean = true> {
   featured?: T;
   showInConsultationForm?: T;
   sortOrder?: T;
+  sectionOrder?:
+    | T
+    | {
+        section?: T;
+        id?: T;
+      };
   contentBlocks?:
     | T
     | {
@@ -1243,6 +1490,17 @@ export interface ServiceLocationsSelect<T extends boolean = true> {
   heroDescription?: T;
   intro?: T;
   content?: T;
+  sectionOverrides?:
+    | T
+    | {
+        sectionKey?: T;
+        enabled?: T;
+        heading?: T;
+        body?: T;
+        image?: T;
+        videoUrl?: T;
+        id?: T;
+      };
   seo?:
     | T
     | {
@@ -1490,6 +1748,196 @@ export interface BlogCategoriesSelect<T extends boolean = true> {
   description?: T;
   createdBy?: T;
   updatedBy?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "landing-pages_select".
+ */
+export interface LandingPagesSelect<T extends boolean = true> {
+  title?: T;
+  slug?: T;
+  status?: T;
+  template?: T;
+  hero?:
+    | T
+    | {
+        eyebrow?: T;
+        heading?: T;
+        lead?: T;
+        image?: T;
+      };
+  sections?:
+    | T
+    | {
+        intro?:
+          | T
+          | {
+              eyebrow?: T;
+              heading?: T;
+              body?: T;
+              image?: T;
+              imageSide?: T;
+              id?: T;
+              blockName?: T;
+            };
+        'feature-list'?:
+          | T
+          | {
+              heading?: T;
+              items?:
+                | T
+                | {
+                    text?: T;
+                    id?: T;
+                  };
+              id?: T;
+              blockName?: T;
+            };
+        benefits?:
+          | T
+          | {
+              heading?: T;
+              items?:
+                | T
+                | {
+                    text?: T;
+                    id?: T;
+                  };
+              id?: T;
+              blockName?: T;
+            };
+        process?:
+          | T
+          | {
+              heading?: T;
+              steps?:
+                | T
+                | {
+                    title?: T;
+                    description?: T;
+                    image?: T;
+                    id?: T;
+                  };
+              id?: T;
+              blockName?: T;
+            };
+        'image-text'?:
+          | T
+          | {
+              eyebrow?: T;
+              heading?: T;
+              body?: T;
+              image?: T;
+              imageSide?: T;
+              id?: T;
+              blockName?: T;
+            };
+        gallery?:
+          | T
+          | {
+              heading?: T;
+              images?: T;
+              id?: T;
+              blockName?: T;
+            };
+        'sub-services'?:
+          | T
+          | {
+              heading?: T;
+              items?:
+                | T
+                | {
+                    title?: T;
+                    description?: T;
+                    image?: T;
+                    link?: T;
+                    id?: T;
+                  };
+              id?: T;
+              blockName?: T;
+            };
+        video?:
+          | T
+          | {
+              heading?: T;
+              video?: T;
+              videoUrl?: T;
+              poster?: T;
+              id?: T;
+              blockName?: T;
+            };
+        'icon-feature-list'?:
+          | T
+          | {
+              heading?: T;
+              intro?: T;
+              image?: T;
+              imageSide?: T;
+              items?:
+                | T
+                | {
+                    title?: T;
+                    description?: T;
+                    id?: T;
+                  };
+              id?: T;
+              blockName?: T;
+            };
+        checklist?:
+          | T
+          | {
+              eyebrow?: T;
+              heading?: T;
+              description?: T;
+              image?: T;
+              imageSide?: T;
+              items?:
+                | T
+                | {
+                    text?: T;
+                    id?: T;
+                  };
+              id?: T;
+              blockName?: T;
+            };
+        quote?:
+          | T
+          | {
+              quote?: T;
+              attribution?: T;
+              id?: T;
+              blockName?: T;
+            };
+      };
+  cta?:
+    | T
+    | {
+        text?: T;
+        link?: T;
+        showForm?: T;
+      };
+  campaignTracking?:
+    | T
+    | {
+        campaignName?: T;
+        campaignSource?: T;
+        campaignMedium?: T;
+        campaignTerm?: T;
+        campaignContent?: T;
+      };
+  seo?:
+    | T
+    | {
+        metaTitle?: T;
+        metaDescription?: T;
+        canonicalUrl?: T;
+        noIndex?: T;
+        ogTitle?: T;
+        ogDescription?: T;
+        ogImage?: T;
+      };
   updatedAt?: T;
   createdAt?: T;
 }

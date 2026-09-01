@@ -5,6 +5,7 @@ import { useState } from 'react'
 
 import { Button } from '@/components/ui/Button'
 import { Container } from '@/components/ui/Container'
+import { X } from 'lucide-react'
 
 type TeamMember = {
   name: string
@@ -203,7 +204,7 @@ export function TeamSection() {
               aria-label="Close team member details"
               className="absolute right-4 top-4 z-10 flex h-10 w-10 items-center justify-center border border-ink/20 bg-paper text-ink hover:bg-ink hover:text-white"
             >
-              ×
+              <X />
             </button>
             <Portrait member={selectedMember} variant="modal" />
             <div className="flex flex-col justify-center p-8 md:p-12">

@@ -61,9 +61,14 @@ export async function SiteFooter() {
           </address>
         </div>
       </Container>
-      <div className="border-t border-white/10 py-5 text-center text-xs text-white/45">
-        {website.footer.copyright}
-      </div>
+      <Container>
+        <div className="border-t border-white/10 py-5 text-xs text-white/45 flex justify-between">
+          <div className=" ">{website.footer.copyright}</div>
+          <div>
+            <Link href={'/privacy-policy'}>Privacy Policy</Link>
+          </div>
+        </div>
+      </Container>
     </footer>
   )
 }

@@ -1,7 +1,11 @@
 import { getPayload } from 'payload'
 import configPromise from '@payload-config'
 import { getServiceDetail, type ServiceDetail } from './services'
-import type { Location as PayloadLocation, Service as PayloadService, ServiceLocation as PayloadServiceLocation } from '@/payload-types'
+import type {
+  Location as PayloadLocation,
+  Service as PayloadService,
+  ServiceLocation as PayloadServiceLocation,
+} from '@/payload-types'
 import { shouldUseLocalFallback } from './runtime'
 
 export type Location = { name: string; slug: string }
@@ -10,6 +14,20 @@ export type ServiceLocation = {
   location: Location
   slug: string
   seoDescription?: string
+  heroHeading?: string
+  heroDescription?: string
+  intro?: string
+  featuredImage?: string
+  sectionOverrides?: ServiceLocationSectionOverride[]
+}
+
+export type ServiceLocationSectionOverride = {
+  sectionKey: string
+  enabled?: boolean
+  heading?: string
+  body?: string
+  image?: string
+  videoUrl?: string
 }
 
 export const serviceLocationCities = [
@@ -81,28 +99,57 @@ export async function getServiceLocation(serviceSlug: string, locationSlugValue:
   })
 
   const doc = docs[0] as PayloadServiceLocation | undefined
-  const relatedService = typeof doc?.service === 'object' ? doc.service as PayloadService : null
-  const relatedLocation = typeof doc?.location === 'object' ? doc.location as PayloadLocation : null
+  const relatedService = typeof doc?.service === 'object' ? (doc.service as PayloadService) : null
+  const relatedLocation =
+    typeof doc?.location === 'object' ? (doc.location as PayloadLocation) : null
   if (doc && relatedService?.slug === serviceSlug && relatedLocation) {
     const baseService = getServiceDetail(relatedService.slug)
     if (!baseService) return undefined
 
     const city = relatedLocation.name || doc.city || 'San Jose'
     const serviceDetail = getServiceLocationDetail(baseService, city)
-    const mediaUrl = (value: unknown) => typeof value === 'object' && value !== null && 'url' in value && typeof value.url === 'string' ? value.url : undefined
+    const mediaUrl = (value: unknown) =>
+      typeof value === 'object' && value !== null && 'url' in value && typeof value.url === 'string'
+        ? value.url
+        : undefined
+    const sectionOverrides = Array.isArray((doc as unknown as { sectionOverrides?: unknown }).sectionOverrides)
+      ? ((doc as unknown as { sectionOverrides: Array<Record<string, unknown>> }).sectionOverrides)
+          .map((override) => ({
+            sectionKey: String(override.sectionKey || ''),
+            enabled: override.enabled !== false,
+            heading: typeof override.heading === 'string' ? override.heading : undefined,
+            body: typeof override.body === 'string' ? override.body : undefined,
+            image: mediaUrl(override.image),
+            videoUrl: typeof override.videoUrl === 'string' ? override.videoUrl : undefined,
+          }))
+          .filter((override) => Boolean(override.sectionKey))
+      : undefined
 
     return {
       serviceSlug: relatedService.slug,
       location: { name: city, slug: relatedLocation.slug },
       slug: doc.slug,
-      seoDescription: doc.seo?.metaDescription || relatedLocation.seo?.metaDescription || relatedLocation.seoDescription || serviceDetail.lead,
+      seoDescription:
+        doc.seo?.metaDescription ||
+        relatedLocation.seo?.metaDescription ||
+        relatedLocation.seoDescription ||
+        serviceDetail.lead,
       seo: doc.seo || relatedLocation.seo || relatedService.seo,
+      heroHeading: doc.heroHeading || undefined,
+      heroDescription: doc.heroDescription || undefined,
+      intro: doc.intro || undefined,
+      featuredImage: mediaUrl(doc.featuredImage),
+      sectionOverrides,
       service: {
         ...serviceDetail,
         title: doc.heroHeading || serviceDetail.title,
         eyebrow: doc.heroHeading || serviceDetail.eyebrow,
         lead: doc.heroDescription || doc.intro || serviceDetail.lead,
-        image: mediaUrl(doc.featuredImage) || mediaUrl(relatedLocation.featuredImage) || mediaUrl(relatedService.hero?.image) || serviceDetail.image,
+        image:
+          mediaUrl(doc.featuredImage) ||
+          mediaUrl(relatedLocation.featuredImage) ||
+          mediaUrl(relatedService.hero?.image) ||
+          serviceDetail.image,
       },
     }
   }

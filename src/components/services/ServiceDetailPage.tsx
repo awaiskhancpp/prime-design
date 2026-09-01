@@ -1,11 +1,11 @@
 import { Check } from 'lucide-react'
 import Image from 'next/image'
+import type { ReactNode } from 'react'
 import { HomeContact } from '@/components/blocks/HomeContact'
 import { Contact as GalleryContact } from '@/components/gallery/Contact'
 import { LandscapingCta } from '@/components/blocks/LandscapingCta'
 import { LandscapingServiceAreas } from '@/components/blocks/LandscapingServiceAreas'
 import { ProjectsReviews } from '@/components/projects/ProjectsReviews'
-import { WhyChooseUs } from '@/components/gallery/WhyChooseUs'
 import { SiteFooter } from '@/components/layout/SiteFooter'
 import { SiteHeader } from '@/components/layout/SiteHeader'
 import { Section } from '@/components/ui/Section'
@@ -59,6 +59,10 @@ type ServicePageSections = {
   estimate: boolean
   reviews: boolean
   contact: boolean
+  visualProcess: boolean
+  homeProcess: boolean
+  contactVariant: 'home' | 'gallery'
+  processLabel: string
 }
 
 const defaultServicePageSections: ServicePageSections = {
@@ -79,6 +83,10 @@ const defaultServicePageSections: ServicePageSections = {
   estimate: false,
   reviews: false,
   contact: false,
+  visualProcess: false,
+  homeProcess: false,
+  contactVariant: 'home',
+  processLabel: 'remodeling',
 }
 
 const servicePageSections: Record<string, ServicePageSections> = {
@@ -101,6 +109,7 @@ const servicePageSections: Record<string, ServicePageSections> = {
     estimate: true,
     reviews: true,
     contact: true,
+    processLabel: 'home addition',
   },
   'complete-renovation': {
     ...defaultServicePageSections,
@@ -110,6 +119,7 @@ const servicePageSections: Record<string, ServicePageSections> = {
     estimate: true,
     reviews: true,
     contact: true,
+    homeProcess: true,
   },
   'kitchen-remodeling': {
     ...defaultServicePageSections,
@@ -150,6 +160,7 @@ const servicePageSections: Record<string, ServicePageSections> = {
     estimate: true,
     reviews: true,
     contact: true,
+    homeProcess: true,
   },
   'home-repair-installation-services': {
     ...defaultServicePageSections,
@@ -164,6 +175,8 @@ const servicePageSections: Record<string, ServicePageSections> = {
     estimate: true,
     reviews: true,
     contact: true,
+    visualProcess: true,
+    contactVariant: 'gallery',
   },
   'shaker-kitchen-silicon-valley': {
     ...defaultServicePageSections,
@@ -173,6 +186,8 @@ const servicePageSections: Record<string, ServicePageSections> = {
     estimate: true,
     reviews: true,
     contact: true,
+    visualProcess: true,
+    contactVariant: 'gallery',
   },
   'custom-kitchen-silicon-valley': {
     ...defaultServicePageSections,
@@ -180,36 +195,25 @@ const servicePageSections: Record<string, ServicePageSections> = {
     videoFirst: true,
     reviews: true,
     contact: true,
+    visualProcess: true,
+    contactVariant: 'gallery',
   },
 }
 
-function getServicePageSections(
-  slug: string,
-  pageTemplate?: ServiceDetail['pageTemplate'],
-) {
-  if (pageTemplate === 'google-ads') {
-    return {
-      ...defaultServicePageSections,
-      whyChooseUs: true,
-      estimate: true,
-      reviews: true,
-      contact: true,
-    }
-  }
+function getServicePageSections(slug: string) {
   return servicePageSections[slug] || defaultServicePageSections
 }
 
 function ServiceOverview({
   service,
   showInlineProcess,
+  hasVisualProcess,
 }: {
   service: ServiceDetail
   showInlineProcess: boolean
+  hasVisualProcess: boolean
 }) {
   const sideImages = [...new Set([service.image, ...service.gallery].filter(Boolean))].slice(0, 2)
-  const hasVisualProcess = Boolean(
-    service.slug === 'kitchen-remodeling' || service.slug === 'bathroom-remodeling',
-  )
 
   return (
     <div className="grid gap-10 lg:grid-cols-[1.1fr_0.9fr] lg:items-start lg:gap-16">
@@ -277,7 +281,7 @@ function ServiceOverview({
             <div>
               <h3 className="font-display text-xl font-medium text-ink-2">Process:</h3>
               <p className="mt-3 text-base leading-7 text-ink-2/70">
-                Our {service.slug === 'additions' ? 'home addition' : service.title.toLowerCase()}{' '}
+                Our {service.title.toLowerCase()}{' '}
                 process is designed to be seamless and efficient. Here’s an overview of how we work:
               </p>
               <ol className="mt-5 grid gap-4 text-base leading-7 text-ink-2/70">
@@ -302,7 +306,7 @@ function ServiceOverview({
   )
 }
 
-function ServiceContentBlocks({
+export function ServiceContentBlocks({
   service,
   blocks,
 }: {
@@ -523,17 +527,12 @@ function ServiceContentBlocks({
   )
 }
 
-export function ServiceDetailPage({ service }: { service: ServiceDetail }) {
-  const sections = getServicePageSections(service.slug, service.pageTemplate)
+export function ServiceTemplate({ service }: { service: ServiceDetail }) {
+  const sections = getServicePageSections(service.slug)
   const hasCmsBlocks = Boolean(service.contentBlocks?.length)
   // Verified against the real WordPress export: these three pages only
   // ever existed at the `-silicon-valley` suffixed slug.
-  const isKitchenSubService = [
-    'european-kitchen-silicon-valley',
-    'shaker-kitchen-silicon-valley',
-    'custom-kitchen-silicon-valley',
-  ].includes(service.slug)
-  const ContactSection = isKitchenSubService ? GalleryContact : HomeContact
+  const ContactSection = sections.contactVariant === 'gallery' ? GalleryContact : HomeContact
   const offerings = getServiceOfferings(service.slug)
   const fallbackVideo = sections.video ? getServiceVideo(service.slug) : undefined
   const process = getServiceProcess(service)
@@ -567,57 +566,78 @@ export function ServiceDetailPage({ service }: { service: ServiceDetail }) {
     <ServiceVideoSection {...fallbackVideo} />
   ) : null
 
+  const fallbackOrder = [
+    'intro',
+    'home-repair-categories',
+    'why-choose-us',
+    'real-homes',
+    'video',
+    'offerings',
+    'process',
+    'gallery',
+    'craftsmanship',
+    'service-areas',
+    'quote',
+    'faq',
+    'estimate',
+    'silicon-valley-loves',
+    'reviews',
+    'contact',
+  ]
+  const order = service.sectionOrder?.length ? service.sectionOrder : fallbackOrder
+  const sectionNodes: Array<{ key: string; node: ReactNode }> = [
+    {
+      key: 'intro',
+      node: !sections.homeRepairCategories && (contentBlocks?.length || !hasCmsBlocks) ? (
+        <Section>
+          {contentBlocks?.length ? (
+            <ServiceContentBlocks service={service} blocks={contentBlocks} />
+          ) : (
+            <ServiceOverview
+              service={service}
+              showInlineProcess={sections.inlineProcess}
+              hasVisualProcess={sections.visualProcess}
+            />
+          )}
+        </Section>
+      ) : null,
+    },
+    { key: 'home-repair-categories', node: sections.homeRepairCategories ? <ServiceHomeRepairCategoriesSection categories={homeRepairCategoriesContent} /> : null },
+    { key: 'why-choose-us', node: sections.homeRepairWhyChooseUs || sections.whyChooseUs ? <ServiceWhyChooseUsSection /> : null },
+    { key: 'real-homes', node: sections.realHomes ? <ServiceRealHomesStoriesSection {...getRealHomesContent(service)} /> : null },
+    { key: 'video', node: !sections.videoFirst ? videoSection : null },
+    { key: 'offerings', node: sections.offerings && offerings ? <ServiceOfferingsSection {...offerings} /> : null },
+    { key: 'process', node: sections.homeProcess && sections.process ? <HomeRemodelingProcessSection /> : sections.process && process ? <ServiceProcessSection {...process} /> : null },
+    { key: 'gallery', node: sections.gallery ? <ServiceGallery service={service} /> : null },
+    { key: 'craftsmanship', node: sections.craftsmanship ? <ServiceCraftsmanshipTransformsSection {...getCraftsmanshipContent(service)} /> : null },
+    { key: 'service-areas', node: <ServiceAreasSection service={service} /> },
+    {
+      key: 'quote',
+      node: sections.quote && cmsQuote && cmsQuote.blockType === 'quote' ? (
+        <ServiceQuoteSection heading="Our promise" quote={cmsQuote.quote} attribution={cmsQuote.attribution || 'Prime Design & Build'} image={service.image} />
+      ) : sections.quote && fallbackQuote ? <ServiceQuoteSection {...fallbackQuote} /> : null,
+    },
+    { key: 'faq', node: sections.faq ? <ServiceFaq slug={service.slug} /> : null },
+    { key: 'estimate', node: sections.estimate ? <ServiceEstimateCta /> : null },
+    { key: 'silicon-valley-loves', node: sections.siliconValleyLoves ? <ServiceSiliconValleyLovesSection /> : null },
+    { key: 'reviews', node: sections.reviews ? <ProjectsReviews /> : null },
+    { key: 'contact', node: sections.contact ? <ContactSection /> : null },
+  ]
+  const orderedSections = sectionNodes
+    .filter(({ node }) => node !== null)
+    .sort((a, b) => {
+      const aIndex = order.indexOf(a.key)
+      const bIndex = order.indexOf(b.key)
+      return (aIndex < 0 ? order.length : aIndex) - (bIndex < 0 ? order.length : bIndex)
+    })
+
   return (
     <div className="min-h-screen bg-white">
       <SiteHeader />
       <main>
         <ServiceHero service={service} />
-        {sections.videoFirst ? videoSection : null}
-        <Section>
-          {hasCmsBlocks ? (
-            <ServiceContentBlocks service={service} blocks={service.contentBlocks!} />
-          ) : sections.homeRepairCategories ? (
-            <ServiceHomeRepairCategoriesSection categories={homeRepairCategoriesContent} />
-          ) : contentBlocks?.length ? (
-            <ServiceContentBlocks service={service} blocks={contentBlocks} />
-          ) : (
-            <ServiceOverview service={service} showInlineProcess={sections.inlineProcess} />
-          )}
-        </Section>
-        {sections.homeRepairWhyChooseUs ? <ServiceWhyChooseUsSection /> : null}
-        {sections.realHomes ? (
-          <ServiceRealHomesStoriesSection {...getRealHomesContent(service)} />
-        ) : null}
-        {!sections.videoFirst ? videoSection : null}
-        {sections.offerings && offerings ? <ServiceOfferingsSection {...offerings} /> : null}
-        {service.slug === 'complete-renovation' || service.slug === 'home-remodeling' ? (
-          sections.process ? (
-            <HomeRemodelingProcessSection />
-          ) : null
-        ) : sections.process && process ? (
-          <ServiceProcessSection {...process} />
-        ) : null}
-        {sections.gallery ? <ServiceGallery service={service} /> : null}
-        {sections.craftsmanship ? (
-          <ServiceCraftsmanshipTransformsSection {...getCraftsmanshipContent(service)} />
-        ) : null}
-        <ServiceAreasSection service={service} />
-        {sections.quote && cmsQuote && cmsQuote.blockType === 'quote' ? (
-          <ServiceQuoteSection
-            heading="Our promise"
-            quote={cmsQuote.quote}
-            attribution={cmsQuote.attribution || 'Prime Design & Build'}
-            image={service.image}
-          />
-        ) : sections.quote && fallbackQuote ? (
-          <ServiceQuoteSection {...fallbackQuote} />
-        ) : null}
-        {sections.whyChooseUs ? <WhyChooseUs /> : null}
-        {sections.faq ? <ServiceFaq slug={service.slug} /> : null}
-        {sections.estimate ? <ServiceEstimateCta /> : null}
-        {sections.siliconValleyLoves ? <ServiceSiliconValleyLovesSection /> : null}
-        {sections.reviews ? <ProjectsReviews /> : null}
-        {sections.contact ? <ContactSection /> : null}
+        {sections.videoFirst ? <div>{videoSection}</div> : null}
+        {orderedSections.map(({ key, node }) => <div key={key}>{node}</div>)}
       </main>
       <LandscapingServiceAreas />
       <LandscapingCta />
@@ -625,3 +645,5 @@ export function ServiceDetailPage({ service }: { service: ServiceDetail }) {
     </div>
   )
 }
+
+export const ServiceDetailPage = ServiceTemplate

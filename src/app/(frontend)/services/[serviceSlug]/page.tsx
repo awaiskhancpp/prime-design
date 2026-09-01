@@ -1,6 +1,6 @@
 import type { Metadata } from 'next'
 import { notFound } from 'next/navigation'
-import { ServiceDetailPage } from '@/components/services/ServiceDetailPage'
+import { ServiceTemplate } from '@/components/services/ServiceTemplate'
 import { resolveServiceDetail, services } from '@/lib/services'
 
 export function generateStaticParams() {
@@ -29,5 +29,5 @@ export default async function ServicePage({
   const { serviceSlug } = await params
   const service = await resolveServiceDetail(serviceSlug)
   if (!service) notFound()
-  return <ServiceDetailPage service={service} />
+  return <ServiceTemplate service={service} />
 }

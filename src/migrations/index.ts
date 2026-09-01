@@ -8,6 +8,8 @@ import * as migration_20260828_191414_faq_category_relation from './20260828_191
 import * as migration_20260828_194412_blog_collection_architecture from './20260828_194412_blog_collection_architecture';
 import * as migration_20260829_000000_service_checklist_icon_feature_list_blocks from './20260829_000000_service_checklist_icon_feature_list_blocks';
 import * as migration_20260901_174951_google_ads_service_template from './20260901_174951_google_ads_service_template';
+import * as migration_20260901_194619 from './20260901_194619';
+import * as migration_20260901_201227 from './20260901_201227';
 
 export const migrations = [
   {
@@ -58,6 +60,16 @@ export const migrations = [
   {
     up: migration_20260901_174951_google_ads_service_template.up,
     down: migration_20260901_174951_google_ads_service_template.down,
-    name: '20260901_174951_google_ads_service_template'
+    name: '20260901_174951_google_ads_service_template',
+  },
+  {
+    up: migration_20260901_194619.up,
+    down: migration_20260901_194619.down,
+    name: '20260901_194619',
+  },
+  {
+    up: migration_20260901_201227.up,
+    down: migration_20260901_201227.down,
+    name: '20260901_201227'
   },
 ];

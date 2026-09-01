@@ -1,13 +1,17 @@
 import type { Metadata } from 'next'
 import { notFound, permanentRedirect, redirect } from 'next/navigation'
 import { PayloadPage } from '@/components/pages/PayloadPage'
-import { ServiceDetailPage } from '@/components/services/ServiceDetailPage'
+import { LandingPageRenderer } from '@/components/landing/LandingPageRenderer'
 import { resolveServiceDetail, services } from '@/lib/services'
+import { listLandingPageSlugs, resolveLandingPage } from '@/lib/landingPages'
 import { resolvePageBySlug } from '@/lib/pages'
 import { resolveRedirect } from '@/lib/redirects'
 
 export function generateStaticParams() {
-  return services.map((service) => ({ serviceSlug: service.slug }))
+  return [
+    ...services.map((service) => ({ serviceSlug: service.slug })),
+    ...listLandingPageSlugs().map((serviceSlug) => ({ serviceSlug })),
+  ]
 }
 
 export async function generateMetadata({
@@ -34,6 +38,18 @@ export async function generateMetadata({
     }
   }
 
+  const landingPage = await resolveLandingPage(serviceSlug)
+  if (landingPage) {
+    return {
+      title: landingPage.seo?.metaTitle || `${landingPage.title} | Prime Design & Build`,
+      description: landingPage.seo?.metaDescription || landingPage.hero?.lead,
+      alternates: landingPage.seo?.canonicalUrl
+        ? { canonical: landingPage.seo.canonicalUrl }
+        : undefined,
+      robots: landingPage.seo?.noIndex ? { index: false, follow: false } : undefined,
+    }
+  }
+
   const page = await resolvePageBySlug(serviceSlug)
   return page
     ? {
@@ -52,11 +68,13 @@ export default async function ServiceSlugRoute({
 }) {
   const { serviceSlug } = await params
   const service = await resolveServiceDetail(serviceSlug)
-  if (service?.pageTemplate === 'google-ads') {
-    return <ServiceDetailPage service={service} />
-  }
   if (service || services.some((item) => item.slug === serviceSlug)) {
     permanentRedirect(`/services/${serviceSlug}`)
+  }
+
+  const landingPage = await resolveLandingPage(serviceSlug)
+  if (landingPage) {
+    return <LandingPageRenderer page={landingPage} />
   }
 
   const page = await resolvePageBySlug(serviceSlug)

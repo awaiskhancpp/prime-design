@@ -1,5 +1,4 @@
 import { ProjectsReviews } from '@/components/projects/ProjectsReviews'
-import { WhyChooseUs } from '@/components/gallery/WhyChooseUs'
 import { Section } from '@/components/ui/Section'
 import { getServiceQuote, ServiceQuoteSection } from './ServiceQuoteSection'
 import { getServiceOfferings, ServiceOfferingsSection } from './ServiceOfferingsSection'
@@ -22,6 +21,10 @@ export function ServiceLocationPage({
   entry: ServiceLocation & { service: ServiceDetail }
 }) {
   const service = entry.service
+  const overrides = new Map(
+    (entry.sectionOverrides ?? []).map((override) => [override.sectionKey, override]),
+  )
+  const enabled = (key: string) => overrides.get(key)?.enabled !== false
   const video = getLocationVideoContent(entry.serviceSlug, entry.location)
   const offerings = getServiceOfferings(entry.serviceSlug)
   const quote = getServiceQuote(entry.serviceSlug)
@@ -30,18 +33,29 @@ export function ServiceLocationPage({
     <div className="min-h-screen bg-white">
       <ServiceLocationHeroForm service={service} location={entry.location} />
       <main>
-        {video ? (
+        {enabled('video') && video ? (
           <Section>
             <ServiceVideoSection {...video} embedded />
           </Section>
         ) : null}
-        <ServiceDontSettleSection {...getDontSettleContent(service, entry.location)} />
-        {offerings ? <ServiceOfferingsSection {...offerings} /> : null}
-        {quote ? <ServiceQuoteSection {...quote} /> : null}
-        <ProjectsReviews />
-        <ServicePrimeDifferenceSection {...getPrimeDifferenceContent(service)} />
-        <ServiceSiliconValleyLovesSection />
-        <Contact />
+        {enabled('intro') ? (
+          <ServiceDontSettleSection
+            {...getDontSettleContent(service, entry.location)}
+            {...(overrides.get('intro')?.heading
+              ? { heading: overrides.get('intro')?.heading }
+              : {})}
+            {...(overrides.get('intro')?.body ? { body: overrides.get('intro')?.body } : {})}
+            {...(overrides.get('intro')?.image ? { image: overrides.get('intro')?.image } : {})}
+          />
+        ) : null}
+        {enabled('offerings') && offerings ? <ServiceOfferingsSection {...offerings} /> : null}
+        {enabled('quote') && quote ? <ServiceQuoteSection {...quote} /> : null}
+        {enabled('reviews') ? <ProjectsReviews /> : null}
+        {enabled('prime-difference') ? (
+          <ServicePrimeDifferenceSection {...getPrimeDifferenceContent(service)} />
+        ) : null}
+        {enabled('silicon-valley-loves') ? <ServiceSiliconValleyLovesSection /> : null}
+        {enabled('contact') ? <Contact /> : null}
         <ServiceLocationFooter />
       </main>
     </div>

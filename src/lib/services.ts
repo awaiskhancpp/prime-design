@@ -8,7 +8,7 @@ export type Service = {
   description: string
   image: string
   showInConsultationForm?: boolean
-  pageTemplate?: 'service-detail' | 'google-ads'
+  sectionOrder?: string[]
 }
 
 export type ServiceDetail = Service & {
@@ -440,7 +440,6 @@ type PayloadMedia = { url?: string | null }
 type PayloadServiceRecord = {
   title: string
   slug: string
-  pageTemplate?: 'service-detail' | 'google-ads' | null
   description?: string | null
   shortDescription?: string | null
   hero?: {
@@ -451,6 +450,7 @@ type PayloadServiceRecord = {
     video?: number | PayloadMedia | null
   } | null
   contentBlocks?: Array<Record<string, unknown>> | null
+  sectionOrder?: Array<{ section?: string | null }> | null
   seo?: ServiceDetail['seo']
   showInConsultationForm?: boolean | null
 }
@@ -460,7 +460,7 @@ const payloadImageUrl = (value: unknown) =>
     ? value.url
     : undefined
 
-function normalizePayloadBlocks(
+export function normalizePayloadBlocks(
   value: PayloadServiceRecord['contentBlocks'],
 ): ServiceContentBlock[] | undefined {
   if (!value?.length) return undefined
@@ -628,7 +628,7 @@ export async function resolveServiceDetail(slug: string): Promise<ServiceDetail 
     image: payloadImageUrl(record.hero?.image) || base.image,
     heroVideoUrl: payloadImageUrl(record.hero?.video) || base.heroVideoUrl,
     contentBlocks: normalizePayloadBlocks(record.contentBlocks),
-    pageTemplate: record.pageTemplate || 'service-detail',
+    sectionOrder: record.sectionOrder?.map((item) => item.section).filter((item): item is string => Boolean(item)),
   }
 }
 

@@ -1,0 +1,1 @@
+export { ServiceTemplate } from './ServiceDetailPage'

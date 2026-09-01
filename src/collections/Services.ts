@@ -9,7 +9,7 @@ const textItems = (name = 'items') => ({
 
 const imageField = { name: 'image', type: 'upload' as const, relationTo: 'media' as const }
 
-const contentBlocks: Block[] = [
+export const serviceContentBlocks: Block[] = [
   {
     slug: 'intro',
     labels: { singular: 'Intro', plural: 'Intro' },
@@ -163,19 +163,6 @@ export const Services: CollectionConfig = {
     { name: 'title', type: 'text', required: true },
     { name: 'slug', type: 'text', required: true, unique: true, index: true },
     {
-      name: 'pageTemplate',
-      type: 'select',
-      defaultValue: 'service-detail',
-      options: [
-        { label: 'Service detail', value: 'service-detail' },
-        { label: 'Google Ads information page', value: 'google-ads' },
-      ],
-      admin: {
-        description:
-          'Use Google Ads information page for the seven WordPress pages whose slugs end in -information.',
-      },
-    },
-    {
       name: 'parentService',
       type: 'relationship',
       relationTo: 'services' as CollectionSlug,
@@ -211,7 +198,27 @@ export const Services: CollectionConfig = {
       label: 'Show in Consultation Form',
     },
     { name: 'sortOrder', type: 'number', defaultValue: 0 },
-    { name: 'contentBlocks', type: 'blocks', blocks: contentBlocks },
+    {
+      name: 'sectionOrder',
+      type: 'array',
+      admin: {
+        description:
+          'The complete ordered section sequence for this service. Use section keys once each; empty means legacy fallback while content is being migrated.',
+      },
+      fields: [
+        {
+          name: 'section',
+          type: 'select',
+          required: true,
+          options: [
+            'hero', 'intro', 'video', 'process', 'offerings', 'gallery', 'quote',
+            'craftsmanship', 'real-homes', 'why-choose-us', 'faq', 'estimate',
+            'reviews', 'silicon-valley-loves', 'home-repair-categories', 'contact',
+          ],
+        },
+      ],
+    },
+    { name: 'contentBlocks', type: 'blocks', blocks: serviceContentBlocks },
     { name: 'faqs', type: 'relationship', relationTo: 'faqs', hasMany: true },
     {
       name: 'relatedServices',

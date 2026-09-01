@@ -7,6 +7,7 @@ import { serviceLocations } from '@/lib/serviceLocations'
 import { shouldUseLocalFallback } from '@/lib/runtime'
 import { blogPosts } from '@/lib/blog'
 import { projects } from '@/lib/projects'
+import { listLandingPageSlugs } from '@/lib/landingPages'
 
 const siteUrl = 'https://primedesignandbuild.com'
 
@@ -47,16 +48,18 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   let locationPages = serviceLocations.map((location) =>
     entry(`${siteUrl}/services/${location.serviceSlug}/${location.slug}`, 0.65),
   )
+  let landingPages = listLandingPageSlugs().map((slug) => entry(`${siteUrl}/${slug}`, 0.7))
 
   if (process.env.DATABASE_URL) {
     const payload = await getPayload({ config: configPromise })
-    const [payloadServices, payloadLocations, payloadPages, payloadPosts, payloadProjects] =
+    const [payloadServices, payloadLocations, payloadPages, payloadPosts, payloadProjects, payloadLandingPages] =
       await Promise.all([
         payload.find({ collection: 'services', depth: 1, limit: 100 }),
         payload.find({ collection: 'service-locations', depth: 2, limit: 200 }),
         payload.find({ collection: 'pages', depth: 0, limit: 200 }),
         payload.find({ collection: 'blog', depth: 0, limit: 200 }),
         payload.find({ collection: 'projects', depth: 0, limit: 200 }),
+        payload.find({ collection: 'landing-pages', depth: 0, limit: 100 }),
       ])
     const cmsServices = (payloadServices.docs as unknown as SitemapRecord[])
       .filter((record) => record.seo?.noIndex !== true && record.slug)
@@ -94,7 +97,11 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
         : projects.map((project) => entry(`${siteUrl}/project/${project.slug}`, 0.6))
       staticPages.push(...projectEntries)
     }
+    const cmsLandingPages = (payloadLandingPages.docs as unknown as SitemapRecord[])
+      .filter((record) => record.seo?.noIndex !== true && record.slug)
+      .map((record) => entry(`${siteUrl}/${record.slug}`, 0.7))
+    if (cmsLandingPages.length || !shouldUseLocalFallback()) landingPages = cmsLandingPages
   }
 
-  return [...staticPages, ...servicePages, ...kitchenPages, ...locationPages]
+  return [...staticPages, ...servicePages, ...kitchenPages, ...locationPages, ...landingPages]
 }

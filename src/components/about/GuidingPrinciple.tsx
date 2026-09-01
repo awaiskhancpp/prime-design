@@ -33,7 +33,7 @@ export function GuidingPrinciple() {
         </div>
       </div>
 
-      <div className="relative mt-16 aspect-[16/7] overflow-hidden bg-paper-2">
+      <div className="relative mt-16 aspect-[16/7] overflow-hidden ">
         <Image
           src={guidingPrinciple.image}
           alt={guidingPrinciple.imageAlt}

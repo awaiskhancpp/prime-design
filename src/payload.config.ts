@@ -20,6 +20,7 @@ import { Testimonials } from './collections/Testimonials'
 import { SiteSettings } from './globals/SiteSettings'
 import { Blog } from './collections/Blog'
 import { BlogCategories } from './collections/BlogCategories'
+import { LandingPages } from './collections/LandingPages'
 
 const filename = fileURLToPath(import.meta.url)
 const dirname = path.dirname(filename)
@@ -46,6 +47,7 @@ export default buildConfig({
     Testimonials,
     Blog,
     BlogCategories,
+    LandingPages,
   ],
   globals: [SiteSettings],
   editor: lexicalEditor(),

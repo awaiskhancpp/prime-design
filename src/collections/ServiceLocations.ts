@@ -8,7 +8,11 @@ const relationId = (value: unknown) =>
       ? undefined
       : String(value)
 
-const ensureUniqueServiceLocation: CollectionBeforeValidateHook = async ({ data, originalDoc, req }) => {
+const ensureUniqueServiceLocation: CollectionBeforeValidateHook = async ({
+  data,
+  originalDoc,
+  req,
+}) => {
   const serviceId = relationId(data?.service)
   const locationId = relationId(data?.location)
   if (!serviceId || !locationId) return data
@@ -16,10 +20,7 @@ const ensureUniqueServiceLocation: CollectionBeforeValidateHook = async ({ data,
   const existing = await req.payload.find({
     collection: 'service-locations',
     where: {
-      and: [
-        { service: { equals: serviceId } },
-        { location: { equals: locationId } },
-      ],
+      and: [{ service: { equals: serviceId } }, { location: { equals: locationId } }],
     },
     depth: 0,
     limit: 1,
@@ -32,25 +33,80 @@ const ensureUniqueServiceLocation: CollectionBeforeValidateHook = async ({ data,
   return data
 }
 
+const sectionOverrideFields = [
+  {
+    name: 'sectionKey',
+    type: 'select' as const,
+    required: true,
+    options: [
+      { label: 'Hero', value: 'hero' },
+      { label: 'Intro', value: 'intro' },
+      { label: 'Video', value: 'video' },
+      { label: 'Offerings', value: 'offerings' },
+      { label: 'Quote', value: 'quote' },
+      { label: 'Reviews', value: 'reviews' },
+      { label: 'Prime Difference', value: 'prime-difference' },
+      { label: 'Silicon Valley Loves', value: 'silicon-valley-loves' },
+      { label: 'Contact', value: 'contact' },
+    ],
+  },
+  {
+    name: 'enabled',
+    type: 'checkbox' as const,
+    defaultValue: true,
+    admin: { description: 'Turn this inherited section on or off for this location.' },
+  },
+  { name: 'heading', type: 'text' as const },
+  { name: 'body', type: 'textarea' as const },
+  { name: 'image', type: 'upload' as const, relationTo: 'media' as const },
+  { name: 'videoUrl', type: 'text' as const },
+]
+
 export const ServiceLocations: CollectionConfig = {
   slug: 'service-locations',
   admin: {
     useAsTitle: 'title',
     defaultColumns: ['title', 'service', 'location', 'slug'],
-    description: 'The small service + location record. Shared page layout comes from the frontend template.',
+    description:
+      'The small service + location record. Shared page layout comes from the frontend template.',
   },
   hooks: { beforeValidate: [ensureUniqueServiceLocation] },
   fields: [
     { name: 'title', type: 'text', required: true },
     { name: 'slug', type: 'text', required: true, unique: true, index: true },
-    { name: 'service', type: 'relationship', relationTo: 'services' as CollectionSlug, required: true, index: true },
-    { name: 'location', type: 'relationship', relationTo: 'locations' as CollectionSlug, required: true, index: true },
-    { name: 'city', type: 'text', admin: { description: 'Legacy WordPress city value; retained for import compatibility.' } },
+    {
+      name: 'service',
+      type: 'relationship',
+      relationTo: 'services' as CollectionSlug,
+      required: true,
+      index: true,
+    },
+    {
+      name: 'location',
+      type: 'relationship',
+      relationTo: 'locations' as CollectionSlug,
+      required: true,
+      index: true,
+    },
+    {
+      name: 'city',
+      type: 'text',
+      admin: { description: 'Legacy WordPress city value; retained for import compatibility.' },
+    },
     { name: 'featuredImage', type: 'upload', relationTo: 'media' },
     { name: 'heroHeading', type: 'text' },
     { name: 'heroDescription', type: 'textarea' },
     { name: 'intro', type: 'textarea' },
     { name: 'content', type: 'richText' },
+    {
+      name: 'sectionOverrides',
+      type: 'array',
+      fields: sectionOverrideFields,
+      admin: {
+        description:
+          'Optional location-only changes. Leave empty to inherit the complete service template.',
+      },
+    },
     ...SEOFields,
   ],
 }
