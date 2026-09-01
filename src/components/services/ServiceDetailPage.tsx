@@ -43,6 +43,7 @@ function splitLabeledLine(line: string) {
 
 type ServicePageSections = {
   video: boolean
+  videoFirst: boolean
   process: boolean
   inlineProcess: boolean
   offerings: boolean
@@ -62,6 +63,7 @@ type ServicePageSections = {
 
 const defaultServicePageSections: ServicePageSections = {
   video: false,
+  videoFirst: false,
   process: false,
   inlineProcess: false,
   offerings: false,
@@ -156,6 +158,8 @@ const servicePageSections: Record<string, ServicePageSections> = {
   },
   'european-kitchen-silicon-valley': {
     ...defaultServicePageSections,
+    video: true,
+    videoFirst: true,
     whyChooseUs: true,
     estimate: true,
     reviews: true,
@@ -163,6 +167,8 @@ const servicePageSections: Record<string, ServicePageSections> = {
   },
   'shaker-kitchen-silicon-valley': {
     ...defaultServicePageSections,
+    video: true,
+    videoFirst: true,
     whyChooseUs: true,
     estimate: true,
     reviews: true,
@@ -170,7 +176,10 @@ const servicePageSections: Record<string, ServicePageSections> = {
   },
   'custom-kitchen-silicon-valley': {
     ...defaultServicePageSections,
+    video: true,
+    videoFirst: true,
     reviews: true,
+    contact: true,
   },
 }
 
@@ -329,7 +338,7 @@ function ServiceContentBlocks({
               )}
             </div>
           )
-        if (block.blockType === 'iconFeatureList')
+        if (block.blockType === 'icon-feature-list')
           return (
             <div
               key={`${block.blockType}-${index}`}
@@ -505,15 +514,13 @@ function ServiceContentBlocks({
 export function ServiceDetailPage({ service }: { service: ServiceDetail }) {
   const sections = getServicePageSections(service.slug)
   const hasCmsBlocks = Boolean(service.contentBlocks?.length)
-  // Slug-robust: the kitchen sub-service slugs exist in two different forms
-  // across this codebase right now (`shaker-kitchens` per the admin guide's
-  // table vs. `shaker-kitchen-silicon-valley` from the older nav config) —
-  // matching on prefix means this works no matter which one is actually
-  // live in Payload, instead of silently missing one.
-  const isKitchenSubService =
-    service.slug.startsWith('european-kitchen') ||
-    service.slug.startsWith('shaker-kitchen') ||
-    service.slug.startsWith('custom-kitchen')
+  // Verified against the real WordPress export: these three pages only
+  // ever existed at the `-silicon-valley` suffixed slug.
+  const isKitchenSubService = [
+    'european-kitchen-silicon-valley',
+    'shaker-kitchen-silicon-valley',
+    'custom-kitchen-silicon-valley',
+  ].includes(service.slug)
   const ContactSection = isKitchenSubService ? GalleryContact : HomeContact
   const offerings = getServiceOfferings(service.slug)
   const fallbackVideo = sections.video ? getServiceVideo(service.slug) : undefined
@@ -533,81 +540,72 @@ export function ServiceDetailPage({ service }: { service: ServiceDetail }) {
     return true
   })
 
+  const videoSection = cmsVideos.length ? (
+    cmsVideos.map((block, index) =>
+      block.blockType === 'video' ? (
+        <ServiceVideoSection
+          key={`video-${index}`}
+          title={block.heading || 'See the difference'}
+          videoUrl={block.videoUrl}
+          poster={block.poster}
+        />
+      ) : null,
+    )
+  ) : fallbackVideo ? (
+    <ServiceVideoSection {...fallbackVideo} />
+  ) : null
+
   return (
     <div className="min-h-screen bg-white">
       <SiteHeader />
       <main>
         <ServiceHero service={service} />
-        {hasCmsBlocks ? (
-          <Section>
+        {sections.videoFirst ? videoSection : null}
+        <Section>
+          {hasCmsBlocks ? (
             <ServiceContentBlocks service={service} blocks={service.contentBlocks!} />
-          </Section>
-        ) : (
-          <>
-            <Section>
-              {sections.homeRepairCategories ? (
-                <ServiceHomeRepairCategoriesSection categories={homeRepairCategoriesContent} />
-              ) : contentBlocks?.length ? (
-                <ServiceContentBlocks service={service} blocks={contentBlocks} />
-              ) : (
-                <ServiceOverview service={service} showInlineProcess={sections.inlineProcess} />
-              )}
-            </Section>
-            {sections.homeRepairWhyChooseUs ? <ServiceWhyChooseUsSection /> : null}
-            {sections.realHomes ? (
-              <ServiceRealHomesStoriesSection {...getRealHomesContent(service)} />
-            ) : null}
-            {cmsVideos.length ? (
-              cmsVideos.map((block, index) =>
-                block.blockType === 'video' ? (
-                  <ServiceVideoSection
-                    key={`video-${index}`}
-                    title={block.heading || 'See the difference'}
-                    videoUrl={block.videoUrl}
-                    poster={block.poster}
-                  />
-                ) : null,
-              )
-            ) : fallbackVideo ? (
-              <ServiceVideoSection {...fallbackVideo} />
-            ) : null}
-            {sections.offerings && offerings ? <ServiceOfferingsSection {...offerings} /> : null}
-            {service.slug === 'complete-renovation' || service.slug === 'home-remodeling' ? (
-              sections.process ? (
-                <HomeRemodelingProcessSection />
-              ) : null
-            ) : sections.process && process ? (
-              <ServiceProcessSection {...process} />
-            ) : null}
-            {sections.gallery ? <ServiceGallery service={service} /> : null}
-            {sections.craftsmanship ? (
-              <ServiceCraftsmanshipTransformsSection {...getCraftsmanshipContent(service)} />
-            ) : null}
-            <ServiceAreasSection service={service} />
-            {sections.quote && cmsQuote && cmsQuote.blockType === 'quote' ? (
-              <ServiceQuoteSection
-                heading="Our promise"
-                quote={cmsQuote.quote}
-                attribution={cmsQuote.attribution || 'Prime Design & Build'}
-                image={service.image}
-              />
-            ) : sections.quote && fallbackQuote ? (
-              <ServiceQuoteSection {...fallbackQuote} />
-            ) : null}
-            {sections.whyChooseUs ? <WhyChooseUs /> : null}
-            {sections.faq ? <ServiceFaq slug={service.slug} /> : null}
-            {sections.estimate ? <ServiceEstimateCta /> : null}
-            {sections.siliconValleyLoves ? <ServiceSiliconValleyLovesSection /> : null}
-            {sections.reviews ? <ProjectsReviews /> : null}
-            {sections.contact ? <ContactSection /> : null}
-          </>
-        )}
-        {hasCmsBlocks ? (
-          <>
-            <ProjectsReviews />
-            <ContactSection />
-          </>
+          ) : sections.homeRepairCategories ? (
+            <ServiceHomeRepairCategoriesSection categories={homeRepairCategoriesContent} />
+          ) : contentBlocks?.length ? (
+            <ServiceContentBlocks service={service} blocks={contentBlocks} />
+          ) : (
+            <ServiceOverview service={service} showInlineProcess={sections.inlineProcess} />
+          )}
+        </Section>
+        {sections.homeRepairWhyChooseUs ? <ServiceWhyChooseUsSection /> : null}
+        {sections.realHomes ? (
+          <ServiceRealHomesStoriesSection {...getRealHomesContent(service)} />
         ) : null}
+        {!sections.videoFirst ? videoSection : null}
+        {sections.offerings && offerings ? <ServiceOfferingsSection {...offerings} /> : null}
+        {service.slug === 'complete-renovation' || service.slug === 'home-remodeling' ? (
+          sections.process ? (
+            <HomeRemodelingProcessSection />
+          ) : null
+        ) : sections.process && process ? (
+          <ServiceProcessSection {...process} />
+        ) : null}
+        {sections.gallery ? <ServiceGallery service={service} /> : null}
+        {sections.craftsmanship ? (
+          <ServiceCraftsmanshipTransformsSection {...getCraftsmanshipContent(service)} />
+        ) : null}
+        <ServiceAreasSection service={service} />
+        {sections.quote && cmsQuote && cmsQuote.blockType === 'quote' ? (
+          <ServiceQuoteSection
+            heading="Our promise"
+            quote={cmsQuote.quote}
+            attribution={cmsQuote.attribution || 'Prime Design & Build'}
+            image={service.image}
+          />
+        ) : sections.quote && fallbackQuote ? (
+          <ServiceQuoteSection {...fallbackQuote} />
+        ) : null}
+        {sections.whyChooseUs ? <WhyChooseUs /> : null}
+        {sections.faq ? <ServiceFaq slug={service.slug} /> : null}
+        {sections.estimate ? <ServiceEstimateCta /> : null}
+        {sections.siliconValleyLoves ? <ServiceSiliconValleyLovesSection /> : null}
+        {sections.reviews ? <ProjectsReviews /> : null}
+        {sections.contact ? <ContactSection /> : null}
       </main>
       <LandscapingServiceAreas />
       <LandscapingCta />

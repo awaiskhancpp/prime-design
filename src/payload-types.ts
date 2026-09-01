@@ -364,7 +364,7 @@ export interface Service {
               | null;
             id?: string | null;
             blockName?: string | null;
-            blockType: 'iconFeatureList';
+            blockType: 'icon-feature-list';
           }
         | {
             eyebrow?: string | null;
@@ -1141,7 +1141,7 @@ export interface ServicesSelect<T extends boolean = true> {
               id?: T;
               blockName?: T;
             };
-        iconFeatureList?:
+        'icon-feature-list'?:
           | T
           | {
               heading?: T;

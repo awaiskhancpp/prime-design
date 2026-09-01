@@ -11,15 +11,8 @@ import type { ServiceDetail } from '@/lib/services'
 const AMBIENT_VIDEO_URL =
   'https://tagmediaspace.b-cdn.net/Prime%20Design%20and%20Build/09.04.2024%20Ilay%20Prime%20Kitchen%20700%20Alice%20Ave%20Mountain%20View.mp4'
 
-const heroVideos: Record<string, string> = {
-  'european-kitchen-silicon-valley': AMBIENT_VIDEO_URL,
-  'shaker-kitchen-silicon-valley':
-    'https://tagmediaspace.b-cdn.net/Prime%20Design%20and%20Build/Prime%20Vid%20Noah.mp4',
-  'custom-kitchen-silicon-valley': AMBIENT_VIDEO_URL,
-}
-
 export function ServiceHero({ service }: { service: ServiceDetail }) {
-  const heroVideo = service.heroVideoUrl || heroVideos[service.slug]
+  const heroVideo = service.heroVideoUrl
 
   return (
     <section className="relative isolate flex min-h-screen items-end overflow-hidden bg-ink pb-16 pt-16 text-white lg:pb-24">

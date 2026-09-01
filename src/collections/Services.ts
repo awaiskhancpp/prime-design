@@ -101,7 +101,7 @@ const contentBlocks: Block[] = [
     ],
   },
   {
-    slug: 'iconFeatureList',
+    slug: 'icon-feature-list',
     labels: {
       singular: 'Feature List with Titles (e.g. "The Power of Customization")',
       plural: 'Feature Lists with Titles',

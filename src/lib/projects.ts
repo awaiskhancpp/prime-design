@@ -103,7 +103,7 @@ export const projects: Project[] = [
     gallery: [remodel, home, kitchen],
   },
   {
-    slug: 'new-home-construction-los-gatos',
+    slug: 'full-home-remodeling-los-gatos',
     title: 'New Home Construction Los Gatos',
     location: 'Los Gatos, California',
     category: 'New Construction',
@@ -194,7 +194,7 @@ export const projects: Project[] = [
     gallery: [home, kitchen, remodel],
   },
   {
-    slug: 'bathroom-home-remodel-san-jose',
+    slug: 'bathroom-home-remodel-in-san-jose',
     title: 'Bathroom & Home Remodel in San Jose',
     location: 'San Jose, California',
     category: 'Bathroom Remodeling',
@@ -281,9 +281,7 @@ function normalizeProject(project: PayloadProject): Project {
     description: project.description || fallback?.description || '',
     heroImage: payloadMediaUrl(project.featuredImage) || fallback?.heroImage || home,
     gallery: gallery?.length ? gallery : fallback?.gallery || [],
-    video: project.videoUrl
-      ? { url: project.videoUrl, title: project.title }
-      : fallback?.video,
+    video: project.videoUrl ? { url: project.videoUrl, title: project.title } : fallback?.video,
   }
 }
 
@@ -291,7 +289,12 @@ export async function resolveProjects(): Promise<Project[]> {
   if (!process.env.DATABASE_URL) return shouldUseLocalFallback() ? projects : []
 
   const payload = await getPayload({ config: configPromise })
-  const result = await payload.find({ collection: 'projects', sort: '-createdAt', depth: 2, limit: 100 })
+  const result = await payload.find({
+    collection: 'projects',
+    sort: '-createdAt',
+    depth: 2,
+    limit: 100,
+  })
   return result.docs.length
     ? (result.docs as unknown as PayloadProject[]).map(normalizeProject)
     : shouldUseLocalFallback()
@@ -300,7 +303,8 @@ export async function resolveProjects(): Promise<Project[]> {
 }
 
 export async function resolveProjectBySlug(slug: string): Promise<Project | undefined> {
-  if (!process.env.DATABASE_URL) return shouldUseLocalFallback() ? getProjectBySlug(slug) : undefined
+  if (!process.env.DATABASE_URL)
+    return shouldUseLocalFallback() ? getProjectBySlug(slug) : undefined
 
   const payload = await getPayload({ config: configPromise })
   const result = await payload.find({
@@ -311,5 +315,9 @@ export async function resolveProjectBySlug(slug: string): Promise<Project | unde
   })
   const record = result.docs[0] as unknown as PayloadProject | undefined
 
-  return record ? normalizeProject(record) : shouldUseLocalFallback() ? getProjectBySlug(slug) : undefined
+  return record
+    ? normalizeProject(record)
+    : shouldUseLocalFallback()
+      ? getProjectBySlug(slug)
+      : undefined
 }

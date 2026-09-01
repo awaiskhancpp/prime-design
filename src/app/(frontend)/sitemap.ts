@@ -44,17 +44,20 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     'custom-kitchen-silicon-valley',
   ].map((slug) => entry(`${siteUrl}/services/kitchen-remodeling/${slug}`, 0.75))
 
-  let locationPages = serviceLocations.map((location) => entry(`${siteUrl}/${location.serviceSlug}/${location.slug}`, 0.65))
+  let locationPages = serviceLocations.map((location) =>
+    entry(`${siteUrl}/services/${location.serviceSlug}/${location.slug}`, 0.65),
+  )
 
   if (process.env.DATABASE_URL) {
     const payload = await getPayload({ config: configPromise })
-    const [payloadServices, payloadLocations, payloadPages, payloadPosts, payloadProjects] = await Promise.all([
-      payload.find({ collection: 'services', depth: 1, limit: 100 }),
-      payload.find({ collection: 'service-locations', depth: 2, limit: 200 }),
-      payload.find({ collection: 'pages', depth: 0, limit: 200 }),
-      payload.find({ collection: 'blog', depth: 0, limit: 200 }),
-      payload.find({ collection: 'projects', depth: 0, limit: 200 }),
-    ])
+    const [payloadServices, payloadLocations, payloadPages, payloadPosts, payloadProjects] =
+      await Promise.all([
+        payload.find({ collection: 'services', depth: 1, limit: 100 }),
+        payload.find({ collection: 'service-locations', depth: 2, limit: 200 }),
+        payload.find({ collection: 'pages', depth: 0, limit: 200 }),
+        payload.find({ collection: 'blog', depth: 0, limit: 200 }),
+        payload.find({ collection: 'projects', depth: 0, limit: 200 }),
+      ])
     const cmsServices = (payloadServices.docs as unknown as SitemapRecord[])
       .filter((record) => record.seo?.noIndex !== true && record.slug)
       .map((record) => entry(`${siteUrl}/services/${record.slug}`, 0.8))
@@ -62,7 +65,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       const service = typeof record.service === 'object' ? record.service?.slug : undefined
       const location = typeof record.location === 'object' ? record.location?.slug : undefined
       return record.seo?.noIndex !== true && record.slug && service && location
-        ? [entry(`${siteUrl}/${service}/${record.slug}`, 0.65)]
+        ? [entry(`${siteUrl}/services/${service}/${record.slug}`, 0.65)]
         : []
     })
     if (cmsServices.length || !shouldUseLocalFallback()) servicePages = cmsServices

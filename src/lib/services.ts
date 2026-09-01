@@ -63,7 +63,7 @@ export type ServiceContentBlock =
   | { blockType: 'video'; heading?: string; videoUrl: string; poster?: string }
   | { blockType: 'quote'; quote: string; attribution?: string }
   | {
-      blockType: 'iconFeatureList'
+      blockType: 'icon-feature-list'
       heading: string
       intro?: string
       image?: string
@@ -545,7 +545,7 @@ function normalizePayloadBlocks(
         },
       ] as ServiceContentBlock[]
     }
-    if (blockType === 'iconFeatureList')
+    if (blockType === 'icon-feature-list')
       return [
         {
           blockType,
@@ -592,34 +592,13 @@ function normalizePayloadBlocks(
   }) as unknown as ServiceContentBlock[]
 }
 
-// The three kitchen sub-service pages exist under two different slug
-// conventions across this codebase: the short form from the admin content
-// guide (`shaker-kitchens`) and the older `-silicon-valley` suffixed form
-// still used by local fallback data and the nested route's static params.
-// Rather than guess which one is actually live in Payload, both are
-// treated as valid candidates for the same page.
-const kitchenSlugAliases: Record<string, string> = {
-  'european-kitchen': 'european-kitchen-silicon-valley',
-  'european-kitchen-silicon-valley': 'european-kitchen',
-  'shaker-kitchens': 'shaker-kitchen-silicon-valley',
-  'shaker-kitchen-silicon-valley': 'shaker-kitchens',
-  'custom-kitchens': 'custom-kitchen-silicon-valley',
-  'custom-kitchen-silicon-valley': 'custom-kitchens',
-}
-
-function slugCandidates(slug: string): string[] {
-  const alias = kitchenSlugAliases[slug]
-  return alias ? [slug, alias] : [slug]
-}
-
 export async function resolveServiceDetail(slug: string): Promise<ServiceDetail | undefined> {
-  const candidates = slugCandidates(slug)
-  const fallback = candidates.map((candidate) => getServiceDetail(candidate)).find(Boolean)
+  const fallback = getServiceDetail(slug)
   if (!process.env.DATABASE_URL) return shouldUseLocalFallback() ? fallback : undefined
   const payload = await getPayload({ config: configPromise })
   const result = await payload.find({
     collection: 'services',
-    where: { slug: { in: candidates } },
+    where: { slug: { equals: slug } },
     depth: 2,
     limit: 1,
   })

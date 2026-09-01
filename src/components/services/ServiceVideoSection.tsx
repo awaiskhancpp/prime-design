@@ -9,6 +9,8 @@ const fullHomeVideo =
   'https://tagmediaspace.b-cdn.net/Prime%20Design%20and%20Build/07.18.2024%20Josef%20Prime%20Full%20House%201840%20Bluebonnet%20Ct%20Morgan%20Hill.mp4'
 const firstFloorVideo =
   'https://tagmediaspace.b-cdn.net/Prime%20Design%20and%20Build/First%20Floor.mp4'
+const noahIntroVideo =
+  'https://tagmediaspace.b-cdn.net/Prime%20Design%20and%20Build/Prime%20Vid%20Noah.mp4'
 
 export type ServiceVideoContent = {
   eyebrow?: string
@@ -43,6 +45,24 @@ const videosBySlug: Record<string, ServiceVideoContent> = {
     title: 'See how we expand homes with thoughtful additions',
     videoUrl: firstFloorVideo,
     poster: '/services/home-remodeling.jpeg',
+  },
+  'european-kitchen-silicon-valley': {
+    eyebrow: 'European kitchens',
+    title: 'Take a tour through one of our European kitchen transformations',
+    videoUrl: kitchenVideo,
+    poster: '/services/kitchen-remodeling.jpeg',
+  },
+  'shaker-kitchen-silicon-valley': {
+    eyebrow: 'Shaker kitchens',
+    title: 'Hear from our team on what makes a Shaker kitchen work',
+    videoUrl: noahIntroVideo,
+    poster: '/services/kitchen-remodeling.jpeg',
+  },
+  'custom-kitchen-silicon-valley': {
+    eyebrow: 'Custom kitchens',
+    title: 'Take a tour through one of our custom kitchen transformations',
+    videoUrl: kitchenVideo,
+    poster: '/services/kitchen-remodeling.jpeg',
   },
 }
 
