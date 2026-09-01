@@ -29,7 +29,7 @@ export function HomeProjects() {
         {latestProjects.map((project, index) => (
           <a
             key={project.slug}
-            href={`/our-projects/${project.slug}`}
+            href={`/project/${project.slug}`}
             className="group relative aspect-[4/3] overflow-hidden bg-ink"
           >
             <Image

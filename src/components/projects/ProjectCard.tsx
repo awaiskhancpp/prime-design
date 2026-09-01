@@ -21,7 +21,7 @@ export function ProjectCard({ project }: { project: Project }) {
   return (
     <article className="group flex h-full flex-col">
       <Link
-        href={`/our-projects/${project.slug}`}
+        href={`/project/${project.slug}`}
         className="relative block aspect-[4/3] overflow-hidden bg-paper-2"
       >
         <Image
@@ -62,7 +62,7 @@ export function ProjectCard({ project }: { project: Project }) {
         )}
 
         <Link
-          href={`/our-projects/${project.slug}`}
+          href={`/project/${project.slug}`}
           className="mt-auto inline-flex items-center gap-2 self-start border border-brass px-4 py-2 text-xs font-semibold uppercase tracking-[0.12em] text-brass-deep transition-colors hover:bg-brass hover:text-white"
         >
           View project <ArrowRight />

@@ -79,7 +79,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       .map((record) => entry(`${siteUrl}/blog/${record.slug}`, 0.6))
     const cmsProjects = (payloadProjects.docs as unknown as SitemapRecord[])
       .filter((record) => record.seo?.noIndex !== true && record.slug)
-      .map((record) => entry(`${siteUrl}/our-projects/${record.slug}`, 0.6))
+      .map((record) => entry(`${siteUrl}/project/${record.slug}`, 0.6))
 
     if (cmsPages.length || !shouldUseLocalFallback()) staticPages.push(...cmsPages)
     if (cmsPosts.length || !shouldUseLocalFallback()) {
@@ -91,7 +91,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     if (cmsProjects.length || !shouldUseLocalFallback()) {
       const projectEntries = cmsProjects.length
         ? cmsProjects
-        : projects.map((project) => entry(`${siteUrl}/our-projects/${project.slug}`, 0.6))
+        : projects.map((project) => entry(`${siteUrl}/project/${project.slug}`, 0.6))
       staticPages.push(...projectEntries)
     }
   }
