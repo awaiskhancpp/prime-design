@@ -10,6 +10,8 @@ import * as migration_20260829_000000_service_checklist_icon_feature_list_blocks
 import * as migration_20260901_174951_google_ads_service_template from './20260901_174951_google_ads_service_template';
 import * as migration_20260901_194619 from './20260901_194619';
 import * as migration_20260901_201227 from './20260901_201227';
+import * as migration_20260901_214042 from './20260901_214042';
+import * as migration_20260901_223110 from './20260901_223110';
 
 export const migrations = [
   {
@@ -70,6 +72,16 @@ export const migrations = [
   {
     up: migration_20260901_201227.up,
     down: migration_20260901_201227.down,
-    name: '20260901_201227'
+    name: '20260901_201227',
+  },
+  {
+    up: migration_20260901_214042.up,
+    down: migration_20260901_214042.down,
+    name: '20260901_214042',
+  },
+  {
+    up: migration_20260901_223110.up,
+    down: migration_20260901_223110.down,
+    name: '20260901_223110'
   },
 ];

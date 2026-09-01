@@ -401,6 +401,31 @@ export const serviceDetails: Record<string, ServiceDetail> = {
     ],
     gallery: [beforeAfter, home],
   },
+  financing: {
+    ...services[10],
+    eyebrow: 'Financing Your Dream Home',
+    lead: 'Let our tailored financing options pave the way to your dream home, combining style and affordability.',
+    introHeading: 'Your One-Stop Hub for Kitchen Financing and Renovations',
+    keyFeatures: [
+      'Flexible financing options for kitchen and home renovations',
+      'Clear guidance from the first consultation through the final touches',
+      'Solutions tailored to your budget and project goals',
+      'A straightforward process supported by the Prime Design & Build team',
+    ],
+    benefits: [
+      'Understand your options before construction begins',
+      'Plan your renovation around a realistic budget',
+      'Keep design, construction, and financing moving together',
+    ],
+    process: [
+      'Schedule a consultation: Reach out to our team to discuss your renovation needs.',
+      'Explore financing options: Review the available solutions with our knowledgeable specialists.',
+      'Application and approval: Once you select a plan, complete the application process.',
+      'Begin your kitchen remodel: After approval, our team brings your renovation vision to life.',
+    ],
+    gallery: [kitchen, home],
+    sectionOrder: ['intro', 'estimate', 'process', 'why-choose-us', 'faq'],
+  },
 }
 
 const defaultDetailCopy = {
@@ -628,7 +653,9 @@ export async function resolveServiceDetail(slug: string): Promise<ServiceDetail 
     image: payloadImageUrl(record.hero?.image) || base.image,
     heroVideoUrl: payloadImageUrl(record.hero?.video) || base.heroVideoUrl,
     contentBlocks: normalizePayloadBlocks(record.contentBlocks),
-    sectionOrder: record.sectionOrder?.map((item) => item.section).filter((item): item is string => Boolean(item)),
+    sectionOrder: record.sectionOrder
+      ?.map((item) => item.section)
+      .filter((item): item is string => Boolean(item)),
   }
 }
 

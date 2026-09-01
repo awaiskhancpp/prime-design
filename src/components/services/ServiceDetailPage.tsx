@@ -167,6 +167,13 @@ const servicePageSections: Record<string, ServicePageSections> = {
     homeRepairCategories: true,
     homeRepairWhyChooseUs: true,
   },
+  financing: {
+    ...defaultServicePageSections,
+    process: true,
+    whyChooseUs: true,
+    faq: true,
+    estimate: true,
+  },
   'european-kitchen-silicon-valley': {
     ...defaultServicePageSections,
     video: true,
@@ -281,8 +288,8 @@ function ServiceOverview({
             <div>
               <h3 className="font-display text-xl font-medium text-ink-2">Process:</h3>
               <p className="mt-3 text-base leading-7 text-ink-2/70">
-                Our {service.title.toLowerCase()}{' '}
-                process is designed to be seamless and efficient. Here’s an overview of how we work:
+                Our {service.title.toLowerCase()} process is designed to be seamless and efficient.
+                Here’s an overview of how we work:
               </p>
               <ol className="mt-5 grid gap-4 text-base leading-7 text-ink-2/70">
                 {service.process.map((item, index) => {
@@ -588,38 +595,82 @@ export function ServiceTemplate({ service }: { service: ServiceDetail }) {
   const sectionNodes: Array<{ key: string; node: ReactNode }> = [
     {
       key: 'intro',
-      node: !sections.homeRepairCategories && (contentBlocks?.length || !hasCmsBlocks) ? (
-        <Section>
-          {contentBlocks?.length ? (
-            <ServiceContentBlocks service={service} blocks={contentBlocks} />
-          ) : (
-            <ServiceOverview
-              service={service}
-              showInlineProcess={sections.inlineProcess}
-              hasVisualProcess={sections.visualProcess}
-            />
-          )}
-        </Section>
+      node:
+        !sections.homeRepairCategories && (contentBlocks?.length || !hasCmsBlocks) ? (
+          <Section>
+            {contentBlocks?.length ? (
+              <ServiceContentBlocks service={service} blocks={contentBlocks} />
+            ) : (
+              <ServiceOverview
+                service={service}
+                showInlineProcess={sections.inlineProcess}
+                hasVisualProcess={sections.visualProcess}
+              />
+            )}
+          </Section>
+        ) : null,
+    },
+    {
+      key: 'home-repair-categories',
+      node: sections.homeRepairCategories ? (
+        <ServiceHomeRepairCategoriesSection categories={homeRepairCategoriesContent} />
       ) : null,
     },
-    { key: 'home-repair-categories', node: sections.homeRepairCategories ? <ServiceHomeRepairCategoriesSection categories={homeRepairCategoriesContent} /> : null },
-    { key: 'why-choose-us', node: sections.homeRepairWhyChooseUs || sections.whyChooseUs ? <ServiceWhyChooseUsSection /> : null },
-    { key: 'real-homes', node: sections.realHomes ? <ServiceRealHomesStoriesSection {...getRealHomesContent(service)} /> : null },
+    {
+      key: 'why-choose-us',
+      node:
+        sections.homeRepairWhyChooseUs || sections.whyChooseUs ? (
+          <ServiceWhyChooseUsSection />
+        ) : null,
+    },
+    {
+      key: 'real-homes',
+      node: sections.realHomes ? (
+        <ServiceRealHomesStoriesSection {...getRealHomesContent(service)} />
+      ) : null,
+    },
     { key: 'video', node: !sections.videoFirst ? videoSection : null },
-    { key: 'offerings', node: sections.offerings && offerings ? <ServiceOfferingsSection {...offerings} /> : null },
-    { key: 'process', node: sections.homeProcess && sections.process ? <HomeRemodelingProcessSection /> : sections.process && process ? <ServiceProcessSection {...process} /> : null },
+    {
+      key: 'offerings',
+      node: sections.offerings && offerings ? <ServiceOfferingsSection {...offerings} /> : null,
+    },
+    {
+      key: 'process',
+      node:
+        sections.homeProcess && sections.process ? (
+          <HomeRemodelingProcessSection />
+        ) : sections.process && process ? (
+          <ServiceProcessSection {...process} />
+        ) : null,
+    },
     { key: 'gallery', node: sections.gallery ? <ServiceGallery service={service} /> : null },
-    { key: 'craftsmanship', node: sections.craftsmanship ? <ServiceCraftsmanshipTransformsSection {...getCraftsmanshipContent(service)} /> : null },
+    {
+      key: 'craftsmanship',
+      node: sections.craftsmanship ? (
+        <ServiceCraftsmanshipTransformsSection {...getCraftsmanshipContent(service)} />
+      ) : null,
+    },
     { key: 'service-areas', node: <ServiceAreasSection service={service} /> },
     {
       key: 'quote',
-      node: sections.quote && cmsQuote && cmsQuote.blockType === 'quote' ? (
-        <ServiceQuoteSection heading="Our promise" quote={cmsQuote.quote} attribution={cmsQuote.attribution || 'Prime Design & Build'} image={service.image} />
-      ) : sections.quote && fallbackQuote ? <ServiceQuoteSection {...fallbackQuote} /> : null,
+      node:
+        sections.quote && cmsQuote && cmsQuote.blockType === 'quote' ? (
+          <ServiceQuoteSection
+            heading="Our promise"
+            quote={cmsQuote.quote}
+            attribution={cmsQuote.attribution || 'Prime Design & Build'}
+            image={service.image}
+          />
+        ) : sections.quote && fallbackQuote ? (
+          <ServiceQuoteSection {...fallbackQuote} />
+        ) : null,
     },
     { key: 'faq', node: sections.faq ? <ServiceFaq slug={service.slug} /> : null },
     { key: 'estimate', node: sections.estimate ? <ServiceEstimateCta /> : null },
-    { key: 'silicon-valley-loves', node: sections.siliconValleyLoves ? <ServiceSiliconValleyLovesSection /> : null },
+    {
+      key: 'silicon-valley-loves',
+      node: sections.siliconValleyLoves ? <ServiceSiliconValleyLovesSection /> : null,
+    },
     { key: 'reviews', node: sections.reviews ? <ProjectsReviews /> : null },
     { key: 'contact', node: sections.contact ? <ContactSection /> : null },
   ]
@@ -637,7 +688,9 @@ export function ServiceTemplate({ service }: { service: ServiceDetail }) {
       <main>
         <ServiceHero service={service} />
         {sections.videoFirst ? <div>{videoSection}</div> : null}
-        {orderedSections.map(({ key, node }) => <div key={key}>{node}</div>)}
+        {orderedSections.map(({ key, node }) => (
+          <div key={key}>{node}</div>
+        ))}
       </main>
       <LandscapingServiceAreas />
       <LandscapingCta />

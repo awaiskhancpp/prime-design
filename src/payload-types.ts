@@ -882,7 +882,7 @@ export interface BlogCategory {
   createdAt: string;
 }
 /**
- * Google Ads landing pages and marketing landing pages.
+ * Google Ads landing pages. Use the shared tabs; each page stores its own copy, media, and visibility.
  *
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "landing-pages".
@@ -892,10 +892,7 @@ export interface LandingPage {
   title: string;
   slug: string;
   status?: ('draft' | 'published') | null;
-  /**
-   * Information pages are for Google Ads campaigns with simplified layouts.
-   */
-  template?: ('default' | 'information') | null;
+  template?: ('information' | 'default') | null;
   hero: {
     eyebrow?: string | null;
     heading: string;
@@ -903,154 +900,163 @@ export interface LandingPage {
     image?: (number | null) | Media;
   };
   /**
-   * Add landing-page sections in their exact display order. Use only the sections needed for this campaign.
+   * Optional order for enabled tabs. Empty uses the standard landing-page order.
    */
-  sections?:
-    | (
-        | {
-            eyebrow?: string | null;
-            heading: string;
-            body: string;
-            image?: (number | null) | Media;
-            imageSide?: ('left' | 'right') | null;
-            id?: string | null;
-            blockName?: string | null;
-            blockType: 'intro';
-          }
-        | {
-            heading: string;
-            items?:
-              | {
-                  text: string;
-                  id?: string | null;
-                }[]
-              | null;
-            id?: string | null;
-            blockName?: string | null;
-            blockType: 'feature-list';
-          }
-        | {
-            heading: string;
-            items?:
-              | {
-                  text: string;
-                  id?: string | null;
-                }[]
-              | null;
-            id?: string | null;
-            blockName?: string | null;
-            blockType: 'benefits';
-          }
-        | {
-            heading: string;
-            steps?:
-              | {
-                  title: string;
-                  description: string;
-                  image?: (number | null) | Media;
-                  id?: string | null;
-                }[]
-              | null;
-            id?: string | null;
-            blockName?: string | null;
-            blockType: 'process';
-          }
-        | {
-            eyebrow?: string | null;
-            heading: string;
-            body: string;
-            image?: (number | null) | Media;
-            imageSide?: ('left' | 'right') | null;
-            id?: string | null;
-            blockName?: string | null;
-            blockType: 'image-text';
-          }
-        | {
-            heading?: string | null;
-            images?: (number | Media)[] | null;
-            id?: string | null;
-            blockName?: string | null;
-            blockType: 'gallery';
-          }
-        | {
-            heading: string;
-            items?:
-              | {
-                  title: string;
-                  description: string;
-                  image?: (number | null) | Media;
-                  link?: string | null;
-                  id?: string | null;
-                }[]
-              | null;
-            id?: string | null;
-            blockName?: string | null;
-            blockType: 'sub-services';
-          }
-        | {
-            heading?: string | null;
-            /**
-             * Optional uploaded video. If empty, the external video URL can be used.
-             */
-            video?: (number | null) | Media;
-            videoUrl?: string | null;
-            poster?: (number | null) | Media;
-            id?: string | null;
-            blockName?: string | null;
-            blockType: 'video';
-          }
-        | {
-            heading: string;
-            intro?: string | null;
-            image?: (number | null) | Media;
-            imageSide?: ('left' | 'right') | null;
-            items?:
-              | {
-                  title: string;
-                  description: string;
-                  id?: string | null;
-                }[]
-              | null;
-            id?: string | null;
-            blockName?: string | null;
-            blockType: 'icon-feature-list';
-          }
-        | {
-            eyebrow?: string | null;
-            heading: string;
-            /**
-             * Short italic lead-in line above the checklist, e.g. "Unleash the Beauty and Durability:"
-             */
-            description?: string | null;
-            image?: (number | null) | Media;
-            imageSide?: ('left' | 'right') | null;
-            items?:
-              | {
-                  text: string;
-                  id?: string | null;
-                }[]
-              | null;
-            id?: string | null;
-            blockName?: string | null;
-            blockType: 'checklist';
-          }
-        | {
-            quote: string;
-            attribution?: string | null;
-            id?: string | null;
-            blockName?: string | null;
-            blockType: 'quote';
-          }
-      )[]
+  sectionOrder?:
+    | {
+        section:
+          | 'estimate'
+          | 'intro'
+          | 'subServices'
+          | 'primeDifference'
+          | 'projects'
+          | 'projectGallery'
+          | 'reflectionGallery'
+          | 'video'
+          | 'whyChoose'
+          | 'serviceAreas'
+          | 'faq'
+          | 'testimonials'
+          | 'luxuryCta'
+          | 'booking'
+          | 'findUs'
+          | 'contactForm';
+        id?: string | null;
+      }[]
     | null;
+  estimateEnabled?: boolean | null;
+  estimate?: {
+    heading?: string | null;
+    body?: string | null;
+    link?: string | null;
+  };
+  introEnabled?: boolean | null;
+  intro?: {
+    eyebrow?: string | null;
+    heading?: string | null;
+    body?: string | null;
+    image?: (number | null) | Media;
+  };
+  subServicesEnabled?: boolean | null;
+  subServices?: {
+    heading?: string | null;
+    body?: string | null;
+    items?:
+      | {
+          title: string;
+          description?: string | null;
+          image?: (number | null) | Media;
+          link?: string | null;
+          id?: string | null;
+        }[]
+      | null;
+  };
+  primeDifferenceEnabled?: boolean | null;
+  primeDifference?: {
+    eyebrow?: string | null;
+    heading?: string | null;
+    headingAccent?: string | null;
+    body?: string | null;
+    checklist?:
+      | {
+          text: string;
+          id?: string | null;
+        }[]
+      | null;
+  };
+  projectGalleryEnabled?: boolean | null;
+  projectGallery?: {
+    heading?: string | null;
+    images?: (number | Media)[] | null;
+  };
+  reflectionGalleryEnabled?: boolean | null;
+  reflectionGallery?: {
+    heading?: string | null;
+    images?: (number | Media)[] | null;
+  };
+  projectsEnabled?: boolean | null;
+  projects?: {
+    eyebrow?: string | null;
+    heading?: string | null;
+    description?: string | null;
+    items?:
+      | {
+          title: string;
+          description?: string | null;
+          image?: (number | null) | Media;
+          link?: string | null;
+          id?: string | null;
+        }[]
+      | null;
+  };
+  videoEnabled?: boolean | null;
+  video?: {
+    eyebrow?: string | null;
+    heading?: string | null;
+    description?: string | null;
+    videoUrl?: string | null;
+    videoFile?: (number | null) | Media;
+    poster?: (number | null) | Media;
+  };
+  whyChooseEnabled?: boolean | null;
+  whyChoose?: {};
+  serviceAreasEnabled?: boolean | null;
+  serviceAreas?: {};
+  faqEnabled?: boolean | null;
+  faq?: {
+    heading?: string | null;
+    categories?:
+      | {
+          title: string;
+          items?:
+            | {
+                question: string;
+                answer: string;
+                id?: string | null;
+              }[]
+            | null;
+          id?: string | null;
+        }[]
+      | null;
+    items?:
+      | {
+          question: string;
+          answer: string;
+          id?: string | null;
+        }[]
+      | null;
+  };
+  testimonialsEnabled?: boolean | null;
+  testimonials?: {};
+  luxuryCtaEnabled?: boolean | null;
+  luxuryCta?: {
+    eyebrow?: string | null;
+    heading?: string | null;
+    body?: string | null;
+    link?: string | null;
+  };
+  bookingEnabled?: boolean | null;
+  booking?: {
+    heading?: string | null;
+    description?: string | null;
+  };
+  findUsEnabled?: boolean | null;
+  findUs?: {
+    heading?: string | null;
+    phone?: string | null;
+    email?: string | null;
+    address?: string | null;
+  };
+  contactFormEnabled?: boolean | null;
+  contactForm?: {
+    heading?: string | null;
+    description?: string | null;
+  };
   cta?: {
     text?: string | null;
     link?: string | null;
     showForm?: boolean | null;
   };
-  /**
-   * Campaign tracking fields for Google Ads and other marketing campaigns.
-   */
   campaignTracking?: {
     campaignName?: string | null;
     campaignSource?: string | null;
@@ -1768,148 +1774,165 @@ export interface LandingPagesSelect<T extends boolean = true> {
         lead?: T;
         image?: T;
       };
-  sections?:
+  sectionOrder?:
     | T
     | {
-        intro?:
+        section?: T;
+        id?: T;
+      };
+  estimateEnabled?: T;
+  estimate?:
+    | T
+    | {
+        heading?: T;
+        body?: T;
+        link?: T;
+      };
+  introEnabled?: T;
+  intro?:
+    | T
+    | {
+        eyebrow?: T;
+        heading?: T;
+        body?: T;
+        image?: T;
+      };
+  subServicesEnabled?: T;
+  subServices?:
+    | T
+    | {
+        heading?: T;
+        body?: T;
+        items?:
           | T
           | {
-              eyebrow?: T;
-              heading?: T;
-              body?: T;
+              title?: T;
+              description?: T;
               image?: T;
-              imageSide?: T;
+              link?: T;
               id?: T;
-              blockName?: T;
             };
-        'feature-list'?:
-          | T
-          | {
-              heading?: T;
-              items?:
-                | T
-                | {
-                    text?: T;
-                    id?: T;
-                  };
-              id?: T;
-              blockName?: T;
-            };
-        benefits?:
-          | T
-          | {
-              heading?: T;
-              items?:
-                | T
-                | {
-                    text?: T;
-                    id?: T;
-                  };
-              id?: T;
-              blockName?: T;
-            };
-        process?:
-          | T
-          | {
-              heading?: T;
-              steps?:
-                | T
-                | {
-                    title?: T;
-                    description?: T;
-                    image?: T;
-                    id?: T;
-                  };
-              id?: T;
-              blockName?: T;
-            };
-        'image-text'?:
-          | T
-          | {
-              eyebrow?: T;
-              heading?: T;
-              body?: T;
-              image?: T;
-              imageSide?: T;
-              id?: T;
-              blockName?: T;
-            };
-        gallery?:
-          | T
-          | {
-              heading?: T;
-              images?: T;
-              id?: T;
-              blockName?: T;
-            };
-        'sub-services'?:
-          | T
-          | {
-              heading?: T;
-              items?:
-                | T
-                | {
-                    title?: T;
-                    description?: T;
-                    image?: T;
-                    link?: T;
-                    id?: T;
-                  };
-              id?: T;
-              blockName?: T;
-            };
-        video?:
-          | T
-          | {
-              heading?: T;
-              video?: T;
-              videoUrl?: T;
-              poster?: T;
-              id?: T;
-              blockName?: T;
-            };
-        'icon-feature-list'?:
-          | T
-          | {
-              heading?: T;
-              intro?: T;
-              image?: T;
-              imageSide?: T;
-              items?:
-                | T
-                | {
-                    title?: T;
-                    description?: T;
-                    id?: T;
-                  };
-              id?: T;
-              blockName?: T;
-            };
+      };
+  primeDifferenceEnabled?: T;
+  primeDifference?:
+    | T
+    | {
+        eyebrow?: T;
+        heading?: T;
+        headingAccent?: T;
+        body?: T;
         checklist?:
           | T
           | {
-              eyebrow?: T;
-              heading?: T;
+              text?: T;
+              id?: T;
+            };
+      };
+  projectGalleryEnabled?: T;
+  projectGallery?:
+    | T
+    | {
+        heading?: T;
+        images?: T;
+      };
+  reflectionGalleryEnabled?: T;
+  reflectionGallery?:
+    | T
+    | {
+        heading?: T;
+        images?: T;
+      };
+  projectsEnabled?: T;
+  projects?:
+    | T
+    | {
+        eyebrow?: T;
+        heading?: T;
+        description?: T;
+        items?:
+          | T
+          | {
+              title?: T;
               description?: T;
               image?: T;
-              imageSide?: T;
+              link?: T;
+              id?: T;
+            };
+      };
+  videoEnabled?: T;
+  video?:
+    | T
+    | {
+        eyebrow?: T;
+        heading?: T;
+        description?: T;
+        videoUrl?: T;
+        videoFile?: T;
+        poster?: T;
+      };
+  whyChooseEnabled?: T;
+  whyChoose?: T | {};
+  serviceAreasEnabled?: T;
+  serviceAreas?: T | {};
+  faqEnabled?: T;
+  faq?:
+    | T
+    | {
+        heading?: T;
+        categories?:
+          | T
+          | {
+              title?: T;
               items?:
                 | T
                 | {
-                    text?: T;
+                    question?: T;
+                    answer?: T;
                     id?: T;
                   };
               id?: T;
-              blockName?: T;
             };
-        quote?:
+        items?:
           | T
           | {
-              quote?: T;
-              attribution?: T;
+              question?: T;
+              answer?: T;
               id?: T;
-              blockName?: T;
             };
+      };
+  testimonialsEnabled?: T;
+  testimonials?: T | {};
+  luxuryCtaEnabled?: T;
+  luxuryCta?:
+    | T
+    | {
+        eyebrow?: T;
+        heading?: T;
+        body?: T;
+        link?: T;
+      };
+  bookingEnabled?: T;
+  booking?:
+    | T
+    | {
+        heading?: T;
+        description?: T;
+      };
+  findUsEnabled?: T;
+  findUs?:
+    | T
+    | {
+        heading?: T;
+        phone?: T;
+        email?: T;
+        address?: T;
+      };
+  contactFormEnabled?: T;
+  contactForm?:
+    | T
+    | {
+        heading?: T;
+        description?: T;
       };
   cta?:
     | T

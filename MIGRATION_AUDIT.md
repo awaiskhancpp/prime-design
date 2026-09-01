@@ -73,13 +73,19 @@ Current state:
 
 - **IMPLEMENTED:** independent `LandingPages` collection and
   `LandingPageRenderer`.
-- **IMPLEMENTED:** landing pages use the shared service block vocabulary,
-  rather than a second incompatible block vocabulary.
+- **IMPLEMENTED:** landing pages now use fixed Payload admin tabs instead of
+  an open-ended blocks picker. The shared tabs are Estimate CTA, Intro,
+  Sub-services, Prime Difference, Video, Project Gallery, Reflection Gallery,
+  Why Choose Us, Service Areas, FAQs, Testimonials, Consultation Booking, and
+  Contact Form. Each tab has its own visibility flag and the optional
+  `sectionOrder` field controls the final sequence without service-slug logic.
+- **IMPLEMENTED:** the Video tab accepts either an external video URL or a
+  media-library upload, plus an optional poster image.
 - **MISSING:** full WordPress section content for all seven records. The local
   fallback is title/SEO-level placeholder data with empty sections.
-- **MISSING:** dedicated landing render support for every shared section type
-  that currently exists in the Service renderer; unsupported blocks must not
-  silently disappear.
+- **MISSING:** full WordPress section content for all seven records. The tabs
+  are now the storage model, but the source copy/media still needs to be
+  entered from the WXR/visual captures before import.
 - **VERIFY:** no-index and campaign tracking values page-by-page.
 
 ## Existing-but-unused or duplicated implementations

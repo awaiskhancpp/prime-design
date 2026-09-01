@@ -1,53 +1,238 @@
 import Link from 'next/link'
 
-import { Contact as ContactForm } from '@/components/gallery/Contact'
-import { LandscapingCta } from '@/components/blocks/LandscapingCta'
+import { LandingContact as ContactForm } from './Contact'
+import { LandscapingServiceAreas } from '@/components/blocks/LandscapingServiceAreas'
 import { PageHero } from '@/components/layout/PageHero'
-import { SiteFooter } from '@/components/layout/SiteFooter'
 import { Section } from '@/components/ui/Section'
+import { ServiceEstimateCta } from '@/components/services/ServiceEstimateCta'
+import { ServiceVideoSection } from '@/components/services/ServiceVideoSection'
 import { ServiceContentBlocks } from '@/components/services/ServiceDetailPage'
-import type { ServiceDetail } from '@/lib/services'
-import type { LandingPage } from '@/lib/landingPages'
+import { ProjectsReviews } from '@/components/projects/ProjectsReviews'
+import { WhyChooseUs } from '@/components/gallery/WhyChooseUs'
+import { ConsultationGrid } from '@/components/contact/ConsultationGrid'
+import { LandingFaqSection } from './LandingFaqSection'
+import { LandingGallerySection } from './LandingGallerySection'
+import { LandingPrimeDifferenceSection } from './LandingPrimeDifferenceSection'
+import { LandingProjectsSection } from './LandingProjectsSection'
+import { LandingLuxuryCta } from './LandingLuxuryCta'
+import { LandingFindUs } from './LandingFindUs'
+import { resolveConsultations } from '@/lib/consultations'
+import type { ServiceDetail, ServiceContentBlock } from '@/lib/services'
+import type { LandingPage, LandingPageTabs } from '@/lib/landingPages'
 
-// Deliberately no SiteHeader — these are Google Ads destination pages, and
-// removing on-page navigation is standard CRO practice for paid traffic
-// (fewer exit paths off the page before someone converts). This also
-// matches the existing PayloadPage renderer, which already omits it.
-export function LandingPageRenderer({ page }: { page: LandingPage }) {
+const fallbackService = (page: LandingPage): ServiceDetail => ({
+  title: page.title,
+  slug: page.slug,
+  description: page.hero?.lead || '',
+  image: page.hero?.image || '/services/home-remodeling.jpeg',
+  eyebrow: page.hero?.eyebrow || '',
+  lead: page.hero?.lead || '',
+  keyFeatures: [],
+  benefits: [],
+  process: [],
+  gallery: [],
+})
+
+function tabBlocks(tabs: LandingPageTabs): ServiceContentBlock[] {
+  const blocks: ServiceContentBlock[] = []
+  if (tabs.intro?.enabled !== false && tabs.intro?.heading)
+    blocks.push({
+      blockType: 'intro',
+      heading: tabs.intro.heading,
+      body: tabs.intro.body || '',
+      eyebrow: tabs.intro.eyebrow,
+      image: tabs.intro.image,
+    })
+  if (
+    tabs.subServices?.enabled !== false &&
+    tabs.subServices?.heading &&
+    tabs.subServices.items?.length
+  )
+    blocks.push({
+      blockType: 'sub-services',
+      heading: tabs.subServices.heading,
+      items: tabs.subServices.items.map((item) => ({
+        title: item.title,
+        description: item.description || '',
+        image: item.image,
+        link: item.link,
+      })),
+    })
+  if (tabs.projectGallery?.enabled !== false && tabs.projectGallery?.images?.length)
+    blocks.push({
+      blockType: 'gallery',
+      heading: tabs.projectGallery.heading,
+      images: tabs.projectGallery.images,
+    })
+  if (tabs.reflectionGallery?.enabled && tabs.reflectionGallery.images?.length)
+    blocks.push({
+      blockType: 'gallery',
+      heading: tabs.reflectionGallery.heading,
+      images: tabs.reflectionGallery.images,
+    })
+  return blocks
+}
+
+export async function LandingPageRenderer({ page }: { page: LandingPage }) {
+  const tabs = page.tabs || {}
+  const blocks = tabBlocks(tabs)
+  const legacyBlocks = blocks.length ? blocks : page.sections
+  const ordered = page.sectionOrder?.length
+    ? page.sectionOrder
+    : [
+        'estimate',
+        'intro',
+        'subServices',
+        'primeDifference',
+        'projects',
+        'projectGallery',
+        'reflectionGallery',
+        'whyChoose',
+        'serviceAreas',
+        'faq',
+        'testimonials',
+        'luxuryCta',
+        'booking',
+        'findUs',
+        'contactForm',
+      ]
+  const service = fallbackService(page)
+  const consultations = tabs.booking?.enabled ? await resolveConsultations() : []
+
+  const renderSection = (name: string) => {
+    if (name === 'estimate' && tabs.estimate && tabs.estimate.enabled !== false)
+      return <ServiceEstimateCta key={name} />
+    if (name === 'intro' || name === 'subServices')
+      return blocks.length ? (
+        <Section key={name}>
+          <ServiceContentBlocks
+            service={service}
+            blocks={blocks.filter(
+              (block) =>
+                (name === 'intro' && block.blockType === 'intro') ||
+                (name === 'subServices' && block.blockType === 'sub-services'),
+            )}
+          />
+        </Section>
+      ) : null
+    if (name === 'primeDifference')
+      return tabs.primeDifference?.enabled !== false && tabs.primeDifference ? (
+        <LandingPrimeDifferenceSection
+          key={name}
+          heading={tabs.primeDifference.heading}
+          body={tabs.primeDifference.body}
+          checklist={tabs.primeDifference.checklist}
+          videoUrl={tabs.video?.videoUrl}
+          poster={tabs.video?.poster}
+        />
+      ) : null
+    if (name === 'video' && tabs.video?.enabled && tabs.video.videoUrl)
+      return (
+        <ServiceVideoSection
+          key={name}
+          eyebrow={tabs.video.eyebrow}
+          title={tabs.video.heading || page.title}
+          description={tabs.video.description}
+          videoUrl={tabs.video.videoUrl}
+          poster={tabs.video.poster}
+        />
+      )
+    if (name === 'projectGallery' && tabs.projectGallery?.enabled !== false && tabs.projectGallery)
+      return (
+        <LandingGallerySection
+          key={name}
+          heading={tabs.projectGallery.heading}
+          images={tabs.projectGallery.images || []}
+        />
+      )
+    if (name === 'reflectionGallery' && tabs.reflectionGallery?.enabled && tabs.reflectionGallery)
+      return (
+        <LandingGallerySection
+          key={name}
+          heading={tabs.reflectionGallery.heading}
+          images={tabs.reflectionGallery.images || []}
+        />
+      )
+    if (name === 'projects' && tabs.projects?.enabled !== false && tabs.projects)
+      return (
+        <LandingProjectsSection
+          key={name}
+          eyebrow={tabs.projects.eyebrow}
+          heading={tabs.projects.heading}
+          description={tabs.projects.description}
+          items={tabs.projects.items || []}
+        />
+      )
+    if (name === 'whyChoose' && tabs.whyChoose?.enabled !== false && tabs.whyChoose)
+      return <WhyChooseUs key={name} />
+    if (name === 'serviceAreas' && tabs.serviceAreas?.enabled !== false && tabs.serviceAreas)
+      return <LandscapingServiceAreas key={name} />
+    if (
+      name === 'faq' &&
+      tabs.faq?.enabled !== false &&
+      (tabs.faq?.items?.length || tabs.faq?.categories?.length)
+    )
+      return (
+        <LandingFaqSection
+          key={name}
+          heading={tabs.faq.heading}
+          items={tabs.faq.items}
+          categories={tabs.faq.categories}
+        />
+      )
+    if (name === 'testimonials' && tabs.testimonials?.enabled !== false && tabs.testimonials)
+      return <ProjectsReviews key={name} />
+    if (name === 'booking' && tabs.booking?.enabled && consultations.length)
+      return (
+        <Section key={name}>
+          <ConsultationGrid consultations={consultations} />
+        </Section>
+      )
+    if (name === 'luxuryCta' && tabs.luxuryCta?.enabled !== false && tabs.luxuryCta)
+      return (
+        <LandingLuxuryCta
+          key={name}
+          eyebrow={tabs.luxuryCta.eyebrow}
+          heading={tabs.luxuryCta.heading}
+          body={tabs.luxuryCta.body}
+          link={tabs.luxuryCta.link}
+        />
+      )
+    if (name === 'findUs' && tabs.findUs?.enabled !== false && tabs.findUs)
+      return (
+        <LandingFindUs
+          key={name}
+          heading={tabs.findUs.heading}
+          phone={tabs.findUs.phone}
+          email={tabs.findUs.email}
+          address={tabs.findUs.address}
+        />
+      )
+    if (name === 'contactForm' && tabs.contactForm?.enabled !== false && tabs.contactForm)
+      return <ContactForm key={name} />
+    return null
+  }
+
   return (
     <div className="min-h-screen bg-white">
       <PageHero
+        showHeader={false}
         eyebrow={page.hero?.eyebrow || 'Prime Design & Build'}
         title={page.hero?.heading || page.title}
         description={page.hero?.lead}
         image={page.hero?.image || '/services/home-remodeling.jpeg'}
         imageAlt={page.title}
       />
-
       <main>
-        {page.sections.length > 0 ? (
+        {legacyBlocks.length && !Object.keys(tabs).length ? (
           <Section>
-            <ServiceContentBlocks
-              service={{
-                title: page.title,
-                slug: page.slug,
-                description: page.hero?.lead || '',
-                image: page.hero?.image || '/services/home-remodeling.jpeg',
-                eyebrow: page.hero?.eyebrow || '',
-                lead: page.hero?.lead || '',
-                keyFeatures: [],
-                benefits: [],
-                process: [],
-                gallery: [],
-              } as ServiceDetail}
-              blocks={page.sections}
-            />
+            <ServiceContentBlocks service={service} blocks={legacyBlocks} />
           </Section>
-        ) : null}
-
-        {page.cta?.showForm !== false ? (
-          <ContactForm />
-        ) : page.cta?.link ? (
+        ) : (
+          ordered.map(renderSection)
+        )}
+        {!tabs.contactForm && page.cta?.showForm !== false ? <ContactForm /> : null}
+        {!tabs.contactForm && page.cta?.showForm === false && page.cta?.link ? (
           <Section className="bg-paper-2 text-center">
             <Link
               href={page.cta.link}
@@ -58,9 +243,6 @@ export function LandingPageRenderer({ page }: { page: LandingPage }) {
           </Section>
         ) : null}
       </main>
-
-      <LandscapingCta />
-      <SiteFooter />
     </div>
   )
 }

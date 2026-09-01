@@ -14,6 +14,7 @@ type PageHeroProps = {
   align?: 'center' | 'end'
   cta?: { label: string; href: string }
   children?: ReactNode
+  showHeader?: boolean
 }
 
 export function PageHero({
@@ -25,6 +26,7 @@ export function PageHero({
   align = 'end',
   cta,
   children,
+  showHeader = true,
 }: PageHeroProps) {
   const isCentered = align === 'center'
 
@@ -43,7 +45,7 @@ export function PageHero({
       <div className="pointer-events-none absolute inset-0 -z-10 bg-gradient-to-r from-ink/55 via-ink/25 to-transparent" />
       <div className="pointer-events-none absolute inset-0 -z-10 bg-gradient-to-t from-ink/45 via-transparent to-transparent" />
 
-      <SiteHeader />
+      {showHeader ? <SiteHeader /> : null}
 
       <Container className="relative z-10 w-full max-w-none">
         <div className="max-w-3xl">
