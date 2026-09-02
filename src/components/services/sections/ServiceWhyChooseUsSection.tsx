@@ -18,7 +18,7 @@ export function ServiceWhyChooseUsSection({
   items?: typeof homeRepairWhyChooseContent.items
 }) {
   return (
-    <section className="bg-paper py-16 text-ink md:py-20">
+    <section className="py-16 text-ink md:py-20">
       <div className="mx-auto max-w-5xl px-6">
         <h2 className="text-center font-display text-3xl font-medium tracking-tight md:text-4xl">
           {heading}

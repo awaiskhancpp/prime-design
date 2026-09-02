@@ -166,6 +166,11 @@ export const services: Service[] = [
   },
 ]
 
+export const servicePathAliases: Record<string, string> = {
+  'comprehensive-home-repair-installation-services-in-silicon-valley':
+    'home-repair-installation-services',
+}
+
 export const serviceDetails: Record<string, ServiceDetail> = {
   adu: {
     ...services[0],
@@ -459,6 +464,10 @@ export function getServiceDetail(slug: string): ServiceDetail | undefined {
     lead: service.description,
     ...defaultDetailCopy,
   }
+}
+
+export function getServiceDetailForPath(slug: string): ServiceDetail | undefined {
+  return getServiceDetail(servicePathAliases[slug] || slug)
 }
 
 type PayloadMedia = { url?: string | null }

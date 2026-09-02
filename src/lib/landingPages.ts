@@ -158,6 +158,7 @@ type PayloadLandingPage = {
   projectsEnabled?: boolean | null
   videoEnabled?: boolean | null
   whyChooseEnabled?: boolean | null
+  servicesEnabled?: boolean | null
   serviceAreasEnabled?: boolean | null
   faqEnabled?: boolean | null
   testimonialsEnabled?: boolean | null

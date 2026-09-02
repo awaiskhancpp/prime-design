@@ -2,7 +2,8 @@ import type { Metadata } from 'next'
 import { notFound, permanentRedirect, redirect } from 'next/navigation'
 import { PayloadPage } from '@/components/pages/PayloadPage'
 import { LandingPageRenderer } from '@/components/landing/LandingPageRenderer'
-import { resolveServiceDetail, services } from '@/lib/services'
+import { ServiceTemplate } from '@/components/services/ServiceTemplate'
+import { getServiceDetailForPath, servicePathAliases, services } from '@/lib/services'
 import { listLandingPageSlugs, resolveLandingPage } from '@/lib/landingPages'
 import { resolvePageBySlug } from '@/lib/pages'
 import { resolveRedirect } from '@/lib/redirects'
@@ -11,6 +12,7 @@ export function generateStaticParams() {
   return [
     ...services.map((service) => ({ serviceSlug: service.slug })),
     ...listLandingPageSlugs().map((serviceSlug) => ({ serviceSlug })),
+    ...Object.keys(servicePathAliases).map((serviceSlug) => ({ serviceSlug })),
   ]
 }
 
@@ -28,7 +30,7 @@ export async function generateMetadata({
     redirect(legacyRedirect.newPath)
   }
 
-  const service = await resolveServiceDetail(serviceSlug)
+  const service = await getServiceDetailForPath(serviceSlug)
   if (service) {
     return {
       title: service.seo?.metaTitle || `${service.title} | Prime Design & Build`,
@@ -67,7 +69,11 @@ export default async function ServiceSlugRoute({
   params: Promise<{ serviceSlug: string }>
 }) {
   const { serviceSlug } = await params
-  const service = await resolveServiceDetail(serviceSlug)
+  const service = await getServiceDetailForPath(serviceSlug)
+  if (servicePathAliases[serviceSlug]) {
+    if (!service) notFound()
+    return <ServiceTemplate service={service} />
+  }
   if (service || services.some((item) => item.slug === serviceSlug)) {
     permanentRedirect(`/services/${serviceSlug}`)
   }
