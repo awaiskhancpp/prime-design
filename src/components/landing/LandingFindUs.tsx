@@ -17,23 +17,40 @@ export function LandingFindUs({
     { icon: Mail, label: 'Email Now', value: email, href: `mailto:${email}` },
     { icon: MapPin, label: 'Address', value: address },
   ]
+
   return (
     <Section className="">
-      <h2 className="font-display text-3xl text-ink">{heading}</h2>
-      <div className="mt-6 grid grid-rows-1 gap-4">
+      <p className="text-xs font-semibold uppercase tracking-[0.2em] text-brass-deep">
+        Get in touch
+      </p>
+      <h2 className="mt-3 font-display text-3xl font-medium text-ink md:text-4xl">{heading}</h2>
+
+      <div className="mt-10 grid gap-6 sm:grid-cols-3">
         {items.map(({ icon: Icon, label, value, href }) => (
-          <div key={label} className="flex items-center gap-4 bg-white px-5 py-4">
-            <Icon className="h-6 w-6 shrink-0 text-brass" aria-hidden />
+          <div
+            key={label}
+            className="group relative border border-line bg-white p-6 transition-shadow duration-300 hover:shadow-lg hover:shadow-ink/5"
+          >
+            <span
+              className="absolute left-0 top-0 h-0.5 w-0 bg-brass transition-all duration-300 ease-out group-hover:w-full"
+              aria-hidden
+            />
+            <div className="flex h-12 w-12 items-center">
+              <Icon className="h-5 w-5 text-brass" aria-hidden />
+            </div>
+
+            <p className="mt-5 text-xs font-semibold uppercase tracking-[0.14em] text-brass-deep">
+              {label}
+            </p>
             {href ? (
-              <a href={href} className="text-sm text-ink">
-                <strong className="block">{label}</strong>
+              <a
+                href={href}
+                className="mt-2 block whitespace-pre-line text-sm leading-6 text-ink transition-colors hover:text-brass-deep"
+              >
                 {value}
               </a>
             ) : (
-              <p className="whitespace-pre-line text-sm text-ink">
-                <strong className="block">{label}</strong>
-                {value}
-              </p>
+              <p className="mt-2 whitespace-pre-line text-sm leading-6 text-ink">{value}</p>
             )}
           </div>
         ))}

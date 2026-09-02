@@ -42,6 +42,7 @@ export type LandingPageTabs = {
     videoUrl?: string
     videoFile?: string
     poster?: string
+    videos?: Array<{ url: string; poster?: string; caption?: string }>
   }
   whyChoose?: { enabled?: boolean }
   serviceAreas?: { enabled?: boolean }
@@ -128,6 +129,12 @@ type PayloadLandingPage = {
     videoUrl?: string | null
     videoFile?: unknown
     poster?: unknown
+    videos?: Array<{
+      videoUrl?: string | null
+      videoFile?: unknown
+      poster?: unknown
+      caption?: string | null
+    }> | null
   } | null
   whyChoose?: { enabled?: boolean } | null
   serviceAreas?: { enabled?: boolean } | null
@@ -236,6 +243,18 @@ function tabsFromRecord(record: PayloadLandingPage): LandingPageTabs {
           description: record.video.description || undefined,
           videoUrl: record.video.videoUrl || mediaUrl(record.video.videoFile),
           poster: mediaUrl(record.video.poster),
+          videos: (() => {
+            const fromArray = (record.video.videos || [])
+              .map((entry) => ({
+                url: entry.videoUrl || mediaUrl(entry.videoFile) || '',
+                poster: mediaUrl(entry.poster),
+                caption: entry.caption || undefined,
+              }))
+              .filter((entry) => entry.url)
+            if (fromArray.length) return fromArray
+            const legacyUrl = record.video.videoUrl || mediaUrl(record.video.videoFile)
+            return legacyUrl ? [{ url: legacyUrl, poster: mediaUrl(record.video.poster) }] : []
+          })(),
         }
       : undefined,
     whyChoose: record.whyChoose ? { enabled: record.whyChooseEnabled ?? true } : undefined,

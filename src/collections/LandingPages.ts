@@ -229,9 +229,30 @@ export const LandingPages: CollectionConfig = {
                 { name: 'eyebrow', type: 'text' },
                 { name: 'heading', type: 'text' },
                 { name: 'description', type: 'textarea' },
-                { name: 'videoUrl', type: 'text' },
+                {
+                  name: 'videoUrl',
+                  type: 'text',
+                  admin: {
+                    description:
+                      'Legacy single-video field — kept for pages configured before multi-video support existed.',
+                  },
+                },
                 upload('videoFile'),
                 upload('poster'),
+                {
+                  name: 'videos',
+                  type: 'array',
+                  admin: {
+                    description:
+                      'Add multiple videos here for a carousel. If this is empty, the single video/file above is used instead.',
+                  },
+                  fields: [
+                    { name: 'videoUrl', type: 'text' },
+                    upload('videoFile'),
+                    upload('poster'),
+                    { name: 'caption', type: 'text' },
+                  ],
+                },
               ],
             },
           ],

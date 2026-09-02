@@ -994,9 +994,24 @@ export interface LandingPage {
     eyebrow?: string | null;
     heading?: string | null;
     description?: string | null;
+    /**
+     * Legacy single-video field — kept for pages configured before multi-video support existed.
+     */
     videoUrl?: string | null;
     videoFile?: (number | null) | Media;
     poster?: (number | null) | Media;
+    /**
+     * Add multiple videos here for a carousel. If this is empty, the single video/file above is used instead.
+     */
+    videos?:
+      | {
+          videoUrl?: string | null;
+          videoFile?: (number | null) | Media;
+          poster?: (number | null) | Media;
+          caption?: string | null;
+          id?: string | null;
+        }[]
+      | null;
   };
   whyChooseEnabled?: boolean | null;
   whyChoose?: {};
@@ -1869,6 +1884,15 @@ export interface LandingPagesSelect<T extends boolean = true> {
         videoUrl?: T;
         videoFile?: T;
         poster?: T;
+        videos?:
+          | T
+          | {
+              videoUrl?: T;
+              videoFile?: T;
+              poster?: T;
+              caption?: T;
+              id?: T;
+            };
       };
   whyChooseEnabled?: T;
   whyChoose?: T | {};

@@ -3,7 +3,7 @@
 import Image from 'next/image'
 import { useMemo, useState } from 'react'
 import type { FormEvent } from 'react'
-import { ArrowLeft, ArrowRight, ChevronLeft, ChevronRight, X } from 'lucide-react'
+import { ArrowLeft, ArrowRight, ChevronLeft, ChevronRight, Pencil, X } from 'lucide-react'
 
 import { Button } from '@/components/ui/Button'
 import { Input } from '@/components/ui/Input'
@@ -47,6 +47,15 @@ function isSameDay(a: Date, b: Date) {
     a.getMonth() === b.getMonth() &&
     a.getDate() === b.getDate()
   )
+}
+
+function getInitials(name: string) {
+  const parts = name.trim().split(/\s+/).filter(Boolean)
+  if (!parts.length) return '?'
+  return parts
+    .slice(0, 2)
+    .map((part) => part[0]?.toUpperCase())
+    .join('')
 }
 
 // Each open day has 5 bookable appointment slots.
@@ -202,12 +211,17 @@ function AppointmentCalendar({
   )
 }
 
-export function AppointmentModal({ consultation, onClose }: AppointmentModalProps) {
+export function AppointmentScheduler({
+  consultation,
+  onDone,
+}: {
+  consultation: string
+  onDone?: () => void
+}) {
   const [step, setStep] = useState(1)
   const [selectedDate, setSelectedDate] = useState<Date | null>(null)
   const [time, setTime] = useState<string | null>(null)
-
-  if (!consultation) return null
+  const [customer, setCustomer] = useState<{ name: string; email: string } | null>(null)
 
   const dateLabel = selectedDate
     ? selectedDate.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })
@@ -223,26 +237,19 @@ export function AppointmentModal({ consultation, onClose }: AppointmentModalProp
 
   function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault()
+    const data = new FormData(event.currentTarget)
+    const firstName = String(data.get('firstName') || '').trim()
+    const lastName = String(data.get('lastName') || '').trim()
+    setCustomer({
+      name: [firstName, lastName].filter(Boolean).join(' '),
+      email: String(data.get('email') || '').trim(),
+    })
     setStep(3)
   }
 
   return (
-    <div
-      className="fixed inset-0 z-50 flex items-center justify-center bg-black/55 p-4"
-      role="dialog"
-      aria-modal="true"
-      aria-label="Book appointment"
-    >
-      <div className="relative h-[min(760px,calc(100vh-2rem))] w-full max-w-4xl overflow-hidden bg-white shadow-2xl">
-        <button
-          type="button"
-          onClick={onClose}
-          className="absolute right-4 top-3 z-10 flex h-12 w-12 items-center justify-center text-ink transition-colors hover:text-brass"
-          aria-label="Close appointment dialog"
-        >
-          <X className="h-6 w-6" strokeWidth={2.25} aria-hidden />
-        </button>
-
+    <div className="relative h-[min(760px,calc(100vh-2rem))] w-full max-w-4xl overflow-hidden border border-line bg-white shadow-xl">
+      <div key={step} className="h-full animate-fade-in">
         {step === 1 ? (
           <div className="grid h-full md:grid-cols-[0.8fr_1.2fr]">
             <aside className="bg-paper-2 px-8 py-6 text-center md:px-10">
@@ -276,7 +283,7 @@ export function AppointmentModal({ consultation, onClose }: AppointmentModalProp
               </div>
 
               {selectedDate ? (
-                <>
+                <div key={selectedDate.toDateString()} className="animate-fade-in">
                   <p className="mt-4 text-sm text-ink-2/70">
                     Pick a slot for{' '}
                     <span className="font-semibold text-brass-deep">{dateLabel}</span>
@@ -306,7 +313,7 @@ export function AppointmentModal({ consultation, onClose }: AppointmentModalProp
                       )
                     })}
                   </div>
-                </>
+                </div>
               ) : (
                 <p className="mt-8 text-sm text-ink-2/50">
                   Choose a date above to see available times.
@@ -368,11 +375,43 @@ export function AppointmentModal({ consultation, onClose }: AppointmentModalProp
               <p className="mt-3 text-lg text-brass-deep">
                 {dateLabel}, {time}
               </p>
-              <div className="mt-10 border-t border-line pt-6">
-                <p className="text-sm text-ink-2/60">
-                  Customer information will be submitted with this appointment request.
-                </p>
-              </div>
+
+              {customer ? (
+                <div className="mt-8 border-t border-line pt-6">
+                  <p className="text-xs font-semibold uppercase tracking-[0.2em] text-brass-deep">
+                    Customer
+                  </p>
+                  <div className="mt-4 flex items-center gap-4">
+                    <div className="flex h-11 w-11 shrink-0 items-center justify-center border border-brass/30 bg-paper-2 text-sm font-semibold text-ink">
+                      {getInitials(customer.name)}
+                    </div>
+                    <div className="min-w-0">
+                      <div className="flex items-center gap-2">
+                        <p className="truncate font-display text-base font-medium text-ink">
+                          {customer.name || 'Guest'}
+                        </p>
+                        <button
+                          type="button"
+                          onClick={back}
+                          aria-label="Edit customer information"
+                          className="flex h-6 w-6 shrink-0 items-center justify-center text-brass transition-colors hover:text-brass-deep"
+                        >
+                          <Pencil className="h-3.5 w-3.5" aria-hidden />
+                        </button>
+                      </div>
+                      {customer.email ? (
+                        <p className="truncate text-sm text-ink-2/65">{customer.email}</p>
+                      ) : null}
+                    </div>
+                  </div>
+                </div>
+              ) : (
+                <div className="mt-10 border-t border-line pt-6">
+                  <p className="text-sm text-ink-2/60">
+                    Customer information will be submitted with this appointment request.
+                  </p>
+                </div>
+              )}
               <div className="mt-10 flex justify-between">
                 <Button type="button" variant="outline" onClick={back} className="flex gap-1">
                   <ArrowLeft /> Back
@@ -396,11 +435,38 @@ export function AppointmentModal({ consultation, onClose }: AppointmentModalProp
             <p className="mt-2 text-brass-deep">
               {dateLabel}, {time}
             </p>
-            <Button type="button" className="mt-10" onClick={onClose}>
-              Done
-            </Button>
+            {onDone && (
+              <Button type="button" className="mt-10" onClick={onDone}>
+                Done
+              </Button>
+            )}
           </div>
         )}
+      </div>
+    </div>
+  )
+}
+
+export function AppointmentModal({ consultation, onClose }: AppointmentModalProps) {
+  if (!consultation) return null
+
+  return (
+    <div
+      className="fixed inset-0 z-50 flex items-center justify-center bg-black/55 p-4"
+      role="dialog"
+      aria-modal="true"
+      aria-label="Book appointment"
+    >
+      <div className="relative">
+        <button
+          type="button"
+          onClick={onClose}
+          className="absolute right-4 top-3 z-10 flex h-12 w-12 items-center justify-center text-ink transition-colors hover:text-brass"
+          aria-label="Close appointment dialog"
+        >
+          <X className="h-6 w-6" strokeWidth={2.25} aria-hidden />
+        </button>
+        <AppointmentScheduler consultation={consultation} onDone={onClose} />
       </div>
     </div>
   )

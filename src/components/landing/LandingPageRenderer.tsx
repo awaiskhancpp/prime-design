@@ -9,9 +9,10 @@ import { ServiceVideoSection } from '@/components/services/ServiceVideoSection'
 import { ServiceContentBlocks } from '@/components/services/ServiceDetailPage'
 import { ProjectsReviews } from '@/components/projects/ProjectsReviews'
 import { WhyChooseUs } from '@/components/gallery/WhyChooseUs'
-import { ConsultationGrid } from '@/components/contact/ConsultationGrid'
+import { AppointmentScheduler } from '@/components/contact/AppointmentModal'
 import { LandingFaqSection } from './LandingFaqSection'
 import { LandingGallerySection } from './LandingGallerySection'
+import { LandingGalleryTabs } from './LandingGalleryTabs'
 import { LandingPrimeDifferenceSection } from './LandingPrimeDifferenceSection'
 import { LandingProjectsSection } from './LandingProjectsSection'
 import { LandingLuxuryCta } from './LandingLuxuryCta'
@@ -97,7 +98,38 @@ export async function LandingPageRenderer({ page }: { page: LandingPage }) {
         'contactForm',
       ]
   const service = fallbackService(page)
-  const consultations = tabs.booking?.enabled ? await resolveConsultations() : []
+  const allConsultations = tabs.booking?.enabled ? await resolveConsultations() : []
+  // A service-specific landing page (kitchen-remodeling-information,
+  // bathroom-remodeling-information, etc.) should only offer booking for
+  // that one service — showing all consultation types on a Kitchen page
+  // means two-thirds of the cards are for services the visitor didn't
+  // come here for. Generic pages with no single matching service (like
+  // remodeling-information) keep the full picker as a fallback.
+  const consultationKeywordMap: Array<{ keyword: string; slug: string }> = [
+    { keyword: 'kitchen', slug: 'kitchen-remodeling' },
+    { keyword: 'bathroom', slug: 'bathroom-remodeling' },
+    { keyword: 'addition', slug: 'additions' },
+    { keyword: 'adu', slug: 'adu' },
+    { keyword: 'complete-renovation', slug: 'complete-renovation' },
+  ]
+  const matchedConsultationSlug = consultationKeywordMap.find((entry) =>
+    page.slug.includes(entry.keyword),
+  )?.slug
+  const matchedConsultations = matchedConsultationSlug
+    ? allConsultations.filter((item) => item.slug === matchedConsultationSlug)
+    : []
+  const consultations = matchedConsultations.length ? matchedConsultations : allConsultations
+
+  // A landing page that has BOTH the project gallery and the reflection
+  // gallery configured with images gets a single combined section with a
+  // real Kitchens/Bathrooms-style toggle instead of two stacked flat
+  // grids. Pages with only one gallery configured keep the plain grid.
+  const bothGalleriesConfigured = Boolean(
+    tabs.projectGallery?.enabled !== false &&
+    tabs.projectGallery?.images?.length &&
+    tabs.reflectionGallery?.enabled &&
+    tabs.reflectionGallery?.images?.length,
+  )
 
   const renderSection = (name: string) => {
     if (name === 'estimate' && tabs.estimate && tabs.estimate.enabled !== false)
@@ -120,10 +152,10 @@ export async function LandingPageRenderer({ page }: { page: LandingPage }) {
         <LandingPrimeDifferenceSection
           key={name}
           heading={tabs.primeDifference.heading}
+          headingAccent={tabs.primeDifference.headingAccent}
           body={tabs.primeDifference.body}
           checklist={tabs.primeDifference.checklist}
-          videoUrl={tabs.video?.videoUrl}
-          poster={tabs.video?.poster}
+          videos={tabs.video?.videos}
         />
       ) : null
     if (name === 'video' && tabs.video?.enabled && tabs.video.videoUrl)
@@ -137,7 +169,29 @@ export async function LandingPageRenderer({ page }: { page: LandingPage }) {
           poster={tabs.video.poster}
         />
       )
-    if (name === 'projectGallery' && tabs.projectGallery?.enabled !== false && tabs.projectGallery)
+    if (
+      name === 'projectGallery' &&
+      tabs.projectGallery?.enabled !== false &&
+      tabs.projectGallery
+    ) {
+      if (bothGalleriesConfigured)
+        return (
+          <LandingGalleryTabs
+            key={name}
+            heading={page.hero?.heading || page.title}
+            description={page.hero?.lead}
+            tabs={[
+              {
+                label: tabs.projectGallery.heading || 'Our Kitchens',
+                images: tabs.projectGallery.images || [],
+              },
+              {
+                label: tabs.reflectionGallery?.heading || 'Our Bathrooms',
+                images: tabs.reflectionGallery?.images || [],
+              },
+            ]}
+          />
+        )
       return (
         <LandingGallerySection
           key={name}
@@ -145,7 +199,9 @@ export async function LandingPageRenderer({ page }: { page: LandingPage }) {
           images={tabs.projectGallery.images || []}
         />
       )
-    if (name === 'reflectionGallery' && tabs.reflectionGallery?.enabled && tabs.reflectionGallery)
+    }
+    if (name === 'reflectionGallery' && tabs.reflectionGallery?.enabled && tabs.reflectionGallery) {
+      if (bothGalleriesConfigured) return null
       return (
         <LandingGallerySection
           key={name}
@@ -153,6 +209,7 @@ export async function LandingPageRenderer({ page }: { page: LandingPage }) {
           images={tabs.reflectionGallery.images || []}
         />
       )
+    }
     if (name === 'projects' && tabs.projects?.enabled !== false && tabs.projects)
       return (
         <LandingProjectsSection
@@ -185,7 +242,9 @@ export async function LandingPageRenderer({ page }: { page: LandingPage }) {
     if (name === 'booking' && tabs.booking?.enabled && consultations.length)
       return (
         <Section key={name}>
-          <ConsultationGrid consultations={consultations} />
+          <div className="flex justify-center">
+            <AppointmentScheduler consultation={consultations[0].title} />
+          </div>
         </Section>
       )
     if (name === 'luxuryCta' && tabs.luxuryCta?.enabled !== false && tabs.luxuryCta)
