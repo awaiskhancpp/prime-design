@@ -248,7 +248,11 @@ export function AppointmentScheduler({
   }
 
   return (
-    <div className="relative h-[min(760px,calc(100vh-2rem))] w-full max-w-4xl overflow-hidden border border-line bg-white shadow-xl">
+    <div
+      className={`relative w-full max-w-4xl overflow-hidden border border-line bg-white shadow-xl ${
+        step === 3 || step === 4 ? 'h-auto' : 'h-[min(760px,calc(100vh-2rem))]'
+      }`}
+    >
       <div key={step} className="h-full animate-fade-in">
         {step === 1 ? (
           <div className="grid h-full md:grid-cols-[0.8fr_1.2fr]">

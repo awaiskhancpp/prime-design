@@ -36,19 +36,12 @@ const ensureUniqueServiceLocation: CollectionBeforeValidateHook = async ({
 const sectionOverrideFields = [
   {
     name: 'sectionKey',
-    type: 'select' as const,
+    type: 'text' as const,
     required: true,
-    options: [
-      { label: 'Hero', value: 'hero' },
-      { label: 'Intro', value: 'intro' },
-      { label: 'Video', value: 'video' },
-      { label: 'Offerings', value: 'offerings' },
-      { label: 'Quote', value: 'quote' },
-      { label: 'Reviews', value: 'reviews' },
-      { label: 'Prime Difference', value: 'prime-difference' },
-      { label: 'Silicon Valley Loves', value: 'silicon-valley-loves' },
-      { label: 'Contact', value: 'contact' },
-    ],
+    admin: {
+      description:
+        'Use the inherited section sourceId for repeated block types; a block type may be used for unique sections.',
+    },
   },
   {
     name: 'enabled',

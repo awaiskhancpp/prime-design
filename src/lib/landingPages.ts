@@ -70,7 +70,6 @@ function normalizeBlocks(value: PayloadLandingPage['sections']): LandingPageBloc
 }
 
 const landingPageSlugs = [
-  'remodeling-information',
   'kitchen-remodeling-information',
   'bathroom-remodeling-information',
   'additions-remodeling-information',
@@ -81,6 +80,7 @@ const landingPageSlugs = [
 ] as const
 
 export async function resolveLandingPage(slug: string): Promise<LandingPage | undefined> {
+  if (!(landingPageSlugs as readonly string[]).includes(slug)) return undefined
   if (!process.env.DATABASE_URL) return undefined
 
   const payload = await getPayload({ config: configPromise })

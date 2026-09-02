@@ -29,13 +29,13 @@ export function LandingFindUs({
         {items.map(({ icon: Icon, label, value, href }) => (
           <div
             key={label}
-            className="group relative border border-line bg-white p-6 transition-shadow duration-300 hover:shadow-lg hover:shadow-ink/5"
+            className="group relative border border-line bg-paper p-6 transition-shadow duration-300 hover:shadow-lg hover:shadow-ink/5"
           >
             <span
               className="absolute left-0 top-0 h-0.5 w-0 bg-brass transition-all duration-300 ease-out group-hover:w-full"
               aria-hidden
             />
-            <div className="flex h-12 w-12 items-center">
+            <div className="flex h-12 w-12 items-center justify-center rounded-full border border-brass/30 bg-paper-2">
               <Icon className="h-5 w-5 text-brass" aria-hidden />
             </div>
 

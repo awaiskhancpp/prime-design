@@ -12,6 +12,7 @@ import * as migration_20260901_194619 from './20260901_194619';
 import * as migration_20260901_201227 from './20260901_201227';
 import * as migration_20260901_214042 from './20260901_214042';
 import * as migration_20260901_223110 from './20260901_223110';
+import * as migration_20260902_221829_phase9_current_schema_sync from './20260902_221829_phase9_current_schema_sync';
 
 export const migrations = [
   {
@@ -82,6 +83,11 @@ export const migrations = [
   {
     up: migration_20260901_223110.up,
     down: migration_20260901_223110.down,
-    name: '20260901_223110'
+    name: '20260901_223110',
+  },
+  {
+    up: migration_20260902_221829_phase9_current_schema_sync.up,
+    down: migration_20260902_221829_phase9_current_schema_sync.down,
+    name: '20260902_221829_phase9_current_schema_sync'
   },
 ];

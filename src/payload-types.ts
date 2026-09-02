@@ -1213,16 +1213,10 @@ export interface ServiceLocation {
    */
   sectionOverrides?:
     | {
-        sectionKey:
-          | 'hero'
-          | 'intro'
-          | 'video'
-          | 'offerings'
-          | 'quote'
-          | 'reviews'
-          | 'prime-difference'
-          | 'silicon-valley-loves'
-          | 'contact';
+        /**
+         * Use the inherited section sourceId for repeated block types; a block type may be used for unique sections.
+         */
+        sectionKey: string;
         /**
          * Turn this inherited section on or off for this location.
          */
