@@ -21,6 +21,7 @@ export type ServiceDetail = Service & {
   introHeading?: string
   heroVideoUrl?: string
   contentBlocks?: ServiceContentBlock[]
+  sections?: Array<{ blockType: string; [key: string]: unknown }>
   seo?: {
     metaTitle?: string | null
     metaDescription?: string | null
@@ -484,6 +485,7 @@ type PayloadServiceRecord = {
     video?: number | PayloadMedia | null
   } | null
   contentBlocks?: Array<Record<string, unknown>> | null
+  sections?: Array<Record<string, unknown>> | null
   sectionOrder?: Array<{ section?: string | null }> | null
   seo?: ServiceDetail['seo']
   showInConsultationForm?: boolean | null
@@ -662,6 +664,10 @@ export async function resolveServiceDetail(slug: string): Promise<ServiceDetail 
     image: payloadImageUrl(record.hero?.image) || base.image,
     heroVideoUrl: payloadImageUrl(record.hero?.video) || base.heroVideoUrl,
     contentBlocks: normalizePayloadBlocks(record.contentBlocks),
+    sections: record.sections?.filter(
+      (block): block is { blockType: string; [key: string]: unknown } =>
+        Boolean(block && typeof block.blockType === 'string'),
+    ),
     sectionOrder: record.sectionOrder
       ?.map((item) => item.section)
       .filter((item): item is string => Boolean(item)),

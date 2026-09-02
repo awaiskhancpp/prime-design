@@ -34,6 +34,7 @@ import {
   ServiceRealHomesStoriesSection,
 } from './sections/ServiceRealHomesStoriesSection'
 import { ServiceSiliconValleyLovesSection } from './sections/ServiceSiliconValleyLovesSection'
+import { LandingBlockRenderer } from '@/components/landing/LandingBlockRenderer'
 
 function splitLabeledLine(line: string) {
   const separator = line.indexOf(':')
@@ -535,6 +536,23 @@ export function ServiceContentBlocks({
 }
 
 export function ServiceTemplate({ service }: { service: ServiceDetail }) {
+  if (service.sections?.length) {
+    return (
+      <div className="min-h-screen bg-white">
+        <SiteHeader />
+        <main>
+          <ServiceHero service={service} />
+          <LandingBlockRenderer
+            sections={service.sections.filter((section) => section.blockType !== 'hero')}
+          />
+        </main>
+        <LandscapingServiceAreas />
+        <LandscapingCta />
+        <SiteFooter />
+      </div>
+    )
+  }
+
   const sections = getServicePageSections(service.slug)
   const hasCmsBlocks = Boolean(service.contentBlocks?.length)
   // Verified against the real WordPress export: these three pages only

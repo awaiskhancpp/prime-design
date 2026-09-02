@@ -1,5 +1,6 @@
 import type { Block, CollectionConfig, CollectionSlug } from 'payload'
 import { SEOFields } from './fields/SEO'
+import { landingPageBlocks } from '../blocks/LandingPageBlocks'
 
 const textItems = (name = 'items') => ({
   name,
@@ -211,14 +212,36 @@ export const Services: CollectionConfig = {
           type: 'select',
           required: true,
           options: [
-            'hero', 'intro', 'video', 'process', 'offerings', 'gallery', 'quote',
-            'craftsmanship', 'real-homes', 'why-choose-us', 'faq', 'estimate',
-            'reviews', 'silicon-valley-loves', 'home-repair-categories', 'contact',
+            'hero',
+            'intro',
+            'video',
+            'process',
+            'offerings',
+            'gallery',
+            'quote',
+            'craftsmanship',
+            'real-homes',
+            'why-choose-us',
+            'faq',
+            'estimate',
+            'reviews',
+            'silicon-valley-loves',
+            'home-repair-categories',
+            'contact',
           ],
         },
       ],
     },
     { name: 'contentBlocks', type: 'blocks', blocks: serviceContentBlocks },
+    {
+      name: 'sections',
+      type: 'blocks',
+      blocks: landingPageBlocks,
+      admin: {
+        description:
+          'Canonical ordered sections for new service records. Existing contentBlocks and sectionOrder remain available during migration.',
+      },
+    },
     { name: 'faqs', type: 'relationship', relationTo: 'faqs', hasMany: true },
     {
       name: 'relatedServices',

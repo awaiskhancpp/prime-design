@@ -14,6 +14,7 @@ import {
 } from './sections/ServicePrimeDifferenceSection'
 import { Contact } from '../gallery/Contact'
 import { ServiceLocationFooter } from './ServiceLocationFooter'
+import { LandingBlockRenderer } from '@/components/landing/LandingBlockRenderer'
 
 export function ServiceLocationPage({
   entry,
@@ -28,6 +29,41 @@ export function ServiceLocationPage({
   const video = getLocationVideoContent(entry.serviceSlug, entry.location)
   const offerings = getServiceOfferings(entry.serviceSlug)
   const quote = getServiceQuote(entry.serviceSlug)
+
+  if (service.sections?.length) {
+    const inheritedSections = service.sections
+      .filter((section) => section.blockType !== 'hero')
+      .map((section) => {
+        const sourceId = typeof section.sourceId === 'string' ? section.sourceId : undefined
+        const override = (sourceId && overrides.get(sourceId)) || overrides.get(section.blockType)
+        if (!override) return section
+
+        if (override.enabled === false) return null
+
+        return {
+          ...section,
+          ...(override.heading ? { heading: override.heading } : {}),
+          ...(override.body ? { description: override.body, body: override.body } : {}),
+          ...(override.videoUrl
+            ? { externalUrl: override.videoUrl, videoUrl: override.videoUrl }
+            : {}),
+          ...(override.image
+            ? { image: { asset: override.image }, media: { asset: override.image } }
+            : {}),
+        }
+      })
+      .filter((section): section is NonNullable<typeof section> => Boolean(section))
+
+    return (
+      <div className="min-h-screen bg-white">
+        <ServiceLocationHeroForm service={service} location={entry.location} />
+        <main>
+          <LandingBlockRenderer sections={inheritedSections} />
+          <ServiceLocationFooter />
+        </main>
+      </div>
+    )
+  }
 
   return (
     <div className="min-h-screen bg-white">

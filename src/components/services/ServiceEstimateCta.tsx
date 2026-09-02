@@ -20,7 +20,7 @@ export function ServiceEstimateCta() {
           </div>
           <Link
             href="/contact"
-            className="bg-white px-5 py-3 text-sm font-semibold text-ink hover:bg-paper flex gap-2"
+            className="bg-white px-5 py-3 text-sm font-semibold text-ink hover:bg-paper items-center flex gap-2"
           >
             Get started <ArrowRight />
           </Link>

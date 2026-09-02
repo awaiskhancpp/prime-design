@@ -147,7 +147,7 @@ export function ServiceLocationHeroForm({
       </Container>
 
       <div className="overflow-hidden border-y border-brass-deep/20 bg-brass py-3">
-        <div className="flex w-max animate-marquee gap-10 whitespace-nowrap">
+        <div className="">
           {Array.from({ length: 8 }).map((_, index) => (
             <span
               key={index}

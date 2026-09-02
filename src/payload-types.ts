@@ -421,6 +421,720 @@ export interface Service {
           }
       )[]
     | null;
+  /**
+   * Canonical ordered sections for new service records. Existing contentBlocks and sectionOrder remain available during migration.
+   */
+  sections?:
+    | (
+        | {
+            eyebrow?: string | null;
+            heading: string;
+            description?: string | null;
+            backgroundMedia?: {
+              asset?: (number | null) | Media;
+              alt?: string | null;
+              caption?: string | null;
+              sourceAttachmentId?: number | null;
+              sourceUrl?: string | null;
+            };
+            foregroundMedia?: {
+              asset?: (number | null) | Media;
+              alt?: string | null;
+              caption?: string | null;
+              sourceAttachmentId?: number | null;
+              sourceUrl?: string | null;
+            };
+            buttons?:
+              | {
+                  label: string;
+                  url: string;
+                  variant?: ('primary' | 'secondary' | 'text' | 'outline') | null;
+                  openInNewTab?: boolean | null;
+                  id?: string | null;
+                }[]
+              | null;
+            sourceId?: string | null;
+            sourceElementType?: string | null;
+            sourceAttachmentId?: number | null;
+            sourceMetadata?:
+              | {
+                  [k: string]: unknown;
+                }
+              | unknown[]
+              | string
+              | number
+              | boolean
+              | null;
+            id?: string | null;
+            blockName?: string | null;
+            blockType: 'hero';
+          }
+        | {
+            eyebrow?: string | null;
+            heading: string;
+            description?: string | null;
+            media?: {
+              asset?: (number | null) | Media;
+              alt?: string | null;
+              caption?: string | null;
+              sourceAttachmentId?: number | null;
+              sourceUrl?: string | null;
+            };
+            buttons?:
+              | {
+                  label: string;
+                  url: string;
+                  variant?: ('primary' | 'secondary' | 'text' | 'outline') | null;
+                  openInNewTab?: boolean | null;
+                  id?: string | null;
+                }[]
+              | null;
+            sourceId?: string | null;
+            sourceElementType?: string | null;
+            sourceAttachmentId?: number | null;
+            sourceMetadata?:
+              | {
+                  [k: string]: unknown;
+                }
+              | unknown[]
+              | string
+              | number
+              | boolean
+              | null;
+            id?: string | null;
+            blockName?: string | null;
+            blockType: 'cta';
+          }
+        | {
+            eyebrow?: string | null;
+            heading: string;
+            description?: string | null;
+            media?: {
+              asset?: (number | null) | Media;
+              alt?: string | null;
+              caption?: string | null;
+              sourceAttachmentId?: number | null;
+              sourceUrl?: string | null;
+            };
+            buttons?:
+              | {
+                  label: string;
+                  url: string;
+                  variant?: ('primary' | 'secondary' | 'text' | 'outline') | null;
+                  openInNewTab?: boolean | null;
+                  id?: string | null;
+                }[]
+              | null;
+            alignment?: ('left' | 'right') | null;
+            sourceId?: string | null;
+            sourceElementType?: string | null;
+            sourceAttachmentId?: number | null;
+            sourceMetadata?:
+              | {
+                  [k: string]: unknown;
+                }
+              | unknown[]
+              | string
+              | number
+              | boolean
+              | null;
+            id?: string | null;
+            blockName?: string | null;
+            blockType: 'image-text';
+          }
+        | {
+            heading?: string | null;
+            description?: string | null;
+            source?: ('media' | 'externalUrl') | null;
+            video?: (number | null) | Media;
+            externalUrl?: string | null;
+            poster?: (number | null) | Media;
+            controls?: boolean | null;
+            sourceVideoId?: string | null;
+            sourceId?: string | null;
+            sourceElementType?: string | null;
+            sourceAttachmentId?: number | null;
+            sourceMetadata?:
+              | {
+                  [k: string]: unknown;
+                }
+              | unknown[]
+              | string
+              | number
+              | boolean
+              | null;
+            id?: string | null;
+            blockName?: string | null;
+            blockType: 'video';
+          }
+        | {
+            heading?: string | null;
+            description?: string | null;
+            items?:
+              | {
+                  media?: (number | null) | Media;
+                  caption?: string | null;
+                  alt?: string | null;
+                  sourceOrder?: number | null;
+                  sourceAttachmentId?: number | null;
+                  id?: string | null;
+                }[]
+              | null;
+            /**
+             * Optional ordered gallery categories from the source page. Do not invent groups.
+             */
+            groups?:
+              | {
+                  label: string;
+                  heading?: string | null;
+                  description?: string | null;
+                  items?:
+                    | {
+                        media?: (number | null) | Media;
+                        caption?: string | null;
+                        alt?: string | null;
+                        sourceOrder?: number | null;
+                        sourceAttachmentId?: number | null;
+                        id?: string | null;
+                      }[]
+                    | null;
+                  id?: string | null;
+                }[]
+              | null;
+            layout?:
+              | {
+                  [k: string]: unknown;
+                }
+              | unknown[]
+              | string
+              | number
+              | boolean
+              | null;
+            lightbox?: boolean | null;
+            sourceGalleryType?: string | null;
+            sourceId?: string | null;
+            sourceElementType?: string | null;
+            sourceAttachmentId?: number | null;
+            sourceMetadata?:
+              | {
+                  [k: string]: unknown;
+                }
+              | unknown[]
+              | string
+              | number
+              | boolean
+              | null;
+            id?: string | null;
+            blockName?: string | null;
+            blockType: 'gallery';
+          }
+        | {
+            heading?: string | null;
+            beforeMedia?: (number | null) | Media;
+            afterMedia?: (number | null) | Media;
+            beforeLabel?: string | null;
+            afterLabel?: string | null;
+            sourceId?: string | null;
+            sourceElementType?: string | null;
+            sourceAttachmentId?: number | null;
+            sourceMetadata?:
+              | {
+                  [k: string]: unknown;
+                }
+              | unknown[]
+              | string
+              | number
+              | boolean
+              | null;
+            id?: string | null;
+            blockName?: string | null;
+            blockType: 'before-after';
+          }
+        | {
+            eyebrow?: string | null;
+            heading: string;
+            description?: string | null;
+            items?:
+              | {
+                  title: string;
+                  description?: string | null;
+                  media?: {
+                    asset?: (number | null) | Media;
+                    alt?: string | null;
+                    caption?: string | null;
+                    sourceAttachmentId?: number | null;
+                    sourceUrl?: string | null;
+                  };
+                  link: {
+                    label: string;
+                    url: string;
+                    openInNewTab?: boolean | null;
+                  };
+                  id?: string | null;
+                }[]
+              | null;
+            sourceId?: string | null;
+            sourceElementType?: string | null;
+            sourceAttachmentId?: number | null;
+            sourceMetadata?:
+              | {
+                  [k: string]: unknown;
+                }
+              | unknown[]
+              | string
+              | number
+              | boolean
+              | null;
+            id?: string | null;
+            blockName?: string | null;
+            blockType: 'sub-services';
+          }
+        | {
+            eyebrow?: string | null;
+            heading: string;
+            description?: string | null;
+            features?:
+              | {
+                  title: string;
+                  description?: string | null;
+                  icon?: {
+                    iconMedia?: (number | null) | Media;
+                    iconLibrary?: string | null;
+                    iconName?: string | null;
+                    sourceSvgUrl?: string | null;
+                  };
+                  media?: {
+                    asset?: (number | null) | Media;
+                    alt?: string | null;
+                    caption?: string | null;
+                    sourceAttachmentId?: number | null;
+                    sourceUrl?: string | null;
+                  };
+                  link: {
+                    label: string;
+                    url: string;
+                    openInNewTab?: boolean | null;
+                  };
+                  id?: string | null;
+                }[]
+              | null;
+            media?: {
+              asset?: (number | null) | Media;
+              alt?: string | null;
+              caption?: string | null;
+              sourceAttachmentId?: number | null;
+              sourceUrl?: string | null;
+            };
+            sourceId?: string | null;
+            sourceElementType?: string | null;
+            sourceAttachmentId?: number | null;
+            sourceMetadata?:
+              | {
+                  [k: string]: unknown;
+                }
+              | unknown[]
+              | string
+              | number
+              | boolean
+              | null;
+            id?: string | null;
+            blockName?: string | null;
+            blockType: 'prime-difference';
+          }
+        | {
+            eyebrow?: string | null;
+            heading: string;
+            description?: string | null;
+            features?:
+              | {
+                  title: string;
+                  description?: string | null;
+                  icon?: {
+                    iconMedia?: (number | null) | Media;
+                    iconLibrary?: string | null;
+                    iconName?: string | null;
+                    sourceSvgUrl?: string | null;
+                  };
+                  media?: {
+                    asset?: (number | null) | Media;
+                    alt?: string | null;
+                    caption?: string | null;
+                    sourceAttachmentId?: number | null;
+                    sourceUrl?: string | null;
+                  };
+                  link: {
+                    label: string;
+                    url: string;
+                    openInNewTab?: boolean | null;
+                  };
+                  id?: string | null;
+                }[]
+              | null;
+            media?: {
+              asset?: (number | null) | Media;
+              alt?: string | null;
+              caption?: string | null;
+              sourceAttachmentId?: number | null;
+              sourceUrl?: string | null;
+            };
+            sourceId?: string | null;
+            sourceElementType?: string | null;
+            sourceAttachmentId?: number | null;
+            sourceMetadata?:
+              | {
+                  [k: string]: unknown;
+                }
+              | unknown[]
+              | string
+              | number
+              | boolean
+              | null;
+            id?: string | null;
+            blockName?: string | null;
+            blockType: 'experience-difference';
+          }
+        | {
+            eyebrow?: string | null;
+            heading: string;
+            description?: string | null;
+            areas?:
+              | {
+                  label: string;
+                  location?: (number | null) | Location;
+                  link: {
+                    label: string;
+                    url: string;
+                    openInNewTab?: boolean | null;
+                  };
+                  id?: string | null;
+                }[]
+              | null;
+            sourceId?: string | null;
+            sourceElementType?: string | null;
+            sourceAttachmentId?: number | null;
+            sourceMetadata?:
+              | {
+                  [k: string]: unknown;
+                }
+              | unknown[]
+              | string
+              | number
+              | boolean
+              | null;
+            id?: string | null;
+            blockName?: string | null;
+            blockType: 'service-areas';
+          }
+        | {
+            heading: string;
+            description?: string | null;
+            categories?:
+              | {
+                  title: string;
+                  description?: string | null;
+                  features?:
+                    | {
+                        text?: string | null;
+                        id?: string | null;
+                      }[]
+                    | null;
+                  media?: {
+                    asset?: (number | null) | Media;
+                    alt?: string | null;
+                    caption?: string | null;
+                    sourceAttachmentId?: number | null;
+                    sourceUrl?: string | null;
+                  };
+                  sourceId?: string | null;
+                  id?: string | null;
+                }[]
+              | null;
+            sourceId?: string | null;
+            sourceElementType?: string | null;
+            sourceAttachmentId?: number | null;
+            sourceMetadata?:
+              | {
+                  [k: string]: unknown;
+                }
+              | unknown[]
+              | string
+              | number
+              | boolean
+              | null;
+            id?: string | null;
+            blockName?: string | null;
+            blockType: 'repair-services';
+          }
+        | {
+            eyebrow?: string | null;
+            heading: string;
+            description?: string | null;
+            media?: {
+              asset?: (number | null) | Media;
+              alt?: string | null;
+              caption?: string | null;
+              sourceAttachmentId?: number | null;
+              sourceUrl?: string | null;
+            };
+            buttons?:
+              | {
+                  label: string;
+                  url: string;
+                  variant?: ('primary' | 'secondary' | 'text' | 'outline') | null;
+                  openInNewTab?: boolean | null;
+                  id?: string | null;
+                }[]
+              | null;
+            sourceId?: string | null;
+            sourceElementType?: string | null;
+            sourceAttachmentId?: number | null;
+            sourceMetadata?:
+              | {
+                  [k: string]: unknown;
+                }
+              | unknown[]
+              | string
+              | number
+              | boolean
+              | null;
+            id?: string | null;
+            blockName?: string | null;
+            blockType: 'luxury-cta';
+          }
+        | {
+            provider?: string | null;
+            shortcode?: string | null;
+            sourceElementId?: string | null;
+            integrationMetadata?:
+              | {
+                  [k: string]: unknown;
+                }
+              | unknown[]
+              | string
+              | number
+              | boolean
+              | null;
+            sourceId?: string | null;
+            sourceElementType?: string | null;
+            sourceAttachmentId?: number | null;
+            sourceMetadata?:
+              | {
+                  [k: string]: unknown;
+                }
+              | unknown[]
+              | string
+              | number
+              | boolean
+              | null;
+            id?: string | null;
+            blockName?: string | null;
+            blockType: 'booking';
+          }
+        | {
+            provider?: string | null;
+            shortcode?: string | null;
+            sourceElementId?: string | null;
+            integrationMetadata?:
+              | {
+                  [k: string]: unknown;
+                }
+              | unknown[]
+              | string
+              | number
+              | boolean
+              | null;
+            sourceId?: string | null;
+            sourceElementType?: string | null;
+            sourceAttachmentId?: number | null;
+            sourceMetadata?:
+              | {
+                  [k: string]: unknown;
+                }
+              | unknown[]
+              | string
+              | number
+              | boolean
+              | null;
+            id?: string | null;
+            blockName?: string | null;
+            blockType: 'contact-form';
+          }
+        | {
+            heading: string;
+            phone?: string | null;
+            email?: string | null;
+            address?: string | null;
+            mapUrl?: string | null;
+            sourceId?: string | null;
+            sourceElementType?: string | null;
+            sourceAttachmentId?: number | null;
+            sourceMetadata?:
+              | {
+                  [k: string]: unknown;
+                }
+              | unknown[]
+              | string
+              | number
+              | boolean
+              | null;
+            id?: string | null;
+            blockName?: string | null;
+            blockType: 'find-us';
+          }
+        | {
+            heading?: string | null;
+            providers?:
+              | {
+                  name: string;
+                  shortcode?: string | null;
+                  collectionId?: string | null;
+                  reviews?:
+                    | {
+                        reviewer?: string | null;
+                        rating?: number | null;
+                        body?: string | null;
+                        date?: string | null;
+                        sourceId?: string | null;
+                        id?: string | null;
+                      }[]
+                    | null;
+                  id?: string | null;
+                }[]
+              | null;
+            sourceId?: string | null;
+            sourceElementType?: string | null;
+            sourceAttachmentId?: number | null;
+            sourceMetadata?:
+              | {
+                  [k: string]: unknown;
+                }
+              | unknown[]
+              | string
+              | number
+              | boolean
+              | null;
+            id?: string | null;
+            blockName?: string | null;
+            blockType: 'testimonials';
+          }
+        | {
+            heading?: string | null;
+            description?: string | null;
+            categories?:
+              | {
+                  title: string;
+                  questions?:
+                    | {
+                        question: string;
+                        answer: string;
+                        sourceId?: string | null;
+                        id?: string | null;
+                      }[]
+                    | null;
+                  sourceQuery?:
+                    | {
+                        [k: string]: unknown;
+                      }
+                    | unknown[]
+                    | string
+                    | number
+                    | boolean
+                    | null;
+                  sourceId?: string | null;
+                  id?: string | null;
+                }[]
+              | null;
+            sourceId?: string | null;
+            sourceElementType?: string | null;
+            sourceAttachmentId?: number | null;
+            sourceMetadata?:
+              | {
+                  [k: string]: unknown;
+                }
+              | unknown[]
+              | string
+              | number
+              | boolean
+              | null;
+            id?: string | null;
+            blockName?: string | null;
+            blockType: 'faq';
+          }
+        | {
+            items?:
+              | {
+                  video?: (number | null) | Media;
+                  externalUrl?: string | null;
+                  poster?: (number | null) | Media;
+                  caption?: string | null;
+                  sourceId?: string | null;
+                  sourceOrder?: number | null;
+                  id?: string | null;
+                }[]
+              | null;
+            settings?:
+              | {
+                  [k: string]: unknown;
+                }
+              | unknown[]
+              | string
+              | number
+              | boolean
+              | null;
+            sourceId?: string | null;
+            sourceElementType?: string | null;
+            sourceAttachmentId?: number | null;
+            sourceMetadata?:
+              | {
+                  [k: string]: unknown;
+                }
+              | unknown[]
+              | string
+              | number
+              | boolean
+              | null;
+            id?: string | null;
+            blockName?: string | null;
+            blockType: 'video-carousel';
+          }
+        | {
+            items?:
+              | {
+                  media?: (number | null) | Media;
+                  caption?: string | null;
+                  alt?: string | null;
+                  sourceOrder?: number | null;
+                  sourceAttachmentId?: number | null;
+                  id?: string | null;
+                }[]
+              | null;
+            settings?:
+              | {
+                  [k: string]: unknown;
+                }
+              | unknown[]
+              | string
+              | number
+              | boolean
+              | null;
+            sourceId?: string | null;
+            sourceElementType?: string | null;
+            sourceAttachmentId?: number | null;
+            sourceMetadata?:
+              | {
+                  [k: string]: unknown;
+                }
+              | unknown[]
+              | string
+              | number
+              | boolean
+              | null;
+            id?: string | null;
+            blockName?: string | null;
+            blockType: 'gallery-carousel';
+          }
+      )[]
+    | null;
   faqs?: (number | Faq)[] | null;
   relatedServices?: (number | Service)[] | null;
   seo?: {
@@ -882,7 +1596,7 @@ export interface BlogCategory {
   createdAt: string;
 }
 /**
- * Google Ads landing pages. Use the shared tabs; each page stores its own copy, media, and visibility.
+ * Google Ads landing pages with ordered, reusable content sections.
  *
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "landing-pages".
@@ -892,193 +1606,741 @@ export interface LandingPage {
   title: string;
   slug: string;
   status?: ('draft' | 'published') | null;
-  template?: ('information' | 'default') | null;
+  template?: 'information' | null;
   hero: {
     eyebrow?: string | null;
     heading: string;
-    lead?: string | null;
-    image?: (number | null) | Media;
+    description?: string | null;
+    backgroundMedia?: (number | null) | Media;
+    foregroundMedia?: (number | null) | Media;
+    buttons?:
+      | {
+          label: string;
+          url: string;
+          variant?: ('primary' | 'secondary' | 'text' | 'outline') | null;
+          openInNewTab?: boolean | null;
+          id?: string | null;
+        }[]
+      | null;
   };
-  /**
-   * Optional order for enabled tabs. Empty uses the standard landing-page order.
-   */
-  sectionOrder?:
+  sections: (
     | {
-        section:
-          | 'estimate'
-          | 'intro'
-          | 'subServices'
-          | 'primeDifference'
-          | 'projects'
-          | 'projectGallery'
-          | 'reflectionGallery'
-          | 'video'
-          | 'whyChoose'
-          | 'serviceAreas'
-          | 'faq'
-          | 'testimonials'
-          | 'luxuryCta'
-          | 'booking'
-          | 'findUs'
-          | 'contactForm';
-        id?: string | null;
-      }[]
-    | null;
-  estimateEnabled?: boolean | null;
-  estimate?: {
-    heading?: string | null;
-    body?: string | null;
-    link?: string | null;
-  };
-  introEnabled?: boolean | null;
-  intro?: {
-    eyebrow?: string | null;
-    heading?: string | null;
-    body?: string | null;
-    image?: (number | null) | Media;
-  };
-  subServicesEnabled?: boolean | null;
-  subServices?: {
-    heading?: string | null;
-    body?: string | null;
-    items?:
-      | {
-          title: string;
-          description?: string | null;
-          image?: (number | null) | Media;
-          link?: string | null;
-          id?: string | null;
-        }[]
-      | null;
-  };
-  primeDifferenceEnabled?: boolean | null;
-  primeDifference?: {
-    eyebrow?: string | null;
-    heading?: string | null;
-    headingAccent?: string | null;
-    body?: string | null;
-    checklist?:
-      | {
-          text: string;
-          id?: string | null;
-        }[]
-      | null;
-  };
-  projectGalleryEnabled?: boolean | null;
-  projectGallery?: {
-    heading?: string | null;
-    images?: (number | Media)[] | null;
-  };
-  reflectionGalleryEnabled?: boolean | null;
-  reflectionGallery?: {
-    heading?: string | null;
-    images?: (number | Media)[] | null;
-  };
-  projectsEnabled?: boolean | null;
-  projects?: {
-    eyebrow?: string | null;
-    heading?: string | null;
-    description?: string | null;
-    items?:
-      | {
-          title: string;
-          description?: string | null;
-          image?: (number | null) | Media;
-          link?: string | null;
-          id?: string | null;
-        }[]
-      | null;
-  };
-  videoEnabled?: boolean | null;
-  video?: {
-    eyebrow?: string | null;
-    heading?: string | null;
-    description?: string | null;
-    /**
-     * Legacy single-video field — kept for pages configured before multi-video support existed.
-     */
-    videoUrl?: string | null;
-    videoFile?: (number | null) | Media;
-    poster?: (number | null) | Media;
-    /**
-     * Add multiple videos here for a carousel. If this is empty, the single video/file above is used instead.
-     */
-    videos?:
-      | {
-          videoUrl?: string | null;
-          videoFile?: (number | null) | Media;
-          poster?: (number | null) | Media;
+        eyebrow?: string | null;
+        heading: string;
+        description?: string | null;
+        backgroundMedia?: {
+          asset?: (number | null) | Media;
+          alt?: string | null;
           caption?: string | null;
-          id?: string | null;
-        }[]
-      | null;
-  };
-  whyChooseEnabled?: boolean | null;
-  whyChoose?: {};
-  serviceAreasEnabled?: boolean | null;
-  serviceAreas?: {};
-  faqEnabled?: boolean | null;
-  faq?: {
-    heading?: string | null;
-    categories?:
-      | {
-          title: string;
-          items?:
-            | {
-                question: string;
-                answer: string;
-                id?: string | null;
-              }[]
-            | null;
-          id?: string | null;
-        }[]
-      | null;
-    items?:
-      | {
-          question: string;
-          answer: string;
-          id?: string | null;
-        }[]
-      | null;
-  };
-  testimonialsEnabled?: boolean | null;
-  testimonials?: {};
-  luxuryCtaEnabled?: boolean | null;
-  luxuryCta?: {
-    eyebrow?: string | null;
-    heading?: string | null;
-    body?: string | null;
-    link?: string | null;
-  };
-  bookingEnabled?: boolean | null;
-  booking?: {
-    heading?: string | null;
-    description?: string | null;
-  };
-  findUsEnabled?: boolean | null;
-  findUs?: {
-    heading?: string | null;
-    phone?: string | null;
-    email?: string | null;
-    address?: string | null;
-  };
-  contactFormEnabled?: boolean | null;
-  contactForm?: {
-    heading?: string | null;
-    description?: string | null;
-  };
-  cta?: {
-    text?: string | null;
-    link?: string | null;
-    showForm?: boolean | null;
-  };
+          sourceAttachmentId?: number | null;
+          sourceUrl?: string | null;
+        };
+        foregroundMedia?: {
+          asset?: (number | null) | Media;
+          alt?: string | null;
+          caption?: string | null;
+          sourceAttachmentId?: number | null;
+          sourceUrl?: string | null;
+        };
+        buttons?:
+          | {
+              label: string;
+              url: string;
+              variant?: ('primary' | 'secondary' | 'text' | 'outline') | null;
+              openInNewTab?: boolean | null;
+              id?: string | null;
+            }[]
+          | null;
+        sourceId?: string | null;
+        sourceElementType?: string | null;
+        sourceAttachmentId?: number | null;
+        sourceMetadata?:
+          | {
+              [k: string]: unknown;
+            }
+          | unknown[]
+          | string
+          | number
+          | boolean
+          | null;
+        id?: string | null;
+        blockName?: string | null;
+        blockType: 'hero';
+      }
+    | {
+        eyebrow?: string | null;
+        heading: string;
+        description?: string | null;
+        media?: {
+          asset?: (number | null) | Media;
+          alt?: string | null;
+          caption?: string | null;
+          sourceAttachmentId?: number | null;
+          sourceUrl?: string | null;
+        };
+        buttons?:
+          | {
+              label: string;
+              url: string;
+              variant?: ('primary' | 'secondary' | 'text' | 'outline') | null;
+              openInNewTab?: boolean | null;
+              id?: string | null;
+            }[]
+          | null;
+        sourceId?: string | null;
+        sourceElementType?: string | null;
+        sourceAttachmentId?: number | null;
+        sourceMetadata?:
+          | {
+              [k: string]: unknown;
+            }
+          | unknown[]
+          | string
+          | number
+          | boolean
+          | null;
+        id?: string | null;
+        blockName?: string | null;
+        blockType: 'cta';
+      }
+    | {
+        eyebrow?: string | null;
+        heading: string;
+        description?: string | null;
+        media?: {
+          asset?: (number | null) | Media;
+          alt?: string | null;
+          caption?: string | null;
+          sourceAttachmentId?: number | null;
+          sourceUrl?: string | null;
+        };
+        buttons?:
+          | {
+              label: string;
+              url: string;
+              variant?: ('primary' | 'secondary' | 'text' | 'outline') | null;
+              openInNewTab?: boolean | null;
+              id?: string | null;
+            }[]
+          | null;
+        alignment?: ('left' | 'right') | null;
+        sourceId?: string | null;
+        sourceElementType?: string | null;
+        sourceAttachmentId?: number | null;
+        sourceMetadata?:
+          | {
+              [k: string]: unknown;
+            }
+          | unknown[]
+          | string
+          | number
+          | boolean
+          | null;
+        id?: string | null;
+        blockName?: string | null;
+        blockType: 'image-text';
+      }
+    | {
+        heading?: string | null;
+        description?: string | null;
+        source?: ('media' | 'externalUrl') | null;
+        video?: (number | null) | Media;
+        externalUrl?: string | null;
+        poster?: (number | null) | Media;
+        controls?: boolean | null;
+        sourceVideoId?: string | null;
+        sourceId?: string | null;
+        sourceElementType?: string | null;
+        sourceAttachmentId?: number | null;
+        sourceMetadata?:
+          | {
+              [k: string]: unknown;
+            }
+          | unknown[]
+          | string
+          | number
+          | boolean
+          | null;
+        id?: string | null;
+        blockName?: string | null;
+        blockType: 'video';
+      }
+    | {
+        heading?: string | null;
+        description?: string | null;
+        items?:
+          | {
+              media?: (number | null) | Media;
+              caption?: string | null;
+              alt?: string | null;
+              sourceOrder?: number | null;
+              sourceAttachmentId?: number | null;
+              id?: string | null;
+            }[]
+          | null;
+        /**
+         * Optional ordered gallery categories from the source page. Do not invent groups.
+         */
+        groups?:
+          | {
+              label: string;
+              heading?: string | null;
+              description?: string | null;
+              items?:
+                | {
+                    media?: (number | null) | Media;
+                    caption?: string | null;
+                    alt?: string | null;
+                    sourceOrder?: number | null;
+                    sourceAttachmentId?: number | null;
+                    id?: string | null;
+                  }[]
+                | null;
+              id?: string | null;
+            }[]
+          | null;
+        layout?:
+          | {
+              [k: string]: unknown;
+            }
+          | unknown[]
+          | string
+          | number
+          | boolean
+          | null;
+        lightbox?: boolean | null;
+        sourceGalleryType?: string | null;
+        sourceId?: string | null;
+        sourceElementType?: string | null;
+        sourceAttachmentId?: number | null;
+        sourceMetadata?:
+          | {
+              [k: string]: unknown;
+            }
+          | unknown[]
+          | string
+          | number
+          | boolean
+          | null;
+        id?: string | null;
+        blockName?: string | null;
+        blockType: 'gallery';
+      }
+    | {
+        heading?: string | null;
+        beforeMedia?: (number | null) | Media;
+        afterMedia?: (number | null) | Media;
+        beforeLabel?: string | null;
+        afterLabel?: string | null;
+        sourceId?: string | null;
+        sourceElementType?: string | null;
+        sourceAttachmentId?: number | null;
+        sourceMetadata?:
+          | {
+              [k: string]: unknown;
+            }
+          | unknown[]
+          | string
+          | number
+          | boolean
+          | null;
+        id?: string | null;
+        blockName?: string | null;
+        blockType: 'before-after';
+      }
+    | {
+        eyebrow?: string | null;
+        heading: string;
+        description?: string | null;
+        items?:
+          | {
+              title: string;
+              description?: string | null;
+              media?: {
+                asset?: (number | null) | Media;
+                alt?: string | null;
+                caption?: string | null;
+                sourceAttachmentId?: number | null;
+                sourceUrl?: string | null;
+              };
+              link: {
+                label: string;
+                url: string;
+                openInNewTab?: boolean | null;
+              };
+              id?: string | null;
+            }[]
+          | null;
+        sourceId?: string | null;
+        sourceElementType?: string | null;
+        sourceAttachmentId?: number | null;
+        sourceMetadata?:
+          | {
+              [k: string]: unknown;
+            }
+          | unknown[]
+          | string
+          | number
+          | boolean
+          | null;
+        id?: string | null;
+        blockName?: string | null;
+        blockType: 'sub-services';
+      }
+    | {
+        eyebrow?: string | null;
+        heading: string;
+        description?: string | null;
+        features?:
+          | {
+              title: string;
+              description?: string | null;
+              icon?: {
+                iconMedia?: (number | null) | Media;
+                iconLibrary?: string | null;
+                iconName?: string | null;
+                sourceSvgUrl?: string | null;
+              };
+              media?: {
+                asset?: (number | null) | Media;
+                alt?: string | null;
+                caption?: string | null;
+                sourceAttachmentId?: number | null;
+                sourceUrl?: string | null;
+              };
+              link: {
+                label: string;
+                url: string;
+                openInNewTab?: boolean | null;
+              };
+              id?: string | null;
+            }[]
+          | null;
+        media?: {
+          asset?: (number | null) | Media;
+          alt?: string | null;
+          caption?: string | null;
+          sourceAttachmentId?: number | null;
+          sourceUrl?: string | null;
+        };
+        sourceId?: string | null;
+        sourceElementType?: string | null;
+        sourceAttachmentId?: number | null;
+        sourceMetadata?:
+          | {
+              [k: string]: unknown;
+            }
+          | unknown[]
+          | string
+          | number
+          | boolean
+          | null;
+        id?: string | null;
+        blockName?: string | null;
+        blockType: 'prime-difference';
+      }
+    | {
+        eyebrow?: string | null;
+        heading: string;
+        description?: string | null;
+        features?:
+          | {
+              title: string;
+              description?: string | null;
+              icon?: {
+                iconMedia?: (number | null) | Media;
+                iconLibrary?: string | null;
+                iconName?: string | null;
+                sourceSvgUrl?: string | null;
+              };
+              media?: {
+                asset?: (number | null) | Media;
+                alt?: string | null;
+                caption?: string | null;
+                sourceAttachmentId?: number | null;
+                sourceUrl?: string | null;
+              };
+              link: {
+                label: string;
+                url: string;
+                openInNewTab?: boolean | null;
+              };
+              id?: string | null;
+            }[]
+          | null;
+        media?: {
+          asset?: (number | null) | Media;
+          alt?: string | null;
+          caption?: string | null;
+          sourceAttachmentId?: number | null;
+          sourceUrl?: string | null;
+        };
+        sourceId?: string | null;
+        sourceElementType?: string | null;
+        sourceAttachmentId?: number | null;
+        sourceMetadata?:
+          | {
+              [k: string]: unknown;
+            }
+          | unknown[]
+          | string
+          | number
+          | boolean
+          | null;
+        id?: string | null;
+        blockName?: string | null;
+        blockType: 'experience-difference';
+      }
+    | {
+        eyebrow?: string | null;
+        heading: string;
+        description?: string | null;
+        areas?:
+          | {
+              label: string;
+              location?: (number | null) | Location;
+              link: {
+                label: string;
+                url: string;
+                openInNewTab?: boolean | null;
+              };
+              id?: string | null;
+            }[]
+          | null;
+        sourceId?: string | null;
+        sourceElementType?: string | null;
+        sourceAttachmentId?: number | null;
+        sourceMetadata?:
+          | {
+              [k: string]: unknown;
+            }
+          | unknown[]
+          | string
+          | number
+          | boolean
+          | null;
+        id?: string | null;
+        blockName?: string | null;
+        blockType: 'service-areas';
+      }
+    | {
+        heading: string;
+        description?: string | null;
+        categories?:
+          | {
+              title: string;
+              description?: string | null;
+              features?:
+                | {
+                    text?: string | null;
+                    id?: string | null;
+                  }[]
+                | null;
+              media?: {
+                asset?: (number | null) | Media;
+                alt?: string | null;
+                caption?: string | null;
+                sourceAttachmentId?: number | null;
+                sourceUrl?: string | null;
+              };
+              sourceId?: string | null;
+              id?: string | null;
+            }[]
+          | null;
+        sourceId?: string | null;
+        sourceElementType?: string | null;
+        sourceAttachmentId?: number | null;
+        sourceMetadata?:
+          | {
+              [k: string]: unknown;
+            }
+          | unknown[]
+          | string
+          | number
+          | boolean
+          | null;
+        id?: string | null;
+        blockName?: string | null;
+        blockType: 'repair-services';
+      }
+    | {
+        eyebrow?: string | null;
+        heading: string;
+        description?: string | null;
+        media?: {
+          asset?: (number | null) | Media;
+          alt?: string | null;
+          caption?: string | null;
+          sourceAttachmentId?: number | null;
+          sourceUrl?: string | null;
+        };
+        buttons?:
+          | {
+              label: string;
+              url: string;
+              variant?: ('primary' | 'secondary' | 'text' | 'outline') | null;
+              openInNewTab?: boolean | null;
+              id?: string | null;
+            }[]
+          | null;
+        sourceId?: string | null;
+        sourceElementType?: string | null;
+        sourceAttachmentId?: number | null;
+        sourceMetadata?:
+          | {
+              [k: string]: unknown;
+            }
+          | unknown[]
+          | string
+          | number
+          | boolean
+          | null;
+        id?: string | null;
+        blockName?: string | null;
+        blockType: 'luxury-cta';
+      }
+    | {
+        provider?: string | null;
+        shortcode?: string | null;
+        sourceElementId?: string | null;
+        integrationMetadata?:
+          | {
+              [k: string]: unknown;
+            }
+          | unknown[]
+          | string
+          | number
+          | boolean
+          | null;
+        sourceId?: string | null;
+        sourceElementType?: string | null;
+        sourceAttachmentId?: number | null;
+        sourceMetadata?:
+          | {
+              [k: string]: unknown;
+            }
+          | unknown[]
+          | string
+          | number
+          | boolean
+          | null;
+        id?: string | null;
+        blockName?: string | null;
+        blockType: 'booking';
+      }
+    | {
+        provider?: string | null;
+        shortcode?: string | null;
+        sourceElementId?: string | null;
+        integrationMetadata?:
+          | {
+              [k: string]: unknown;
+            }
+          | unknown[]
+          | string
+          | number
+          | boolean
+          | null;
+        sourceId?: string | null;
+        sourceElementType?: string | null;
+        sourceAttachmentId?: number | null;
+        sourceMetadata?:
+          | {
+              [k: string]: unknown;
+            }
+          | unknown[]
+          | string
+          | number
+          | boolean
+          | null;
+        id?: string | null;
+        blockName?: string | null;
+        blockType: 'contact-form';
+      }
+    | {
+        heading: string;
+        phone?: string | null;
+        email?: string | null;
+        address?: string | null;
+        mapUrl?: string | null;
+        sourceId?: string | null;
+        sourceElementType?: string | null;
+        sourceAttachmentId?: number | null;
+        sourceMetadata?:
+          | {
+              [k: string]: unknown;
+            }
+          | unknown[]
+          | string
+          | number
+          | boolean
+          | null;
+        id?: string | null;
+        blockName?: string | null;
+        blockType: 'find-us';
+      }
+    | {
+        heading?: string | null;
+        providers?:
+          | {
+              name: string;
+              shortcode?: string | null;
+              collectionId?: string | null;
+              reviews?:
+                | {
+                    reviewer?: string | null;
+                    rating?: number | null;
+                    body?: string | null;
+                    date?: string | null;
+                    sourceId?: string | null;
+                    id?: string | null;
+                  }[]
+                | null;
+              id?: string | null;
+            }[]
+          | null;
+        sourceId?: string | null;
+        sourceElementType?: string | null;
+        sourceAttachmentId?: number | null;
+        sourceMetadata?:
+          | {
+              [k: string]: unknown;
+            }
+          | unknown[]
+          | string
+          | number
+          | boolean
+          | null;
+        id?: string | null;
+        blockName?: string | null;
+        blockType: 'testimonials';
+      }
+    | {
+        heading?: string | null;
+        description?: string | null;
+        categories?:
+          | {
+              title: string;
+              questions?:
+                | {
+                    question: string;
+                    answer: string;
+                    sourceId?: string | null;
+                    id?: string | null;
+                  }[]
+                | null;
+              sourceQuery?:
+                | {
+                    [k: string]: unknown;
+                  }
+                | unknown[]
+                | string
+                | number
+                | boolean
+                | null;
+              sourceId?: string | null;
+              id?: string | null;
+            }[]
+          | null;
+        sourceId?: string | null;
+        sourceElementType?: string | null;
+        sourceAttachmentId?: number | null;
+        sourceMetadata?:
+          | {
+              [k: string]: unknown;
+            }
+          | unknown[]
+          | string
+          | number
+          | boolean
+          | null;
+        id?: string | null;
+        blockName?: string | null;
+        blockType: 'faq';
+      }
+    | {
+        items?:
+          | {
+              video?: (number | null) | Media;
+              externalUrl?: string | null;
+              poster?: (number | null) | Media;
+              caption?: string | null;
+              sourceId?: string | null;
+              sourceOrder?: number | null;
+              id?: string | null;
+            }[]
+          | null;
+        settings?:
+          | {
+              [k: string]: unknown;
+            }
+          | unknown[]
+          | string
+          | number
+          | boolean
+          | null;
+        sourceId?: string | null;
+        sourceElementType?: string | null;
+        sourceAttachmentId?: number | null;
+        sourceMetadata?:
+          | {
+              [k: string]: unknown;
+            }
+          | unknown[]
+          | string
+          | number
+          | boolean
+          | null;
+        id?: string | null;
+        blockName?: string | null;
+        blockType: 'video-carousel';
+      }
+    | {
+        items?:
+          | {
+              media?: (number | null) | Media;
+              caption?: string | null;
+              alt?: string | null;
+              sourceOrder?: number | null;
+              sourceAttachmentId?: number | null;
+              id?: string | null;
+            }[]
+          | null;
+        settings?:
+          | {
+              [k: string]: unknown;
+            }
+          | unknown[]
+          | string
+          | number
+          | boolean
+          | null;
+        sourceId?: string | null;
+        sourceElementType?: string | null;
+        sourceAttachmentId?: number | null;
+        sourceMetadata?:
+          | {
+              [k: string]: unknown;
+            }
+          | unknown[]
+          | string
+          | number
+          | boolean
+          | null;
+        id?: string | null;
+        blockName?: string | null;
+        blockType: 'gallery-carousel';
+      }
+  )[];
   campaignTracking?: {
     campaignName?: string | null;
-    campaignSource?: string | null;
-    campaignMedium?: string | null;
-    campaignTerm?: string | null;
-    campaignContent?: string | null;
+    source?: string | null;
+    medium?: string | null;
+    term?: string | null;
+    content?: string | null;
   };
+  sourceWordPressId?: number | null;
+  sourceSlug?: string | null;
   seo?: {
     metaTitle?: string | null;
     metaDescription?: string | null;
@@ -1457,6 +2719,567 @@ export interface ServicesSelect<T extends boolean = true> {
               blockName?: T;
             };
       };
+  sections?:
+    | T
+    | {
+        hero?:
+          | T
+          | {
+              eyebrow?: T;
+              heading?: T;
+              description?: T;
+              backgroundMedia?:
+                | T
+                | {
+                    asset?: T;
+                    alt?: T;
+                    caption?: T;
+                    sourceAttachmentId?: T;
+                    sourceUrl?: T;
+                  };
+              foregroundMedia?:
+                | T
+                | {
+                    asset?: T;
+                    alt?: T;
+                    caption?: T;
+                    sourceAttachmentId?: T;
+                    sourceUrl?: T;
+                  };
+              buttons?:
+                | T
+                | {
+                    label?: T;
+                    url?: T;
+                    variant?: T;
+                    openInNewTab?: T;
+                    id?: T;
+                  };
+              sourceId?: T;
+              sourceElementType?: T;
+              sourceAttachmentId?: T;
+              sourceMetadata?: T;
+              id?: T;
+              blockName?: T;
+            };
+        cta?:
+          | T
+          | {
+              eyebrow?: T;
+              heading?: T;
+              description?: T;
+              media?:
+                | T
+                | {
+                    asset?: T;
+                    alt?: T;
+                    caption?: T;
+                    sourceAttachmentId?: T;
+                    sourceUrl?: T;
+                  };
+              buttons?:
+                | T
+                | {
+                    label?: T;
+                    url?: T;
+                    variant?: T;
+                    openInNewTab?: T;
+                    id?: T;
+                  };
+              sourceId?: T;
+              sourceElementType?: T;
+              sourceAttachmentId?: T;
+              sourceMetadata?: T;
+              id?: T;
+              blockName?: T;
+            };
+        'image-text'?:
+          | T
+          | {
+              eyebrow?: T;
+              heading?: T;
+              description?: T;
+              media?:
+                | T
+                | {
+                    asset?: T;
+                    alt?: T;
+                    caption?: T;
+                    sourceAttachmentId?: T;
+                    sourceUrl?: T;
+                  };
+              buttons?:
+                | T
+                | {
+                    label?: T;
+                    url?: T;
+                    variant?: T;
+                    openInNewTab?: T;
+                    id?: T;
+                  };
+              alignment?: T;
+              sourceId?: T;
+              sourceElementType?: T;
+              sourceAttachmentId?: T;
+              sourceMetadata?: T;
+              id?: T;
+              blockName?: T;
+            };
+        video?:
+          | T
+          | {
+              heading?: T;
+              description?: T;
+              source?: T;
+              video?: T;
+              externalUrl?: T;
+              poster?: T;
+              controls?: T;
+              sourceVideoId?: T;
+              sourceId?: T;
+              sourceElementType?: T;
+              sourceAttachmentId?: T;
+              sourceMetadata?: T;
+              id?: T;
+              blockName?: T;
+            };
+        gallery?:
+          | T
+          | {
+              heading?: T;
+              description?: T;
+              items?:
+                | T
+                | {
+                    media?: T;
+                    caption?: T;
+                    alt?: T;
+                    sourceOrder?: T;
+                    sourceAttachmentId?: T;
+                    id?: T;
+                  };
+              groups?:
+                | T
+                | {
+                    label?: T;
+                    heading?: T;
+                    description?: T;
+                    items?:
+                      | T
+                      | {
+                          media?: T;
+                          caption?: T;
+                          alt?: T;
+                          sourceOrder?: T;
+                          sourceAttachmentId?: T;
+                          id?: T;
+                        };
+                    id?: T;
+                  };
+              layout?: T;
+              lightbox?: T;
+              sourceGalleryType?: T;
+              sourceId?: T;
+              sourceElementType?: T;
+              sourceAttachmentId?: T;
+              sourceMetadata?: T;
+              id?: T;
+              blockName?: T;
+            };
+        'before-after'?:
+          | T
+          | {
+              heading?: T;
+              beforeMedia?: T;
+              afterMedia?: T;
+              beforeLabel?: T;
+              afterLabel?: T;
+              sourceId?: T;
+              sourceElementType?: T;
+              sourceAttachmentId?: T;
+              sourceMetadata?: T;
+              id?: T;
+              blockName?: T;
+            };
+        'sub-services'?:
+          | T
+          | {
+              eyebrow?: T;
+              heading?: T;
+              description?: T;
+              items?:
+                | T
+                | {
+                    title?: T;
+                    description?: T;
+                    media?:
+                      | T
+                      | {
+                          asset?: T;
+                          alt?: T;
+                          caption?: T;
+                          sourceAttachmentId?: T;
+                          sourceUrl?: T;
+                        };
+                    link?:
+                      | T
+                      | {
+                          label?: T;
+                          url?: T;
+                          openInNewTab?: T;
+                        };
+                    id?: T;
+                  };
+              sourceId?: T;
+              sourceElementType?: T;
+              sourceAttachmentId?: T;
+              sourceMetadata?: T;
+              id?: T;
+              blockName?: T;
+            };
+        'prime-difference'?:
+          | T
+          | {
+              eyebrow?: T;
+              heading?: T;
+              description?: T;
+              features?:
+                | T
+                | {
+                    title?: T;
+                    description?: T;
+                    icon?:
+                      | T
+                      | {
+                          iconMedia?: T;
+                          iconLibrary?: T;
+                          iconName?: T;
+                          sourceSvgUrl?: T;
+                        };
+                    media?:
+                      | T
+                      | {
+                          asset?: T;
+                          alt?: T;
+                          caption?: T;
+                          sourceAttachmentId?: T;
+                          sourceUrl?: T;
+                        };
+                    link?:
+                      | T
+                      | {
+                          label?: T;
+                          url?: T;
+                          openInNewTab?: T;
+                        };
+                    id?: T;
+                  };
+              media?:
+                | T
+                | {
+                    asset?: T;
+                    alt?: T;
+                    caption?: T;
+                    sourceAttachmentId?: T;
+                    sourceUrl?: T;
+                  };
+              sourceId?: T;
+              sourceElementType?: T;
+              sourceAttachmentId?: T;
+              sourceMetadata?: T;
+              id?: T;
+              blockName?: T;
+            };
+        'experience-difference'?:
+          | T
+          | {
+              eyebrow?: T;
+              heading?: T;
+              description?: T;
+              features?:
+                | T
+                | {
+                    title?: T;
+                    description?: T;
+                    icon?:
+                      | T
+                      | {
+                          iconMedia?: T;
+                          iconLibrary?: T;
+                          iconName?: T;
+                          sourceSvgUrl?: T;
+                        };
+                    media?:
+                      | T
+                      | {
+                          asset?: T;
+                          alt?: T;
+                          caption?: T;
+                          sourceAttachmentId?: T;
+                          sourceUrl?: T;
+                        };
+                    link?:
+                      | T
+                      | {
+                          label?: T;
+                          url?: T;
+                          openInNewTab?: T;
+                        };
+                    id?: T;
+                  };
+              media?:
+                | T
+                | {
+                    asset?: T;
+                    alt?: T;
+                    caption?: T;
+                    sourceAttachmentId?: T;
+                    sourceUrl?: T;
+                  };
+              sourceId?: T;
+              sourceElementType?: T;
+              sourceAttachmentId?: T;
+              sourceMetadata?: T;
+              id?: T;
+              blockName?: T;
+            };
+        'service-areas'?:
+          | T
+          | {
+              eyebrow?: T;
+              heading?: T;
+              description?: T;
+              areas?:
+                | T
+                | {
+                    label?: T;
+                    location?: T;
+                    link?:
+                      | T
+                      | {
+                          label?: T;
+                          url?: T;
+                          openInNewTab?: T;
+                        };
+                    id?: T;
+                  };
+              sourceId?: T;
+              sourceElementType?: T;
+              sourceAttachmentId?: T;
+              sourceMetadata?: T;
+              id?: T;
+              blockName?: T;
+            };
+        'repair-services'?:
+          | T
+          | {
+              heading?: T;
+              description?: T;
+              categories?:
+                | T
+                | {
+                    title?: T;
+                    description?: T;
+                    features?:
+                      | T
+                      | {
+                          text?: T;
+                          id?: T;
+                        };
+                    media?:
+                      | T
+                      | {
+                          asset?: T;
+                          alt?: T;
+                          caption?: T;
+                          sourceAttachmentId?: T;
+                          sourceUrl?: T;
+                        };
+                    sourceId?: T;
+                    id?: T;
+                  };
+              sourceId?: T;
+              sourceElementType?: T;
+              sourceAttachmentId?: T;
+              sourceMetadata?: T;
+              id?: T;
+              blockName?: T;
+            };
+        'luxury-cta'?:
+          | T
+          | {
+              eyebrow?: T;
+              heading?: T;
+              description?: T;
+              media?:
+                | T
+                | {
+                    asset?: T;
+                    alt?: T;
+                    caption?: T;
+                    sourceAttachmentId?: T;
+                    sourceUrl?: T;
+                  };
+              buttons?:
+                | T
+                | {
+                    label?: T;
+                    url?: T;
+                    variant?: T;
+                    openInNewTab?: T;
+                    id?: T;
+                  };
+              sourceId?: T;
+              sourceElementType?: T;
+              sourceAttachmentId?: T;
+              sourceMetadata?: T;
+              id?: T;
+              blockName?: T;
+            };
+        booking?:
+          | T
+          | {
+              provider?: T;
+              shortcode?: T;
+              sourceElementId?: T;
+              integrationMetadata?: T;
+              sourceId?: T;
+              sourceElementType?: T;
+              sourceAttachmentId?: T;
+              sourceMetadata?: T;
+              id?: T;
+              blockName?: T;
+            };
+        'contact-form'?:
+          | T
+          | {
+              provider?: T;
+              shortcode?: T;
+              sourceElementId?: T;
+              integrationMetadata?: T;
+              sourceId?: T;
+              sourceElementType?: T;
+              sourceAttachmentId?: T;
+              sourceMetadata?: T;
+              id?: T;
+              blockName?: T;
+            };
+        'find-us'?:
+          | T
+          | {
+              heading?: T;
+              phone?: T;
+              email?: T;
+              address?: T;
+              mapUrl?: T;
+              sourceId?: T;
+              sourceElementType?: T;
+              sourceAttachmentId?: T;
+              sourceMetadata?: T;
+              id?: T;
+              blockName?: T;
+            };
+        testimonials?:
+          | T
+          | {
+              heading?: T;
+              providers?:
+                | T
+                | {
+                    name?: T;
+                    shortcode?: T;
+                    collectionId?: T;
+                    reviews?:
+                      | T
+                      | {
+                          reviewer?: T;
+                          rating?: T;
+                          body?: T;
+                          date?: T;
+                          sourceId?: T;
+                          id?: T;
+                        };
+                    id?: T;
+                  };
+              sourceId?: T;
+              sourceElementType?: T;
+              sourceAttachmentId?: T;
+              sourceMetadata?: T;
+              id?: T;
+              blockName?: T;
+            };
+        faq?:
+          | T
+          | {
+              heading?: T;
+              description?: T;
+              categories?:
+                | T
+                | {
+                    title?: T;
+                    questions?:
+                      | T
+                      | {
+                          question?: T;
+                          answer?: T;
+                          sourceId?: T;
+                          id?: T;
+                        };
+                    sourceQuery?: T;
+                    sourceId?: T;
+                    id?: T;
+                  };
+              sourceId?: T;
+              sourceElementType?: T;
+              sourceAttachmentId?: T;
+              sourceMetadata?: T;
+              id?: T;
+              blockName?: T;
+            };
+        'video-carousel'?:
+          | T
+          | {
+              items?:
+                | T
+                | {
+                    video?: T;
+                    externalUrl?: T;
+                    poster?: T;
+                    caption?: T;
+                    sourceId?: T;
+                    sourceOrder?: T;
+                    id?: T;
+                  };
+              settings?: T;
+              sourceId?: T;
+              sourceElementType?: T;
+              sourceAttachmentId?: T;
+              sourceMetadata?: T;
+              id?: T;
+              blockName?: T;
+            };
+        'gallery-carousel'?:
+          | T
+          | {
+              items?:
+                | T
+                | {
+                    media?: T;
+                    caption?: T;
+                    alt?: T;
+                    sourceOrder?: T;
+                    sourceAttachmentId?: T;
+                    id?: T;
+                  };
+              settings?: T;
+              sourceId?: T;
+              sourceElementType?: T;
+              sourceAttachmentId?: T;
+              sourceMetadata?: T;
+              id?: T;
+              blockName?: T;
+            };
+      };
   faqs?: T;
   relatedServices?: T;
   seo?:
@@ -1786,194 +3609,591 @@ export interface LandingPagesSelect<T extends boolean = true> {
     | {
         eyebrow?: T;
         heading?: T;
-        lead?: T;
-        image?: T;
-      };
-  sectionOrder?:
-    | T
-    | {
-        section?: T;
-        id?: T;
-      };
-  estimateEnabled?: T;
-  estimate?:
-    | T
-    | {
-        heading?: T;
-        body?: T;
-        link?: T;
-      };
-  introEnabled?: T;
-  intro?:
-    | T
-    | {
-        eyebrow?: T;
-        heading?: T;
-        body?: T;
-        image?: T;
-      };
-  subServicesEnabled?: T;
-  subServices?:
-    | T
-    | {
-        heading?: T;
-        body?: T;
-        items?:
-          | T
-          | {
-              title?: T;
-              description?: T;
-              image?: T;
-              link?: T;
-              id?: T;
-            };
-      };
-  primeDifferenceEnabled?: T;
-  primeDifference?:
-    | T
-    | {
-        eyebrow?: T;
-        heading?: T;
-        headingAccent?: T;
-        body?: T;
-        checklist?:
-          | T
-          | {
-              text?: T;
-              id?: T;
-            };
-      };
-  projectGalleryEnabled?: T;
-  projectGallery?:
-    | T
-    | {
-        heading?: T;
-        images?: T;
-      };
-  reflectionGalleryEnabled?: T;
-  reflectionGallery?:
-    | T
-    | {
-        heading?: T;
-        images?: T;
-      };
-  projectsEnabled?: T;
-  projects?:
-    | T
-    | {
-        eyebrow?: T;
-        heading?: T;
         description?: T;
-        items?:
+        backgroundMedia?: T;
+        foregroundMedia?: T;
+        buttons?:
           | T
           | {
-              title?: T;
-              description?: T;
-              image?: T;
-              link?: T;
+              label?: T;
+              url?: T;
+              variant?: T;
+              openInNewTab?: T;
               id?: T;
             };
       };
-  videoEnabled?: T;
-  video?:
+  sections?:
     | T
     | {
-        eyebrow?: T;
-        heading?: T;
-        description?: T;
-        videoUrl?: T;
-        videoFile?: T;
-        poster?: T;
-        videos?:
+        hero?:
           | T
           | {
-              videoUrl?: T;
-              videoFile?: T;
+              eyebrow?: T;
+              heading?: T;
+              description?: T;
+              backgroundMedia?:
+                | T
+                | {
+                    asset?: T;
+                    alt?: T;
+                    caption?: T;
+                    sourceAttachmentId?: T;
+                    sourceUrl?: T;
+                  };
+              foregroundMedia?:
+                | T
+                | {
+                    asset?: T;
+                    alt?: T;
+                    caption?: T;
+                    sourceAttachmentId?: T;
+                    sourceUrl?: T;
+                  };
+              buttons?:
+                | T
+                | {
+                    label?: T;
+                    url?: T;
+                    variant?: T;
+                    openInNewTab?: T;
+                    id?: T;
+                  };
+              sourceId?: T;
+              sourceElementType?: T;
+              sourceAttachmentId?: T;
+              sourceMetadata?: T;
+              id?: T;
+              blockName?: T;
+            };
+        cta?:
+          | T
+          | {
+              eyebrow?: T;
+              heading?: T;
+              description?: T;
+              media?:
+                | T
+                | {
+                    asset?: T;
+                    alt?: T;
+                    caption?: T;
+                    sourceAttachmentId?: T;
+                    sourceUrl?: T;
+                  };
+              buttons?:
+                | T
+                | {
+                    label?: T;
+                    url?: T;
+                    variant?: T;
+                    openInNewTab?: T;
+                    id?: T;
+                  };
+              sourceId?: T;
+              sourceElementType?: T;
+              sourceAttachmentId?: T;
+              sourceMetadata?: T;
+              id?: T;
+              blockName?: T;
+            };
+        'image-text'?:
+          | T
+          | {
+              eyebrow?: T;
+              heading?: T;
+              description?: T;
+              media?:
+                | T
+                | {
+                    asset?: T;
+                    alt?: T;
+                    caption?: T;
+                    sourceAttachmentId?: T;
+                    sourceUrl?: T;
+                  };
+              buttons?:
+                | T
+                | {
+                    label?: T;
+                    url?: T;
+                    variant?: T;
+                    openInNewTab?: T;
+                    id?: T;
+                  };
+              alignment?: T;
+              sourceId?: T;
+              sourceElementType?: T;
+              sourceAttachmentId?: T;
+              sourceMetadata?: T;
+              id?: T;
+              blockName?: T;
+            };
+        video?:
+          | T
+          | {
+              heading?: T;
+              description?: T;
+              source?: T;
+              video?: T;
+              externalUrl?: T;
               poster?: T;
-              caption?: T;
+              controls?: T;
+              sourceVideoId?: T;
+              sourceId?: T;
+              sourceElementType?: T;
+              sourceAttachmentId?: T;
+              sourceMetadata?: T;
               id?: T;
+              blockName?: T;
             };
-      };
-  whyChooseEnabled?: T;
-  whyChoose?: T | {};
-  serviceAreasEnabled?: T;
-  serviceAreas?: T | {};
-  faqEnabled?: T;
-  faq?:
-    | T
-    | {
-        heading?: T;
-        categories?:
+        gallery?:
           | T
           | {
-              title?: T;
+              heading?: T;
+              description?: T;
               items?:
                 | T
                 | {
-                    question?: T;
-                    answer?: T;
+                    media?: T;
+                    caption?: T;
+                    alt?: T;
+                    sourceOrder?: T;
+                    sourceAttachmentId?: T;
                     id?: T;
                   };
+              groups?:
+                | T
+                | {
+                    label?: T;
+                    heading?: T;
+                    description?: T;
+                    items?:
+                      | T
+                      | {
+                          media?: T;
+                          caption?: T;
+                          alt?: T;
+                          sourceOrder?: T;
+                          sourceAttachmentId?: T;
+                          id?: T;
+                        };
+                    id?: T;
+                  };
+              layout?: T;
+              lightbox?: T;
+              sourceGalleryType?: T;
+              sourceId?: T;
+              sourceElementType?: T;
+              sourceAttachmentId?: T;
+              sourceMetadata?: T;
               id?: T;
+              blockName?: T;
             };
-        items?:
+        'before-after'?:
           | T
           | {
-              question?: T;
-              answer?: T;
+              heading?: T;
+              beforeMedia?: T;
+              afterMedia?: T;
+              beforeLabel?: T;
+              afterLabel?: T;
+              sourceId?: T;
+              sourceElementType?: T;
+              sourceAttachmentId?: T;
+              sourceMetadata?: T;
               id?: T;
+              blockName?: T;
             };
-      };
-  testimonialsEnabled?: T;
-  testimonials?: T | {};
-  luxuryCtaEnabled?: T;
-  luxuryCta?:
-    | T
-    | {
-        eyebrow?: T;
-        heading?: T;
-        body?: T;
-        link?: T;
-      };
-  bookingEnabled?: T;
-  booking?:
-    | T
-    | {
-        heading?: T;
-        description?: T;
-      };
-  findUsEnabled?: T;
-  findUs?:
-    | T
-    | {
-        heading?: T;
-        phone?: T;
-        email?: T;
-        address?: T;
-      };
-  contactFormEnabled?: T;
-  contactForm?:
-    | T
-    | {
-        heading?: T;
-        description?: T;
-      };
-  cta?:
-    | T
-    | {
-        text?: T;
-        link?: T;
-        showForm?: T;
+        'sub-services'?:
+          | T
+          | {
+              eyebrow?: T;
+              heading?: T;
+              description?: T;
+              items?:
+                | T
+                | {
+                    title?: T;
+                    description?: T;
+                    media?:
+                      | T
+                      | {
+                          asset?: T;
+                          alt?: T;
+                          caption?: T;
+                          sourceAttachmentId?: T;
+                          sourceUrl?: T;
+                        };
+                    link?:
+                      | T
+                      | {
+                          label?: T;
+                          url?: T;
+                          openInNewTab?: T;
+                        };
+                    id?: T;
+                  };
+              sourceId?: T;
+              sourceElementType?: T;
+              sourceAttachmentId?: T;
+              sourceMetadata?: T;
+              id?: T;
+              blockName?: T;
+            };
+        'prime-difference'?:
+          | T
+          | {
+              eyebrow?: T;
+              heading?: T;
+              description?: T;
+              features?:
+                | T
+                | {
+                    title?: T;
+                    description?: T;
+                    icon?:
+                      | T
+                      | {
+                          iconMedia?: T;
+                          iconLibrary?: T;
+                          iconName?: T;
+                          sourceSvgUrl?: T;
+                        };
+                    media?:
+                      | T
+                      | {
+                          asset?: T;
+                          alt?: T;
+                          caption?: T;
+                          sourceAttachmentId?: T;
+                          sourceUrl?: T;
+                        };
+                    link?:
+                      | T
+                      | {
+                          label?: T;
+                          url?: T;
+                          openInNewTab?: T;
+                        };
+                    id?: T;
+                  };
+              media?:
+                | T
+                | {
+                    asset?: T;
+                    alt?: T;
+                    caption?: T;
+                    sourceAttachmentId?: T;
+                    sourceUrl?: T;
+                  };
+              sourceId?: T;
+              sourceElementType?: T;
+              sourceAttachmentId?: T;
+              sourceMetadata?: T;
+              id?: T;
+              blockName?: T;
+            };
+        'experience-difference'?:
+          | T
+          | {
+              eyebrow?: T;
+              heading?: T;
+              description?: T;
+              features?:
+                | T
+                | {
+                    title?: T;
+                    description?: T;
+                    icon?:
+                      | T
+                      | {
+                          iconMedia?: T;
+                          iconLibrary?: T;
+                          iconName?: T;
+                          sourceSvgUrl?: T;
+                        };
+                    media?:
+                      | T
+                      | {
+                          asset?: T;
+                          alt?: T;
+                          caption?: T;
+                          sourceAttachmentId?: T;
+                          sourceUrl?: T;
+                        };
+                    link?:
+                      | T
+                      | {
+                          label?: T;
+                          url?: T;
+                          openInNewTab?: T;
+                        };
+                    id?: T;
+                  };
+              media?:
+                | T
+                | {
+                    asset?: T;
+                    alt?: T;
+                    caption?: T;
+                    sourceAttachmentId?: T;
+                    sourceUrl?: T;
+                  };
+              sourceId?: T;
+              sourceElementType?: T;
+              sourceAttachmentId?: T;
+              sourceMetadata?: T;
+              id?: T;
+              blockName?: T;
+            };
+        'service-areas'?:
+          | T
+          | {
+              eyebrow?: T;
+              heading?: T;
+              description?: T;
+              areas?:
+                | T
+                | {
+                    label?: T;
+                    location?: T;
+                    link?:
+                      | T
+                      | {
+                          label?: T;
+                          url?: T;
+                          openInNewTab?: T;
+                        };
+                    id?: T;
+                  };
+              sourceId?: T;
+              sourceElementType?: T;
+              sourceAttachmentId?: T;
+              sourceMetadata?: T;
+              id?: T;
+              blockName?: T;
+            };
+        'repair-services'?:
+          | T
+          | {
+              heading?: T;
+              description?: T;
+              categories?:
+                | T
+                | {
+                    title?: T;
+                    description?: T;
+                    features?:
+                      | T
+                      | {
+                          text?: T;
+                          id?: T;
+                        };
+                    media?:
+                      | T
+                      | {
+                          asset?: T;
+                          alt?: T;
+                          caption?: T;
+                          sourceAttachmentId?: T;
+                          sourceUrl?: T;
+                        };
+                    sourceId?: T;
+                    id?: T;
+                  };
+              sourceId?: T;
+              sourceElementType?: T;
+              sourceAttachmentId?: T;
+              sourceMetadata?: T;
+              id?: T;
+              blockName?: T;
+            };
+        'luxury-cta'?:
+          | T
+          | {
+              eyebrow?: T;
+              heading?: T;
+              description?: T;
+              media?:
+                | T
+                | {
+                    asset?: T;
+                    alt?: T;
+                    caption?: T;
+                    sourceAttachmentId?: T;
+                    sourceUrl?: T;
+                  };
+              buttons?:
+                | T
+                | {
+                    label?: T;
+                    url?: T;
+                    variant?: T;
+                    openInNewTab?: T;
+                    id?: T;
+                  };
+              sourceId?: T;
+              sourceElementType?: T;
+              sourceAttachmentId?: T;
+              sourceMetadata?: T;
+              id?: T;
+              blockName?: T;
+            };
+        booking?:
+          | T
+          | {
+              provider?: T;
+              shortcode?: T;
+              sourceElementId?: T;
+              integrationMetadata?: T;
+              sourceId?: T;
+              sourceElementType?: T;
+              sourceAttachmentId?: T;
+              sourceMetadata?: T;
+              id?: T;
+              blockName?: T;
+            };
+        'contact-form'?:
+          | T
+          | {
+              provider?: T;
+              shortcode?: T;
+              sourceElementId?: T;
+              integrationMetadata?: T;
+              sourceId?: T;
+              sourceElementType?: T;
+              sourceAttachmentId?: T;
+              sourceMetadata?: T;
+              id?: T;
+              blockName?: T;
+            };
+        'find-us'?:
+          | T
+          | {
+              heading?: T;
+              phone?: T;
+              email?: T;
+              address?: T;
+              mapUrl?: T;
+              sourceId?: T;
+              sourceElementType?: T;
+              sourceAttachmentId?: T;
+              sourceMetadata?: T;
+              id?: T;
+              blockName?: T;
+            };
+        testimonials?:
+          | T
+          | {
+              heading?: T;
+              providers?:
+                | T
+                | {
+                    name?: T;
+                    shortcode?: T;
+                    collectionId?: T;
+                    reviews?:
+                      | T
+                      | {
+                          reviewer?: T;
+                          rating?: T;
+                          body?: T;
+                          date?: T;
+                          sourceId?: T;
+                          id?: T;
+                        };
+                    id?: T;
+                  };
+              sourceId?: T;
+              sourceElementType?: T;
+              sourceAttachmentId?: T;
+              sourceMetadata?: T;
+              id?: T;
+              blockName?: T;
+            };
+        faq?:
+          | T
+          | {
+              heading?: T;
+              description?: T;
+              categories?:
+                | T
+                | {
+                    title?: T;
+                    questions?:
+                      | T
+                      | {
+                          question?: T;
+                          answer?: T;
+                          sourceId?: T;
+                          id?: T;
+                        };
+                    sourceQuery?: T;
+                    sourceId?: T;
+                    id?: T;
+                  };
+              sourceId?: T;
+              sourceElementType?: T;
+              sourceAttachmentId?: T;
+              sourceMetadata?: T;
+              id?: T;
+              blockName?: T;
+            };
+        'video-carousel'?:
+          | T
+          | {
+              items?:
+                | T
+                | {
+                    video?: T;
+                    externalUrl?: T;
+                    poster?: T;
+                    caption?: T;
+                    sourceId?: T;
+                    sourceOrder?: T;
+                    id?: T;
+                  };
+              settings?: T;
+              sourceId?: T;
+              sourceElementType?: T;
+              sourceAttachmentId?: T;
+              sourceMetadata?: T;
+              id?: T;
+              blockName?: T;
+            };
+        'gallery-carousel'?:
+          | T
+          | {
+              items?:
+                | T
+                | {
+                    media?: T;
+                    caption?: T;
+                    alt?: T;
+                    sourceOrder?: T;
+                    sourceAttachmentId?: T;
+                    id?: T;
+                  };
+              settings?: T;
+              sourceId?: T;
+              sourceElementType?: T;
+              sourceAttachmentId?: T;
+              sourceMetadata?: T;
+              id?: T;
+              blockName?: T;
+            };
       };
   campaignTracking?:
     | T
     | {
         campaignName?: T;
-        campaignSource?: T;
-        campaignMedium?: T;
-        campaignTerm?: T;
-        campaignContent?: T;
+        source?: T;
+        medium?: T;
+        term?: T;
+        content?: T;
       };
+  sourceWordPressId?: T;
+  sourceSlug?: T;
   seo?:
     | T
     | {
