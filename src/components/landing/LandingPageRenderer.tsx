@@ -1,6 +1,7 @@
 import Link from 'next/link'
 
 import { LandingContact as ContactForm } from './Contact'
+import { HomeServices } from '@/components/blocks/HomeServices'
 import { LandscapingServiceAreas } from '@/components/blocks/LandscapingServiceAreas'
 import { PageHero } from '@/components/layout/PageHero'
 import { Section } from '@/components/ui/Section'
@@ -18,6 +19,7 @@ import { LandingProjectsSection } from './LandingProjectsSection'
 import { LandingLuxuryCta } from './LandingLuxuryCta'
 import { LandingFindUs } from './LandingFindUs'
 import { resolveConsultations } from '@/lib/consultations'
+import { galleryCategories } from '@/lib/gallery'
 import type { ServiceDetail, ServiceContentBlock } from '@/lib/services'
 import type { LandingPage, LandingPageTabs } from '@/lib/landingPages'
 
@@ -85,6 +87,7 @@ export async function LandingPageRenderer({ page }: { page: LandingPage }) {
         'intro',
         'subServices',
         'primeDifference',
+        'services',
         'projects',
         'projectGallery',
         'reflectionGallery',
@@ -120,16 +123,29 @@ export async function LandingPageRenderer({ page }: { page: LandingPage }) {
     : []
   const consultations = matchedConsultations.length ? matchedConsultations : allConsultations
 
-  // A landing page that has BOTH the project gallery and the reflection
-  // gallery configured with images gets a single combined section with a
-  // real Kitchens/Bathrooms-style toggle instead of two stacked flat
-  // grids. Pages with only one gallery configured keep the plain grid.
-  const bothGalleriesConfigured = Boolean(
-    tabs.projectGallery?.enabled !== false &&
-    tabs.projectGallery?.images?.length &&
-    tabs.reflectionGallery?.enabled &&
-    tabs.reflectionGallery?.images?.length,
-  )
+  // Build the list of galleries that actually have content, instead of an
+  // all-or-nothing check for exactly two. A kitchen/bathroom-specific page
+  // typically has one of these two configured; a generic page (like
+  // remodeling-information) has neither, and previously fell through to a
+  // single flat grid with no tabs at all. Falling back to the same
+  // category set the real /gallery page uses keeps generic pages from
+  // losing the tabbed browsing experience entirely.
+  const configuredGalleries = [
+    tabs.projectGallery?.enabled !== false && tabs.projectGallery?.images?.length
+      ? { label: tabs.projectGallery.heading || 'Our Kitchens', images: tabs.projectGallery.images }
+      : null,
+    tabs.reflectionGallery?.enabled && tabs.reflectionGallery?.images?.length
+      ? {
+          label: tabs.reflectionGallery.heading || 'Our Bathrooms',
+          images: tabs.reflectionGallery.images,
+        }
+      : null,
+  ].filter((entry): entry is { label: string; images: string[] } => entry !== null)
+
+  const genericCategoryTabs = galleryCategories.map((category) => ({
+    label: category.title,
+    images: category.images,
+  }))
 
   const renderSection = (name: string) => {
     if (name === 'estimate' && tabs.estimate && tabs.estimate.enabled !== false)
@@ -169,44 +185,47 @@ export async function LandingPageRenderer({ page }: { page: LandingPage }) {
           poster={tabs.video.poster}
         />
       )
-    if (
-      name === 'projectGallery' &&
-      tabs.projectGallery?.enabled !== false &&
-      tabs.projectGallery
-    ) {
-      if (bothGalleriesConfigured)
+    if (name === 'projectGallery') {
+      if (configuredGalleries.length >= 2)
         return (
           <LandingGalleryTabs
             key={name}
             heading={page.hero?.heading || page.title}
             description={page.hero?.lead}
-            tabs={[
-              {
-                label: tabs.projectGallery.heading || 'Our Kitchens',
-                images: tabs.projectGallery.images || [],
-              },
-              {
-                label: tabs.reflectionGallery?.heading || 'Our Bathrooms',
-                images: tabs.reflectionGallery?.images || [],
-              },
-            ]}
+            tabs={configuredGalleries}
           />
         )
+      if (configuredGalleries.length === 1)
+        return (
+          <LandingGallerySection
+            key={name}
+            heading={configuredGalleries[0].label}
+            images={configuredGalleries[0].images}
+          />
+        )
+      // Neither gallery is configured for this page (typical of a generic,
+      // non-room-specific landing page) — fall back to the same tabbed
+      // categories the real /gallery page uses, rather than showing nothing.
       return (
-        <LandingGallerySection
+        <LandingGalleryTabs
           key={name}
-          heading={tabs.projectGallery.heading}
-          images={tabs.projectGallery.images || []}
+          heading={page.hero?.heading || page.title}
+          description={page.hero?.lead}
+          tabs={genericCategoryTabs}
         />
       )
     }
-    if (name === 'reflectionGallery' && tabs.reflectionGallery?.enabled && tabs.reflectionGallery) {
-      if (bothGalleriesConfigured) return null
+    if (name === 'reflectionGallery') {
+      // Folded into the projectGallery branch above once there's more than
+      // one gallery configured — never render it as a second, separate
+      // section in that case.
+      if (configuredGalleries.length >= 2) return null
+      if (!tabs.reflectionGallery?.enabled || !tabs.reflectionGallery?.images?.length) return null
       return (
         <LandingGallerySection
           key={name}
           heading={tabs.reflectionGallery.heading}
-          images={tabs.reflectionGallery.images || []}
+          images={tabs.reflectionGallery.images}
         />
       )
     }
@@ -222,6 +241,7 @@ export async function LandingPageRenderer({ page }: { page: LandingPage }) {
       )
     if (name === 'whyChoose' && tabs.whyChoose?.enabled !== false && tabs.whyChoose)
       return <WhyChooseUs key={name} />
+    if (name === 'services' && tabs.services?.enabled !== false) return <HomeServices key={name} />
     if (name === 'serviceAreas' && tabs.serviceAreas?.enabled !== false && tabs.serviceAreas)
       return <LandscapingServiceAreas key={name} />
     if (

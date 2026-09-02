@@ -45,6 +45,7 @@ export type LandingPageTabs = {
     videos?: Array<{ url: string; poster?: string; caption?: string }>
   }
   whyChoose?: { enabled?: boolean }
+  services?: { enabled?: boolean }
   serviceAreas?: { enabled?: boolean }
   faq?: {
     enabled?: boolean
@@ -137,6 +138,7 @@ type PayloadLandingPage = {
     }> | null
   } | null
   whyChoose?: { enabled?: boolean } | null
+  services?: { enabled?: boolean } | null
   serviceAreas?: { enabled?: boolean } | null
   faq?: LandingPageTabs['faq'] | null
   testimonials?: { enabled?: boolean } | null
@@ -258,6 +260,7 @@ function tabsFromRecord(record: PayloadLandingPage): LandingPageTabs {
         }
       : undefined,
     whyChoose: record.whyChoose ? { enabled: record.whyChooseEnabled ?? true } : undefined,
+    services: { enabled: record.servicesEnabled ?? true },
     serviceAreas: record.serviceAreas ? { enabled: record.serviceAreasEnabled ?? true } : undefined,
     faq: record.faq ? { ...record.faq, enabled: record.faqEnabled ?? true } : undefined,
     testimonials: record.testimonials ? { enabled: record.testimonialsEnabled ?? true } : undefined,
@@ -469,6 +472,28 @@ function defaultLandingTabs(page: LandingPage): LandingPageTabs {
       videoUrl:
         'https://tagmediaspace.b-cdn.net/Prime%20Design%20and%20Build/09.04.2024%20Ilay%20Prime%20Kitchen%20700%20Alice%20Ave%20Mountain%20View.mp4',
       poster: image,
+      // Feeds LandingPrimeDifferenceSection's carousel — that component
+      // reads `videos` (plural), not `videoUrl`, and previously had no
+      // array here at all, so it silently rendered with no video. Same
+      // three real project videos already used in the homepage's
+      // LandscapingDifference section.
+      videos: [
+        {
+          url: 'https://tagmediaspace.b-cdn.net/Prime%20Design%20and%20Build/Prime%20Vid%20Noah.mp4',
+          poster: '/services/home-remodeling.jpeg',
+          caption: 'Noah, Co-Owner',
+        },
+        {
+          url: 'https://tagmediaspace.b-cdn.net/Prime%20Design%20and%20Build/03.09.2024%20Noam%20Prime%2041%20Rosewood%20Dr%20Atherton.mp4',
+          poster: '/services/home-remodeling.jpeg',
+          caption: 'Rosewood Dr, Atherton',
+        },
+        {
+          url: 'https://tagmediaspace.b-cdn.net/Prime%20Design%20and%20Build/09.04.2024%20Ilay%20Prime%20Kitchen%20700%20Alice%20Ave%20Mountain%20View.mp4',
+          poster: '/services/kitchen-remodeling.jpeg',
+          caption: 'Alice Ave, Mountain View',
+        },
+      ],
     },
     projectGallery: {
       enabled: false,
@@ -478,10 +503,16 @@ function defaultLandingTabs(page: LandingPage): LandingPageTabs {
     reflectionGallery: {
       enabled: true,
       heading: 'A reflection of remodeling projects in Silicon Valley',
-      images: (page.slug.includes('kitchen')
-        ? galleryCategories[0].images
-        : galleryCategories[1].images
-      ).slice(6, 18),
+      // Dedupe first: the placeholder galleryCategories data only has 4
+      // unique photos padded out to 30 via repeatImages(), so slicing the
+      // padded array directly shows the same 4 photos twice per row. Once
+      // real project photos are migrated into Media, this naturally scales
+      // past 4 without needing this dedupe.
+      images: Array.from(
+        new Set(
+          page.slug.includes('kitchen') ? galleryCategories[0].images : galleryCategories[1].images,
+        ),
+      ),
     },
     projects: {
       enabled: true,

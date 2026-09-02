@@ -27,7 +27,7 @@ export function HomeServices() {
             type="button"
             aria-label="Previous services"
             onClick={() => swiperRef.current?.slidePrev()}
-            className="flex h-10 w-10 rounded-full items-center justify-center border border-line text-ink-2 transition-colors hover:border-brass hover:text-brass-deep"
+            className="flex h-10 w-10  items-center justify-center border border-line text-ink-2 transition-colors hover:border-brass hover:text-brass-deep"
           >
             <ChevronLeft className="h-4 w-4" aria-hidden />
           </button>
@@ -35,7 +35,7 @@ export function HomeServices() {
             type="button"
             aria-label="Next services"
             onClick={() => swiperRef.current?.slideNext()}
-            className="flex h-10 w-10 rounded-full items-center justify-center border border-line text-ink-2 transition-colors hover:border-brass hover:text-brass-deep"
+            className="flex h-10 w-10 items-center justify-center border border-line text-ink-2 transition-colors hover:border-brass hover:text-brass-deep"
           >
             <ChevronRight className="h-4 w-4" aria-hidden />
           </button>
