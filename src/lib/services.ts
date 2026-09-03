@@ -167,10 +167,7 @@ export const services: Service[] = [
   },
 ]
 
-export const servicePathAliases: Record<string, string> = {
-  'comprehensive-home-repair-installation-services-in-silicon-valley':
-    'home-repair-installation-services',
-}
+export const servicePathAliases: Record<string, string> = {}
 
 export const serviceDetails: Record<string, ServiceDetail> = {
   adu: {

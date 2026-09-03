@@ -11,6 +11,11 @@ import { LandingGalleryTabs } from './LandingGalleryTabs'
 import { LandingLuxuryCta } from './LandingLuxuryCta'
 import { LandingPrimeDifferenceSection } from './LandingPrimeDifferenceSection'
 import { LandingProjectsSection } from './LandingProjectsSection'
+import { LandingFaqSection } from './LandingFaqSection'
+import { LandingBookingSection } from './LandingBookingSection'
+import { HomeContact } from '@/components/blocks/HomeContact'
+import { TestimonialsSpotlight } from '@/components/testimonials/TestimonialsSpotlight'
+import { faqCategories } from '@/lib/faq'
 import type { LandingPageBlock } from '@/lib/landingPages'
 
 type Block = LandingPageBlock & Record<string, unknown>
@@ -204,13 +209,53 @@ function SubServicesBlock({ block }: { block: Block }) {
   )
 }
 
+function FaqBlock({ block }: { block: Block }) {
+  const categories = Array.isArray(block.categories)
+    ? block.categories.map((category) => {
+        const value = category as Record<string, unknown>
+        const title = text(value.title) || ''
+        const source = faqCategories.find((item) => item.title.toLowerCase() === title.toLowerCase())
+        const questions = Array.isArray(value.questions) ? value.questions : []
+        return {
+          title,
+          items: questions.length
+            ? questions.map((question) => {
+                const item = question as Record<string, unknown>
+                return { question: text(item.question) || '', answer: text(item.answer) || '' }
+              }).filter((item) => item.question && item.answer)
+            : source?.items || [],
+        }
+      }).filter((category) => category.items.length)
+    : []
+  return <LandingFaqSection heading={text(block.heading)} categories={categories} />
+}
+
+function VideoCarouselBlock({ block }: { block: Block }) {
+  const items = Array.isArray(block.items) ? block.items : []
+  return (
+    <Section className="bg-white">
+      <div className="grid gap-8 md:grid-cols-2">
+        {items.map((item, index) => {
+          const value = item as Record<string, unknown>
+          const url = text(value.externalUrl) || mediaUrl(value.video)
+          return url ? <video key={text(value.sourceId) || index} className="aspect-video w-full object-cover" controls playsInline poster={mediaUrl(value.poster)}><source src={url} /></video> : null
+        })}
+      </div>
+    </Section>
+  )
+}
+
+function GalleryCarouselBlock({ block }: { block: Block }) {
+  return <GalleryBlock block={{ ...block, groups: [], items: block.items }} />
+}
+
 function FeatureBlock({ block }: { block: Block }) {
   const features = Array.isArray(block.features)
     ? block.features
         .map((item) => item as Record<string, unknown>)
         .filter((item) => text(item.title))
     : []
-  if (!features.length || !text(block.heading)) return <UnsupportedLandingBlock block={block} />
+  if (!text(block.heading)) return <UnsupportedLandingBlock block={block} />
   return (
     <Section className="bg-ink-2 text-white">
       <p className="text-xs font-semibold uppercase tracking-[0.2em] text-brass">
@@ -220,16 +265,18 @@ function FeatureBlock({ block }: { block: Block }) {
       {text(block.description) ? (
         <p className="mt-4 max-w-3xl text-white/75">{text(block.description)}</p>
       ) : null}
-      <div className="mt-8 grid gap-4 md:grid-cols-2">
-        {features.map((item) => (
-          <article key={text(item.title)} className="border border-white/10 p-5">
-            <h3 className="font-display text-xl">{text(item.title)}</h3>
-            {text(item.description) ? (
-              <p className="mt-2 text-sm leading-6 text-white/75">{text(item.description)}</p>
-            ) : null}
-          </article>
-        ))}
-      </div>
+      {features.length ? (
+        <div className="mt-8 grid gap-4 md:grid-cols-2">
+          {features.map((item) => (
+            <article key={text(item.title)} className="border border-white/10 p-5">
+              <h3 className="font-display text-xl">{text(item.title)}</h3>
+              {text(item.description) ? (
+                <p className="mt-2 text-sm leading-6 text-white/75">{text(item.description)}</p>
+              ) : null}
+            </article>
+          ))}
+        </div>
+      ) : null}
     </Section>
   )
 }
@@ -347,7 +394,11 @@ export const landingBlockRegistry: Record<string, Renderer> = {
   'before-after': BeforeAfterBlock,
   'sub-services': SubServicesBlock,
   'prime-difference': ({ block }) => (
-    <LandingPrimeDifferenceSection heading={text(block.heading)} body={text(block.description)} />
+    <LandingPrimeDifferenceSection
+      heading={text(block.heading)}
+      body={text(block.description)}
+      checklist={Array.isArray(block.features) ? block.features.map((item) => text((item as Record<string, unknown>).title)).filter((item): item is string => Boolean(item)) : []}
+    />
   ),
   'experience-difference': FeatureBlock,
   'service-areas': ServiceAreasBlock,
@@ -368,6 +419,12 @@ export const landingBlockRegistry: Record<string, Renderer> = {
       address={text(block.address)}
     />
   ),
+  faq: FaqBlock,
+  testimonials: () => <TestimonialsSpotlight />,
+  booking: ({ block }) => <LandingBookingSection heading={text(block.heading) || 'Request an Estimate Appointment'} />,
+  'contact-form': () => <HomeContact />,
+  'video-carousel': VideoCarouselBlock,
+  'gallery-carousel': GalleryCarouselBlock,
 }
 
 export const sharedSectionRegistry = landingBlockRegistry

@@ -33,7 +33,7 @@ export function NotFoundPage() {
         </div>
       </PageHero>
 
-      <Section className="bg-paper">
+      <Section className="">
         <div className="mx-auto max-w-xl text-center">
           <h2 className="font-display text-2xl font-medium text-ink-2 md:text-3xl">
             Search the site

@@ -1,6 +1,8 @@
 import { getPayload } from 'payload'
 
 import configPromise from '@payload-config'
+import { shouldUseLocalFallback } from './runtime'
+import { getWordPressPage } from './wordpressPages'
 
 export type LandingPageBlock = {
   blockType: string
@@ -69,6 +71,27 @@ function normalizeBlocks(value: PayloadLandingPage['sections']): LandingPageBloc
   )
 }
 
+function fallbackLandingPage(slug: string): LandingPage | undefined {
+  const page = getWordPressPage(slug)
+  if (!page) return undefined
+
+  return {
+    title: page.title,
+    slug: page.slug,
+    status: 'published',
+    template: 'information',
+    hero: {
+      heading: page.title,
+      lead: page.seoDescription,
+    },
+    sections: [],
+    seo: {
+      metaTitle: page.seoTitle,
+      metaDescription: page.seoDescription,
+    },
+  }
+}
+
 const landingPageSlugs = [
   'kitchen-remodeling-information',
   'bathroom-remodeling-information',
@@ -81,7 +104,9 @@ const landingPageSlugs = [
 
 export async function resolveLandingPage(slug: string): Promise<LandingPage | undefined> {
   if (!(landingPageSlugs as readonly string[]).includes(slug)) return undefined
-  if (!process.env.DATABASE_URL) return undefined
+  if (!process.env.DATABASE_URL) {
+    return shouldUseLocalFallback() ? fallbackLandingPage(slug) : undefined
+  }
 
   const payload = await getPayload({ config: configPromise })
   const result = await payload.find({
@@ -91,7 +116,7 @@ export async function resolveLandingPage(slug: string): Promise<LandingPage | un
     limit: 1,
   })
   const record = result.docs[0] as unknown as PayloadLandingPage | undefined
-  if (!record) return undefined
+  if (!record) return shouldUseLocalFallback() ? fallbackLandingPage(slug) : undefined
 
   return {
     title: record.title,
