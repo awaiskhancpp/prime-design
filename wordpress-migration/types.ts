@@ -26,9 +26,37 @@ export type WordPressPage = {
   bricksSerialized?: string
 }
 
+export type WordPressFaq = {
+  id: number
+  title: string
+  content: string
+  category?: string
+  status?: string
+  meta: XmlMeta[]
+}
+
+export type WordPressProject = {
+  id: number
+  slug: string
+  title: string
+  thumbnailId?: number
+  meta: XmlMeta[]
+}
+
+export type WordPressTestimonial = {
+  id: number
+  title: string
+  content: string
+  status?: string
+  meta: XmlMeta[]
+}
+
 export type WordPressSource = {
   pages: WordPressPage[]
   attachments: WordPressAttachment[]
+  faqs: WordPressFaq[]
+  projects: WordPressProject[]
+  testimonials: WordPressTestimonial[]
   allItems: number
 }
 

@@ -32,6 +32,10 @@ function mediaUrl(value: unknown): string | undefined {
   return mediaUrl(record.asset)
 }
 
+function isPayloadFileUrl(value: string) {
+  return value.startsWith('/api/media/file/') || value.includes('/api/media/file/')
+}
+
 function button(value: unknown) {
   if (!Array.isArray(value)) return undefined
   const first = value.find((item) => item && typeof item === 'object') as
@@ -55,7 +59,9 @@ function UnsupportedLandingBlock({ block }: { block: Block }) {
 
 function HeroBlock({ block }: { block: Block }) {
   const image = mediaUrl(block.backgroundMedia)
-  if (!image || !text(block.heading)) return <UnsupportedLandingBlock block={block} />
+  const metadata = block.sourceMetadata as Record<string, unknown> | undefined
+  const backgroundVideo = text(metadata?.backgroundVideoUrl)
+  if ((!image && !backgroundVideo) || !text(block.heading)) return <UnsupportedLandingBlock block={block} />
   return (
     <PageHero
       showHeader={false}
@@ -63,6 +69,7 @@ function HeroBlock({ block }: { block: Block }) {
       title={text(block.heading) || ''}
       description={text(block.description)}
       image={image}
+      backgroundVideo={backgroundVideo}
       imageAlt={text(block.heading) || 'Prime Design & Build'}
       cta={button(block.buttons)}
     />
@@ -100,7 +107,7 @@ function ImageTextBlock({ block }: { block: Block }) {
         </div>
         {image ? (
           <div className="relative aspect-[4/3] overflow-hidden bg-paper-2">
-            <Image src={image} alt={heading} fill className="object-cover" />
+            <Image src={image} alt={heading} fill className="object-cover" unoptimized={isPayloadFileUrl(image)} />
           </div>
         ) : null}
       </div>
@@ -155,7 +162,10 @@ function GalleryBlock({ block }: { block: Block }) {
   return images.length ? (
     <LandingGallerySection heading={text(block.heading)} images={images} />
   ) : (
-    <UnsupportedLandingBlock block={block} />
+    <Section className="bg-white">
+      {text(block.heading) ? <h2 className="font-display text-3xl font-medium text-ink md:text-4xl">{text(block.heading)}</h2> : null}
+      {text(block.description) ? <p className="mt-4 max-w-2xl text-ink-2/75">{text(block.description)}</p> : null}
+    </Section>
   )
 }
 
@@ -171,7 +181,7 @@ function BeforeAfterBlock({ block }: { block: Block }) {
           [after, text(block.afterLabel) || 'After'],
         ].map(([image, label]) => (
           <figure key={label} className="relative aspect-[4/3] overflow-hidden">
-            <Image src={image} alt={label} fill className="object-cover" />
+            <Image src={image} alt={label} fill className="object-cover" unoptimized={isPayloadFileUrl(image)} />
             <figcaption className="absolute bottom-0 left-0 bg-ink/75 px-4 py-2 text-sm text-white">
               {label}
             </figcaption>

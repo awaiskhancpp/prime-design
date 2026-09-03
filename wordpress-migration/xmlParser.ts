@@ -1,5 +1,5 @@
 import fs from 'node:fs/promises'
-import { WordPressSource, WordPressPage, WordPressAttachment, XmlMeta } from './types'
+import { WordPressSource, WordPressPage, WordPressAttachment, WordPressFaq, WordPressProject, WordPressTestimonial, XmlMeta } from './types'
 
 const text = (xml: string, tag: string) => {
   const match = xml.match(new RegExp(`<(?:(?:wp|content):)?${tag}\\b[^>]*>([\\s\\S]*?)</(?:(?:wp|content):)?${tag}>`, 'i'))
@@ -32,6 +32,10 @@ const postMeta = (item: string): XmlMeta[] => {
 
 const metaValue = (meta: XmlMeta[], key: string) => meta.find((item) => item.key === key)?.value
 const numberOrUndefined = (value: string) => (value && Number.isFinite(Number(value)) ? Number(value) : undefined)
+const categoryValue = (item: string) => {
+  const match = item.match(/<category[^>]*domain=["']faq-category["'][^>]*>([\s\S]*?)<\/category>/i)
+  return match ? decodeXml(match[1]).trim() : undefined
+}
 
 const parseItem = (item: string) => {
   const meta = postMeta(item)
@@ -51,6 +55,46 @@ const parseItem = (item: string) => {
         mimeType: text(item, 'post_mime_type') || undefined,
         meta,
       } satisfies WordPressAttachment,
+    }
+  }
+
+  if (type === 'faq') {
+    return {
+      kind: 'faq' as const,
+      value: {
+        id,
+        title: text(item, 'title'),
+        content: text(item, 'encoded'),
+        category: categoryValue(item),
+        status: text(item, 'status') || undefined,
+        meta,
+      } satisfies WordPressFaq,
+    }
+  }
+
+  if (type === 'project') {
+    return {
+      kind: 'project' as const,
+      value: {
+        id,
+        slug: text(item, 'post_name'),
+        title: text(item, 'title'),
+        thumbnailId: numberOrUndefined(metaValue(meta, '_thumbnail_id') || ''),
+        meta,
+      } satisfies WordPressProject,
+    }
+  }
+
+  if (type === 'testimonial') {
+    return {
+      kind: 'testimonial' as const,
+      value: {
+        id,
+        title: text(item, 'title'),
+        content: text(item, 'encoded'),
+        status: text(item, 'status') || undefined,
+        meta,
+      } satisfies WordPressTestimonial,
     }
   }
 
@@ -75,15 +119,20 @@ const parseItem = (item: string) => {
 export function parseWordPressXml(xml: string): WordPressSource {
   const pages: WordPressPage[] = []
   const attachments: WordPressAttachment[] = []
+  const faqs: WordPressFaq[] = []
+  const projects: WordPressProject[] = []
+  const testimonials: WordPressTestimonial[] = []
   for (const item of items(xml)) {
     const parsed = parseItem(item)
     if (parsed?.kind === 'page') pages.push(parsed.value)
     if (parsed?.kind === 'attachment') attachments.push(parsed.value)
+    if (parsed?.kind === 'faq') faqs.push(parsed.value)
+    if (parsed?.kind === 'project') projects.push(parsed.value)
+    if (parsed?.kind === 'testimonial') testimonials.push(parsed.value)
   }
-  return { pages, attachments, allItems: items(xml).length }
+  return { pages, attachments, faqs, projects, testimonials, allItems: items(xml).length }
 }
 
 export async function parseWordPressXmlFile(path: string): Promise<WordPressSource> {
   return parseWordPressXml(await fs.readFile(path, 'utf8'))
 }
-

@@ -665,9 +665,9 @@ export interface Service {
                     sourceAttachmentId?: number | null;
                     sourceUrl?: string | null;
                   };
-                  link: {
-                    label: string;
-                    url: string;
+                  link?: {
+                    label?: string | null;
+                    url?: string | null;
                     openInNewTab?: boolean | null;
                   };
                   id?: string | null;
@@ -710,9 +710,9 @@ export interface Service {
                     sourceAttachmentId?: number | null;
                     sourceUrl?: string | null;
                   };
-                  link: {
-                    label: string;
-                    url: string;
+                  link?: {
+                    label?: string | null;
+                    url?: string | null;
                     openInNewTab?: boolean | null;
                   };
                   id?: string | null;
@@ -762,9 +762,9 @@ export interface Service {
                     sourceAttachmentId?: number | null;
                     sourceUrl?: string | null;
                   };
-                  link: {
-                    label: string;
-                    url: string;
+                  link?: {
+                    label?: string | null;
+                    url?: string | null;
                     openInNewTab?: boolean | null;
                   };
                   id?: string | null;
@@ -801,9 +801,9 @@ export interface Service {
               | {
                   label: string;
                   location?: (number | null) | Location;
-                  link: {
-                    label: string;
-                    url: string;
+                  link?: {
+                    label?: string | null;
+                    url?: string | null;
                     openInNewTab?: boolean | null;
                   };
                   id?: string | null;
@@ -1857,9 +1857,9 @@ export interface LandingPage {
                 sourceAttachmentId?: number | null;
                 sourceUrl?: string | null;
               };
-              link: {
-                label: string;
-                url: string;
+              link?: {
+                label?: string | null;
+                url?: string | null;
                 openInNewTab?: boolean | null;
               };
               id?: string | null;
@@ -1902,9 +1902,9 @@ export interface LandingPage {
                 sourceAttachmentId?: number | null;
                 sourceUrl?: string | null;
               };
-              link: {
-                label: string;
-                url: string;
+              link?: {
+                label?: string | null;
+                url?: string | null;
                 openInNewTab?: boolean | null;
               };
               id?: string | null;
@@ -1954,9 +1954,9 @@ export interface LandingPage {
                 sourceAttachmentId?: number | null;
                 sourceUrl?: string | null;
               };
-              link: {
-                label: string;
-                url: string;
+              link?: {
+                label?: string | null;
+                url?: string | null;
                 openInNewTab?: boolean | null;
               };
               id?: string | null;
@@ -1993,9 +1993,9 @@ export interface LandingPage {
           | {
               label: string;
               location?: (number | null) | Location;
-              link: {
-                label: string;
-                url: string;
+              link?: {
+                label?: string | null;
+                url?: string | null;
                 openInNewTab?: boolean | null;
               };
               id?: string | null;

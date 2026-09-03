@@ -21,6 +21,7 @@ export function LandingGallerySection({ heading, images }: { heading?: string; i
               alt={`${heading || 'Project'} photo ${index + 1}`}
               fill
               className="object-cover"
+              unoptimized={image.startsWith('/api/media/file/') || image.includes('/api/media/file/')}
               sizes="(min-width: 1024px) 25vw, 50vw"
             />
           </div>

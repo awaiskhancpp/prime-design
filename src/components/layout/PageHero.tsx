@@ -9,7 +9,8 @@ type PageHeroProps = {
   eyebrow: string
   title: string
   description?: string
-  image: string
+  image?: string
+  backgroundVideo?: string
   imageAlt: string
   align?: 'center' | 'end'
   cta?: { label: string; href: string }
@@ -22,6 +23,7 @@ export function PageHero({
   title,
   description,
   image,
+  backgroundVideo,
   imageAlt,
   align = 'end',
   cta,
@@ -34,14 +36,26 @@ export function PageHero({
     <section
       className={`relative isolate flex min-h-screen overflow-hidden bg-ink pb-16 pt-32 text-white md:pb-24 md:pt-40 ${isCentered ? 'items-center' : 'items-end'}`}
     >
-      <Image
-        src={image}
-        alt={imageAlt}
-        fill
-        priority
-        className="-z-10 object-cover opacity-70"
-        sizes="100vw"
-      />
+      {backgroundVideo ? (
+        <video
+          autoPlay
+          muted
+          loop
+          playsInline
+          className="-z-10 absolute inset-0 h-full w-full object-cover opacity-70"
+        >
+          <source src={backgroundVideo} />
+        </video>
+      ) : image ? (
+        <Image
+          src={image}
+          alt={imageAlt}
+          fill
+          priority
+          className="-z-10 object-cover opacity-70"
+          sizes="100vw"
+        />
+      ) : null}
       <div className="pointer-events-none absolute inset-0 -z-10 bg-gradient-to-r from-ink/55 via-ink/25 to-transparent" />
       <div className="pointer-events-none absolute inset-0 -z-10 bg-gradient-to-t from-ink/45 via-transparent to-transparent" />
 

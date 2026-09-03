@@ -3,7 +3,17 @@
 import Image from 'next/image'
 import { useMemo, useState } from 'react'
 import type { FormEvent } from 'react'
-import { ArrowLeft, ArrowRight, ChevronLeft, ChevronRight, Pencil, X } from 'lucide-react'
+import {
+  ArrowLeft,
+  ArrowRight,
+  CalendarPlus,
+  Check,
+  ChevronLeft,
+  ChevronRight,
+  Pencil,
+  Printer,
+  X,
+} from 'lucide-react'
 
 import { Button } from '@/components/ui/Button'
 import { Input } from '@/components/ui/Input'
@@ -56,6 +66,66 @@ function getInitials(name: string) {
     .slice(0, 2)
     .map((part) => part[0]?.toUpperCase())
     .join('')
+}
+
+function generateOrderId() {
+  const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789'
+  let out = ''
+  for (let i = 0; i < 7; i += 1) out += chars[Math.floor(Math.random() * chars.length)]
+  return out
+}
+
+function pad(value: number) {
+  return String(value).padStart(2, '0')
+}
+
+// e.g. "12:00 am" / "10:00 pm" -> { hours, minutes } in 24h time
+function parseSlotTime(slot: string) {
+  const match = slot.match(/(\d+):(\d+)\s*(am|pm)/i)
+  if (!match) return { hours: 9, minutes: 0 }
+  let hours = parseInt(match[1], 10)
+  const minutes = parseInt(match[2], 10)
+  const meridiem = match[3].toLowerCase()
+  if (meridiem === 'pm' && hours !== 12) hours += 12
+  if (meridiem === 'am' && hours === 12) hours = 0
+  return { hours, minutes }
+}
+
+function toIcsTimestamp(date: Date) {
+  return `${date.getFullYear()}${pad(date.getMonth() + 1)}${pad(date.getDate())}T${pad(date.getHours())}${pad(date.getMinutes())}00`
+}
+
+function buildIcsContent({
+  date,
+  slot,
+  title,
+  orderId,
+}: {
+  date: Date
+  slot: string
+  title: string
+  orderId: string
+}) {
+  const { hours, minutes } = parseSlotTime(slot)
+  const start = new Date(date)
+  start.setHours(hours, minutes, 0, 0)
+  const end = new Date(start)
+  end.setHours(end.getHours() + 1)
+  return [
+    'BEGIN:VCALENDAR',
+    'VERSION:2.0',
+    'PRODID:-//Prime Design & Build//Appointment//EN',
+    'BEGIN:VEVENT',
+    `UID:${orderId}@primedesignandbuild.com`,
+    `DTSTAMP:${toIcsTimestamp(new Date())}`,
+    `DTSTART:${toIcsTimestamp(start)}`,
+    `DTEND:${toIcsTimestamp(end)}`,
+    `SUMMARY:${title}`,
+    `DESCRIPTION:Order #${orderId}`,
+    'LOCATION:Prime Design & Build',
+    'END:VEVENT',
+    'END:VCALENDAR',
+  ].join('\r\n')
 }
 
 // Each open day has 5 bookable appointment slots.
@@ -221,11 +291,49 @@ export function AppointmentScheduler({
   const [step, setStep] = useState(1)
   const [selectedDate, setSelectedDate] = useState<Date | null>(null)
   const [time, setTime] = useState<string | null>(null)
-  const [customer, setCustomer] = useState<{ name: string; email: string } | null>(null)
+  const [customer, setCustomer] = useState<{
+    firstName: string
+    lastName: string
+    email: string
+    phone: string
+    address: string
+    zipCode: string
+    comments: string
+  } | null>(null)
+  const [orderId] = useState(() => generateOrderId())
+  const [showQr, setShowQr] = useState(false)
 
   const dateLabel = selectedDate
     ? selectedDate.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })
     : null
+
+  const customerName = customer
+    ? [customer.firstName, customer.lastName].filter(Boolean).join(' ')
+    : ''
+
+  const icsContent =
+    selectedDate && time
+      ? buildIcsContent({ date: selectedDate, slot: time, title: consultation, orderId })
+      : null
+
+  const qrApiBase =
+    process.env.NEXT_PUBLIC_QR_CODE_API_URL || 'https://api.qrserver.com/v1/create-qr-code/'
+  const qrCodeUrl = icsContent
+    ? `${qrApiBase}?size=280x280&data=${encodeURIComponent(icsContent)}`
+    : ''
+
+  function downloadIcs() {
+    if (!icsContent) return
+    const blob = new Blob([icsContent], { type: 'text/calendar;charset=utf-8' })
+    const url = URL.createObjectURL(blob)
+    const link = document.createElement('a')
+    link.href = url
+    link.download = `appointment-${orderId}.ics`
+    document.body.appendChild(link)
+    link.click()
+    document.body.removeChild(link)
+    URL.revokeObjectURL(url)
+  }
 
   function next() {
     setStep((current) => Math.min(current + 1, 3))
@@ -238,22 +346,32 @@ export function AppointmentScheduler({
   function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault()
     const data = new FormData(event.currentTarget)
-    const firstName = String(data.get('firstName') || '').trim()
-    const lastName = String(data.get('lastName') || '').trim()
     setCustomer({
-      name: [firstName, lastName].filter(Boolean).join(' '),
+      firstName: String(data.get('firstName') || '').trim(),
+      lastName: String(data.get('lastName') || '').trim(),
       email: String(data.get('email') || '').trim(),
+      phone: String(data.get('phone') || '').trim(),
+      address: String(data.get('address') || '').trim(),
+      zipCode: String(data.get('zipCode') || '').trim(),
+      comments: String(data.get('comments') || '').trim(),
     })
     setStep(3)
   }
 
   return (
     <div
-      className={`relative w-full max-w-4xl overflow-hidden border border-line bg-white shadow-xl ${
-        step === 3 || step === 4 ? 'h-auto' : 'h-[min(760px,calc(100vh-2rem))]'
-      }`}
+      className={`relative w-full overflow-hidden border border-line bg-white shadow-xl ${
+        step === 4 ? 'max-w-lg' : 'max-w-4xl'
+      } ${step === 3 || step === 4 ? 'h-auto' : 'h-[min(760px,calc(100vh-2rem))]'}`}
     >
-      <div key={step} className="h-full animate-fade-in">
+      <div
+        key={step}
+        className={
+          step === 4
+            ? 'max-h-[calc(100vh-2rem)] animate-fade-in overflow-y-auto'
+            : 'h-full animate-fade-in'
+        }
+      >
         {step === 1 ? (
           <div className="grid h-full md:grid-cols-[0.8fr_1.2fr]">
             <aside className="bg-paper-2 px-8 py-6 text-center md:px-10">
@@ -345,13 +463,45 @@ export function AppointmentScheduler({
             <div className="px-8 py-12 md:px-12">
               <h3 className="font-display text-3xl font-medium text-ink">Customer Information</h3>
               <div className="mt-8 grid gap-5 sm:grid-cols-2">
-                <Input name="firstName" placeholder="First Name" required />
-                <Input name="lastName" placeholder="Last Name" required />
-                <Input type="email" name="email" placeholder="Email Address" required />
-                <Input type="tel" name="phone" placeholder="Phone Number" required />
-                <Input className="sm:col-span-2" name="address" placeholder="Address" />
-                <Input name="zipCode" placeholder="Zip Code" />
-                <Textarea className="sm:col-span-2" name="comments" placeholder="Comments" />
+                <Input
+                  name="firstName"
+                  placeholder="First Name"
+                  defaultValue={customer?.firstName}
+                  required
+                />
+                <Input
+                  name="lastName"
+                  placeholder="Last Name"
+                  defaultValue={customer?.lastName}
+                  required
+                />
+                <Input
+                  type="email"
+                  name="email"
+                  placeholder="Email Address"
+                  defaultValue={customer?.email}
+                  required
+                />
+                <Input
+                  type="tel"
+                  name="phone"
+                  placeholder="Phone Number"
+                  defaultValue={customer?.phone}
+                  required
+                />
+                <Input
+                  className="sm:col-span-2"
+                  name="address"
+                  placeholder="Address"
+                  defaultValue={customer?.address}
+                />
+                <Input name="zipCode" placeholder="Zip Code" defaultValue={customer?.zipCode} />
+                <Textarea
+                  className="sm:col-span-2"
+                  name="comments"
+                  placeholder="Comments"
+                  defaultValue={customer?.comments}
+                />
               </div>
               <div className="mt-10 flex justify-between">
                 <Button type="button" variant="outline" onClick={back}>
@@ -387,12 +537,12 @@ export function AppointmentScheduler({
                   </p>
                   <div className="mt-4 flex items-center gap-4">
                     <div className="flex h-11 w-11 shrink-0 items-center justify-center border border-brass/30 bg-paper-2 text-sm font-semibold text-ink">
-                      {getInitials(customer.name)}
+                      {getInitials(customerName)}
                     </div>
                     <div className="min-w-0">
                       <div className="flex items-center gap-2">
                         <p className="truncate font-display text-base font-medium text-ink">
-                          {customer.name || 'Guest'}
+                          {customerName || 'Guest'}
                         </p>
                         <button
                           type="button"
@@ -427,22 +577,134 @@ export function AppointmentScheduler({
             </div>
           </div>
         ) : (
-          <div className="flex h-full flex-col items-center justify-center px-8 py-20 text-center md:px-24">
-            <div className="mx-auto flex h-24 w-24 items-center justify-center rounded-full bg-green-200 text-5xl text-green-700">
-              ✓
+          <div className="px-8 py-10 sm:px-10">
+            <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-green-100">
+              <Check className="h-8 w-8 text-green-600" strokeWidth={3} aria-hidden />
             </div>
-            <h2 className="mt-8 font-display text-4xl font-medium text-ink">
+            <h2 className="mt-6 text-center font-display text-3xl font-semibold text-ink">
               Appointment Confirmed
             </h2>
-            <p className="mt-3 text-lg text-ink-2/65">We look forward to seeing you.</p>
-            <p className="mt-8 text-lg text-ink">{consultation}</p>
-            <p className="mt-2 text-brass-deep">
-              {dateLabel}, {time}
+            <p className="mt-2 text-center text-base text-ink-2/60">
+              We look forward to seeing you.
             </p>
-            {onDone && (
-              <Button type="button" className="mt-10" onClick={onDone}>
-                Done
+            <div className="mt-5 flex justify-center">
+              <span className="border border-line bg-paper-2 px-3 py-1 text-xs font-semibold uppercase tracking-wide text-ink-2/70">
+                Order #<span className="text-ink">{orderId}</span>
+              </span>
+            </div>
+
+            <div className="mt-8 border-t border-line" />
+
+            {showQr && qrCodeUrl ? (
+              <div className="border-b border-line py-8 text-center">
+                <img
+                  src={qrCodeUrl}
+                  alt="QR code that adds this appointment to your calendar"
+                  width={220}
+                  height={220}
+                  className="mx-auto"
+                />
+                <p className="mx-auto mt-6 max-w-xs bg-amber-100 px-4 py-3 text-sm leading-6 text-amber-900">
+                  Point your smartphone camera at this QR code and it will automatically add this
+                  appointment to your calendar
+                </p>
+                <button
+                  type="button"
+                  onClick={() => setShowQr(false)}
+                  className="mt-4 text-sm font-semibold text-brass-deep hover:text-brass"
+                >
+                  Hide QR
+                </button>
+              </div>
+            ) : null}
+
+            <div className="flex items-start justify-between gap-4 py-6">
+              <div className="flex items-start gap-4">
+                <div className="flex w-14 shrink-0 flex-col items-center border border-line py-1.5 text-center">
+                  <span className="font-display text-xl font-semibold text-ink">
+                    {selectedDate?.getDate()}
+                  </span>
+                  <span className="text-[11px] uppercase text-ink-2/60">
+                    {selectedDate ? MONTH_LABELS[selectedDate.getMonth()].slice(0, 3) : ''}
+                  </span>
+                </div>
+                <div>
+                  <p className="font-display text-lg font-medium text-ink">{consultation}</p>
+                  <p className="mt-1 text-sm text-ink-2/60">
+                    {dateLabel}, {time}
+                  </p>
+                </div>
+              </div>
+              {!showQr && qrCodeUrl ? (
+                <button
+                  type="button"
+                  onClick={() => setShowQr(true)}
+                  className="flex shrink-0 flex-col items-center gap-1"
+                >
+                  <img src={qrCodeUrl} alt="" width={56} height={56} aria-hidden />
+                  <span className="text-xs font-semibold text-brass-deep underline underline-offset-2 hover:text-brass">
+                    Show QR
+                  </span>
+                </button>
+              ) : null}
+            </div>
+
+            <div className="flex flex-wrap gap-3">
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                onClick={downloadIcs}
+                className="flex items-center gap-2"
+              >
+                <CalendarPlus className="h-4 w-4" aria-hidden /> Add to Calendar
               </Button>
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                onClick={() => window.print()}
+                className="flex items-center gap-2"
+              >
+                <Printer className="h-4 w-4" aria-hidden /> Print
+              </Button>
+            </div>
+
+            <div className="mt-8 border-t border-line" />
+
+            {customer ? (
+              <div className="pt-6">
+                <p className="text-xs font-semibold uppercase tracking-[0.2em] text-brass-deep">
+                  Customer
+                </p>
+                <div className="mt-4 flex items-center gap-4">
+                  <div className="flex h-11 w-11 shrink-0 items-center justify-center border border-brass/30 bg-paper-2 text-sm font-semibold text-ink">
+                    {getInitials(customerName)}
+                  </div>
+                  <div className="min-w-0">
+                    <p className="truncate font-display text-base font-medium text-ink">
+                      {customerName || 'Guest'}
+                    </p>
+                    {customer.email ? (
+                      <p className="truncate text-sm text-ink-2/65">{customer.email}</p>
+                    ) : null}
+                  </div>
+                </div>
+              </div>
+            ) : (
+              <div className="pt-6">
+                <p className="text-sm text-ink-2/60">
+                  Customer information will be submitted with this appointment request.
+                </p>
+              </div>
+            )}
+
+            {onDone && (
+              <div className="mt-10 flex justify-center">
+                <Button type="button" onClick={onDone}>
+                  Done
+                </Button>
+              </div>
             )}
           </div>
         )}

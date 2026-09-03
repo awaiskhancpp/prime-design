@@ -14,8 +14,8 @@ export const buttonGroupFields = (): Field[] => [
 ]
 
 export const linkFields = (): Field[] => [
-  { name: 'label', type: 'text', required: true },
-  { name: 'url', type: 'text', required: true },
+  { name: 'label', type: 'text' },
+  { name: 'url', type: 'text' },
   { name: 'openInNewTab', type: 'checkbox', defaultValue: false },
 ]
 
