@@ -28,10 +28,12 @@ function pageList(current: number, total: number): Array<number | 'ellipsis'> {
 
 export function GalleryGrid({
   images,
+  captions,
   altPrefix,
   hoverZoom = false,
 }: {
   images: string[]
+  captions?: Array<string | undefined>
   altPrefix: string
   hoverZoom?: boolean
 }) {
@@ -70,6 +72,11 @@ export function GalleryGrid({
                 unoptimized={image.includes('/api/media/file/')}
                 sizes="(min-width: 1024px) 25vw, 50vw"
               />
+              {captions?.[globalIndex] ? (
+                <div className="absolute left-2 top-2 max-w-[calc(100%-1rem)] bg-white px-2 py-1 text-[10px] font-semibold leading-tight text-ink shadow-sm sm:text-xs">
+                  {captions[globalIndex]}
+                </div>
+              ) : null}
             </div>
           )
         })}

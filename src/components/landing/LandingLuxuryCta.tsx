@@ -7,11 +7,13 @@ export function LandingLuxuryCta({
   heading,
   body,
   link = '/contact',
+  label,
 }: {
   eyebrow?: string
   heading?: string
   body?: string
   link?: string
+  label?: string
 }) {
   return (
     <Section className="bg-brass text-ink">
@@ -24,9 +26,7 @@ export function LandingLuxuryCta({
           <h2 className="mt-3 font-display text-3xl font-medium leading-tight md:text-5xl">
             {heading || "Silicon Valley's Luxury Home Contractor"}
           </h2>
-          {/* <Button href={link} variant="primary" className="mt-6 bg-ink text-white hover:bg-ink-2">
-            Let&apos;s get started →
-          </Button> */}
+          {label ? <Button href={link} variant="primary" className="mt-6 bg-ink text-white hover:bg-ink-2">{label} →</Button> : null}
         </div>
         {body ? <p className="text-base leading-7">{body}</p> : null}
       </div>

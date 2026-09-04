@@ -3,17 +3,29 @@
 import { Section } from '@/components/ui/Section'
 import { GalleryGrid } from './GalleryGrid'
 
-export function LandingGallerySection({ heading, images }: { heading?: string; images: string[] }) {
-  if (!images.length) return null
+type GalleryItem = { url: string; caption?: string }
+
+export function LandingGallerySection({
+  heading,
+  items,
+}: {
+  heading?: string
+  items: GalleryItem[]
+}) {
+  if (!items.length) return null
   return (
     <Section className="bg-white">
       {heading ? (
         <h2 className="max-w-2xl font-display text-3xl font-medium text-ink md:text-4xl">
           {heading}
-        </h2>
+      </h2>
       ) : null}
       <div className="mt-8">
-        <GalleryGrid images={images} altPrefix={heading || 'Project'} />
+        <GalleryGrid
+          images={items.map((item) => item.url)}
+          captions={items.map((item) => item.caption)}
+          altPrefix={heading || 'Project'}
+        />
       </div>
     </Section>
   )

@@ -162,11 +162,14 @@ function repairCategories(section: BricksTreeNode): Array<{ sourceId: string; ti
     const nodes = descendants(group)
     const textNodes = nodes.filter((node) => node.name === 'text-basic')
     const title = cleanText(textNodes[0] ? textValue(textNodes[0]) || '' : '')
+    const headingNode = nodes.find((node) => node.name === 'heading')
+    const heading = cleanText(headingNode ? textValue(headingNode) || '' : '')
     const description = textNodes.slice(1).map((node) => cleanText(textValue(node) || '')).find((value) => value.length > 40)
     const features = nodes.filter((node) => node.name === 'list').flatMap(listItemsFromNode)
     return {
       sourceId: group.id,
       title,
+      heading: heading || undefined,
       html: [description, features.length ? `<ul>${features.map((feature) => `<li>${feature}</li>`).join('')}</ul>` : ''].filter(Boolean).join('\n'),
       description: description || undefined,
       features: features.length ? features : undefined,
@@ -208,6 +211,9 @@ function classify(section: BricksTreeNode, allowHero: boolean, pageSlug: string)
   const imageCount = names.filter((name) => name === 'image').length
   const headingCount = names.filter((name) => /heading|title/i.test(name)).length
 
+  const hiddenByCss = typeof section.settings._cssCustom === 'string' &&
+    new RegExp(`#brxe-${section.id}\\s*\\{[^}]*display\\s*:\\s*none`, 'i').test(section.settings._cssCustom)
+  if (section.settings._visibility === 'hidden' || section.settings._opacity === '0' || hiddenByCss) return 'utility'
   if (section.settings._position === 'absolute' || section.settings._position === 'fixed' || section.settings._position === 'sticky') return 'utility'
   if (pageSlug === 'comprehensive-home-repair-installation-services-in-silicon-valley' && (names.includes('code') || (names.includes('text') && text.includes('repair')))) return 'repair-services'
   if (heading.includes('find us')) return 'find-us'
@@ -243,14 +249,13 @@ function semanticClassification(section: BricksTreeNode, type: NormalizedSection
 } {
   const nodes = descendants(section)
   const names = nodes.map((node) => node.name)
-  const headingText = nodes.map(textValue).filter((value): value is string => Boolean(value)).join(' ').toLowerCase()
   const sticky = section.settings._position === 'absolute' || section.settings._position === 'fixed' || section.settings._position === 'sticky'
 
-  if (sticky || names.some((name) => utilityNames.has(name))) {
+  if (type === 'utility' || sticky || names.some((name) => utilityNames.has(name))) {
     return { classification: 'utility' as const, reason: 'This root section is a sticky/navigation utility structure embedded in the Bricks export.', required: 'Preserve only if the landing-page shell explicitly owns this utility.' }
   }
   if (type === 'booking') {
-    return { classification: 'missing-renderer' as const, reason: 'The section contains a shortcode without inspectable booking content.', required: 'Booking/scheduling renderer or external booking integration' }
+    return { classification: 'partial' as const, reason: 'The section contains a shortcode-backed booking integration whose provider fields require runtime verification.', required: 'Verify the booking provider and preserve its configuration' }
   }
   if (type === 'unsupported') {
     return { classification: 'missing-schema' as const, reason: `No section normalizer matched Bricks elements: ${[...new Set(names)].join(', ')}.`, required: 'A dedicated Payload block and renderer' }

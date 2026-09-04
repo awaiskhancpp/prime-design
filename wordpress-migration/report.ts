@@ -19,7 +19,11 @@ export function migrationReport(results: PageMigrationResult[]) {
     mediaDuplicates: media.filter((item) => item.status === 'duplicate').length,
     warnings: results.flatMap((result) => result.warnings),
     errors: results.flatMap((result) => result.errors),
-    status: results.some((result) => result.errors.length || result.sections.some((section) => ['missing-schema', 'missing-renderer', 'parser-error'].includes(section.classification))) ? 'NOT_READY' : 'READY',
+    status: results.some((result) =>
+      result.errors.length ||
+      result.media.some((item) => ['missing-file', 'unresolved-reference'].includes(item.status)) ||
+      result.sections.some((section) => ['missing-schema', 'missing-renderer', 'parser-error'].includes(section.classification)),
+    ) ? 'NOT_READY' : 'READY',
     pages: results.map((result) => ({
       slug: result.page.slug,
       title: result.page.title,

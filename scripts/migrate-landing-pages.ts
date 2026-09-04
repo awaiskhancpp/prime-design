@@ -12,7 +12,6 @@ import type {
   NormalizedGalleryItem,
   NormalizedImage,
   NormalizedSection,
-  WordPressAttachment,
   WordPressPage,
   WordPressProject,
   WordPressSource,
@@ -150,6 +149,12 @@ function mediaRef(image: { sourceId?: number; filename?: string; url?: string },
 
 function base(section: NormalizedSection) {
   const data = dataOf(section)
+  const sourceHeadings = Array.isArray(data.headings)
+    ? data.headings.map(clean).filter((value): value is string => Boolean(value))
+    : []
+  const sourceBody = Array.isArray(data.body)
+    ? data.body.map(clean).filter((value): value is string => Boolean(value))
+    : []
   return {
     sourceId: section.sourceId,
     sourceElementType: section.sourceElement,
@@ -157,7 +162,11 @@ function base(section: NormalizedSection) {
       sourcePageSlug: data.sourcePageSlug,
       nestedElementIds: data.nestedElementIds,
       sourceOrder: section.order,
+      sourceType: section.type,
       classification: section.classification,
+      sourceHeadings,
+      sourceBody,
+      unsupportedElements: section.unsupportedElements,
     },
   }
 }
@@ -552,7 +561,7 @@ function dynamicProjectImages(section: NormalizedSection, projects: WordPressPro
 
   const byId = new Map(projects.map((project) => [project.id, project]))
   const seen = new Set<number>()
-  const result: Array<{ sourceId: number; status: 'unresolved' }> = []
+  const result: Array<{ sourceId: number; status: 'unresolved'; projectTitle?: string }> = []
 
   for (const query of projectQueries) {
     // Real Bricks project cards on this site scope each gallery to a specific,
@@ -575,7 +584,11 @@ function dynamicProjectImages(section: NormalizedSection, projects: WordPressPro
       for (const id of projectGalleryIds(project)) {
         if (seen.has(id)) continue
         seen.add(id)
-        result.push({ sourceId: id, status: 'unresolved' })
+        result.push({
+          sourceId: id,
+          status: 'unresolved',
+          projectTitle: clean(project.title),
+        })
       }
     }
   }
@@ -614,9 +627,15 @@ function mapSection(
   source: WordPressSource,
 ): Record<string, unknown> | undefined {
   const data = dataOf(section)
+  // WordPress explicitly marks some duplicate/template roots as hidden. They
+  // are source diagnostics, not visible page sections, and must not be loaded
+  // into the frontend as content.
   if (isHiddenSourceSection(section)) return undefined
   const heading = first([data.heading, ...(Array.isArray(data.headings) ? data.headings : [])])
-  const description = first(Array.isArray(data.body) ? data.body : [data.body])
+  const sourceBody = Array.isArray(data.body)
+    ? data.body.map(clean).filter((value): value is string => Boolean(value))
+    : []
+  const description = sourceBody.join('\n\n') || first([data.body])
   const images = section.images
   const primaryImage = data.primaryImage as NormalizedImage | undefined
   const refImage = primaryImage || images[0]
@@ -704,8 +723,8 @@ function mapSection(
       const dynamicImages = dynamicProjectImages(section, projects)
         .map((image, index) => ({
           media: mediaIds.get(image.sourceId!),
-          caption: undefined,
-          alt: `Project gallery image ${index + 1}`,
+          caption: image.projectTitle,
+          alt: image.projectTitle || `Project gallery image ${index + 1}`,
           sourceOrder: index,
           sourceAttachmentId: image.sourceId,
         }))
@@ -805,10 +824,24 @@ function mapSection(
         ...common,
         heading: heading || 'Repair & Installation',
         description,
-        categories: (
+          categories: (
           (data.repairCategories as Array<Record<string, unknown>> | undefined) || []
         ).map((category) => ({
+          media: (() => {
+            const image = imageFromTreeNode(
+              treeNodes(section).find((node) => node.id === category.sourceId) || {
+                id: String(category.sourceId || ''),
+                name: 'block',
+                parent: 0,
+                settings: {},
+                children: [],
+                raw: {},
+              },
+            )
+            return image ? mediaRef(image, image.sourceId ? mediaIds.get(image.sourceId) : undefined) : undefined
+          })(),
           title: clean(category.title) || 'Service',
+          heading: clean(category.heading),
           description: clean(category.description) || clean(category.html),
           features: Array.isArray(category.features)
             ? category.features
@@ -922,9 +955,24 @@ function mapSection(
       }
     }
     case 'utility':
+      return undefined
     case 'content':
     case 'unsupported':
-      return undefined
+      // Keep an existing, already-rendered block shape for source sections
+      // that do not yet have a specialized semantic mapper. The old importer
+      // returned undefined here, which silently deleted source sections.
+      // Provenance and extracted source text remain in sourceMetadata so the
+      // block can be enriched later without another schema fork.
+      return {
+        blockType: 'image-text',
+        ...common,
+        eyebrow: sectionEyebrow(section),
+        heading: heading || sourceBody[0] || `Source section ${section.order + 1}`,
+        description: heading ? description : sourceBody.slice(1).join('\n\n') || description,
+        media: ref,
+        buttons: buttonData(section, pagesById),
+        alignment: 'left',
+      }
     default:
       return undefined
   }

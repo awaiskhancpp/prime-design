@@ -362,16 +362,9 @@ export function AppointmentScheduler({
     <div
       className={`relative w-full overflow-hidden border border-line bg-white shadow-xl ${
         step === 4 ? 'max-w-lg' : 'max-w-4xl'
-      } ${step === 3 || step === 4 ? 'h-auto' : 'h-[min(760px,calc(100vh-2rem))]'}`}
+      } h-[min(660px,calc(100vh-2rem))]`}
     >
-      <div
-        key={step}
-        className={
-          step === 4
-            ? 'max-h-[calc(100vh-2rem)] animate-fade-in overflow-y-auto'
-            : 'h-full animate-fade-in'
-        }
-      >
+      <div key={step} className="h-full animate-fade-in overflow-y-auto">
         {step === 1 ? (
           <div className="grid h-full md:grid-cols-[0.8fr_1.2fr]">
             <aside className="bg-paper-2 px-8 py-6 text-center md:px-10">
@@ -577,7 +570,7 @@ export function AppointmentScheduler({
             </div>
           </div>
         ) : (
-          <div className="px-8 py-10 sm:px-10">
+          <div className="flex h-full flex-col justify-center px-8 py-10 sm:px-10">
             <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-green-100">
               <Check className="h-8 w-8 text-green-600" strokeWidth={3} aria-hidden />
             </div>

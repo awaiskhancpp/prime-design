@@ -11,14 +11,12 @@ import { LandingFindUs } from './LandingFindUs'
 import { LandingGallerySection } from './LandingGallerySection'
 import { LandingGalleryTabs } from './LandingGalleryTabs'
 import { LandingLuxuryCta } from './LandingLuxuryCta'
+import { LandingCtaSection } from './LandingCtaSection'
+import { LandingExperienceDifferenceSection } from './LandingExperienceDifferenceSection'
 import { LandingPrimeDifferenceSection } from './LandingPrimeDifferenceSection'
 import { LandingProjectsSection } from './LandingProjectsSection'
 import { LandingRepairServicesSection } from './LandingRepairServicesSection'
 import { LandingServiceAreasSection } from './LandingServiceAreasSection'
-import {
-  getWordPressDifferenceContent,
-  ServicePrimeDifferenceSection,
-} from '@/components/services/sections/ServicePrimeDifferenceSection'
 import { LandingFaqSection } from './LandingFaqSection'
 import { LandingBookingSection } from './LandingBookingSection'
 import { LandingContact } from './Contact'
@@ -69,7 +67,8 @@ function HeroBlock({ block }: { block: Block }) {
   const image = mediaUrl(block.backgroundMedia)
   const metadata = block.sourceMetadata as Record<string, unknown> | undefined
   const backgroundVideo = text(metadata?.backgroundVideoUrl)
-  if ((!image && !backgroundVideo) || !text(block.heading)) return <UnsupportedLandingBlock block={block} />
+  if ((!image && !backgroundVideo) || !text(block.heading))
+    return <UnsupportedLandingBlock block={block} />
   return (
     <PageHero
       showHeader={false}
@@ -100,7 +99,7 @@ function ImageTextBlock({ block }: { block: Block }) {
           ) : null}
           <h2 className="mt-3 font-display text-3xl font-medium text-ink md:text-5xl">{heading}</h2>
           {text(block.description) ? (
-            <p className="mt-5 max-w-xl text-base leading-7 text-ink-2/75">
+            <p className="mt-5 max-w-xl whitespace-pre-line text-base leading-7 text-ink-2/75">
               {text(block.description)}
             </p>
           ) : null}
@@ -112,7 +111,13 @@ function ImageTextBlock({ block }: { block: Block }) {
         </div>
         {image ? (
           <div className="relative aspect-[4/3] overflow-hidden bg-paper-2">
-            <Image src={image} alt={heading} fill className="object-cover" unoptimized={isPayloadFileUrl(image)} />
+            <Image
+              src={image}
+              alt={heading}
+              fill
+              className="object-cover"
+              unoptimized={isPayloadFileUrl(image)}
+            />
           </div>
         ) : null}
       </div>
@@ -159,17 +164,35 @@ function GalleryBlock({ block }: { block: Block }) {
     )
   }
 
-  const images = Array.isArray(block.items)
+  const galleryItems = Array.isArray(block.items)
     ? block.items
-        .map((item) => mediaUrl((item as Record<string, unknown>)?.media))
-        .filter((value): value is string => Boolean(value))
+        .flatMap((item) => {
+          const value = item as Record<string, unknown>
+          const url = mediaUrl(value.media)
+          if (!url) return []
+
+          return {
+            url,
+            caption: text(value.caption),
+          }
+        })
+        .map((item) => ({
+          url: item.url,
+          ...(item.caption ? { caption: item.caption } : {}),
+        }))
     : []
-  return images.length ? (
-    <LandingGallerySection heading={text(block.heading)} images={images} />
+  return galleryItems.length ? (
+    <LandingGallerySection heading={text(block.heading)} items={galleryItems} />
   ) : (
     <Section className="bg-white">
-      {text(block.heading) ? <h2 className="font-display text-3xl font-medium text-ink md:text-4xl">{text(block.heading)}</h2> : null}
-      {text(block.description) ? <p className="mt-4 max-w-2xl text-ink-2/75">{text(block.description)}</p> : null}
+      {text(block.heading) ? (
+        <h2 className="font-display text-3xl font-medium text-ink md:text-4xl">
+          {text(block.heading)}
+        </h2>
+      ) : null}
+      {text(block.description) ? (
+        <p className="mt-4 max-w-2xl text-ink-2/75">{text(block.description)}</p>
+      ) : null}
     </Section>
   )
 }
@@ -221,21 +244,27 @@ function SubServicesBlock({ block }: { block: Block }) {
 
 function FaqBlock({ block }: { block: Block }) {
   const categories = Array.isArray(block.categories)
-    ? block.categories.map((category) => {
-        const value = category as Record<string, unknown>
-        const title = text(value.title) || ''
-        const source = faqCategories.find((item) => item.title.toLowerCase() === title.toLowerCase())
-        const questions = Array.isArray(value.questions) ? value.questions : []
-        return {
-          title,
-          items: questions.length
-            ? questions.map((question) => {
-                const item = question as Record<string, unknown>
-                return { question: text(item.question) || '', answer: text(item.answer) || '' }
-              }).filter((item) => item.question && item.answer)
-            : source?.items || [],
-        }
-      }).filter((category) => category.items.length)
+    ? block.categories
+        .map((category) => {
+          const value = category as Record<string, unknown>
+          const title = text(value.title) || ''
+          const source = faqCategories.find(
+            (item) => item.title.toLowerCase() === title.toLowerCase(),
+          )
+          const questions = Array.isArray(value.questions) ? value.questions : []
+          return {
+            title,
+            items: questions.length
+              ? questions
+                  .map((question) => {
+                    const item = question as Record<string, unknown>
+                    return { question: text(item.question) || '', answer: text(item.answer) || '' }
+                  })
+                  .filter((item) => item.question && item.answer)
+              : source?.items || [],
+          }
+        })
+        .filter((category) => category.items.length)
     : []
   return <LandingFaqSection heading={text(block.heading)} categories={categories} />
 }
@@ -248,7 +277,17 @@ function VideoCarouselBlock({ block }: { block: Block }) {
         {items.map((item, index) => {
           const value = item as Record<string, unknown>
           const url = text(value.externalUrl) || mediaUrl(value.video)
-          return url ? <video key={text(value.sourceId) || index} className="aspect-video w-full object-cover" controls playsInline poster={mediaUrl(value.poster)}><source src={url} /></video> : null
+          return url ? (
+            <video
+              key={text(value.sourceId) || index}
+              className="aspect-video w-full object-cover"
+              controls
+              playsInline
+              poster={mediaUrl(value.poster)}
+            >
+              <source src={url} />
+            </video>
+          ) : null
         })}
       </div>
     </Section>
@@ -327,31 +366,6 @@ function ServiceAreasBlock({ block }: { block: Block }) {
   )
 }
 
-function CtaBlock({ block }: { block: Block }) {
-  const cta = button(block.buttons)
-  if (!text(block.heading)) return <UnsupportedLandingBlock block={block} />
-  return (
-    <Section className="bg-brass text-ink">
-      <div className="mx-auto max-w-3xl text-center">
-        {text(block.eyebrow) ? (
-          <p className="text-xs font-semibold uppercase tracking-[0.2em]">{text(block.eyebrow)}</p>
-        ) : null}
-        <h2 className="mt-3 font-display text-3xl font-medium md:text-5xl">
-          {text(block.heading)}
-        </h2>
-        {text(block.description) ? (
-          <p className="mt-4 text-base leading-7">{text(block.description)}</p>
-        ) : null}
-        {cta ? (
-          <Button href={cta.href} variant="primary" className="mt-6">
-            {cta.label}
-          </Button>
-        ) : null}
-      </div>
-    </Section>
-  )
-}
-
 function RepairServicesBlock({ block }: { block: Block }) {
   const categories = Array.isArray(block.categories)
     ? block.categories
@@ -394,7 +408,15 @@ type Renderer = ({ block }: { block: Block }) => ReactNode
 
 export const landingBlockRegistry: Record<string, Renderer> = {
   hero: HeroBlock,
-  cta: CtaBlock,
+  cta: ({ block }) => (
+    <LandingCtaSection
+      eyebrow={text(block.eyebrow)}
+      heading={text(block.heading) || ''}
+      description={text(block.description)}
+      cta={button(block.buttons)}
+      image={mediaUrl(block.media)}
+    />
+  ),
   'image-text': ImageTextBlock,
   video: VideoBlock,
   gallery: GalleryBlock,
@@ -438,29 +460,35 @@ export const landingBlockRegistry: Record<string, Renderer> = {
     )
   },
   'experience-difference': ({ block }) => (
-    <ServicePrimeDifferenceSection
-      {...getWordPressDifferenceContent({
-        eyebrow: text(block.eyebrow),
-        heading: text(block.heading) || '',
-        description: text(block.description),
-        features: Array.isArray(block.features)
+    <LandingExperienceDifferenceSection
+      eyebrow={text(block.eyebrow)}
+      heading={text(block.heading)}
+      body={text(block.description)}
+      features={
+        Array.isArray(block.features)
           ? block.features
               .map((item) => item as Record<string, unknown>)
-              .filter((item): item is { title: string; description?: string } => Boolean(text(item.title)))
+              .filter((item): item is { title: string; description?: string } =>
+                Boolean(text(item.title)),
+              )
               .map((item) => ({ title: text(item.title)!, description: text(item.description) }))
-          : [],
-      })}
+          : []
+      }
     />
   ),
   'service-areas': ({ block }) => (
     <LandingServiceAreasSection
       eyebrow={text(block.eyebrow)}
       heading={text(block.heading)}
-      areas={Array.isArray(block.areas) ? block.areas.map((area) => {
-        const value = area as Record<string, unknown>
-        const link = value.link as Record<string, unknown> | undefined
-        return { label: text(value.label), href: text(link?.url) }
-      }) : []}
+      areas={
+        Array.isArray(block.areas)
+          ? block.areas.map((area) => {
+              const value = area as Record<string, unknown>
+              const link = value.link as Record<string, unknown> | undefined
+              return { label: text(value.label), href: text(link?.url) }
+            })
+          : []
+      }
     />
   ),
   'repair-services': ({ block }) => (
@@ -468,7 +496,15 @@ export const landingBlockRegistry: Record<string, Renderer> = {
       eyebrow={text(block.eyebrow)}
       heading={text(block.heading)}
       description={text(block.description)}
-      categories={Array.isArray(block.categories) ? (block.categories as Array<{ title?: string; description?: string; features?: Array<{ text?: string }> }>) : []}
+      categories={
+        Array.isArray(block.categories)
+          ? (block.categories as Array<{
+              title?: string
+              description?: string
+              features?: Array<{ text?: string }>
+            }>)
+          : []
+      }
     />
   ),
   'luxury-cta': ({ block }) => (
@@ -489,7 +525,9 @@ export const landingBlockRegistry: Record<string, Renderer> = {
   ),
   faq: FaqBlock,
   testimonials: () => <TestimonialsSpotlight />,
-  booking: ({ block }) => <LandingBookingSection heading={text(block.heading) || 'Request an Estimate Appointment'} />,
+  booking: ({ block }) => (
+    <LandingBookingSection heading={text(block.heading) || 'Request an Estimate Appointment'} />
+  ),
   'contact-form': () => <LandingContact />,
   'video-carousel': VideoCarouselBlock,
   'gallery-carousel': GalleryCarouselBlock,
@@ -498,30 +536,10 @@ export const landingBlockRegistry: Record<string, Renderer> = {
 export const sharedSectionRegistry = landingBlockRegistry
 
 export function LandingBlockRenderer({ sections }: { sections: LandingPageBlock[] }) {
-  const preparedSections = sections
-    .map((section, index) => {
-      const block = section as Block
-      const next = sections[index + 1] as Block | undefined
-      if (block.blockType !== 'prime-difference' || next?.blockType !== 'video-carousel') {
-        return block
-      }
-
-      const existingVideos = Array.isArray(block.videos) ? block.videos : []
-      const carouselVideos = Array.isArray(next.items) ? next.items : []
-      return {
-        ...block,
-        videos: existingVideos.length ? existingVideos : carouselVideos,
-      }
-    })
-
-  const renderedSections = preparedSections.filter((section, index) => {
-    const previous = preparedSections[index - 1]
-    return !(section.blockType === 'video-carousel' && previous?.blockType === 'prime-difference')
-  })
-
   return (
     <>
-      {renderedSections.map((block, index) => {
+      {sections.map((section, index) => {
+        const block = section as Block
         const Renderer = sharedSectionRegistry[block.blockType]
         return Renderer ? (
           <Renderer key={`${block.sourceId || block.blockType}-${index}`} block={block} />

@@ -42,14 +42,14 @@ export function LandingProjectsSection({
               {item.description ? (
                 <p className="mt-2 text-sm leading-6 text-ink-2/70">{item.description}</p>
               ) : null}
-              {item.link ? (
+              {/* {item.link ? (
                 <Link
                   href={item.link}
                   className="mt-4 inline-block text-xs font-semibold uppercase tracking-[0.15em] text-brass-deep"
                 >
                   View project →
                 </Link>
-              ) : null}
+              ) : null} */}
             </div>
           </article>
         ))}
