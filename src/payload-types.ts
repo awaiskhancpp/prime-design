@@ -629,6 +629,44 @@ export interface Service {
             blockType: 'gallery';
           }
         | {
+            eyebrow?: string | null;
+            heading?: string | null;
+            description?: string | null;
+            items?:
+              | {
+                  title: string;
+                  image?: {
+                    asset?: (number | null) | Media;
+                    alt?: string | null;
+                    caption?: string | null;
+                    sourceAttachmentId?: number | null;
+                    sourceUrl?: string | null;
+                  };
+                  link?: {
+                    label?: string | null;
+                    url?: string | null;
+                    openInNewTab?: boolean | null;
+                  };
+                  id?: string | null;
+                }[]
+              | null;
+            sourceId?: string | null;
+            sourceElementType?: string | null;
+            sourceAttachmentId?: number | null;
+            sourceMetadata?:
+              | {
+                  [k: string]: unknown;
+                }
+              | unknown[]
+              | string
+              | number
+              | boolean
+              | null;
+            id?: string | null;
+            blockName?: string | null;
+            blockType: 'project-grid';
+          }
+        | {
             heading?: string | null;
             beforeMedia?: (number | null) | Media;
             afterMedia?: (number | null) | Media;
@@ -1834,6 +1872,44 @@ export interface LandingPage {
         blockType: 'gallery';
       }
     | {
+        eyebrow?: string | null;
+        heading?: string | null;
+        description?: string | null;
+        items?:
+          | {
+              title: string;
+              image?: {
+                asset?: (number | null) | Media;
+                alt?: string | null;
+                caption?: string | null;
+                sourceAttachmentId?: number | null;
+                sourceUrl?: string | null;
+              };
+              link?: {
+                label?: string | null;
+                url?: string | null;
+                openInNewTab?: boolean | null;
+              };
+              id?: string | null;
+            }[]
+          | null;
+        sourceId?: string | null;
+        sourceElementType?: string | null;
+        sourceAttachmentId?: number | null;
+        sourceMetadata?:
+          | {
+              [k: string]: unknown;
+            }
+          | unknown[]
+          | string
+          | number
+          | boolean
+          | null;
+        id?: string | null;
+        blockName?: string | null;
+        blockType: 'project-grid';
+      }
+    | {
         heading?: string | null;
         beforeMedia?: (number | null) | Media;
         afterMedia?: (number | null) | Media;
@@ -2906,6 +2982,41 @@ export interface ServicesSelect<T extends boolean = true> {
               id?: T;
               blockName?: T;
             };
+        'project-grid'?:
+          | T
+          | {
+              eyebrow?: T;
+              heading?: T;
+              description?: T;
+              items?:
+                | T
+                | {
+                    title?: T;
+                    image?:
+                      | T
+                      | {
+                          asset?: T;
+                          alt?: T;
+                          caption?: T;
+                          sourceAttachmentId?: T;
+                          sourceUrl?: T;
+                        };
+                    link?:
+                      | T
+                      | {
+                          label?: T;
+                          url?: T;
+                          openInNewTab?: T;
+                        };
+                    id?: T;
+                  };
+              sourceId?: T;
+              sourceElementType?: T;
+              sourceAttachmentId?: T;
+              sourceMetadata?: T;
+              id?: T;
+              blockName?: T;
+            };
         'before-after'?:
           | T
           | {
@@ -3812,6 +3923,41 @@ export interface LandingPagesSelect<T extends boolean = true> {
               layout?: T;
               lightbox?: T;
               sourceGalleryType?: T;
+              sourceId?: T;
+              sourceElementType?: T;
+              sourceAttachmentId?: T;
+              sourceMetadata?: T;
+              id?: T;
+              blockName?: T;
+            };
+        'project-grid'?:
+          | T
+          | {
+              eyebrow?: T;
+              heading?: T;
+              description?: T;
+              items?:
+                | T
+                | {
+                    title?: T;
+                    image?:
+                      | T
+                      | {
+                          asset?: T;
+                          alt?: T;
+                          caption?: T;
+                          sourceAttachmentId?: T;
+                          sourceUrl?: T;
+                        };
+                    link?:
+                      | T
+                      | {
+                          label?: T;
+                          url?: T;
+                          openInNewTab?: T;
+                        };
+                    id?: T;
+                  };
               sourceId?: T;
               sourceElementType?: T;
               sourceAttachmentId?: T;

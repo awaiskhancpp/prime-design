@@ -70,6 +70,20 @@ export const landingPageBlocks: Block[] = [
     { name: 'lightbox', type: 'checkbox' as const, defaultValue: true },
     text('sourceGalleryType'),
   ]),
+  base('project-grid', 'Project Grid', [
+    text('eyebrow'),
+    text('heading'),
+    description(),
+    {
+      name: 'items',
+      type: 'array' as const,
+      fields: [
+        text('title', true),
+        ...mediaReferenceFields('image'),
+        { name: 'link', type: 'group' as const, fields: linkFields() },
+      ],
+    },
+  ]),
   base('before-after', 'Before and After', [
     text('heading'),
     { name: 'beforeMedia', type: 'upload' as const, relationTo: 'media' as const },

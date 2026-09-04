@@ -14,6 +14,7 @@ import { LandingLuxuryCta } from './LandingLuxuryCta'
 import { LandingCtaSection } from './LandingCtaSection'
 import { LandingExperienceDifferenceSection } from './LandingExperienceDifferenceSection'
 import { LandingPrimeDifferenceSection } from './LandingPrimeDifferenceSection'
+import { LandingProjectGridSection } from './LandingProjectGridSection'
 import { LandingProjectsSection } from './LandingProjectsSection'
 import { LandingRepairServicesSection } from './LandingRepairServicesSection'
 import { LandingServiceAreasSection } from './LandingServiceAreasSection'
@@ -194,6 +195,31 @@ function GalleryBlock({ block }: { block: Block }) {
         <p className="mt-4 max-w-2xl text-ink-2/75">{text(block.description)}</p>
       ) : null}
     </Section>
+  )
+}
+
+function ProjectGridBlock({ block }: { block: Block }) {
+  const items = Array.isArray(block.items)
+    ? block.items
+        .map((item) => {
+          const value = item as Record<string, unknown>
+          const link = value.link as Record<string, unknown> | undefined
+          return {
+            title: text(value.title) || '',
+            image: mediaUrl(value.image),
+            link: text(link?.url),
+          }
+        })
+        .filter((item) => item.title)
+    : []
+
+  return (
+    <LandingProjectGridSection
+      eyebrow={text(block.eyebrow)}
+      heading={text(block.heading)}
+      description={text(block.description)}
+      items={items}
+    />
   )
 }
 
@@ -420,6 +446,7 @@ export const landingBlockRegistry: Record<string, Renderer> = {
   'image-text': ImageTextBlock,
   video: VideoBlock,
   gallery: GalleryBlock,
+  'project-grid': ProjectGridBlock,
   'before-after': BeforeAfterBlock,
   'sub-services': SubServicesBlock,
   'prime-difference': ({ block }) => {

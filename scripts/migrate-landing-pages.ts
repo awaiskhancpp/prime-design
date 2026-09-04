@@ -550,7 +550,7 @@ function dynamicHappyFilesImages(section: NormalizedSection, source: WordPressSo
     .map((attachment) => ({ sourceId: attachment.id, status: 'unresolved' as const }))
 }
 
-function dynamicProjectImages(section: NormalizedSection, projects: WordPressProject[]) {
+function projectQueryProjects(section: NormalizedSection, projects: WordPressProject[]) {
   const projectQueries = treeNodes(section)
     .map((node) => node.settings.query)
     .filter(
@@ -560,14 +560,12 @@ function dynamicProjectImages(section: NormalizedSection, projects: WordPressPro
   if (projectQueries.length === 0) return []
 
   const byId = new Map(projects.map((project) => [project.id, project]))
-  const seen = new Set<number>()
-  const result: Array<{ sourceId: number; status: 'unresolved'; projectTitle?: string }> = []
+  const result: WordPressProject[] = []
 
   for (const query of projectQueries) {
-    // Real Bricks project cards on this site scope each gallery to a specific,
-    // hand-picked list of posts via `post__in` — ignoring that (as the old code
-    // did) means every gallery section pulls in every project on the whole
-    // site, which is why every page's gallery looked identical and huge.
+    // Real Bricks project cards scope the loop to project posts. Preserve those
+    // post boundaries so the landing page does not flatten every project's
+    // nested gallery into one visible image list.
     const postIn = Array.isArray(query.post__in)
       ? (query.post__in as unknown[]).map((v) => Number(v)).filter((n) => !Number.isNaN(n))
       : undefined
@@ -581,18 +579,41 @@ function dynamicProjectImages(section: NormalizedSection, projects: WordPressPro
     const limited = cap && !postIn ? scopedProjects.slice(0, cap) : scopedProjects
 
     for (const project of limited) {
-      for (const id of projectGalleryIds(project)) {
-        if (seen.has(id)) continue
-        seen.add(id)
-        result.push({
-          sourceId: id,
-          status: 'unresolved',
-          projectTitle: clean(project.title),
-        })
-      }
+      if (!result.some((item) => item.id === project.id)) result.push(project)
     }
   }
   return result
+}
+
+function dynamicProjectImages(section: NormalizedSection, projects: WordPressProject[]) {
+  const seen = new Set<number>()
+  return projectQueryProjects(section, projects).flatMap((project) =>
+    projectGalleryIds(project).flatMap((sourceId) => {
+      if (seen.has(sourceId)) return []
+      seen.add(sourceId)
+      return [{ sourceId, status: 'unresolved' as const }]
+    }),
+  )
+}
+
+function dynamicProjectCards(
+  section: NormalizedSection,
+  projects: WordPressProject[],
+  mediaIds: Map<number | string, number>,
+) {
+  return projectQueryProjects(section, projects)
+    .flatMap((project) => {
+      const title = clean(project.title)
+      if (!title) return []
+      return [
+        {
+          title,
+          image: project.thumbnailId ? mediaIds.get(project.thumbnailId) : undefined,
+          link: project.slug ? `/project/${project.slug}` : undefined,
+          sourceId: project.id,
+        },
+      ]
+    })
 }
 
 function mapGalleryItems(
@@ -691,6 +712,28 @@ function mapSection(
       }
     }
     case 'gallery': {
+      const projectCards = dynamicProjectCards(section, projects, mediaIds)
+      if (projectCards.length) {
+        return {
+          blockType: 'project-grid',
+          ...common,
+          eyebrow: sectionEyebrow(section),
+          heading,
+          description,
+          items: projectCards.map((project) => ({
+            title: project.title,
+            image: project.image
+              ? {
+                  asset: project.image,
+                  alt: project.title,
+                  sourceAttachmentId: projects.find((item) => item.id === project.sourceId)?.thumbnailId,
+                }
+              : undefined,
+            link: project.link ? { url: project.link } : undefined,
+          })),
+        }
+      }
+
       const items = mapGalleryItems(
         data.galleryItems as NormalizedGalleryItem[] | undefined,
         mediaIds,
@@ -723,8 +766,8 @@ function mapSection(
       const dynamicImages = dynamicProjectImages(section, projects)
         .map((image, index) => ({
           media: mediaIds.get(image.sourceId!),
-          caption: image.projectTitle,
-          alt: image.projectTitle || `Project gallery image ${index + 1}`,
+          caption: undefined,
+          alt: `Project gallery image ${index + 1}`,
           sourceOrder: index,
           sourceAttachmentId: image.sourceId,
         }))
