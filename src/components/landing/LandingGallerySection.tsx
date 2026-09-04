@@ -1,5 +1,7 @@
-import Image from 'next/image'
+'use client'
+
 import { Section } from '@/components/ui/Section'
+import { GalleryGrid } from './GalleryGrid'
 
 export function LandingGallerySection({ heading, images }: { heading?: string; images: string[] }) {
   if (!images.length) return null
@@ -10,22 +12,8 @@ export function LandingGallerySection({ heading, images }: { heading?: string; i
           {heading}
         </h2>
       ) : null}
-      <div className="mt-8 grid grid-cols-2 gap-3 md:grid-cols-3 lg:grid-cols-4">
-        {images.map((image, index) => (
-          <div
-            key={`${image}-${index}`}
-            className="relative aspect-[4/3] overflow-hidden bg-paper-2"
-          >
-            <Image
-              src={image}
-              alt={`${heading || 'Project'} photo ${index + 1}`}
-              fill
-              className="object-cover"
-              unoptimized={image.startsWith('/api/media/file/') || image.includes('/api/media/file/')}
-              sizes="(min-width: 1024px) 25vw, 50vw"
-            />
-          </div>
-        ))}
+      <div className="mt-8">
+        <GalleryGrid images={images} altPrefix={heading || 'Project'} />
       </div>
     </Section>
   )

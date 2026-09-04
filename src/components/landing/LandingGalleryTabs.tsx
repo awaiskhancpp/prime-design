@@ -1,10 +1,10 @@
 'use client'
 
 import { useState } from 'react'
-import Image from 'next/image'
 
 import { Section } from '@/components/ui/Section'
 import { cn } from '@/lib/utils'
+import { GalleryGrid } from './GalleryGrid'
 
 type GalleryTab = {
   label: string
@@ -66,25 +66,8 @@ export function LandingGalleryTabs({
         </div>
       ) : null}
 
-      <div
-        key={active.label}
-        className="mt-6 grid animate-fade-in grid-cols-2 gap-3 motion-reduce:animate-none md:grid-cols-3"
-      >
-        {active.images.map((image, index) => (
-          <div
-            key={`${active.label}-${index}`}
-            className="relative aspect-[4/3] overflow-hidden bg-paper-2"
-          >
-            <Image
-              src={image}
-              alt={`${active.label} photo ${index + 1}`}
-              fill
-              loading="lazy"
-              className="object-cover"
-              sizes="(min-width: 1024px) 33vw, 50vw"
-            />
-          </div>
-        ))}
+      <div key={active.label} className="mt-6 animate-fade-in motion-reduce:animate-none">
+        <GalleryGrid images={active.images} altPrefix={active.label} />
       </div>
     </Section>
   )

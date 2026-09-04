@@ -498,10 +498,30 @@ export const landingBlockRegistry: Record<string, Renderer> = {
 export const sharedSectionRegistry = landingBlockRegistry
 
 export function LandingBlockRenderer({ sections }: { sections: LandingPageBlock[] }) {
+  const preparedSections = sections
+    .map((section, index) => {
+      const block = section as Block
+      const next = sections[index + 1] as Block | undefined
+      if (block.blockType !== 'prime-difference' || next?.blockType !== 'video-carousel') {
+        return block
+      }
+
+      const existingVideos = Array.isArray(block.videos) ? block.videos : []
+      const carouselVideos = Array.isArray(next.items) ? next.items : []
+      return {
+        ...block,
+        videos: existingVideos.length ? existingVideos : carouselVideos,
+      }
+    })
+
+  const renderedSections = preparedSections.filter((section, index) => {
+    const previous = preparedSections[index - 1]
+    return !(section.blockType === 'video-carousel' && previous?.blockType === 'prime-difference')
+  })
+
   return (
     <>
-      {sections.map((section, index) => {
-        const block = section as Block
+      {renderedSections.map((block, index) => {
         const Renderer = sharedSectionRegistry[block.blockType]
         return Renderer ? (
           <Renderer key={`${block.sourceId || block.blockType}-${index}`} block={block} />

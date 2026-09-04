@@ -232,12 +232,101 @@ function sourceImageMediaId(
       : undefined
 }
 
+function imageFromTreeNode(node: BricksTreeNode): NormalizedImage | undefined {
+  const imageNode = node.name === 'image'
+    ? node
+    : [node, ...node.children.flatMap((child) => treeNodesFromNode(child))].find(
+        (child) => child.name === 'image',
+      )
+
+  if (!imageNode?.settings.image || typeof imageNode.settings.image !== 'object') {
+    return undefined
+  }
+
+  const image = imageNode.settings.image as Record<string, unknown>
+  return {
+    sourceId: typeof image.id === 'number' ? image.id : undefined,
+    filename: typeof image.filename === 'string' ? image.filename : undefined,
+    url:
+      typeof image.full === 'string'
+        ? image.full
+        : typeof image.url === 'string'
+          ? image.url
+          : undefined,
+    status: 'unresolved',
+  }
+}
+
+function treeNodesFromNode(node: BricksTreeNode): BricksTreeNode[] {
+  return [node, ...node.children.flatMap((child) => treeNodesFromNode(child))]
+}
+
 function subServiceItems(
   section: NormalizedSection,
   mediaIds: Map<number | string, number>,
   pagesById: Map<number, WordPressPage>,
 ) {
   const nodes = treeNodes(section)
+  const sourceTree = dataOf(section).sourceTree as BricksTreeNode | undefined
+  const cardRoots = sourceTree
+    ? sourceTree.children
+        .filter((node) => node.name === 'container')
+        .flatMap((container) => container.children)
+        .filter((node) => {
+          if (node.name !== 'block') return false
+          const descendants = treeNodesFromNode(node)
+          return (
+            descendants.some((child) => child.name === 'heading' && clean(child.settings.text)) &&
+            descendants.some((child) => child.name === 'image')
+          )
+        })
+    : []
+
+  if (cardRoots.length) {
+    return cardRoots.flatMap((card, index) => {
+      const cardNodes = treeNodesFromNode(card)
+      const headingNode = cardNodes.find(
+        (node) => node.name === 'heading' && clean(node.settings.text),
+      )
+      const title = clean(headingNode?.settings.text)
+      const descriptionNode = cardNodes.find(
+        (node) => node.name === 'text-basic' && clean(node.settings.text),
+      )
+      const image = imageFromTreeNode(card)
+
+      if (!title || !image) return []
+
+      const link =
+        headingNode?.settings.link && typeof headingNode.settings.link === 'object'
+          ? (headingNode.settings.link as Record<string, unknown>)
+          : undefined
+      const postId = typeof link?.postId === 'string' ? Number(link.postId) : undefined
+      const sourcePage = postId
+        ? pagesById.get(postId)
+        : pagesByIdByTitle(pagesById, title)
+      const url =
+        typeof link?.url === 'string'
+          ? link.url
+          : sourcePage?.slug
+            ? `/${sourcePage.slug}`
+            : undefined
+      const mediaId = image.sourceId
+        ? mediaIds.get(image.sourceId)
+        : image.filename
+          ? mediaIds.get(image.filename)
+          : undefined
+      const item: Record<string, unknown> = {
+        title,
+        description: clean(descriptionNode?.settings.text),
+        media: mediaRef(image, mediaId),
+        sourceOrder: index,
+      }
+
+      if (url) item.link = { label: 'Learn more', url, openInNewTab: false }
+      return [item]
+    })
+  }
+
   const headings = nodes.filter((node) => node.name === 'heading' && clean(node.settings.text))
   const images = sourceImages(section).slice(1)
   return headings.slice(1).map((node, index) => {
@@ -333,7 +422,20 @@ function featureItems(section: NormalizedSection) {
 
   return nodes
     .filter((node) => node.name === 'icon-box' || node.name === 'list')
-    .map((node) => {
+    .flatMap((node) => {
+      if (node.name === 'list') {
+        const items = node.settings.items
+        if (!items || typeof items !== 'object') return []
+        return Object.values(items as Record<string, unknown>)
+          .map((item) =>
+            item && typeof item === 'object'
+              ? clean((item as Record<string, unknown>).title)
+              : undefined,
+          )
+          .filter((title): title is string => Boolean(title))
+          .map((title) => ({ title }))
+      }
+
       const rawContent =
         typeof node.settings.content === 'string' ? node.settings.content : undefined
       const title = rawContent
@@ -343,15 +445,18 @@ function featureItems(section: NormalizedSection) {
         ? clean(rawContent.replace(/<h[1-6][^>]*>[\s\S]*?<\/h[1-6]>/i, ''))
         : undefined
 
-      if (!title) return null
+      if (!title) return []
 
-      return {
-        title,
-        ...(description ? { description } : {}),
-      }
+      return [
+        {
+          title,
+          ...(description ? { description } : {}),
+        },
+      ]
     })
-    .filter((item): item is { title: string; description?: string } => item !== null)
+    .filter((item): item is { title: string; description?: string } => Boolean(item.title))
     .filter((item) => !/^why choose|^experience the|^the prime difference/i.test(item.title))
+    .filter((item) => !/^over 350\+ projects/i.test(item.title))
 }
 
 function headingFromMarkup(value: unknown) {
@@ -368,6 +473,14 @@ function sectionEyebrow(section: NormalizedSection) {
     ? nodes.findIndex((node) => clean(node.settings.text) === mainHeading)
     : -1
   const precedingNodes = mainHeadingIndex >= 0 ? nodes.slice(0, mainHeadingIndex) : nodes
+
+  if (section.type === 'prime-difference') {
+    const projectCount = nodes
+      .filter((node) => node.name === 'icon-box')
+      .map((node) => headingFromMarkup(node.settings.content))
+      .find((value) => value && /^over 350\+ projects/i.test(value))
+    if (projectCount) return projectCount
+  }
 
   const semanticHeading = precedingNodes.find((node) => {
     if (node.name !== 'heading') return false
