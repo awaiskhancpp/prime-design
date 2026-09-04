@@ -644,6 +644,12 @@ function mapSection(
         heading: heading || 'The Prime Difference',
         description,
         features: featureItems(section),
+        videos: section.videos.map((video) => ({
+          video: video.attachmentId ? mediaIds.get(video.attachmentId) : undefined,
+          externalUrl: video.sourceUrl,
+          poster: video.poster?.sourceId ? mediaIds.get(video.poster.sourceId) : undefined,
+          sourceVideoId: video.sourceUrl,
+        })),
         media: ref,
       }
     case 'experience-difference':

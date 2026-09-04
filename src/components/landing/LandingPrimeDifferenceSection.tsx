@@ -8,12 +8,14 @@ import { Section } from '@/components/ui/Section'
 type LandingVideo = { url: string; poster?: string; caption?: string }
 
 export function LandingPrimeDifferenceSection({
+  eyebrow,
   heading,
   headingAccent,
   body,
   checklist,
   videos = [],
 }: {
+  eyebrow?: string
   heading?: string
   headingAccent?: string
   body?: string
@@ -47,9 +49,11 @@ export function LandingPrimeDifferenceSection({
     <Section className="bg-ink-2 text-white">
       <div className="grid gap-10 lg:grid-cols-[0.8fr_1.2fr] lg:items-center">
         <div>
-          <p className="text-xs font-semibold uppercase tracking-[0.2em] text-brass">
-            The Prime Difference
-          </p>
+          {eyebrow ? (
+            <p className="text-xs font-semibold uppercase tracking-[0.2em] text-brass">
+              {eyebrow}
+            </p>
+          ) : null}
           <h2 className="mt-4 font-display text-3xl font-medium md:text-5xl">
             {heading || headingAccent ? (
               <>

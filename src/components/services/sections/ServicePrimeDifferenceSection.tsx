@@ -1,16 +1,50 @@
 import Image from 'next/image'
-import { Star } from 'lucide-react'
 
 import { Section } from '@/components/ui/Section'
 import type { ServiceDetail } from '@/lib/services'
 
 export type PrimeDifferenceContent = {
-  eyebrow: string
+  eyebrow?: string
   heading: string
-  headingAccent: string
-  body: string
-  checklist: string[]
-  reasons: { icon: string; title: string; body: string }[]
+  headingAccent?: string
+  body?: string
+  checklist?: string[]
+  reasons?: { icon?: string; title: string; body?: string }[]
+}
+
+export type WordPressDifferenceFeature = {
+  title: string
+  description?: string
+}
+
+const presentationIcons = [
+  '/attention-to-detail.svg',
+  '/quality-craftsmanship.svg',
+  '/professional-expertise.svg',
+  '/customer-satisfaction.svg',
+]
+
+export function getWordPressDifferenceContent({
+  eyebrow,
+  heading,
+  description,
+  features,
+}: {
+  eyebrow?: string
+  heading: string
+  description?: string
+  features: WordPressDifferenceFeature[]
+}): PrimeDifferenceContent {
+  return {
+    eyebrow,
+    heading,
+    body: description,
+    reasons: features.map((feature, index) => ({
+      icon: presentationIcons[index],
+      title: feature.title,
+      body: feature.description,
+    })),
+  }
 }
 
 const spaceWordBySlug: Record<string, string> = {
@@ -84,17 +118,19 @@ export function ServicePrimeDifferenceSection({
     <Section className="bg-white">
       <div className="grid gap-14 lg:grid-cols-[0.9fr_1.1fr] lg:gap-16 lg:items-center">
         <div>
-          <p className="font-display text-lg italic text-ink-2/70">{eyebrow}</p>
+          {eyebrow ? <p className="font-display text-lg italic text-ink-2/70">{eyebrow}</p> : null}
           <h2 className="mt-3 font-display text-4xl font-medium leading-tight tracking-tight text-ink md:text-5xl">
-            &ldquo;{heading}{' '}
-            <span className="bg-gradient-to-r from-brass to-brass-deep bg-clip-text text-transparent">
-              {headingAccent}
-            </span>
+            &ldquo;{heading}{headingAccent ? ' ' : null}
+            {headingAccent ? (
+              <span className="bg-gradient-to-r from-brass to-brass-deep bg-clip-text text-transparent">
+                {headingAccent}
+              </span>
+            ) : null}
             &rdquo;
           </h2>
-          <p className="mt-6 text-base leading-7 text-ink-2/75">{body}</p>
+          {body ? <p className="mt-6 text-base leading-7 text-ink-2/75">{body}</p> : null}
 
-          <ul className="mt-7 grid gap-4">
+          {checklist?.length ? <ul className="mt-7 grid gap-4">
             {checklist.map((item) => (
               <li key={item} className="flex items-start gap-3">
                 <span className="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-ink text-white">
@@ -111,7 +147,7 @@ export function ServicePrimeDifferenceSection({
                 <span className="text-base leading-6 text-ink-2/85">{item}</span>
               </li>
             ))}
-          </ul>
+          </ul> : null}
 
           <div className="mt-8 flex flex-wrap items-center gap-6">
             {reviewBadges.map((badge) => (
@@ -129,7 +165,7 @@ export function ServicePrimeDifferenceSection({
         </div>
 
         <div className="grid gap-6 sm:grid-cols-2">
-          {reasons.map(({ icon, title, body }, index) => (
+            {(reasons || []).map(({ icon, title, body }, index) => (
             <div
               key={title}
               className="group relative border border-line bg-paper p-8 transition-shadow duration-300 hover:shadow-lg hover:shadow-ink/5"
@@ -144,18 +180,20 @@ export function ServicePrimeDifferenceSection({
               </span>
 
               <div className="mt-5 flex h-[90px] w-[90px] items-center justify-center">
-                <Image
-                  src={icon}
-                  alt=""
-                  aria-hidden="true"
-                  width={90}
-                  height={90}
-                  className="h-[90px] w-[90px] object-contain"
-                />
+                {icon ? (
+                  <Image
+                    src={icon}
+                    alt=""
+                    aria-hidden="true"
+                    width={90}
+                    height={90}
+                    className="h-[90px] w-[90px] object-contain"
+                  />
+                ) : null}
               </div>
 
               <h3 className="mt-6 font-display text-xl font-medium text-ink">{title}</h3>
-              <p className="mt-3 text-sm leading-6 text-ink-2/65">{body}</p>
+              {body ? <p className="mt-3 text-sm leading-6 text-ink-2/65">{body}</p> : null}
             </div>
           ))}
         </div>

@@ -97,6 +97,20 @@ export const landingPageBlocks: Block[] = [
     text('heading', true),
     description(),
     { name: 'features', type: 'array' as const, fields: featureCardFields() },
+    {
+      name: 'videos',
+      type: 'array' as const,
+      admin: {
+        description: 'Ordered videos embedded in the WordPress Prime Difference section.',
+      },
+      fields: [
+        { name: 'video', type: 'upload' as const, relationTo: 'media' as const },
+        text('externalUrl'),
+        { name: 'poster', type: 'upload' as const, relationTo: 'media' as const },
+        text('caption'),
+        text('sourceVideoId'),
+      ],
+    },
     ...mediaReferenceFields(),
   ]),
   base('experience-difference', 'Experience Difference', [

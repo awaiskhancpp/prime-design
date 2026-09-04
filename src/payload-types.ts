@@ -718,6 +718,19 @@ export interface Service {
                   id?: string | null;
                 }[]
               | null;
+            /**
+             * Ordered videos embedded in the WordPress Prime Difference section.
+             */
+            videos?:
+              | {
+                  video?: (number | null) | Media;
+                  externalUrl?: string | null;
+                  poster?: (number | null) | Media;
+                  caption?: string | null;
+                  sourceVideoId?: string | null;
+                  id?: string | null;
+                }[]
+              | null;
             media?: {
               asset?: (number | null) | Media;
               alt?: string | null;
@@ -1910,6 +1923,19 @@ export interface LandingPage {
               id?: string | null;
             }[]
           | null;
+        /**
+         * Ordered videos embedded in the WordPress Prime Difference section.
+         */
+        videos?:
+          | {
+              video?: (number | null) | Media;
+              externalUrl?: string | null;
+              poster?: (number | null) | Media;
+              caption?: string | null;
+              sourceVideoId?: string | null;
+              id?: string | null;
+            }[]
+          | null;
         media?: {
           asset?: (number | null) | Media;
           alt?: string | null;
@@ -2968,6 +2994,16 @@ export interface ServicesSelect<T extends boolean = true> {
                         };
                     id?: T;
                   };
+              videos?:
+                | T
+                | {
+                    video?: T;
+                    externalUrl?: T;
+                    poster?: T;
+                    caption?: T;
+                    sourceVideoId?: T;
+                    id?: T;
+                  };
               media?:
                 | T
                 | {
@@ -3869,6 +3905,16 @@ export interface LandingPagesSelect<T extends boolean = true> {
                           url?: T;
                           openInNewTab?: T;
                         };
+                    id?: T;
+                  };
+              videos?:
+                | T
+                | {
+                    video?: T;
+                    externalUrl?: T;
+                    poster?: T;
+                    caption?: T;
+                    sourceVideoId?: T;
                     id?: T;
                   };
               media?:

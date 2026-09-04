@@ -8,7 +8,6 @@ import { Section } from '@/components/ui/Section'
 import { ServiceVideoSection } from '@/components/services/ServiceVideoSection'
 import BeforeAfterSlider from '@/components/blocks/BeforeAfterSlider'
 import { LandingFindUs } from './LandingFindUs'
-import { LandingExperienceDifferenceSection } from './LandingExperienceDifferenceSection'
 import { LandingGallerySection } from './LandingGallerySection'
 import { LandingGalleryTabs } from './LandingGalleryTabs'
 import { LandingLuxuryCta } from './LandingLuxuryCta'
@@ -16,6 +15,10 @@ import { LandingPrimeDifferenceSection } from './LandingPrimeDifferenceSection'
 import { LandingProjectsSection } from './LandingProjectsSection'
 import { LandingRepairServicesSection } from './LandingRepairServicesSection'
 import { LandingServiceAreasSection } from './LandingServiceAreasSection'
+import {
+  getWordPressDifferenceContent,
+  ServicePrimeDifferenceSection,
+} from '@/components/services/sections/ServicePrimeDifferenceSection'
 import { LandingFaqSection } from './LandingFaqSection'
 import { LandingBookingSection } from './LandingBookingSection'
 import { LandingContact } from './Contact'
@@ -397,19 +400,56 @@ export const landingBlockRegistry: Record<string, Renderer> = {
   gallery: GalleryBlock,
   'before-after': BeforeAfterBlock,
   'sub-services': SubServicesBlock,
-  'prime-difference': ({ block }) => (
-    <LandingPrimeDifferenceSection
-      heading={text(block.heading)}
-      body={text(block.description)}
-      checklist={Array.isArray(block.features) ? block.features.map((item) => text((item as Record<string, unknown>).title)).filter((item): item is string => Boolean(item)) : []}
-    />
-  ),
+  'prime-difference': ({ block }) => {
+    const features = Array.isArray(block.features)
+      ? block.features
+          .map((item) => item as Record<string, unknown>)
+          .map((item) => {
+            const title = text(item.title)
+            const description = text(item.description)
+            return title && description ? `${title}: ${description}` : title || description
+          })
+          .filter((item): item is string => Boolean(item))
+      : []
+    const videos = Array.isArray(block.videos)
+      ? block.videos
+          .map((item) => item as Record<string, unknown>)
+          .map((item) => ({
+            url: text(item.externalUrl) || mediaUrl(item.video),
+            poster: mediaUrl(item.poster),
+            caption: text(item.caption),
+          }))
+          .filter((item) => Boolean(item.url))
+          .map((item) => ({
+            url: item.url as string,
+            poster: item.poster,
+            caption: item.caption,
+          }))
+      : []
+
+    return (
+      <LandingPrimeDifferenceSection
+        eyebrow={text(block.eyebrow)}
+        heading={text(block.heading)}
+        body={text(block.description)}
+        checklist={features}
+        videos={videos}
+      />
+    )
+  },
   'experience-difference': ({ block }) => (
-    <LandingExperienceDifferenceSection
-      eyebrow={text(block.eyebrow)}
-      heading={text(block.heading)}
-      body={text(block.description)}
-      features={Array.isArray(block.features) ? (block.features as Array<{ title?: string; description?: string }>) : []}
+    <ServicePrimeDifferenceSection
+      {...getWordPressDifferenceContent({
+        eyebrow: text(block.eyebrow),
+        heading: text(block.heading) || '',
+        description: text(block.description),
+        features: Array.isArray(block.features)
+          ? block.features
+              .map((item) => item as Record<string, unknown>)
+              .filter((item): item is { title: string; description?: string } => Boolean(text(item.title)))
+              .map((item) => ({ title: text(item.title)!, description: text(item.description) }))
+          : [],
+      })}
     />
   ),
   'service-areas': ({ block }) => (
