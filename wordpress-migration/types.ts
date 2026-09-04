@@ -11,6 +11,7 @@ export type WordPressAttachment = {
   url?: string
   mimeType?: string
   meta: XmlMeta[]
+  happyfilesCategorySlugs?: string[]
 }
 
 export type WordPressPage = {
@@ -58,6 +59,10 @@ export type WordPressSource = {
   projects: WordPressProject[]
   testimonials: WordPressTestimonial[]
   allItems: number
+  // Maps a HappyFiles folder's numeric term_id (as referenced by a gallery
+  // widget's `settings.ids`) to that folder's term slug, so attachments
+  // tagged with the slug can be resolved back to a specific gallery widget.
+  happyfilesFolders: Record<string, string>
 }
 
 export type BricksSettings = Record<string, unknown>
@@ -167,7 +172,14 @@ export type NormalizedSection = {
   data: Record<string, unknown>
   images: NormalizedImage[]
   videos: NormalizedVideo[]
-  classification: 'supported' | 'partial' | 'utility' | 'global' | 'missing-schema' | 'missing-renderer' | 'parser-error'
+  classification:
+    | 'supported'
+    | 'partial'
+    | 'utility'
+    | 'global'
+    | 'missing-schema'
+    | 'missing-renderer'
+    | 'parser-error'
   reason?: string
   required?: string
   unsupportedElements: Array<{

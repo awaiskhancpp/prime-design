@@ -12,8 +12,10 @@ import type {
   NormalizedGalleryItem,
   NormalizedImage,
   NormalizedSection,
+  WordPressAttachment,
   WordPressPage,
   WordPressProject,
+  WordPressSource,
 } from '../wordpress-migration/types'
 
 const xmlPath =
@@ -196,10 +198,12 @@ function sourceImages(section: NormalizedSection): NormalizedImage[] {
 function isHiddenSourceSection(section: NormalizedSection) {
   const tree = dataOf(section).sourceTree as BricksTreeNode | undefined
   const settings = tree?.settings || {}
+  const ownSelectorHidden =
+    typeof settings._cssCustom === 'string' &&
+    tree?.id &&
+    new RegExp(`#brxe-${tree.id}\\s*\\{[^}]*display\\s*:\\s*none`, 'i').test(settings._cssCustom)
   return (
-    settings._visibility === 'hidden' ||
-    settings._opacity === '0' ||
-    (typeof settings._cssCustom === 'string' && /display\s*:\s*none/i.test(settings._cssCustom))
+    settings._visibility === 'hidden' || settings._opacity === '0' || Boolean(ownSelectorHidden)
   )
 }
 
@@ -299,34 +303,90 @@ function serviceSlugForAreas(section: NormalizedSection, pagesById: Map<number, 
   return parentId ? pagesById.get(parentId)?.slug : undefined
 }
 
+function findUsData(section: NormalizedSection) {
+  const values: string[] = []
+  const mapUrls: string[] = []
+
+  for (const node of treeNodes(section)) {
+    const settings = node.settings
+    for (const value of [settings.text, settings.content, settings.title, settings.label]) {
+      const cleaned = clean(value)
+      if (cleaned) values.push(cleaned)
+    }
+    const link = settings.link
+    if (link && typeof link === 'object') {
+      const url = (link as Record<string, unknown>).url
+      if (typeof url === 'string' && /maps|google\./i.test(url)) mapUrls.push(url)
+    }
+  }
+
+  return {
+    phone: values.find((value) => /(?:\+?1\s*)?\(?\d{3}\)?[\s.-]*\d{3}[\s.-]*\d{4}/.test(value)),
+    email: values.find((value) => /\b[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}\b/i.test(value)),
+    address: values.find((value) => /\b(?:ave|avenue|street|st\.?|road|rd\.?|blvd\.?)\b/i.test(value)),
+    mapUrl: mapUrls[0],
+  }
+}
+
 function featureItems(section: NormalizedSection) {
   const nodes = treeNodes(section)
 
   return nodes
-    .filter(
-      (node) => node.name === 'icon-box' || node.name === 'list' || node.name === 'text-basic',
-    )
+    .filter((node) => node.name === 'icon-box' || node.name === 'list')
     .map((node) => {
-      const value = clean(node.settings.content || node.settings.text || node.settings.title)
+      const rawContent =
+        typeof node.settings.content === 'string' ? node.settings.content : undefined
+      const title = rawContent
+        ? clean(rawContent.match(/<h[1-6][^>]*>([\s\S]*?)<\/h[1-6]>/i)?.[1])
+        : clean(node.settings.text || node.settings.title)
+      const description = rawContent
+        ? clean(rawContent.replace(/<h[1-6][^>]*>[\s\S]*?<\/h[1-6]>/i, ''))
+        : undefined
 
-      if (!value) return null
+      if (!title) return null
 
       return {
-        title: value,
-        description: undefined,
-        link: undefined,
+        title,
+        ...(description ? { description } : {}),
       }
     })
-    .filter(
-      (
-        item,
-      ): item is {
-        title: string
-        description: undefined
-        link: undefined
-      } => item !== null,
-    )
+    .filter((item): item is { title: string; description?: string } => item !== null)
     .filter((item) => !/^why choose|^experience the|^the prime difference/i.test(item.title))
+}
+
+function headingFromMarkup(value: unknown) {
+  if (typeof value !== 'string') return undefined
+  const match = value.match(/<h[1-6][^>]*>([\s\S]*?)<\/h[1-6]>/i)
+  return clean(match?.[1])
+}
+
+function sectionEyebrow(section: NormalizedSection) {
+  const nodes = treeNodes(section)
+  const data = dataOf(section)
+  const mainHeading = first([data.heading, ...(Array.isArray(data.headings) ? data.headings : [])])
+  const mainHeadingIndex = mainHeading
+    ? nodes.findIndex((node) => clean(node.settings.text) === mainHeading)
+    : -1
+  const precedingNodes = mainHeadingIndex >= 0 ? nodes.slice(0, mainHeadingIndex) : nodes
+
+  const semanticHeading = precedingNodes.find((node) => {
+    if (node.name !== 'heading') return false
+    const tag = typeof node.settings.tag === 'string' ? node.settings.tag.toLowerCase() : ''
+    return tag === 'h4' || tag === 'h5' || tag === 'h6'
+  })
+  const semanticHeadingText = clean(semanticHeading?.settings.text)
+  if (semanticHeadingText) return semanticHeadingText
+
+  if (section.type === 'luxury-cta') {
+    const kicker = precedingNodes.find((node) => node.name === 'icon-box')
+    const kickerText = headingFromMarkup(kicker?.settings.content)
+    if (kickerText) return kickerText
+  }
+
+  return precedingNodes
+    .filter((node) => node.name === 'text-basic')
+    .map((node) => clean(node.settings.text))
+    .find((value) => value && value.length <= 120)
 }
 
 function htmlListItems(value: unknown) {
@@ -341,22 +401,79 @@ function projectGalleryIds(project: WordPressProject) {
   return [...value.matchAll(/i:\d+;s:\d+:"(\d+)";/g)].map((match) => Number(match[1]))
 }
 
+function dynamicHappyFilesImages(section: NormalizedSection, source: WordPressSource) {
+  // A `happyfiles-gallery` node stores the folder it displays as a numeric
+  // term_id in settings.ids (e.g. { 0: "8" }). That id only resolves to a
+  // slug via the WXR's top-level term registry, and only attachments carry
+  // the slug directly. Previously this data was captured as a `galleryId`
+  // pointer and then silently dropped downstream because it had no mediaId
+  // — which is why curated galleries (e.g. the ~50-photo "Kitchens (GALLERY)"
+  // folder) fell through to the much larger, unscoped "all projects" pool.
+  const folderIds = treeNodes(section)
+    .filter((node) => node.name === 'happyfiles-gallery' || node.name === 'image-gallery')
+    .map((node) => {
+      const ids = node.settings.ids as Record<string, unknown> | undefined
+      return typeof ids?.['0'] === 'string' || typeof ids?.['0'] === 'number'
+        ? String(ids['0'])
+        : undefined
+    })
+    .filter((id): id is string => Boolean(id))
+  if (folderIds.length === 0) return []
+
+  const slugs = new Set(folderIds.map((id) => source.happyfilesFolders[id]).filter(Boolean))
+  if (slugs.size === 0) return []
+
+  return source.attachments
+    .filter((attachment) => attachment.happyfilesCategorySlugs?.some((slug) => slugs.has(slug)))
+    .map((attachment) => ({ sourceId: attachment.id, status: 'unresolved' as const }))
+}
+
 function dynamicProjectImages(section: NormalizedSection, projects: WordPressProject[]) {
-  const hasProjectQuery = treeNodes(section).some((node) => {
-    const query = node.settings.query
-    return query && typeof query === 'object' && JSON.stringify(query).includes('project')
-  })
-  if (!hasProjectQuery) return []
-  return projects.flatMap((project) => {
-    const ids = projectGalleryIds(project)
-    return ids.map((id) => ({ sourceId: id, status: 'unresolved' as const }))
-  })
+  const projectQueries = treeNodes(section)
+    .map((node) => node.settings.query)
+    .filter(
+      (query): query is Record<string, unknown> =>
+        Boolean(query) && typeof query === 'object' && JSON.stringify(query).includes('project'),
+    )
+  if (projectQueries.length === 0) return []
+
+  const byId = new Map(projects.map((project) => [project.id, project]))
+  const seen = new Set<number>()
+  const result: Array<{ sourceId: number; status: 'unresolved' }> = []
+
+  for (const query of projectQueries) {
+    // Real Bricks project cards on this site scope each gallery to a specific,
+    // hand-picked list of posts via `post__in` — ignoring that (as the old code
+    // did) means every gallery section pulls in every project on the whole
+    // site, which is why every page's gallery looked identical and huge.
+    const postIn = Array.isArray(query.post__in)
+      ? (query.post__in as unknown[]).map((v) => Number(v)).filter((n) => !Number.isNaN(n))
+      : undefined
+    const scopedProjects = postIn
+      ? postIn.map((id) => byId.get(id)).filter((p): p is WordPressProject => Boolean(p))
+      : projects // no post__in on this query: it really does mean "all projects"
+    const cap =
+      typeof query.posts_per_page === 'string' || typeof query.posts_per_page === 'number'
+        ? Number(query.posts_per_page)
+        : undefined
+    const limited = cap && !postIn ? scopedProjects.slice(0, cap) : scopedProjects
+
+    for (const project of limited) {
+      for (const id of projectGalleryIds(project)) {
+        if (seen.has(id)) continue
+        seen.add(id)
+        result.push({ sourceId: id, status: 'unresolved' })
+      }
+    }
+  }
+  return result
 }
 
 function mapGalleryItems(
   items: NormalizedGalleryItem[] | undefined,
   mediaIds: Map<number | string, number>,
 ) {
+  const seen = new Set<number | string>()
   return (items || [])
     .map((item, index) => ({
       media: item.mediaId ? mediaIds.get(item.mediaId) : undefined,
@@ -366,6 +483,13 @@ function mapGalleryItems(
       sourceAttachmentId: item.mediaId,
     }))
     .filter((item) => item.media || item.sourceAttachmentId)
+    .filter((item) => {
+      const key = item.sourceAttachmentId ?? item.media
+      if (key === undefined) return true
+      if (seen.has(key)) return false
+      seen.add(key)
+      return true
+    })
 }
 
 function mapSection(
@@ -374,14 +498,17 @@ function mapSection(
   pagesById: Map<number, WordPressPage>,
   projects: WordPressProject[],
   faqRecords: Array<{ id: number; title: string; content: string; category?: string }>,
+  source: WordPressSource,
 ): Record<string, unknown> | undefined {
   const data = dataOf(section)
   if (isHiddenSourceSection(section)) return undefined
   const heading = first([data.heading, ...(Array.isArray(data.headings) ? data.headings : [])])
   const description = first(Array.isArray(data.body) ? data.body : [data.body])
   const images = section.images
-  const ref = images[0]
-    ? mediaRef(images[0], images[0].sourceId ? mediaIds.get(images[0].sourceId) : undefined)
+  const primaryImage = data.primaryImage as NormalizedImage | undefined
+  const refImage = primaryImage || images[0]
+  const ref = refImage
+    ? mediaRef(refImage, refImage.sourceId ? mediaIds.get(refImage.sourceId) : undefined)
     : undefined
   const common = base(section)
 
@@ -390,7 +517,7 @@ function mapSection(
       return {
         blockType: 'hero',
         ...common,
-        eyebrow: undefined,
+        eyebrow: sectionEyebrow(section),
         heading: heading || 'Prime Design & Build',
         description,
         backgroundMedia: ref,
@@ -401,7 +528,7 @@ function mapSection(
       return {
         blockType: 'cta',
         ...common,
-        eyebrow: undefined,
+        eyebrow: sectionEyebrow(section),
         heading: heading || 'Ready to get started?',
         description,
         media: ref,
@@ -411,7 +538,7 @@ function mapSection(
       return {
         blockType: 'image-text',
         ...common,
-        eyebrow: undefined,
+        eyebrow: sectionEyebrow(section),
         heading: heading || 'Prime Design & Build',
         description,
         media: ref,
@@ -449,6 +576,18 @@ function mapSection(
           sourceAttachmentId: image.sourceId,
         }))
         .filter((item) => item.media)
+      // A curated HappyFiles folder (e.g. "Kitchens (GALLERY)") is a specific,
+      // hand-picked set of photos for this exact gallery widget — prefer it
+      // over the much broader, unscoped "every project on the site" fallback.
+      const happyFilesImages = dynamicHappyFilesImages(section, source)
+        .map((image, index) => ({
+          media: mediaIds.get(image.sourceId!),
+          caption: undefined,
+          alt: `Gallery image ${index + 1}`,
+          sourceOrder: index,
+          sourceAttachmentId: image.sourceId,
+        }))
+        .filter((item) => item.media)
       const dynamicImages = dynamicProjectImages(section, projects)
         .map((image, index) => ({
           media: mediaIds.get(image.sourceId!),
@@ -463,7 +602,13 @@ function mapSection(
         ...common,
         heading,
         description,
-        items: items.length ? items : directImages.length ? directImages : dynamicImages,
+        items: items.length
+          ? items
+          : directImages.length
+            ? directImages
+            : happyFilesImages.length
+              ? happyFilesImages
+              : dynamicImages,
         groups: [],
         layout: undefined,
         lightbox: true,
@@ -486,7 +631,7 @@ function mapSection(
       return {
         blockType: 'sub-services',
         ...common,
-        eyebrow: undefined,
+        eyebrow: sectionEyebrow(section),
         heading: heading || 'Our Services',
         description,
         items: subServiceItems(section, mediaIds, pagesById),
@@ -495,7 +640,7 @@ function mapSection(
       return {
         blockType: 'prime-difference',
         ...common,
-        eyebrow: undefined,
+        eyebrow: sectionEyebrow(section),
         heading: heading || 'The Prime Difference',
         description,
         features: featureItems(section),
@@ -505,7 +650,7 @@ function mapSection(
       return {
         blockType: 'experience-difference',
         ...common,
-        eyebrow: undefined,
+        eyebrow: sectionEyebrow(section),
         heading: heading || 'Experience the Prime Difference',
         description,
         features: featureItems(section),
@@ -524,14 +669,12 @@ function mapSection(
           areaServiceSlug && citySlug
             ? `/${areaServiceSlug}/${areaServiceSlug}-in-${citySlug}`
             : undefined
-        return label
-          ? [{ label, link: url ? { label, url, openInNewTab: false } : undefined }]
-          : []
+        return label ? [{ label, link: url ? { label, url, openInNewTab: false } : undefined }] : []
       })
       return {
         blockType: 'service-areas',
         ...common,
-        eyebrow: undefined,
+        eyebrow: sectionEyebrow(section),
         heading: heading || 'Areas We Service',
         description,
         areas,
@@ -547,8 +690,13 @@ function mapSection(
           (data.repairCategories as Array<Record<string, unknown>> | undefined) || []
         ).map((category) => ({
           title: clean(category.title) || 'Service',
-          description: clean(category.html),
-          features: htmlListItems(category.html),
+          description: clean(category.description) || clean(category.html),
+          features: Array.isArray(category.features)
+            ? category.features
+                .map(clean)
+                .filter((feature): feature is string => Boolean(feature))
+                .map((text) => ({ text }))
+            : htmlListItems(category.html).map((text) => ({ text })),
           sourceId: category.sourceId,
         })),
       }
@@ -556,22 +704,24 @@ function mapSection(
       return {
         blockType: 'luxury-cta',
         ...common,
-        eyebrow: undefined,
+        eyebrow: sectionEyebrow(section),
         heading: heading || "Silicon Valley's Luxury Home Contractor",
         description,
         media: ref,
         buttons: buttonData(section, pagesById),
       }
-    case 'find-us':
+    case 'find-us': {
+      const contact = findUsData(section)
       return {
         blockType: 'find-us',
         ...common,
         heading: heading || 'Find us',
-        phone: undefined,
-        email: undefined,
-        address: undefined,
-        mapUrl: undefined,
+        phone: contact.phone,
+        email: contact.email,
+        address: contact.address,
+        mapUrl: contact.mapUrl,
       }
+    }
     case 'faq':
       return {
         blockType: 'faq',
@@ -753,21 +903,33 @@ for (const slug of targetSlugs) {
         Boolean(image.sourceId) &&
         all.findIndex((candidate) => candidate.sourceId === image.sourceId) === index,
     )
-  for (const image of [...allImages, ...projectGalleryImages]) {
+  const happyFilesGalleryImages: NormalizedImage[] = normalized
+    .filter((section) => section.type === 'gallery')
+    .flatMap((section) => dynamicHappyFilesImages(section, source))
+    .filter(
+      (image, index, all) =>
+        Boolean(image.sourceId) &&
+        all.findIndex((candidate) => candidate.sourceId === image.sourceId) === index,
+    )
+  for (const image of [...allImages, ...projectGalleryImages, ...happyFilesGalleryImages]) {
     const id = await resolveMediaId(image.sourceId, image.filename)
     if (id && image.sourceId) mediaIds.set(image.sourceId, id)
     if (id && image.filename) mediaIds.set(image.filename, id)
   }
   const pagesById = new Map(source.pages.map((item) => [item.id, item]))
   const sections = normalized
-    .map((section) => mapSection(section, mediaIds, pagesById, source.projects, source.faqs))
+    .map((section) =>
+      mapSection(section, mediaIds, pagesById, source.projects, source.faqs, source),
+    )
     .filter((section): section is Record<string, unknown> => Boolean(section))
   const unsupported = normalized
-    .filter((section) => !mapSection(section, mediaIds, pagesById, source.projects, source.faqs))
+    .filter(
+      (section) => !mapSection(section, mediaIds, pagesById, source.projects, source.faqs, source),
+    )
     .map((section) => `${section.order}:${section.type}:${section.sourceId}`)
   const heroSource = normalized.find((section) => section.type === 'hero')
   const heroData = heroSource
-    ? mapSection(heroSource, mediaIds, pagesById, source.projects, source.faqs)
+    ? mapSection(heroSource, mediaIds, pagesById, source.projects, source.faqs, source)
     : undefined
   const seoDescription = meta(page, 'rank_math_description')
   const existing = await payload.find({
@@ -782,7 +944,7 @@ for (const slug of targetSlugs) {
     template: 'information',
     hero: heroData
       ? {
-          eyebrow: undefined,
+          eyebrow: sectionEyebrow(heroSource!),
           heading: heroData.heading,
           description: heroData.description,
           backgroundMedia: (heroData.backgroundMedia as Record<string, unknown> | undefined)?.asset,

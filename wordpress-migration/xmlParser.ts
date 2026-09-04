@@ -1,8 +1,21 @@
 import fs from 'node:fs/promises'
-import { WordPressSource, WordPressPage, WordPressAttachment, WordPressFaq, WordPressProject, WordPressTestimonial, XmlMeta } from './types'
+import {
+  WordPressSource,
+  WordPressPage,
+  WordPressAttachment,
+  WordPressFaq,
+  WordPressProject,
+  WordPressTestimonial,
+  XmlMeta,
+} from './types'
 
 const text = (xml: string, tag: string) => {
-  const match = xml.match(new RegExp(`<(?:(?:wp|content):)?${tag}\\b[^>]*>([\\s\\S]*?)</(?:(?:wp|content):)?${tag}>`, 'i'))
+  const match = xml.match(
+    new RegExp(
+      `<(?:(?:wp|content):)?${tag}\\b[^>]*>([\\s\\S]*?)</(?:(?:wp|content):)?${tag}>`,
+      'i',
+    ),
+  )
   return match ? decodeXml(match[1]) : ''
 }
 
@@ -11,7 +24,9 @@ const decodeXml = (value: string) =>
     .replace(/^<!\[CDATA\[/, '')
     .replace(/\]\]>$/, '')
     .replace(/&#(x[0-9a-f]+|\d+);/gi, (_, code: string) =>
-      String.fromCodePoint(code.toLowerCase().startsWith('x') ? parseInt(code.slice(1), 16) : Number(code)),
+      String.fromCodePoint(
+        code.toLowerCase().startsWith('x') ? parseInt(code.slice(1), 16) : Number(code),
+      ),
     )
     .replace(/&amp;/g, '&')
     .replace(/&lt;/g, '<')
@@ -31,10 +46,40 @@ const postMeta = (item: string): XmlMeta[] => {
 }
 
 const metaValue = (meta: XmlMeta[], key: string) => meta.find((item) => item.key === key)?.value
-const numberOrUndefined = (value: string) => (value && Number.isFinite(Number(value)) ? Number(value) : undefined)
+const numberOrUndefined = (value: string) =>
+  value && Number.isFinite(Number(value)) ? Number(value) : undefined
 const categoryValue = (item: string) => {
   const match = item.match(/<category[^>]*domain=["']faq-category["'][^>]*>([\s\S]*?)<\/category>/i)
   return match ? decodeXml(match[1]).trim() : undefined
+}
+
+// A gallery widget references a HappyFiles folder by its numeric term_id
+// (e.g. settings.ids = { 0: "8" }). That id only maps to a slug via the
+// top-level <wp:term> definitions in the WXR header, not per-item — so we
+// build that registry once, then tag every attachment with the folder
+// slug(s) it belongs to via its own <category domain="happyfiles_category">
+// tags, which do carry the slug (as `nicename`) directly.
+const happyfilesCategorySlugs = (item: string): string[] => {
+  const slugs = new Set<string>()
+  for (const match of item.matchAll(
+    /<category[^>]*domain=["']happyfiles_category["'][^>]*nicename=["']([^"']+)["'][^>]*>/gi,
+  )) {
+    slugs.add(decodeXml(match[1]).trim())
+  }
+  return [...slugs]
+}
+
+const happyfilesFolderRegistry = (xml: string): Record<string, string> => {
+  const result: Record<string, string> = {}
+  for (const match of xml.matchAll(/<wp:term>[\s\S]*?<\/wp:term>/gi)) {
+    const block = match[0]
+    if (!/<wp:term_taxonomy><!\[CDATA\[happyfiles_category\]\]><\/wp:term_taxonomy>/i.test(block))
+      continue
+    const id = block.match(/<wp:term_id>(\d+)<\/wp:term_id>/)?.[1]
+    const slug = block.match(/<wp:term_slug><!\[CDATA\[([^\]]*)\]\]><\/wp:term_slug>/)?.[1]
+    if (id && slug) result[id] = slug
+  }
+  return result
 }
 
 const parseItem = (item: string) => {
@@ -54,6 +99,7 @@ const parseItem = (item: string) => {
         url,
         mimeType: text(item, 'post_mime_type') || undefined,
         meta,
+        happyfilesCategorySlugs: happyfilesCategorySlugs(item),
       } satisfies WordPressAttachment,
     }
   }
@@ -130,7 +176,15 @@ export function parseWordPressXml(xml: string): WordPressSource {
     if (parsed?.kind === 'project') projects.push(parsed.value)
     if (parsed?.kind === 'testimonial') testimonials.push(parsed.value)
   }
-  return { pages, attachments, faqs, projects, testimonials, allItems: items(xml).length }
+  return {
+    pages,
+    attachments,
+    faqs,
+    projects,
+    testimonials,
+    allItems: items(xml).length,
+    happyfilesFolders: happyfilesFolderRegistry(xml),
+  }
 }
 
 export async function parseWordPressXmlFile(path: string): Promise<WordPressSource> {

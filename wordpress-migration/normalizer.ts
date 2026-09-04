@@ -10,7 +10,7 @@ const textValue = (node: BricksTreeNode) => {
 const settingString = (node: BricksTreeNode, keys: string[]) =>
   keys.map((key) => node.settings[key]).find((value): value is string => typeof value === 'string' && value.trim().length > 0)
 
-const mediaFromNode = (node: BricksTreeNode): NormalizedImage[] => {
+const mediaFromValue = (value: unknown): NormalizedImage[] => {
   const result: NormalizedImage[] = []
   const walk = (value: unknown) => {
     if (Array.isArray(value)) return value.forEach(walk)
@@ -21,8 +21,33 @@ const mediaFromNode = (node: BricksTreeNode): NormalizedImage[] => {
     }
     Object.values(object).forEach(walk)
   }
-  walk(node.settings)
+  walk(value)
   return result.filter((image, index, all) => all.findIndex((candidate) => candidate.sourceId === image.sourceId) === index)
+}
+
+const mediaFromNode = (node: BricksTreeNode): NormalizedImage[] => mediaFromValue(node.settings)
+
+const blockedContentWrappers = new Set(['tabs-nested', 'xproaccordion', 'slider-nested', 'carousel', 'shortcode', 'xfluentform'])
+
+const sectionContentNodes = (section: BricksTreeNode) => {
+  const result: BricksTreeNode[] = []
+  const walk = (node: BricksTreeNode, blocked: boolean) => {
+    const nextBlocked = blocked || blockedContentWrappers.has(node.name)
+    if (!nextBlocked) result.push(node)
+    if (!nextBlocked) node.children.forEach((child) => walk(child, false))
+  }
+  section.children.forEach((child) => walk(child, false))
+  return result
+}
+
+const primaryImageFromNode = (section: BricksTreeNode) => {
+  const background = mediaFromValue(
+    section.settings._background || section.settings._backgroundImage || section.settings.background,
+  )[0]
+  if (background) return background
+
+  const directImage = sectionContentNodes(section).find((node) => node.name === 'image')
+  return directImage ? mediaFromNode(directImage)[0] : mediaFromNode(section)[0]
 }
 
 const videoFromNode = (node: BricksTreeNode): NormalizedVideo[] => {
@@ -118,14 +143,48 @@ function integrationsFromNode(section: BricksTreeNode): NormalizedIntegration[] 
   })
 }
 
-function repairCategories(section: BricksTreeNode): Array<{ sourceId: string; title: string; html: string }> {
+function listItemsFromNode(node: BricksTreeNode) {
+  const items = node.settings.items
+  if (!items || typeof items !== 'object') return []
+  return Object.values(items as Record<string, unknown>)
+    .map((item) => item && typeof item === 'object' ? (item as Record<string, unknown>).title : undefined)
+    .filter((item): item is string => typeof item === 'string' && item.trim().length > 0)
+    .map(cleanText)
+}
+
+function repairCategories(section: BricksTreeNode): Array<{ sourceId: string; title: string; html: string; description?: string; features?: string[] }> {
+  const container = section.children.find((node) => node.name === 'container')
+  const groups = container?.children.filter((node) => {
+    const nodes = descendants(node)
+    return node.name === 'block' && nodes.some((child) => child.name === 'text-basic') && nodes.some((child) => child.name === 'image')
+  }) || []
+  const structured = groups.map((group) => {
+    const nodes = descendants(group)
+    const textNodes = nodes.filter((node) => node.name === 'text-basic')
+    const title = cleanText(textNodes[0] ? textValue(textNodes[0]) || '' : '')
+    const description = textNodes.slice(1).map((node) => cleanText(textValue(node) || '')).find((value) => value.length > 40)
+    const features = nodes.filter((node) => node.name === 'list').flatMap(listItemsFromNode)
+    return {
+      sourceId: group.id,
+      title,
+      html: [description, features.length ? `<ul>${features.map((feature) => `<li>${feature}</li>`).join('')}</ul>` : ''].filter(Boolean).join('\n'),
+      description: description || undefined,
+      features: features.length ? features : undefined,
+    }
+  }).filter((category) => category.title && !/^repair & installation$/i.test(category.title))
+  if (structured.length > 0) return structured
+
   const html = descendants(section).filter((node) => node.name === 'text' || node.name === 'text-basic' || node.name === 'code')
-    .map(textValue).filter((value): value is string => Boolean(value)).join('\n')
+    .map((node) => node.name === 'code' && typeof node.settings.code === 'string' ? node.settings.code : textValue(node))
+    .filter((value): value is string => Boolean(value)).join('\n')
   const matches = [...html.matchAll(/<h[23][^>]*>([\s\S]*?)<\/h[23]>/gi)]
   const categories = matches.map((match, index) => {
     const start = match.index || 0
     const next = matches[index + 1]?.index ?? html.length
-    return { sourceId: `${section.id}-repair-${index + 1}`, title: cleanText(match[1]), html: html.slice(start, next).trim() }
+    const segment = html.slice(start, next).trim()
+    const description = cleanText(segment.replace(match[0], '').replace(/<ul>[\s\S]*?<\/ul>/i, ''))
+    const features = [...segment.matchAll(/<li[^>]*>([\s\S]*?)<\/li>/gi)].map((item) => cleanText(item[1])).filter(Boolean)
+    return { sourceId: `${section.id}-repair-${index + 1}`, title: cleanText(match[1]), html: segment, description: description || undefined, features: features.length ? features : undefined }
   }).filter((category) => category.title && !/^why choose prime design/i.test(category.title))
   if (categories.length > 0) return categories
   return descendants(section).filter((node) => /heading|title/i.test(node.name)).map((node, index) => ({
@@ -155,8 +214,8 @@ function classify(section: BricksTreeNode, allowHero: boolean, pageSlug: string)
   if (heading.includes('our happy') || heading.includes('happy customers') || (names.includes('tabs-nested') && names.includes('shortcode') && text.includes('rating'))) return 'testimonials'
   if (names.includes('xproaccordion') || (names.includes('tabs-nested') && text.includes('question'))) return 'faq'
   if (heading.includes('silicon valley') && heading.includes('luxury home contractor')) return 'luxury-cta'
-  if (heading.includes('the prime difference')) return 'prime-difference'
   if ((heading.includes('experience the') && heading.includes('prime difference')) || heading.includes('why choose prime design')) return 'experience-difference'
+  if (heading.includes('the prime difference')) return 'prime-difference'
   if (heading.includes('areas we service')) return 'service-areas'
   if (names.includes('shortcode') && !text.trim()) return 'booking'
   if (names.includes('xfluentform') || heading.includes('contact info') || heading.includes('get in touch')) return 'contact-form'
@@ -203,14 +262,14 @@ function semanticClassification(section: BricksTreeNode, type: NormalizedSection
 }
 
 function sectionData(section: BricksTreeNode) {
-  const nodes = descendants(section)
+  const nodes = sectionContentNodes(section)
   const headings = nodes.flatMap((node) => {
     const value = textValue(node)
     return value && /heading|title/i.test(node.name) ? [value] : []
   })
   const body = nodes.flatMap((node) => {
     const value = textValue(node)
-    return value && /text|list|accordion/i.test(node.name) ? [value] : []
+    return value && /^(text|text-basic)$/i.test(node.name) ? [value] : []
   })
   const buttons = nodes.filter((node) => node.name === 'button').map((node) => ({
     label: settingString(node, ['text', 'label', '_text']) || '',
@@ -235,6 +294,7 @@ export function normalizeBricksPage(page: WordPressPage, roots: BricksTreeNode[]
         required: `Add a normalizer/renderer for Bricks element "${node.name}"`,
       }))
     const images = mediaFromNode(section)
+    const primaryImage = primaryImageFromNode(section)
     const videos = videoFromNode(section)
     const data = sectionData(section)
     const nestedData: Record<string, unknown> = {}
@@ -253,7 +313,7 @@ export function normalizeBricksPage(page: WordPressPage, roots: BricksTreeNode[]
       order: index,
       sourceId: section.id,
       sourceElement: section.name,
-      data: { ...data, ...nestedData, sourcePageSlug: page.slug, nestedElementIds: descendants(section).map((node) => node.id), sourceTree: section },
+      data: { ...data, ...nestedData, primaryImage, sourcePageSlug: page.slug, nestedElementIds: descendants(section).map((node) => node.id), sourceTree: section },
       images,
       videos,
       classification: unsupportedElements.length > 0 && semantic.classification === 'supported' ? 'partial' : semantic.classification,

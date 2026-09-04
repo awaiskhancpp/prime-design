@@ -97,6 +97,34 @@ export const blogPosts: BlogPost[] = [
     author: 'Tahor R Graves',
     date: 'November 3, 2023',
     heroImage: homeImage,
+    intro:
+      "Have you ever stepped into a home and felt an instant connection, as if the space itself welcomed you? That's the power of designing with intent—a thoughtful approach that blends beauty with purpose, ensuring every detail has meaning. We recently worked on a remarkable 1937 home in Palomar Park, California. The project involved reimagining the second floor to create a master bedroom with a walk in closet and master bathroom while preserving the home's traditional charm. For the homeowners, this house held decades of memories, and our goal was to honor its legacy while creating a space ready for the next chapter.",
+    sections: [
+      {
+        heading: 'The Challenge: Balancing Tradition and Modernity',
+        body: "The homeowners wanted their remodeled space to feel fresh and functional without losing its historic character. This meant every decision, from the layout to the materials, had to strike the perfect balance. We rebuilt the upstairs including reconstruction of the existing bathroom to make an impressive master bathroom and dressing room, and refinished the hardwood floors to preserve the details that tied back to the home's 1937 roots. By incorporating traditional elements like marble floors and walls in the bathroom, aged wood vanities and new crown molding for the whole upstairs, we ensured the updated design felt authentic and timeless.",
+        image: homeImage,
+        imagePosition: 'left',
+      },
+      {
+        heading: '3 Tips for Designing with Intent',
+        body: "Whether you're working with a historic home or starting a new build, designing with intent can elevate your project. Here are three practical tips to help you create a space that's as meaningful as it is beautiful. Embrace the home's character: every home has unique features that tell a story—an original fireplace, old wood floors, or a quirky architectural detail—so look for ways to celebrate and integrate these elements into your design. Let function drive the design: no matter how stunning a space looks, it needs to work for your lifestyle, with a thoughtful layout, smart storage solutions, and durable materials that transform a home from simply beautiful to truly livable. Personalize your space: the best designs reflect the people who live in them, so incorporate personal touches, such as family heirlooms, meaningful colors, or custom features, to make the space truly yours.",
+        image: kitchenImage,
+        imagePosition: 'right',
+      },
+      {
+        heading: 'Why Intentional Design Matters',
+        body: "Designing with intent transforms a house into a home. It's about more than just aesthetics—it's about creating a space that feels deeply connected to your story and needs. At Prime Design and Build, we believe every project should start with understanding your vision. We work closely with our clients to ensure the design reflects their personality, values, and lifestyle.",
+        image: homeImage,
+        imagePosition: 'center',
+      },
+      {
+        heading: "Let's Bring Your Vision to Life",
+        body: "If you've been dreaming of a home that feels like a true reflection of you, let's make it happen. Whether it's updating a historic property or starting fresh, we're here to guide you through the process with expertise and care.",
+        image: kitchenImage,
+        imagePosition: 'left',
+      },
+    ],
   },
   {
     slug: 'design-first-thoughtful-plan',
@@ -107,6 +135,46 @@ export const blogPosts: BlogPost[] = [
     author: 'Prime Design & Build',
     date: 'November 3, 2023',
     heroImage: kitchenImage,
+    intro:
+      "Let's be honest—starting a remodel is thrilling! You've probably envisioned tearing down walls, installing new cabinets, and picking out fresh colors that reflect your style. At Prime Design and Build, we share in your excitement. But before diving into the fun details, we need to talk about something just as crucial: the design.",
+    sections: [
+      {
+        heading: "Don't Pick Up a Hammer Until You've Picked Out a Plan",
+        body: "At Prime Design and Build, we like to say, \"Don't pick up a hammer until you've picked out a plan.\" While it may sound a bit cliché, it carries an important message. Starting with a well-thought-out design isn't just important; it's everything. It transforms your grand ideas into a home that truly functions for you and your family.",
+        image: kitchenImage,
+        imagePosition: 'left',
+      },
+      {
+        heading: 'Why Design Comes First (And Why It Matters More Than You Think)',
+        body: "It's easy to get wrapped up in the beautiful details—choosing the perfect tile or the latest countertop style—but none of that matters if the overall layout doesn't suit your lifestyle. We've seen countless projects where stunning materials fell short because the space simply didn't work. A gorgeous kitchen may lack functionality, or a beautifully furnished living room might feel unwelcoming. That's where thoughtful design comes in—it ensures every choice serves a purpose from the very start.",
+        image: homeImage,
+        imagePosition: 'right',
+      },
+      {
+        heading: 'Skipping Design Can Cost You (Literally and Figuratively)',
+        body: "One of the most valuable lessons we share with homeowners is that a solid design saves you money in the long run. You might think you're speeding up the process by skipping the design phase, but without a clear plan, costly changes and rework often follow once construction is underway. A thoughtful design catches problems before they become expensive surprises.",
+        image: kitchenImage,
+        imagePosition: 'center',
+      },
+      {
+        heading: 'How We Approach Design (And Why It Works)',
+        body: "When we begin designing your remodel, we consider not just the immediate needs but how you'll live in that space five, ten, or even twenty years from now. We think about how your kitchen adapts as your family grows, how your storage needs evolve, and how the space continues to serve you well beyond the day the project wraps up.",
+        image: homeImage,
+        imagePosition: 'left',
+      },
+      {
+        heading: 'Real Stories: When Design Made All the Difference',
+        body: "Let's share one of our favorite success stories. We worked with a family who loved to cook and entertain, yet their kitchen was small, cramped, and cut off from the rest of the house. A thoughtful design opened the layout, reconnected the kitchen to the living space, and gave them the room to gather the way they'd always wanted.",
+        image: kitchenImage,
+        imagePosition: 'right',
+      },
+      {
+        heading: 'The Bottom Line: Start with Design',
+        body: "We know you're eager to kick off your remodel—and so are we! But trust us when we say that everything runs smoother when you start with a solid design. It saves you headaches, money, and stress, and most importantly, it ensures the finished space actually works for the way you live.",
+        image: homeImage,
+        imagePosition: 'center',
+      },
+    ],
   },
   {
     slug: 'winterization-checklist-roof',
@@ -117,6 +185,58 @@ export const blogPosts: BlogPost[] = [
     author: 'Prime Design & Build',
     date: 'November 3, 2023',
     heroImage: homeImage,
+    intro:
+      "Winter brings its own set of challenges, and as the temperature drops, it's crucial to ensure that your roof is well-prepared to withstand the harsh winter conditions. Prime Design And Build understands the significance of winterizing your roof to prevent damage and maintain the integrity of your home or commercial building. In this comprehensive winterization checklist, we'll guide you through essential steps to prepare your roof for the winter months.",
+    sections: [
+      {
+        heading: 'Gutter Maintenance',
+        body: 'Clean gutters are essential for proper water drainage. Leaves, debris, and even ice dams can accumulate in gutters, leading to water backups and potential roof damage. Prime Design And Build recommends clearing gutters and downspouts of any debris to ensure smooth water flow. Installing gutter guards can also help prevent clogs and reduce maintenance efforts.',
+        image: homeImage,
+        imagePosition: 'left',
+      },
+      {
+        heading: 'Roof Inspection',
+        body: 'Before winter arrives, schedule a thorough roof inspection with Prime Design And Build professionals. Identify and address any existing issues such as damaged shingles, leaks, or weak spots. Our experts are trained to detect potential problems early, before they turn into costly winter repairs.',
+        image: kitchenImage,
+        imagePosition: 'right',
+      },
+      {
+        heading: 'Attic Insulation and Ventilation',
+        body: 'A well-insulated and ventilated attic is crucial for preventing ice dams and maintaining a consistent indoor temperature. Prime Design And Build assesses your attic insulation and ventilation to ensure it meets the recommended standards, helping protect your roof and lower energy costs through the colder months.',
+        image: homeImage,
+        imagePosition: 'center',
+      },
+      {
+        heading: 'Trim Overhanging Branches',
+        body: 'Overhanging branches can pose a threat to your roof during winter storms. Heavy snow or ice accumulation on branches may lead to breakage, causing damage to the roof. Prime Design And Build advises trimming overhanging branches to minimize this risk before winter weather sets in.',
+        image: kitchenImage,
+        imagePosition: 'left',
+      },
+      {
+        heading: 'Snow and Ice Removal Plan',
+        body: 'Heavy snow and ice buildup can exert excessive weight on the roof, leading to structural issues. Prime Design And Build helps clients develop a snow and ice removal plan to safely address accumulation when necessary, using techniques that avoid damaging the roof surface.',
+        image: homeImage,
+        imagePosition: 'right',
+      },
+      {
+        heading: 'Seal Leaks and Gaps',
+        body: 'Inspect your roof for any leaks, gaps, or potential entry points for moisture. Prime Design And Build recommends sealing these areas to prevent water infiltration. Proper sealing not only protects your roof but also helps maintain a comfortable and energy-efficient home.',
+        image: kitchenImage,
+        imagePosition: 'center',
+      },
+      {
+        heading: 'Check Flashing and Chimneys',
+        body: 'Inspect flashing around chimneys, vents, and other roof penetrations for signs of wear or damage. Prime Design And Build ensures that flashing is intact and effectively sealed to prevent water intrusion, and that chimney maintenance is addressed before winter use.',
+        image: homeImage,
+        imagePosition: 'left',
+      },
+      {
+        heading: 'Schedule a Professional Roof Inspection',
+        body: 'For a comprehensive winterization plan, schedule a professional roof inspection with Prime Design And Build. Our experts have the knowledge and experience to identify potential issues, recommend solutions, and ensure your roof is winter-ready before the first storm hits.',
+        image: kitchenImage,
+        imagePosition: 'right',
+      },
+    ],
   },
   {
     slug: 'eco-friendly-kitchen-remodeling-guide',
@@ -166,9 +286,7 @@ const payloadMediaUrl = (value: unknown) =>
     : undefined
 
 const displayDate = (value: string | null | undefined) =>
-  value
-    ? new Intl.DateTimeFormat('en-US', { dateStyle: 'long' }).format(new Date(value))
-    : ''
+  value ? new Intl.DateTimeFormat('en-US', { dateStyle: 'long' }).format(new Date(value)) : ''
 
 function normalizePost(post: PayloadBlogPost): BlogPost {
   const fallback = getBlogPostBySlug(post.slug)
@@ -180,19 +298,26 @@ function normalizePost(post: PayloadBlogPost): BlogPost {
     slug: post.slug,
     title: post.title,
     excerpt: post.excerpt || fallback?.excerpt || '',
-    categories: post.categories?.map((category) => category.name || '').filter(Boolean) || fallback?.categories || [],
+    categories:
+      post.categories?.map((category) => category.name || '').filter(Boolean) ||
+      fallback?.categories ||
+      [],
     author: author || fallback?.author || 'Prime Design & Build',
     date: displayDate(post.publishedDate) || fallback?.date || '',
-    heroImage: payloadMediaUrl(post.featuredImage) || fallback?.heroImage || '/services/kitchen-remodeling.jpeg',
+    heroImage:
+      payloadMediaUrl(post.featuredImage) ||
+      fallback?.heroImage ||
+      '/services/kitchen-remodeling.jpeg',
     intro: post.intro || fallback?.intro,
-    sections: post.sections?.map((section) => ({
-      eyebrow: section.eyebrow || undefined,
-      heading: section.heading || '',
-      body: section.body || '',
-      image: payloadMediaUrl(section.image),
-      imageAlt: section.imageAlt || undefined,
-      imagePosition: section.imagePosition || 'center',
-    })) || fallback?.sections,
+    sections:
+      post.sections?.map((section) => ({
+        eyebrow: section.eyebrow || undefined,
+        heading: section.heading || '',
+        body: section.body || '',
+        image: payloadMediaUrl(section.image),
+        imageAlt: section.imageAlt || undefined,
+        imagePosition: section.imagePosition || 'center',
+      })) || fallback?.sections,
     seo: post.seo
       ? {
           metaTitle: post.seo.meta_title,
@@ -219,7 +344,8 @@ export async function resolveBlogPosts(): Promise<BlogPost[]> {
 }
 
 export async function resolveBlogPostBySlug(slug: string): Promise<BlogPost | undefined> {
-  if (!process.env.DATABASE_URL) return shouldUseLocalFallback() ? getBlogPostBySlug(slug) : undefined
+  if (!process.env.DATABASE_URL)
+    return shouldUseLocalFallback() ? getBlogPostBySlug(slug) : undefined
   const payload = await getPayload({ config: configPromise })
   const result = await payload.find({
     collection: 'blog',

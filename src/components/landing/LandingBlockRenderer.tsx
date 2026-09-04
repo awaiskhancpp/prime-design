@@ -3,17 +3,22 @@ import Link from 'next/link'
 import type { ReactNode } from 'react'
 
 import { PageHero } from '@/components/layout/PageHero'
+import { Button } from '@/components/ui/Button'
 import { Section } from '@/components/ui/Section'
 import { ServiceVideoSection } from '@/components/services/ServiceVideoSection'
+import BeforeAfterSlider from '@/components/blocks/BeforeAfterSlider'
 import { LandingFindUs } from './LandingFindUs'
+import { LandingExperienceDifferenceSection } from './LandingExperienceDifferenceSection'
 import { LandingGallerySection } from './LandingGallerySection'
 import { LandingGalleryTabs } from './LandingGalleryTabs'
 import { LandingLuxuryCta } from './LandingLuxuryCta'
 import { LandingPrimeDifferenceSection } from './LandingPrimeDifferenceSection'
 import { LandingProjectsSection } from './LandingProjectsSection'
+import { LandingRepairServicesSection } from './LandingRepairServicesSection'
+import { LandingServiceAreasSection } from './LandingServiceAreasSection'
 import { LandingFaqSection } from './LandingFaqSection'
 import { LandingBookingSection } from './LandingBookingSection'
-import { HomeContact } from '@/components/blocks/HomeContact'
+import { LandingContact } from './Contact'
 import { TestimonialsSpotlight } from '@/components/testimonials/TestimonialsSpotlight'
 import { faqCategories } from '@/lib/faq'
 import type { LandingPageBlock } from '@/lib/landingPages'
@@ -97,12 +102,9 @@ function ImageTextBlock({ block }: { block: Block }) {
             </p>
           ) : null}
           {cta ? (
-            <Link
-              href={cta.href}
-              className="mt-6 inline-flex border border-brass px-5 py-3 text-sm text-brass-deep"
-            >
+            <Button href={cta.href} variant="outline" className="mt-6">
               {cta.label}
-            </Link>
+            </Button>
           ) : null}
         </div>
         {image ? (
@@ -176,17 +178,12 @@ function BeforeAfterBlock({ block }: { block: Block }) {
   return (
     <Section>
       <div className="grid gap-6 md:grid-cols-2">
-        {[
-          [before, text(block.beforeLabel) || 'Before'],
-          [after, text(block.afterLabel) || 'After'],
-        ].map(([image, label]) => (
-          <figure key={label} className="relative aspect-[4/3] overflow-hidden">
-            <Image src={image} alt={label} fill className="object-cover" unoptimized={isPayloadFileUrl(image)} />
-            <figcaption className="absolute bottom-0 left-0 bg-ink/75 px-4 py-2 text-sm text-white">
-              {label}
-            </figcaption>
-          </figure>
-        ))}
+        <BeforeAfterSlider
+          beforeImage={before}
+          afterImage={after}
+          beforeAlt={text(block.beforeLabel) || 'Before'}
+          afterAlt={text(block.afterLabel) || 'After'}
+        />
       </div>
     </Section>
   )
@@ -343,12 +340,9 @@ function CtaBlock({ block }: { block: Block }) {
           <p className="mt-4 text-base leading-7">{text(block.description)}</p>
         ) : null}
         {cta ? (
-          <Link
-            href={cta.href}
-            className="mt-6 inline-flex bg-ink px-5 py-3 text-sm font-semibold text-white"
-          >
+          <Button href={cta.href} variant="primary" className="mt-6">
             {cta.label}
-          </Link>
+          </Button>
         ) : null}
       </div>
     </Section>
@@ -410,9 +404,33 @@ export const landingBlockRegistry: Record<string, Renderer> = {
       checklist={Array.isArray(block.features) ? block.features.map((item) => text((item as Record<string, unknown>).title)).filter((item): item is string => Boolean(item)) : []}
     />
   ),
-  'experience-difference': FeatureBlock,
-  'service-areas': ServiceAreasBlock,
-  'repair-services': RepairServicesBlock,
+  'experience-difference': ({ block }) => (
+    <LandingExperienceDifferenceSection
+      eyebrow={text(block.eyebrow)}
+      heading={text(block.heading)}
+      body={text(block.description)}
+      features={Array.isArray(block.features) ? (block.features as Array<{ title?: string; description?: string }>) : []}
+    />
+  ),
+  'service-areas': ({ block }) => (
+    <LandingServiceAreasSection
+      eyebrow={text(block.eyebrow)}
+      heading={text(block.heading)}
+      areas={Array.isArray(block.areas) ? block.areas.map((area) => {
+        const value = area as Record<string, unknown>
+        const link = value.link as Record<string, unknown> | undefined
+        return { label: text(value.label), href: text(link?.url) }
+      }) : []}
+    />
+  ),
+  'repair-services': ({ block }) => (
+    <LandingRepairServicesSection
+      eyebrow={text(block.eyebrow)}
+      heading={text(block.heading)}
+      description={text(block.description)}
+      categories={Array.isArray(block.categories) ? (block.categories as Array<{ title?: string; description?: string; features?: Array<{ text?: string }> }>) : []}
+    />
+  ),
   'luxury-cta': ({ block }) => (
     <LandingLuxuryCta
       eyebrow={text(block.eyebrow)}
@@ -432,7 +450,7 @@ export const landingBlockRegistry: Record<string, Renderer> = {
   faq: FaqBlock,
   testimonials: () => <TestimonialsSpotlight />,
   booking: ({ block }) => <LandingBookingSection heading={text(block.heading) || 'Request an Estimate Appointment'} />,
-  'contact-form': () => <HomeContact />,
+  'contact-form': () => <LandingContact />,
   'video-carousel': VideoCarouselBlock,
   'gallery-carousel': GalleryCarouselBlock,
 }
