@@ -577,6 +577,7 @@ export interface Service {
                   alt?: string | null;
                   sourceOrder?: number | null;
                   sourceAttachmentId?: number | null;
+                  sourceUrl?: string | null;
                   id?: string | null;
                 }[]
               | null;
@@ -595,6 +596,7 @@ export interface Service {
                         alt?: string | null;
                         sourceOrder?: number | null;
                         sourceAttachmentId?: number | null;
+                        sourceUrl?: string | null;
                         id?: string | null;
                       }[]
                     | null;
@@ -1196,6 +1198,7 @@ export interface Service {
                   alt?: string | null;
                   sourceOrder?: number | null;
                   sourceAttachmentId?: number | null;
+                  sourceUrl?: string | null;
                   id?: string | null;
                 }[]
               | null;
@@ -1860,6 +1863,7 @@ export interface LandingPage {
               alt?: string | null;
               sourceOrder?: number | null;
               sourceAttachmentId?: number | null;
+              sourceUrl?: string | null;
               id?: string | null;
             }[]
           | null;
@@ -1878,6 +1882,7 @@ export interface LandingPage {
                     alt?: string | null;
                     sourceOrder?: number | null;
                     sourceAttachmentId?: number | null;
+                    sourceUrl?: string | null;
                     id?: string | null;
                   }[]
                 | null;
@@ -2479,6 +2484,7 @@ export interface LandingPage {
               alt?: string | null;
               sourceOrder?: number | null;
               sourceAttachmentId?: number | null;
+              sourceUrl?: string | null;
               id?: string | null;
             }[]
           | null;
@@ -3032,6 +3038,7 @@ export interface ServicesSelect<T extends boolean = true> {
                     alt?: T;
                     sourceOrder?: T;
                     sourceAttachmentId?: T;
+                    sourceUrl?: T;
                     id?: T;
                   };
               groups?:
@@ -3048,6 +3055,7 @@ export interface ServicesSelect<T extends boolean = true> {
                           alt?: T;
                           sourceOrder?: T;
                           sourceAttachmentId?: T;
+                          sourceUrl?: T;
                           id?: T;
                         };
                     id?: T;
@@ -3523,6 +3531,7 @@ export interface ServicesSelect<T extends boolean = true> {
                     alt?: T;
                     sourceOrder?: T;
                     sourceAttachmentId?: T;
+                    sourceUrl?: T;
                     id?: T;
                   };
               settings?: T;
@@ -4013,6 +4022,7 @@ export interface LandingPagesSelect<T extends boolean = true> {
                     alt?: T;
                     sourceOrder?: T;
                     sourceAttachmentId?: T;
+                    sourceUrl?: T;
                     id?: T;
                   };
               groups?:
@@ -4029,6 +4039,7 @@ export interface LandingPagesSelect<T extends boolean = true> {
                           alt?: T;
                           sourceOrder?: T;
                           sourceAttachmentId?: T;
+                          sourceUrl?: T;
                           id?: T;
                         };
                     id?: T;
@@ -4504,6 +4515,7 @@ export interface LandingPagesSelect<T extends boolean = true> {
                     alt?: T;
                     sourceOrder?: T;
                     sourceAttachmentId?: T;
+                    sourceUrl?: T;
                     id?: T;
                   };
               settings?: T;

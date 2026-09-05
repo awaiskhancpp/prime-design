@@ -38,6 +38,7 @@ function mediaUrl(value: unknown): string | undefined {
   if (!value || typeof value !== 'object') return undefined
   const record = value as Record<string, unknown>
   if (typeof record.url === 'string') return record.url
+  if (typeof record.sourceUrl === 'string') return record.sourceUrl
   return mediaUrl(record.asset)
 }
 

@@ -696,13 +696,18 @@ function projectQueryProjects(section: NormalizedSection, projects: WordPressPro
   return result
 }
 
-function dynamicProjectImages(section: NormalizedSection, projects: WordPressProject[]) {
+function dynamicProjectImages(
+  section: NormalizedSection,
+  projects: WordPressProject[],
+  source: WordPressSource,
+) {
+  const attachmentsById = new Map(source.attachments.map((attachment) => [attachment.id, attachment]))
   const seen = new Set<number>()
   return projectQueryProjects(section, projects).flatMap((project) =>
     projectGalleryIds(project).flatMap((sourceId) => {
       if (seen.has(sourceId)) return []
       seen.add(sourceId)
-      return [{ sourceId, status: 'unresolved' as const }]
+      return [{ sourceId, url: attachmentsById.get(sourceId)?.url, status: 'unresolved' as const }]
     }),
   )
 }
@@ -711,14 +716,18 @@ function dynamicProjectCards(
   section: NormalizedSection,
   projects: WordPressProject[],
   mediaIds: Map<number | string, number>,
+  source: WordPressSource,
 ) {
+  const attachmentsById = new Map(source.attachments.map((attachment) => [attachment.id, attachment]))
   return projectQueryProjects(section, projects).flatMap((project) => {
     const title = clean(project.title)
     if (!title) return []
+    const thumbnail = project.thumbnailId ? attachmentsById.get(project.thumbnailId) : undefined
     return [
       {
         title,
         image: project.thumbnailId ? mediaIds.get(project.thumbnailId) : undefined,
+        imageSourceUrl: thumbnail?.url,
         link: project.slug ? `/project/${project.slug}` : undefined,
         sourceId: project.id,
       },
@@ -734,6 +743,7 @@ function mapGalleryItems(
   return (items || [])
     .map((item, index) => ({
       media: item.mediaId ? mediaIds.get(item.mediaId) : undefined,
+      sourceUrl: item.sourceUrl,
       caption: undefined,
       alt: item.sourceUrl || item.dynamicSource || `Gallery image ${index + 1}`,
       sourceOrder: index,
@@ -822,7 +832,7 @@ function mapSection(
       }
     }
     case 'gallery': {
-      const projectCards = dynamicProjectCards(section, projects, mediaIds)
+      const projectCards = dynamicProjectCards(section, projects, mediaIds, source)
       if (projectCards.length) {
         // Project-loop card templates contain dynamic placeholders such as
         // `{post_title}` and `{post_content}`. They are not section copy and
@@ -841,10 +851,11 @@ function mapSection(
           description: projectDescription,
           items: projectCards.map((project) => ({
             title: project.title,
-            image: project.image
+            image: project.image || project.imageSourceUrl
               ? {
                   asset: project.image,
                   alt: project.title,
+                  sourceUrl: project.imageSourceUrl,
                   sourceAttachmentId: projects.find((item) => item.id === project.sourceId)
                     ?.thumbnailId,
                 }
@@ -906,15 +917,16 @@ function mapSection(
           sourceAttachmentId: image.sourceId,
         }))
         .filter((item) => item.media || item.sourceUrl)
-      const dynamicImages = dynamicProjectImages(section, projects)
+      const dynamicImages = dynamicProjectImages(section, projects, source)
         .map((image, index) => ({
           media: mediaIds.get(image.sourceId!),
+          sourceUrl: image.url,
           caption: undefined,
           alt: `Project gallery image ${index + 1}`,
           sourceOrder: index,
           sourceAttachmentId: image.sourceId,
         }))
-        .filter((item) => item.media)
+        .filter((item) => item.media || item.sourceUrl)
       return {
         blockType: 'gallery',
         ...common,
@@ -1232,30 +1244,6 @@ async function resolveMediaId(attachmentId: number | undefined, filename: string
   if (localPath) {
     data = await readFile(localPath)
     sourceDescription = localPath
-  } else if (attachment?.url) {
-    // No local uploads folder was passed (argv[3]), or this file isn't in it.
-    // Without this fallback, every image not already sitting in Payload's
-    // media collection from an earlier pass silently resolves to undefined —
-    // which is exactly why newly-discovered galleries (e.g. the HappyFiles
-    // folder fix) still showed 0 images even once correctly identified.
-    try {
-      const response = await fetch(attachment.url, {
-        headers: {
-          'User-Agent':
-            'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36',
-          Accept: 'image/avif,image/webp,image/apng,image/*,*/*;q=0.8',
-          Referer: new URL(attachment.url).origin + '/',
-        },
-      })
-      if (response.ok) {
-        data = Buffer.from(await response.arrayBuffer())
-        sourceDescription = attachment.url
-      } else {
-        console.warn(`Media fetch failed (${response.status}): ${attachment.url}`)
-      }
-    } catch (error) {
-      console.warn(`Media fetch error for ${attachment.url}:`, (error as Error).message)
-    }
   }
   if (!data || !name) return undefined
   const created = await payload.create({
@@ -1326,7 +1314,7 @@ for (const slug of targetSlugs) {
   const mediaIds = new Map<number | string, number>()
   const projectGalleryImages: NormalizedImage[] = mergedSections
     .filter((section) => section.type === 'gallery')
-    .flatMap((section) => dynamicProjectImages(section, source.projects))
+    .flatMap((section) => dynamicProjectImages(section, source.projects, source))
     .filter(
       (image, index, all) =>
         Boolean(image.sourceId) &&

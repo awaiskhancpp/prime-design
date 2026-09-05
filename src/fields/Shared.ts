@@ -60,6 +60,9 @@ export const galleryItemFields = (): Field[] => [
   { name: 'alt', type: 'text' },
   { name: 'sourceOrder', type: 'number' },
   { name: 'sourceAttachmentId', type: 'number' },
+  // Preserve the original WordPress URL when the source file is not
+  // available locally. The frontend can use it as a read-only fallback.
+  { name: 'sourceUrl', type: 'text' },
 ]
 
 export const faqQuestionFields = (): Field[] => [
