@@ -39,8 +39,15 @@ export function LandingTestimonialsSection({
 
   if (!active) return null
 
+  // Duplicated once so the loop point is invisible — the animation scrolls
+  // exactly one copy's height, then resets seamlessly. Only worth animating
+  // when there's more than one review to actually cycle through.
+  const canLoop = active.reviews.length > 1
+  const marqueeReviews = canLoop ? [...active.reviews, ...active.reviews] : active.reviews
+  const durationSeconds = active.reviews.length * 6
+
   return (
-    <Section className="bg-white">
+    <Section className="">
       <div className="grid gap-12 lg:grid-cols-[0.9fr_1.1fr] lg:items-center lg:gap-24">
         <div>
           {eyebrow ? (
@@ -90,7 +97,7 @@ export function LandingTestimonialsSection({
           </div>
         </div>
 
-        <div className="border border-line bg-white p-7 md:p-10">
+        <div className="relative min-w-0 border border-line bg-white p-7 md:p-10">
           <p className="text-sm font-semibold uppercase tracking-[0.16em] text-brass">
             What homeowners are saying
           </p>
@@ -98,26 +105,58 @@ export function LandingTestimonialsSection({
             {active.rating ? `${active.rating} stars on ${active.name}` : `${active.name} reviews`}
             {active.reviewCount ? ` · ${active.reviewCount} reviews` : ''}
           </p>
-          <div className="mt-8 space-y-4">
-            {active.reviews.map((review, index) => (
-              <article key={`${active.name}-${review.reviewer || 'review'}-${index}`} className="border border-line bg-paper p-5">
-                <p className="text-base leading-7 text-ink-2/80">&ldquo;{review.body}&rdquo;</p>
-                <div className="mt-4 flex items-end justify-between gap-4">
-                  <div>
-                    <p className="font-semibold text-ink-2">{review.reviewer}</p>
-                    {review.date ? <p className="mt-1 text-xs text-ink-2/50">{review.date}</p> : null}
+
+          <div className="group/marquee relative mt-8 h-[420px] overflow-hidden [mask-image:linear-gradient(to_bottom,transparent,black_10%,black_90%,transparent)]">
+            <div
+              key={active.name}
+              className={cn(
+                'flex flex-col gap-4',
+                canLoop &&
+                  '[animation:testimonial-marquee_var(--marquee-duration)_linear_infinite] group-hover/marquee:[animation-play-state:paused]',
+              )}
+              style={{ '--marquee-duration': `${durationSeconds}s` } as React.CSSProperties}
+            >
+              {marqueeReviews.map((review, index) => (
+                <article
+                  key={`${active.name}-${review.reviewer || 'review'}-${index}`}
+                  className="flex flex-col border border-line bg-paper p-5"
+                >
+                  <p className="break-words text-base leading-7 text-ink-2/80">
+                    &ldquo;{review.body}&rdquo;
+                  </p>
+                  <div className="mt-4 flex shrink-0 items-end justify-between gap-4">
+                    <div>
+                      <p className="font-semibold text-ink-2">{review.reviewer}</p>
+                      {review.date ? (
+                        <p className="mt-1 text-xs text-ink-2/50">{review.date}</p>
+                      ) : null}
+                    </div>
+                    <span
+                      className="flex gap-0.5 text-brass"
+                      aria-label={`${review.rating || 5} out of 5 stars`}
+                    >
+                      {Array.from({ length: review.rating || 5 }).map((_, starIndex) => (
+                        <Star key={starIndex} className="h-3.5 w-3.5 fill-current" />
+                      ))}
+                    </span>
                   </div>
-                  <span className="flex gap-0.5 text-brass" aria-label={`${review.rating || 5} out of 5 stars`}>
-                    {Array.from({ length: review.rating || 5 }).map((_, starIndex) => (
-                      <Star key={starIndex} className="h-3.5 w-3.5 fill-current" />
-                    ))}
-                  </span>
-                </div>
-              </article>
-            ))}
+                </article>
+              ))}
+            </div>
           </div>
         </div>
       </div>
+
+      <style jsx>{`
+        @keyframes testimonial-marquee {
+          from {
+            transform: translateY(0);
+          }
+          to {
+            transform: translateY(-50%);
+          }
+        }
+      `}</style>
     </Section>
   )
 }

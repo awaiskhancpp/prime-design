@@ -4,11 +4,13 @@ import { SiteFooter } from '@/components/layout/SiteFooter'
 import { SiteHeader } from '@/components/layout/SiteHeader'
 import { LandingLuxuryCta } from './LandingLuxuryCta'
 import { LandingServiceAreasSection } from './LandingServiceAreasSection'
+import { LandingContact } from './Contact'
 import { LandingBlockRenderer } from './LandingBlockRenderer'
 
 export function LandingPageRenderer({ page }: { page: LandingPage }) {
   const hasServiceAreas = page.sections.some((section) => section.blockType === 'service-areas')
   const hasLuxuryCta = page.sections.some((section) => section.blockType === 'luxury-cta')
+  const hasContactForm = page.sections.some((section) => section.blockType === 'contact-form')
   return (
     <div className="min-h-screen bg-white">
       <main>
@@ -28,6 +30,7 @@ export function LandingPageRenderer({ page }: { page: LandingPage }) {
             label={website.about.ctaLabel}
           />
         ) : null}
+        {!hasContactForm ? <LandingContact /> : null}
       </main>
     </div>
   )

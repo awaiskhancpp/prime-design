@@ -17,6 +17,7 @@ export async function SiteHeader({
 }) {
   const siteSettings = await resolveSiteSettings()
   const isLight = tone === 'light'
+  const isMinimal = variant === 'minimal'
   const primaryLinks = website.nav.filter(({ label }) =>
     ['Home', 'About', 'Services', 'Projects', 'Gallery', 'Resources'].includes(label),
   )
@@ -31,7 +32,7 @@ export async function SiteHeader({
       )}
     >
       <Container className="flex min-h-20 items-center justify-between gap-6">
-        <BrandMark />
+        <BrandMark linked={!isMinimal} />
         {variant === 'full' ? (
           <nav
             className="hidden items-center gap-6 text-xs font-medium uppercase tracking-[0.12em] lg:flex"
@@ -110,8 +111,12 @@ export async function SiteHeader({
           >
             {siteSettings.phone}
           </a>
-          <Button href="/contact" size="lg" variant={isLight ? 'outline' : 'outline-light'}>
-            {variant === 'minimal' ? 'Get A Quote' : 'Talk to an expert'}
+          <Button
+            href={isMinimal ? '#contact' : '/contact'}
+            size="lg"
+            variant={isLight ? 'outline' : 'outline-light'}
+          >
+            {isMinimal ? 'Get A Quote' : 'Talk to an expert'}
           </Button>
         </div>
       </Container>
