@@ -16,6 +16,7 @@ type PageHeroProps = {
   cta?: { label: string; href: string }
   children?: ReactNode
   showHeader?: boolean
+  headerVariant?: 'full' | 'minimal'
 }
 
 export function PageHero({
@@ -29,6 +30,7 @@ export function PageHero({
   cta,
   children,
   showHeader = true,
+  headerVariant = 'full',
 }: PageHeroProps) {
   const isCentered = align === 'center'
 
@@ -59,7 +61,7 @@ export function PageHero({
       <div className="pointer-events-none absolute inset-0 -z-10 bg-gradient-to-r from-ink/55 via-ink/25 to-transparent" />
       <div className="pointer-events-none absolute inset-0 -z-10 bg-gradient-to-t from-ink/45 via-transparent to-transparent" />
 
-      {showHeader ? <SiteHeader /> : null}
+      {showHeader ? <SiteHeader variant={headerVariant} /> : null}
 
       <Container className="relative z-10 w-full max-w-none">
         <div className="max-w-3xl">

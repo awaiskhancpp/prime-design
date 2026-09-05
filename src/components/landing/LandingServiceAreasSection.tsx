@@ -18,7 +18,7 @@ export function LandingServiceAreasSection({
   if (!items.length) return null
 
   return (
-    <Section className="bg-paper">
+    <Section className="">
       <SectionHeader eyebrow={eyebrow} title={heading || 'Areas we service'} />
       <div className="mt-8 flex flex-wrap gap-3">
         {items.map((area, index) =>

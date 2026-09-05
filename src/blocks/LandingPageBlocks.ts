@@ -216,6 +216,33 @@ export const landingPageBlocks: Block[] = [
       ],
     },
   ]),
+  base('landing-testimonials', 'Landing Testimonials', [
+    text('eyebrow'),
+    text('heading'),
+    description(),
+    {
+      name: 'providers',
+      type: 'array' as const,
+      fields: [
+        text('name', true),
+        text('collectionId'),
+        text('reviewUrl'),
+        { name: 'rating', type: 'number' as const },
+        { name: 'reviewCount', type: 'number' as const },
+        {
+          name: 'reviews',
+          type: 'array' as const,
+          fields: [
+            text('reviewer'),
+            { name: 'rating', type: 'number' as const },
+            { name: 'body', type: 'textarea' as const },
+            text('date'),
+            text('sourceId'),
+          ],
+        },
+      ],
+    },
+  ]),
   base('faq', 'FAQ', [
     text('heading'),
     description(),

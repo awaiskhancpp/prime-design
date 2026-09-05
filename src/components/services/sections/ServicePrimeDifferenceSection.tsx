@@ -120,7 +120,8 @@ export function ServicePrimeDifferenceSection({
         <div>
           {eyebrow ? <p className="font-display text-lg italic text-ink-2/70">{eyebrow}</p> : null}
           <h2 className="mt-3 font-display text-4xl font-medium leading-tight tracking-tight text-ink md:text-5xl">
-            &ldquo;{heading}{headingAccent ? ' ' : null}
+            &ldquo;{heading}
+            {headingAccent ? ' ' : null}
             {headingAccent ? (
               <span className="bg-gradient-to-r from-brass to-brass-deep bg-clip-text text-transparent">
                 {headingAccent}
@@ -130,24 +131,26 @@ export function ServicePrimeDifferenceSection({
           </h2>
           {body ? <p className="mt-6 text-base leading-7 text-ink-2/75">{body}</p> : null}
 
-          {checklist?.length ? <ul className="mt-7 grid gap-4">
-            {checklist.map((item) => (
-              <li key={item} className="flex items-start gap-3">
-                <span className="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-ink text-white">
-                  <svg viewBox="0 0 20 20" fill="none" className="h-3 w-3">
-                    <path
-                      d="M4 10.5l3.5 3.5L16 6"
-                      stroke="currentColor"
-                      strokeWidth={2}
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                    />
-                  </svg>
-                </span>
-                <span className="text-base leading-6 text-ink-2/85">{item}</span>
-              </li>
-            ))}
-          </ul> : null}
+          {checklist?.length ? (
+            <ul className="mt-7 grid gap-4">
+              {checklist.map((item) => (
+                <li key={item} className="flex items-start gap-3">
+                  <span className="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-ink text-white">
+                    <svg viewBox="0 0 20 20" fill="none" className="h-3 w-3">
+                      <path
+                        d="M4 10.5l3.5 3.5L16 6"
+                        stroke="currentColor"
+                        strokeWidth={2}
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                      />
+                    </svg>
+                  </span>
+                  <span className="text-base leading-6 text-ink-2/85">{item}</span>
+                </li>
+              ))}
+            </ul>
+          ) : null}
 
           <div className="mt-8 flex flex-wrap items-center gap-6">
             {reviewBadges.map((badge) => (
@@ -165,7 +168,7 @@ export function ServicePrimeDifferenceSection({
         </div>
 
         <div className="grid gap-6 sm:grid-cols-2">
-            {(reasons || []).map(({ icon, title, body }, index) => (
+          {(reasons || []).map(({ icon, title, body }, index) => (
             <div
               key={title}
               className="group relative border border-line bg-paper p-8 transition-shadow duration-300 hover:shadow-lg hover:shadow-ink/5"

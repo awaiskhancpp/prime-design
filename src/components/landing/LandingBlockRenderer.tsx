@@ -10,10 +10,12 @@ import BeforeAfterSlider from '@/components/blocks/BeforeAfterSlider'
 import { LandingFindUs } from './LandingFindUs'
 import { LandingGallerySection } from './LandingGallerySection'
 import { LandingGalleryTabs } from './LandingGalleryTabs'
+import { LandingTestimonialsSection } from './LandingTestimonialsSection'
 import { LandingLuxuryCta } from './LandingLuxuryCta'
 import { LandingCtaSection } from './LandingCtaSection'
 import { LandingExperienceDifferenceSection } from './LandingExperienceDifferenceSection'
 import { LandingPrimeDifferenceSection } from './LandingPrimeDifferenceSection'
+import { VideoCarousel } from './VideoCarousel'
 import { LandingProjectGridSection } from './LandingProjectGridSection'
 import { LandingProjectsSection } from './LandingProjectsSection'
 import { LandingRepairServicesSection } from './LandingRepairServicesSection'
@@ -72,7 +74,7 @@ function HeroBlock({ block }: { block: Block }) {
     return <UnsupportedLandingBlock block={block} />
   return (
     <PageHero
-      showHeader={false}
+      headerVariant="minimal"
       eyebrow={text(block.eyebrow) || 'Prime Design & Build'}
       title={text(block.heading) || ''}
       description={text(block.description)}
@@ -297,25 +299,23 @@ function FaqBlock({ block }: { block: Block }) {
 
 function VideoCarouselBlock({ block }: { block: Block }) {
   const items = Array.isArray(block.items) ? block.items : []
+  const videos = items
+    .map((item) => item as Record<string, unknown>)
+    .map((item) => ({
+      url: text(item.externalUrl) || mediaUrl(item.video),
+      poster: mediaUrl(item.poster),
+      caption: text(item.caption),
+    }))
+    .filter(
+      (item): item is { url: string; poster: string | undefined; caption: string | undefined } =>
+        Boolean(item.url),
+    )
+
+  if (!videos.length) return <UnsupportedLandingBlock block={block} />
+
   return (
     <Section className="bg-white">
-      <div className="grid gap-8 md:grid-cols-2">
-        {items.map((item, index) => {
-          const value = item as Record<string, unknown>
-          const url = text(value.externalUrl) || mediaUrl(value.video)
-          return url ? (
-            <video
-              key={text(value.sourceId) || index}
-              className="aspect-video w-full object-cover"
-              controls
-              playsInline
-              poster={mediaUrl(value.poster)}
-            >
-              <source src={url} />
-            </video>
-          ) : null
-        })}
-      </div>
+      <VideoCarousel videos={videos} />
     </Section>
   )
 }
@@ -552,6 +552,38 @@ export const landingBlockRegistry: Record<string, Renderer> = {
   ),
   faq: FaqBlock,
   testimonials: () => <TestimonialsSpotlight />,
+  'landing-testimonials': ({ block }) => (
+    <LandingTestimonialsSection
+      eyebrow={text(block.eyebrow)}
+      heading={text(block.heading)}
+      description={text(block.description)}
+      providers={
+        Array.isArray(block.providers)
+          ? block.providers.map((provider) => {
+              const value = provider as Record<string, unknown>
+              return {
+                name: text(value.name) || 'Reviews',
+                collectionId: text(value.collectionId),
+                reviewUrl: text(value.reviewUrl),
+                rating: typeof value.rating === 'number' ? value.rating : undefined,
+                reviewCount: typeof value.reviewCount === 'number' ? value.reviewCount : undefined,
+                reviews: Array.isArray(value.reviews)
+                  ? value.reviews.map((review) => {
+                      const item = review as Record<string, unknown>
+                      return {
+                        reviewer: text(item.reviewer),
+                        rating: typeof item.rating === 'number' ? item.rating : undefined,
+                        body: text(item.body),
+                        date: text(item.date),
+                      }
+                    })
+                  : [],
+              }
+            })
+          : []
+      }
+    />
+  ),
   booking: ({ block }) => (
     <LandingBookingSection heading={text(block.heading) || 'Request an Estimate Appointment'} />
   ),

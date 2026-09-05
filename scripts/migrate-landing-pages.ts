@@ -4,6 +4,7 @@ import path from 'node:path'
 import { getPayload } from 'payload'
 import configPromise from '../src/payload.config'
 import website from '../website.json'
+import { testimonials as sourceTestimonials } from '../src/lib/testimonials'
 import { parseBricksSerialized } from '../wordpress-migration/bricksParser'
 import { normalizeBricksPage } from '../wordpress-migration/normalizer'
 import { parseWordPressXmlFile } from '../wordpress-migration/xmlParser'
@@ -242,11 +243,12 @@ function sourceImageMediaId(
 }
 
 function imageFromTreeNode(node: BricksTreeNode): NormalizedImage | undefined {
-  const imageNode = node.name === 'image'
-    ? node
-    : [node, ...node.children.flatMap((child) => treeNodesFromNode(child))].find(
-        (child) => child.name === 'image',
-      )
+  const imageNode =
+    node.name === 'image'
+      ? node
+      : [node, ...node.children.flatMap((child) => treeNodesFromNode(child))].find(
+          (child) => child.name === 'image',
+        )
 
   if (!imageNode?.settings.image || typeof imageNode.settings.image !== 'object') {
     return undefined
@@ -310,9 +312,7 @@ function subServiceItems(
           ? (headingNode.settings.link as Record<string, unknown>)
           : undefined
       const postId = typeof link?.postId === 'string' ? Number(link.postId) : undefined
-      const sourcePage = postId
-        ? pagesById.get(postId)
-        : pagesByIdByTitle(pagesById, title)
+      const sourcePage = postId ? pagesById.get(postId) : pagesByIdByTitle(pagesById, title)
       const url =
         typeof link?.url === 'string'
           ? link.url
@@ -421,7 +421,9 @@ function findUsData(section: NormalizedSection) {
   return {
     phone: values.find((value) => /(?:\+?1\s*)?\(?\d{3}\)?[\s.-]*\d{3}[\s.-]*\d{4}/.test(value)),
     email: values.find((value) => /\b[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}\b/i.test(value)),
-    address: values.find((value) => /\b(?:ave|avenue|street|st\.?|road|rd\.?|blvd\.?)\b/i.test(value)),
+    address: values.find((value) =>
+      /\b(?:ave|avenue|street|st\.?|road|rd\.?|blvd\.?)\b/i.test(value),
+    ),
     mapUrl: mapUrls[0],
   }
 }
@@ -550,6 +552,91 @@ function dynamicHappyFilesImages(section: NormalizedSection, source: WordPressSo
     .map((attachment) => ({ sourceId: attachment.id, status: 'unresolved' as const }))
 }
 
+function cssClasses(node: BricksTreeNode) {
+  const direct = node.settings._cssClasses
+  const hidden = node.settings._hidden
+  const hiddenClasses =
+    hidden && typeof hidden === 'object'
+      ? (hidden as Record<string, unknown>)._cssClasses
+      : undefined
+  return [direct, hiddenClasses]
+    .filter((value): value is string => typeof value === 'string')
+    .flatMap((value) => value.split(/\s+/).filter(Boolean))
+}
+
+function textFromNode(node: BricksTreeNode) {
+  return first(
+    treeNodesFromNode(node)
+      .filter((child) => child.name === 'text-basic' || child.name === 'heading')
+      .map((child) => child.settings.text),
+  )
+}
+
+function dynamicGalleryGroups(
+  section: NormalizedSection,
+  source: WordPressSource,
+  mediaIds: Map<number | string, number>,
+) {
+  const tabs = treeNodes(section).find((node) => node.name === 'tabs-nested')
+  const tabGroups = tabs
+    ? (() => {
+        const titles = treeNodesFromNode(tabs).filter((node) =>
+          cssClasses(node).includes('tab-title'),
+        )
+        const panes = treeNodesFromNode(tabs).filter((node) =>
+          cssClasses(node).includes('tab-pane'),
+        )
+        if (!titles.length || titles.length !== panes.length) return []
+        return titles.flatMap((titleNode, index) => {
+          const pane = panes[index]
+          const label = textFromNode(titleNode)
+          return label && pane ? [{ label, root: pane }] : []
+        })
+      })()
+    : []
+
+  const sourceTree = dataOf(section).sourceTree as BricksTreeNode | undefined
+  const containerGroups = sourceTree
+    ? treeNodesFromNode(sourceTree)
+        .filter((node) => node.name === 'container')
+        .flatMap((container) => {
+          const label = textFromNode(container)
+          const hasGallery = treeNodesFromNode(container).some(
+            (node) => node.name === 'happyfiles-gallery' || node.name === 'image-gallery',
+          )
+          return label && hasGallery ? [{ label, root: container }] : []
+        })
+    : []
+
+  const groups = tabGroups.length ? tabGroups : containerGroups
+  return groups.flatMap(({ label, root }) => {
+    const folderIds = treeNodesFromNode(root)
+      .filter((node) => node.name === 'happyfiles-gallery' || node.name === 'image-gallery')
+      .map((node) => {
+        const ids = node.settings.ids as Record<string, unknown> | undefined
+        return typeof ids?.['0'] === 'string' || typeof ids?.['0'] === 'number'
+          ? String(ids['0'])
+          : undefined
+      })
+      .filter((id): id is string => Boolean(id))
+    const slugs = new Set(folderIds.map((id) => source.happyfilesFolders[id]).filter(Boolean))
+    const items = source.attachments
+      .filter((attachment) => attachment.happyfilesCategorySlugs?.some((slug) => slugs.has(slug)))
+      .map((attachment, itemIndex) => ({
+        media: mediaIds.get(attachment.id),
+        caption: undefined,
+        alt: attachment.title || `${label} image ${itemIndex + 1}`,
+        sourceOrder: itemIndex,
+        sourceAttachmentId: attachment.id,
+      }))
+
+    // Keep unresolved source IDs during the discovery pass. The importer
+    // resolves media after it has collected every attachment ID, including
+    // IDs found inside tab panes.
+    return items.length ? [{ label, items }] : []
+  })
+}
+
 function projectQueryProjects(section: NormalizedSection, projects: WordPressProject[]) {
   const projectQueries = treeNodes(section)
     .map((node) => node.settings.query)
@@ -601,19 +688,18 @@ function dynamicProjectCards(
   projects: WordPressProject[],
   mediaIds: Map<number | string, number>,
 ) {
-  return projectQueryProjects(section, projects)
-    .flatMap((project) => {
-      const title = clean(project.title)
-      if (!title) return []
-      return [
-        {
-          title,
-          image: project.thumbnailId ? mediaIds.get(project.thumbnailId) : undefined,
-          link: project.slug ? `/project/${project.slug}` : undefined,
-          sourceId: project.id,
-        },
-      ]
-    })
+  return projectQueryProjects(section, projects).flatMap((project) => {
+    const title = clean(project.title)
+    if (!title) return []
+    return [
+      {
+        title,
+        image: project.thumbnailId ? mediaIds.get(project.thumbnailId) : undefined,
+        link: project.slug ? `/project/${project.slug}` : undefined,
+        sourceId: project.id,
+      },
+    ]
+  })
 }
 
 function mapGalleryItems(
@@ -714,23 +800,51 @@ function mapSection(
     case 'gallery': {
       const projectCards = dynamicProjectCards(section, projects, mediaIds)
       if (projectCards.length) {
+        // Project-loop card templates contain dynamic placeholders such as
+        // `{post_title}` and `{post_content}`. They are not section copy and
+        // must never be rendered literally above the project grid.
+        const projectDescription = sourceBody
+          .filter((value) => !/\{(?:post_title|post_content|featured_image)(?::[^}]+)?\}/i.test(value))
+          .join('\n\n') || undefined
         return {
           blockType: 'project-grid',
           ...common,
           eyebrow: sectionEyebrow(section),
           heading,
-          description,
+          description: projectDescription,
           items: projectCards.map((project) => ({
             title: project.title,
             image: project.image
               ? {
                   asset: project.image,
                   alt: project.title,
-                  sourceAttachmentId: projects.find((item) => item.id === project.sourceId)?.thumbnailId,
+                  sourceAttachmentId: projects.find((item) => item.id === project.sourceId)
+                    ?.thumbnailId,
                 }
               : undefined,
             link: project.link ? { url: project.link } : undefined,
           })),
+        }
+      }
+
+      const groups = dynamicGalleryGroups(section, source, mediaIds)
+      const resolvedGroups = groups
+        .map((group) => ({
+          ...group,
+          items: group.items.filter((item) => item.media),
+        }))
+        .filter((group) => group.items.length)
+      if (resolvedGroups.length) {
+        return {
+          blockType: 'gallery',
+          ...common,
+          heading,
+          description,
+          items: [],
+          groups: resolvedGroups,
+          layout: undefined,
+          lightbox: true,
+          sourceGalleryType: 'wordpress-tabs-gallery',
         }
       }
 
@@ -777,12 +891,16 @@ function mapSection(
         ...common,
         heading,
         description,
-        items: items.length
-          ? items
-          : directImages.length
-            ? directImages
-            : happyFilesImages.length
-              ? happyFilesImages
+        // A HappyFiles widget is an explicit source selection. Prefer its
+        // resolved folder contents over generic normalized image nodes from
+        // the surrounding Bricks section, which may belong to another
+        // element in that section.
+        items: happyFilesImages.length
+          ? happyFilesImages
+          : items.length
+            ? items
+            : directImages.length
+              ? directImages
               : dynamicImages,
         groups: [],
         layout: undefined,
@@ -823,7 +941,8 @@ function mapSection(
           video: video.attachmentId ? mediaIds.get(video.attachmentId) : undefined,
           externalUrl: video.sourceUrl,
           poster: video.poster?.sourceId ? mediaIds.get(video.poster.sourceId) : undefined,
-          sourceVideoId: video.sourceUrl,
+          caption: undefined,
+          sourceVideoId: video.attachmentId ? String(video.attachmentId) : undefined,
         })),
         media: ref,
       }
@@ -867,7 +986,7 @@ function mapSection(
         ...common,
         heading: heading || 'Repair & Installation',
         description,
-          categories: (
+        categories: (
           (data.repairCategories as Array<Record<string, unknown>> | undefined) || []
         ).map((category) => ({
           media: (() => {
@@ -881,7 +1000,9 @@ function mapSection(
                 raw: {},
               },
             )
-            return image ? mediaRef(image, image.sourceId ? mediaIds.get(image.sourceId) : undefined) : undefined
+            return image
+              ? mediaRef(image, image.sourceId ? mediaIds.get(image.sourceId) : undefined)
+              : undefined
           })(),
           title: clean(category.title) || 'Service',
           heading: clean(category.heading),
@@ -949,16 +1070,33 @@ function mapSection(
     case 'testimonials':
     case 'testimonial':
       return {
-        blockType: 'testimonials',
+        blockType: 'landing-testimonials',
         ...common,
+        eyebrow: sectionEyebrow(section),
         heading,
+        description,
         providers: ((data.testimonials as Array<Record<string, unknown>> | undefined) || []).map(
-          (provider) => ({
-            name: clean(provider.provider) || 'Testimonials',
-            shortcode: provider.shortcode,
-            collectionId: provider.collectionId,
-            reviews: [],
-          }),
+          (provider) => {
+            const name = clean(provider.provider) || 'Testimonials'
+            const source = name.toLowerCase().includes('yelp') ? 'yelp' : 'google'
+            const summary = source === 'yelp' ? website.reviewSummary.yelp : website.reviewSummary.google
+            return {
+              name,
+              collectionId: provider.collectionId,
+              reviewUrl: summary.url,
+              rating: summary.rating,
+              reviewCount: summary.count,
+              reviews: sourceTestimonials
+                .filter((review) => review.source === source)
+                .map((review) => ({
+                  reviewer: review.name,
+                  rating: review.rating,
+                  body: review.text,
+                  date: review.date,
+                  sourceId: `${review.source}:${review.name}:${review.date}`,
+                })),
+            }
+          },
         ),
       }
     case 'booking':
@@ -1030,6 +1168,7 @@ const report: Array<{
   page: string
   sections: number
   media: number
+  galleries: string[]
   unsupported: string[]
   status: string
 }> = []
@@ -1086,6 +1225,7 @@ for (const slug of targetSlugs) {
       page: slug,
       sections: 0,
       media: 0,
+      galleries: [],
       unsupported: ['missing or unpublished source page'],
       status: 'FAILED',
     })
@@ -1096,6 +1236,7 @@ for (const slug of targetSlugs) {
       page: slug,
       sections: 0,
       media: 0,
+      galleries: [],
       unsupported: ['page has no Bricks source'],
       status: 'FAILED',
     })
@@ -1103,9 +1244,27 @@ for (const slug of targetSlugs) {
   }
   const bricks = parseBricksSerialized(page.bricksSerialized)
   const normalized = normalizeBricksPage(page, bricks.roots)
-  const allImages = normalized.flatMap((section) => [...section.images, ...sourceImages(section)])
+  // A `video`/`carousel` section immediately following a `prime-difference`
+  // section belongs inside it — the schema's videos field says as much
+  // ("Ordered videos embedded in the WordPress Prime Difference section"),
+  // but the source page renders them as separate adjacent Bricks sections.
+  // Merge and drop the standalone section so it isn't also imported on its own.
+  const mergedFollowOnIds = new Set<string>()
+  normalized.forEach((section, index) => {
+    if (section.type !== 'prime-difference') return
+    const next = normalized[index + 1]
+    if (!next || (next.type !== 'video' && next.type !== 'carousel')) return
+    if (!next.videos.length) return
+    section.videos = next.videos
+    mergedFollowOnIds.add(next.sourceId)
+  })
+  const mergedSections = normalized.filter((section) => !mergedFollowOnIds.has(section.sourceId))
+  const allImages = mergedSections.flatMap((section) => [
+    ...section.images,
+    ...sourceImages(section),
+  ])
   const mediaIds = new Map<number | string, number>()
-  const projectGalleryImages: NormalizedImage[] = normalized
+  const projectGalleryImages: NormalizedImage[] = mergedSections
     .filter((section) => section.type === 'gallery')
     .flatMap((section) => dynamicProjectImages(section, source.projects))
     .filter(
@@ -1119,25 +1278,43 @@ for (const slug of targetSlugs) {
     .filter(
       (image, index, all) =>
         Boolean(image.sourceId) &&
+      all.findIndex((candidate) => candidate.sourceId === image.sourceId) === index,
+    )
+  // Tab panes are a separate source-discovery path. Include their attachment
+  // IDs before resolving media; otherwise the final grouped block can only
+  // reference media that happened to be discovered elsewhere.
+  const tabbedGalleryImages: NormalizedImage[] = mergedSections
+    .filter((section) => section.type === 'gallery')
+    .flatMap((section) => dynamicGalleryGroups(section, source, new Map()))
+    .flatMap((group) => group.items)
+    .map((item) => ({ sourceId: item.sourceAttachmentId, status: 'unresolved' as const }))
+    .filter(
+      (image, index, all) =>
+        Boolean(image.sourceId) &&
         all.findIndex((candidate) => candidate.sourceId === image.sourceId) === index,
     )
-  for (const image of [...allImages, ...projectGalleryImages, ...happyFilesGalleryImages]) {
+  for (const image of [
+    ...allImages,
+    ...projectGalleryImages,
+    ...happyFilesGalleryImages,
+    ...tabbedGalleryImages,
+  ]) {
     const id = await resolveMediaId(image.sourceId, image.filename)
     if (id && image.sourceId) mediaIds.set(image.sourceId, id)
     if (id && image.filename) mediaIds.set(image.filename, id)
   }
   const pagesById = new Map(source.pages.map((item) => [item.id, item]))
-  const sections = normalized
+  const sections = mergedSections
     .map((section) =>
       mapSection(section, mediaIds, pagesById, source.projects, source.faqs, source),
     )
     .filter((section): section is Record<string, unknown> => Boolean(section))
-  const unsupported = normalized
+  const unsupported = mergedSections
     .filter(
       (section) => !mapSection(section, mediaIds, pagesById, source.projects, source.faqs, source),
     )
     .map((section) => `${section.order}:${section.type}:${section.sourceId}`)
-  const heroSource = normalized.find((section) => section.type === 'hero')
+  const heroSource = mergedSections.find((section) => section.type === 'hero')
   const heroData = heroSource
     ? mapSection(heroSource, mediaIds, pagesById, source.projects, source.faqs, source)
     : undefined
@@ -1183,6 +1360,20 @@ for (const slug of targetSlugs) {
     page: slug,
     sections: sections.length,
     media: mediaIds.size,
+    galleries: sections
+      .filter((section) => section.blockType === 'gallery')
+      .flatMap((section) => {
+        const groups = Array.isArray(section.groups) ? section.groups : []
+        if (groups.length) {
+          return groups.map((group) => {
+            const value = group as Record<string, unknown>
+            return `${String(value.label || 'Gallery')}: ${Array.isArray(value.items) ? value.items.length : 0}`
+          })
+        }
+        return [
+          `${String(section.heading || 'Gallery')}: ${Array.isArray(section.items) ? section.items.length : 0}`,
+        ]
+      }),
     unsupported,
     status: 'IMPORTED',
   })
@@ -1197,6 +1388,8 @@ console.table(
     Status: row.status,
   })),
 )
+for (const row of report)
+  if (row.galleries.length) console.log(`${row.page} galleries: ${row.galleries.join(', ')}`)
 for (const row of report)
   if (row.unsupported.length)
     console.log(`${row.page} unsupported/skipped: ${row.unsupported.join(', ')}`)

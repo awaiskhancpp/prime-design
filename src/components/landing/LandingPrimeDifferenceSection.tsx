@@ -1,10 +1,7 @@
-'use client'
-
-import { useRef, useState } from 'react'
-import { Check, ChevronLeft, ChevronRight, Pause, Play } from 'lucide-react'
+import { Check } from 'lucide-react'
 
 import { Section } from '@/components/ui/Section'
-import { cn } from '@/lib/utils'
+import { VideoCarousel, type CarouselVideo } from './VideoCarousel'
 
 const statLine = 'Over 350+ Projects in Silicon Valley'
 
@@ -44,18 +41,12 @@ const projectVideos = [
   },
 ]
 
-type LandingPrimeDifferenceVideo = {
-  url: string
-  poster?: string
-  caption?: string
-}
-
 type LandingPrimeDifferenceSectionProps = {
   eyebrow?: string
   heading?: string
   body?: string
   checklist?: string[]
-  videos?: LandingPrimeDifferenceVideo[]
+  videos?: CarouselVideo[]
 }
 
 export function LandingPrimeDifferenceSection({
@@ -65,38 +56,15 @@ export function LandingPrimeDifferenceSection({
   checklist,
   videos,
 }: LandingPrimeDifferenceSectionProps) {
-  const [index, setIndex] = useState(0)
-  const [playing, setPlaying] = useState(false)
-  const videoRef = useRef<HTMLVideoElement>(null)
   const activeChecklist = checklist ?? bullets.map((bullet) => `${bullet.lead}${bullet.text}`)
-  const activeVideos = videos ?? projectVideos.map((video) => ({
-    url: video.url,
-    poster: video.poster,
-    caption: video.title,
-  }))
-  const active = activeVideos[index]
-
-  function goTo(nextIndex: number) {
-    setIndex(nextIndex)
-    setPlaying(false)
-  }
-
-  function togglePlay() {
-    const el = videoRef.current
-    if (!el) return
-    if (el.paused) {
-      el.play()
-      setPlaying(true)
-    } else {
-      el.pause()
-      setPlaying(false)
-    }
-  }
+  const activeVideos =
+    videos ??
+    projectVideos.map((video) => ({ url: video.url, poster: video.poster, caption: video.title }))
 
   return (
     <Section className="bg-ink-2 text-white">
-      <div className="grid gap-12 lg:grid-cols-2 lg:items-center lg:gap-16">
-        <div>
+      <div className="grid gap-12 md:grid-cols-12 md:items-center md:gap-10 lg:gap-10">
+        <div className="col-span-6">
           <p className="text-xs font-semibold uppercase tracking-[0.2em] text-brass-deep">
             {eyebrow ?? statLine}
           </p>
@@ -121,92 +89,9 @@ export function LandingPrimeDifferenceSection({
           </ul>
         </div>
 
-        {active && (
-          <div>
-            {/* Single custom control surface — no native <video controls>. */}
-            <div className="relative aspect-video w-full overflow-hidden border border-white/10 bg-black">
-              <video
-                key={active.url}
-                ref={videoRef}
-                className="h-full w-full object-cover"
-                playsInline
-                preload="metadata"
-                poster={active.poster}
-                onEnded={() => setPlaying(false)}
-              >
-                <source src={active.url} type="video/mp4" />
-                Your browser does not support the video tag.
-              </video>
-
-              <button
-                type="button"
-                onClick={togglePlay}
-                aria-label={playing ? 'Pause video' : 'Play video'}
-                className="absolute inset-0 flex items-center justify-center bg-black/0 transition-colors hover:bg-black/10"
-              >
-                {!playing && (
-                  <span className="flex h-14 w-14 items-center justify-center rounded-full bg-white/90 text-ink shadow-lg">
-                    <Play className="ml-0.5 h-5 w-5 fill-current" aria-hidden />
-                  </span>
-                )}
-              </button>
-
-              {playing && (
-                <button
-                  type="button"
-                  onClick={togglePlay}
-                  aria-label="Pause video"
-                  className="absolute bottom-4 left-4 flex h-9 w-9 items-center justify-center rounded-full bg-black/50 text-white transition-colors hover:bg-black/70"
-                >
-                  <Pause className="h-4 w-4 fill-current" aria-hidden />
-                </button>
-              )}
-
-            {activeVideos.length > 1 && (
-              <>
-                <button
-                  type="button"
-                  onClick={() => goTo((index - 1 + activeVideos.length) % activeVideos.length)}
-                  aria-label="Previous video"
-                  className="absolute left-3 top-1/2 flex h-9 w-9 -translate-y-1/2 items-center justify-center border border-brass/70 bg-ink/60 text-brass transition-colors hover:bg-ink hover:text-white"
-                >
-                  <ChevronLeft className="h-4 w-4" aria-hidden />
-                </button>
-                <button
-                  type="button"
-                  onClick={() => goTo((index + 1) % activeVideos.length)}
-                  aria-label="Next video"
-                  className="absolute right-3 top-1/2 flex h-9 w-9 -translate-y-1/2 items-center justify-center border border-brass/70 bg-ink/60 text-brass transition-colors hover:bg-ink hover:text-white"
-                >
-                  <ChevronRight className="h-4 w-4" aria-hidden />
-                </button>
-              </>
-            )}
-          </div>
-
-            {activeVideos.length > 1 && (
-              <div className="mt-4 flex flex-wrap justify-center gap-2">
-                {activeVideos.map((video, i) => (
-                  <button
-                    key={video.url}
-                    type="button"
-                    onClick={() => goTo(i)}
-                    aria-label={video.caption ? `Show video: ${video.caption}` : 'Select video'}
-                    aria-current={i === index}
-                    className={cn(
-                      'border px-3 py-1.5 text-xs transition-colors',
-                      i === index
-                        ? 'border-brass bg-brass text-ink'
-                        : 'border-white/25 text-white/70 hover:border-brass hover:text-brass',
-                    )}
-                  >
-                    {video.caption || `Video ${i + 1}`}
-                  </button>
-                ))}
-              </div>
-            )}
-          </div>
-        )}
+        <div className="col-span-6">
+          {activeVideos.length ? <VideoCarousel videos={activeVideos} dark /> : null}
+        </div>
       </div>
     </Section>
   )

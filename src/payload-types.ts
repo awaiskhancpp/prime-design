@@ -1069,6 +1069,46 @@ export interface Service {
             blockType: 'testimonials';
           }
         | {
+            eyebrow?: string | null;
+            heading?: string | null;
+            description?: string | null;
+            providers?:
+              | {
+                  name: string;
+                  collectionId?: string | null;
+                  reviewUrl?: string | null;
+                  rating?: number | null;
+                  reviewCount?: number | null;
+                  reviews?:
+                    | {
+                        reviewer?: string | null;
+                        rating?: number | null;
+                        body?: string | null;
+                        date?: string | null;
+                        sourceId?: string | null;
+                        id?: string | null;
+                      }[]
+                    | null;
+                  id?: string | null;
+                }[]
+              | null;
+            sourceId?: string | null;
+            sourceElementType?: string | null;
+            sourceAttachmentId?: number | null;
+            sourceMetadata?:
+              | {
+                  [k: string]: unknown;
+                }
+              | unknown[]
+              | string
+              | number
+              | boolean
+              | null;
+            id?: string | null;
+            blockName?: string | null;
+            blockType: 'landing-testimonials';
+          }
+        | {
             heading?: string | null;
             description?: string | null;
             categories?:
@@ -2312,6 +2352,46 @@ export interface LandingPage {
         blockType: 'testimonials';
       }
     | {
+        eyebrow?: string | null;
+        heading?: string | null;
+        description?: string | null;
+        providers?:
+          | {
+              name: string;
+              collectionId?: string | null;
+              reviewUrl?: string | null;
+              rating?: number | null;
+              reviewCount?: number | null;
+              reviews?:
+                | {
+                    reviewer?: string | null;
+                    rating?: number | null;
+                    body?: string | null;
+                    date?: string | null;
+                    sourceId?: string | null;
+                    id?: string | null;
+                  }[]
+                | null;
+              id?: string | null;
+            }[]
+          | null;
+        sourceId?: string | null;
+        sourceElementType?: string | null;
+        sourceAttachmentId?: number | null;
+        sourceMetadata?:
+          | {
+              [k: string]: unknown;
+            }
+          | unknown[]
+          | string
+          | number
+          | boolean
+          | null;
+        id?: string | null;
+        blockName?: string | null;
+        blockType: 'landing-testimonials';
+      }
+    | {
         heading?: string | null;
         description?: string | null;
         categories?:
@@ -3349,6 +3429,39 @@ export interface ServicesSelect<T extends boolean = true> {
               id?: T;
               blockName?: T;
             };
+        'landing-testimonials'?:
+          | T
+          | {
+              eyebrow?: T;
+              heading?: T;
+              description?: T;
+              providers?:
+                | T
+                | {
+                    name?: T;
+                    collectionId?: T;
+                    reviewUrl?: T;
+                    rating?: T;
+                    reviewCount?: T;
+                    reviews?:
+                      | T
+                      | {
+                          reviewer?: T;
+                          rating?: T;
+                          body?: T;
+                          date?: T;
+                          sourceId?: T;
+                          id?: T;
+                        };
+                    id?: T;
+                  };
+              sourceId?: T;
+              sourceElementType?: T;
+              sourceAttachmentId?: T;
+              sourceMetadata?: T;
+              id?: T;
+              blockName?: T;
+            };
         faq?:
           | T
           | {
@@ -4278,6 +4391,39 @@ export interface LandingPagesSelect<T extends boolean = true> {
                     name?: T;
                     shortcode?: T;
                     collectionId?: T;
+                    reviews?:
+                      | T
+                      | {
+                          reviewer?: T;
+                          rating?: T;
+                          body?: T;
+                          date?: T;
+                          sourceId?: T;
+                          id?: T;
+                        };
+                    id?: T;
+                  };
+              sourceId?: T;
+              sourceElementType?: T;
+              sourceAttachmentId?: T;
+              sourceMetadata?: T;
+              id?: T;
+              blockName?: T;
+            };
+        'landing-testimonials'?:
+          | T
+          | {
+              eyebrow?: T;
+              heading?: T;
+              description?: T;
+              providers?:
+                | T
+                | {
+                    name?: T;
+                    collectionId?: T;
+                    reviewUrl?: T;
+                    rating?: T;
+                    reviewCount?: T;
                     reviews?:
                       | T
                       | {
