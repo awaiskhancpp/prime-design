@@ -138,6 +138,7 @@ export const landingPageBlocks: Block[] = [
     text('eyebrow'),
     text('heading', true),
     description(),
+    ...mediaReferenceFields(),
     {
       name: 'areas',
       type: 'array' as const,

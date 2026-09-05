@@ -507,6 +507,7 @@ export const landingBlockRegistry: Record<string, Renderer> = {
     <LandingServiceAreasSection
       eyebrow={text(block.eyebrow)}
       heading={text(block.heading)}
+      description={text(block.description)}
       areas={
         Array.isArray(block.areas)
           ? block.areas.map((area) => {

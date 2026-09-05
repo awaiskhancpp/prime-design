@@ -637,13 +637,32 @@ function dynamicGalleryGroups(
   })
 }
 
+function outermostQueryNodes(
+  root: BricksTreeNode,
+  predicate: (query: Record<string, unknown>) => boolean,
+): BricksTreeNode[] {
+  const result: BricksTreeNode[] = []
+  const walk = (node: BricksTreeNode) => {
+    const query = node.settings.query
+    if (query && typeof query === 'object' && predicate(query as Record<string, unknown>)) {
+      result.push(node)
+      return // A nested query on a descendant is loop config (e.g. infinite-scroll
+      // pagination) for this same loop, not a second independent query — don't
+      // descend into it, or a curated post__in list gets re-flooded by the
+      // unscoped "all projects" query that Bricks duplicates onto the inner node.
+    }
+    node.children?.forEach(walk)
+  }
+  walk(root)
+  return result
+}
+
 function projectQueryProjects(section: NormalizedSection, projects: WordPressProject[]) {
-  const projectQueries = treeNodes(section)
-    .map((node) => node.settings.query)
-    .filter(
-      (query): query is Record<string, unknown> =>
-        Boolean(query) && typeof query === 'object' && JSON.stringify(query).includes('project'),
-    )
+  const sourceTree = dataOf(section).sourceTree as BricksTreeNode | undefined
+  if (!sourceTree) return []
+  const projectQueries = outermostQueryNodes(sourceTree, (query) =>
+    JSON.stringify(query).includes('project'),
+  ).map((node) => node.settings.query as Record<string, unknown>)
   if (projectQueries.length === 0) return []
 
   const byId = new Map(projects.map((project) => [project.id, project]))
@@ -803,9 +822,12 @@ function mapSection(
         // Project-loop card templates contain dynamic placeholders such as
         // `{post_title}` and `{post_content}`. They are not section copy and
         // must never be rendered literally above the project grid.
-        const projectDescription = sourceBody
-          .filter((value) => !/\{(?:post_title|post_content|featured_image)(?::[^}]+)?\}/i.test(value))
-          .join('\n\n') || undefined
+        const projectDescription =
+          sourceBody
+            .filter(
+              (value) => !/\{(?:post_title|post_content|featured_image)(?::[^}]+)?\}/i.test(value),
+            )
+            .join('\n\n') || undefined
         return {
           blockType: 'project-grid',
           ...common,
@@ -977,6 +999,7 @@ function mapSection(
         eyebrow: sectionEyebrow(section),
         heading: heading || 'Areas We Service',
         description,
+        media: ref,
         areas,
       }
     }
@@ -1079,7 +1102,8 @@ function mapSection(
           (provider) => {
             const name = clean(provider.provider) || 'Testimonials'
             const source = name.toLowerCase().includes('yelp') ? 'yelp' : 'google'
-            const summary = source === 'yelp' ? website.reviewSummary.yelp : website.reviewSummary.google
+            const summary =
+              source === 'yelp' ? website.reviewSummary.yelp : website.reviewSummary.google
             return {
               name,
               collectionId: provider.collectionId,
@@ -1196,15 +1220,45 @@ async function resolveMediaId(attachmentId: number | undefined, filename: string
   const attachment = attachmentId ? attachmentMap.get(attachmentId) : undefined
   const name = filename || attachment?.filename
   const localPath = name ? localFiles.get(name.toLowerCase()) : undefined
-  if (!localPath || !name) return undefined
-  const data = await readFile(localPath)
+
+  let data: Buffer | undefined
+  let sourceDescription: string | undefined
+  if (localPath) {
+    data = await readFile(localPath)
+    sourceDescription = localPath
+  } else if (attachment?.url) {
+    // No local uploads folder was passed (argv[3]), or this file isn't in it.
+    // Without this fallback, every image not already sitting in Payload's
+    // media collection from an earlier pass silently resolves to undefined —
+    // which is exactly why newly-discovered galleries (e.g. the HappyFiles
+    // folder fix) still showed 0 images even once correctly identified.
+    try {
+      const response = await fetch(attachment.url, {
+        headers: {
+          'User-Agent':
+            'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36',
+          Accept: 'image/avif,image/webp,image/apng,image/*,*/*;q=0.8',
+          Referer: new URL(attachment.url).origin + '/',
+        },
+      })
+      if (response.ok) {
+        data = Buffer.from(await response.arrayBuffer())
+        sourceDescription = attachment.url
+      } else {
+        console.warn(`Media fetch failed (${response.status}): ${attachment.url}`)
+      }
+    } catch (error) {
+      console.warn(`Media fetch error for ${attachment.url}:`, (error as Error).message)
+    }
+  }
+  if (!data || !name) return undefined
   const created = await payload.create({
     collection: 'media',
     data: {
       alt: attachment?.title || name,
       wordpressId: attachmentId,
       sourceUrl: attachment?.url,
-      sourcePath: localPath,
+      sourcePath: sourceDescription,
     },
     file: {
       data,
@@ -1278,7 +1332,7 @@ for (const slug of targetSlugs) {
     .filter(
       (image, index, all) =>
         Boolean(image.sourceId) &&
-      all.findIndex((candidate) => candidate.sourceId === image.sourceId) === index,
+        all.findIndex((candidate) => candidate.sourceId === image.sourceId) === index,
     )
   // Tab panes are a separate source-discovery path. Include their attachment
   // IDs before resolving media; otherwise the final grouped block can only
