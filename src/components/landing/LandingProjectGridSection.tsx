@@ -50,6 +50,7 @@ export function LandingProjectGridSection({
                   alt={item.title}
                   fill
                   className="object-cover transition-transform duration-500 ease-out group-hover:scale-105"
+                  unoptimized={item.image.startsWith('http') || item.image.includes('/api/media/file/')}
                   sizes="(min-width: 768px) 50vw, 100vw"
                 />
               ) : null}

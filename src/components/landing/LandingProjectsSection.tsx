@@ -34,7 +34,13 @@ export function LandingProjectsSection({
           <article key={item.title} className="border border-line bg-paper-2">
             {item.image ? (
               <div className="relative aspect-[4/3]">
-                <Image src={item.image} alt={item.title} fill className="object-cover" />
+                <Image
+                  src={item.image}
+                  alt={item.title}
+                  fill
+                  className="object-cover"
+                  unoptimized={item.image.startsWith('http') || item.image.includes('/api/media/file/')}
+                />
               </div>
             ) : null}
             <div className="p-5">

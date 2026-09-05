@@ -49,7 +49,7 @@ export function LandingSubServicesSection({
                   fill
                   className="object-cover"
                   sizes="(min-width: 768px) 33vw, 100vw"
-                  unoptimized={item.image.includes('/api/media/file/')}
+                  unoptimized={item.image.startsWith('http') || item.image.includes('/api/media/file/')}
                 />
               </div>
             ) : null}
