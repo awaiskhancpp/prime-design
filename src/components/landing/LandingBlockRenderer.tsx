@@ -150,7 +150,10 @@ function GalleryBlock({ block }: { block: Block }) {
           label: text(group.label) || text(group.heading) || 'Gallery',
           images: Array.isArray(group.items)
             ? group.items
-                .map((item) => mediaUrl((item as Record<string, unknown>)?.media))
+                .map((item) => {
+                  const value = item as Record<string, unknown>
+                  return mediaUrl(value.media) || text(value.sourceUrl)
+                })
                 .filter((value): value is string => Boolean(value))
             : [],
         }))
@@ -171,7 +174,7 @@ function GalleryBlock({ block }: { block: Block }) {
     ? block.items
         .flatMap((item) => {
           const value = item as Record<string, unknown>
-          const url = mediaUrl(value.media)
+          const url = mediaUrl(value.media) || text(value.sourceUrl)
           if (!url) return []
 
           return {

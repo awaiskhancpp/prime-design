@@ -16,6 +16,13 @@ const nextConfig: NextConfig = {
         pathname: '/**',
       },
     ],
+    remotePatterns: [
+      {
+        protocol: 'https',
+        hostname: 'primedesignandbuild.com',
+        pathname: '/wp-content/uploads/**',
+      },
+    ],
   },
   webpack: (webpackConfig) => {
     webpackConfig.resolve.extensionAlias = {

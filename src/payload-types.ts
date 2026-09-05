@@ -848,13 +848,6 @@ export interface Service {
             eyebrow?: string | null;
             heading: string;
             description?: string | null;
-            media?: {
-              asset?: (number | null) | Media;
-              alt?: string | null;
-              caption?: string | null;
-              sourceAttachmentId?: number | null;
-              sourceUrl?: string | null;
-            };
             areas?:
               | {
                   label: string;
@@ -2138,13 +2131,6 @@ export interface LandingPage {
         eyebrow?: string | null;
         heading: string;
         description?: string | null;
-        media?: {
-          asset?: (number | null) | Media;
-          alt?: string | null;
-          caption?: string | null;
-          sourceAttachmentId?: number | null;
-          sourceUrl?: string | null;
-        };
         areas?:
           | {
               label: string;
@@ -3284,15 +3270,6 @@ export interface ServicesSelect<T extends boolean = true> {
               eyebrow?: T;
               heading?: T;
               description?: T;
-              media?:
-                | T
-                | {
-                    asset?: T;
-                    alt?: T;
-                    caption?: T;
-                    sourceAttachmentId?: T;
-                    sourceUrl?: T;
-                  };
               areas?:
                 | T
                 | {
@@ -4274,15 +4251,6 @@ export interface LandingPagesSelect<T extends boolean = true> {
               eyebrow?: T;
               heading?: T;
               description?: T;
-              media?:
-                | T
-                | {
-                    asset?: T;
-                    alt?: T;
-                    caption?: T;
-                    sourceAttachmentId?: T;
-                    sourceUrl?: T;
-                  };
               areas?:
                 | T
                 | {

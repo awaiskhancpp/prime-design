@@ -549,7 +549,11 @@ function dynamicHappyFilesImages(section: NormalizedSection, source: WordPressSo
 
   return source.attachments
     .filter((attachment) => attachment.happyfilesCategorySlugs?.some((slug) => slugs.has(slug)))
-    .map((attachment) => ({ sourceId: attachment.id, status: 'unresolved' as const }))
+    .map((attachment) => ({
+      sourceId: attachment.id,
+      url: attachment.url,
+      status: 'unresolved' as const,
+    }))
 }
 
 function cssClasses(node: BricksTreeNode) {
@@ -624,6 +628,7 @@ function dynamicGalleryGroups(
       .filter((attachment) => attachment.happyfilesCategorySlugs?.some((slug) => slugs.has(slug)))
       .map((attachment, itemIndex) => ({
         media: mediaIds.get(attachment.id),
+        sourceUrl: attachment.url,
         caption: undefined,
         alt: attachment.title || `${label} image ${itemIndex + 1}`,
         sourceOrder: itemIndex,
@@ -853,7 +858,7 @@ function mapSection(
       const resolvedGroups = groups
         .map((group) => ({
           ...group,
-          items: group.items.filter((item) => item.media),
+          items: group.items.filter((item) => item.media || item.sourceUrl),
         }))
         .filter((group) => group.items.length)
       if (resolvedGroups.length) {
@@ -881,24 +886,26 @@ function mapSection(
             : image.filename
               ? mediaIds.get(image.filename)
               : undefined,
+          sourceUrl: image.url,
           caption: undefined,
           alt: image.filename || `Gallery image ${index + 1}`,
           sourceOrder: index,
           sourceAttachmentId: image.sourceId,
         }))
-        .filter((item) => item.media)
+        .filter((item) => item.media || item.sourceUrl)
       // A curated HappyFiles folder (e.g. "Kitchens (GALLERY)") is a specific,
       // hand-picked set of photos for this exact gallery widget — prefer it
       // over the much broader, unscoped "every project on the site" fallback.
       const happyFilesImages = dynamicHappyFilesImages(section, source)
         .map((image, index) => ({
           media: mediaIds.get(image.sourceId!),
+          sourceUrl: image.url,
           caption: undefined,
           alt: `Gallery image ${index + 1}`,
           sourceOrder: index,
           sourceAttachmentId: image.sourceId,
         }))
-        .filter((item) => item.media)
+        .filter((item) => item.media || item.sourceUrl)
       const dynamicImages = dynamicProjectImages(section, projects)
         .map((image, index) => ({
           media: mediaIds.get(image.sourceId!),
@@ -999,7 +1006,6 @@ function mapSection(
         eyebrow: sectionEyebrow(section),
         heading: heading || 'Areas We Service',
         description,
-        media: ref,
         areas,
       }
     }

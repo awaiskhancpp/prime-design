@@ -69,7 +69,7 @@ export function GalleryGrid({
                   'object-cover',
                   hoverZoom && 'transition-transform duration-500 ease-out hover:scale-105',
                 )}
-                unoptimized={image.includes('/api/media/file/')}
+                unoptimized={image.includes('/api/media/file/') || image.startsWith('http')}
                 sizes="(min-width: 1024px) 25vw, 50vw"
               />
               {captions?.[globalIndex] ? (
