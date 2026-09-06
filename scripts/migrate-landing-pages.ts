@@ -177,11 +177,22 @@ const treeNodes = (section: NormalizedSection) => {
   const walk = (node: unknown) => {
     if (!node || typeof node !== 'object') return
     const value = node as BricksTreeNode
+    if (isHiddenNode(value)) return
     result.push(value)
     value.children?.forEach(walk)
   }
   walk(dataOf(section).sourceTree)
   return result
+}
+
+function isHiddenNode(node: BricksTreeNode) {
+  const settings = node.settings || {}
+  const hiddenByCss =
+    typeof settings._cssCustom === 'string' &&
+    new RegExp(`#brxe-${node.id}\\s*\\{[^}]*display\\s*:\\s*none`, 'i').test(
+      settings._cssCustom,
+    )
+  return settings._visibility === 'hidden' || settings._opacity === '0' || hiddenByCss
 }
 
 function sourceImages(section: NormalizedSection): NormalizedImage[] {
@@ -207,14 +218,7 @@ function sourceImages(section: NormalizedSection): NormalizedImage[] {
 
 function isHiddenSourceSection(section: NormalizedSection) {
   const tree = dataOf(section).sourceTree as BricksTreeNode | undefined
-  const settings = tree?.settings || {}
-  const ownSelectorHidden =
-    typeof settings._cssCustom === 'string' &&
-    tree?.id &&
-    new RegExp(`#brxe-${tree.id}\\s*\\{[^}]*display\\s*:\\s*none`, 'i').test(settings._cssCustom)
-  return (
-    settings._visibility === 'hidden' || settings._opacity === '0' || Boolean(ownSelectorHidden)
-  )
+  return Boolean(tree && isHiddenNode(tree))
 }
 
 function sourceVideoUrl(section: NormalizedSection) {
@@ -269,6 +273,7 @@ function imageFromTreeNode(node: BricksTreeNode): NormalizedImage | undefined {
 }
 
 function treeNodesFromNode(node: BricksTreeNode): BricksTreeNode[] {
+  if (isHiddenNode(node)) return []
   return [node, ...node.children.flatMap((child) => treeNodesFromNode(child))]
 }
 
@@ -281,8 +286,8 @@ function subServiceItems(
   const sourceTree = dataOf(section).sourceTree as BricksTreeNode | undefined
   const cardRoots = sourceTree
     ? sourceTree.children
-        .filter((node) => node.name === 'container')
-        .flatMap((container) => container.children)
+        .filter((node) => node.name === 'container' && !isHiddenNode(node))
+        .flatMap((container) => container.children.filter((child) => !isHiddenNode(child)))
         .filter((node) => {
           if (node.name !== 'block') return false
           const descendants = treeNodesFromNode(node)
@@ -672,13 +677,19 @@ function projectQueryProjects(section: NormalizedSection, projects: WordPressPro
 
   const byId = new Map(projects.map((project) => [project.id, project]))
   const result: WordPressProject[] = []
+  const queryList = (value: unknown) => {
+    if (Array.isArray(value)) return value
+    if (value && typeof value === 'object') return Object.values(value)
+    return undefined
+  }
 
   for (const query of projectQueries) {
     // Real Bricks project cards scope the loop to project posts. Preserve those
     // post boundaries so the landing page does not flatten every project's
     // nested gallery into one visible image list.
-    const postIn = Array.isArray(query.post__in)
-      ? (query.post__in as unknown[]).map((v) => Number(v)).filter((n) => !Number.isNaN(n))
+    const postInValues = queryList(query.post__in)
+    const postIn = postInValues
+      ? postInValues.map((v) => Number(v)).filter((n) => !Number.isNaN(n))
       : undefined
     const scopedProjects = postIn
       ? postIn.map((id) => byId.get(id)).filter((p): p is WordPressProject => Boolean(p))
@@ -961,15 +972,19 @@ function mapSection(
         afterMedia: sourceImageMediaId(beforeAfterImages[1], mediaIds),
       }
     }
-    case 'sub-services':
+    case 'sub-services': {
+      const subServices = subServiceItems(section, mediaIds, pagesById)
+      const sectionHeading =
+        heading && subServices.some((item) => item.title === heading) ? undefined : heading
       return {
         blockType: 'sub-services',
         ...common,
         eyebrow: sectionEyebrow(section),
-        heading: heading || 'Our Services',
+        heading: sectionHeading,
         description,
-        items: subServiceItems(section, mediaIds, pagesById),
+        items: subServices,
       }
+    }
     case 'prime-difference':
       return {
         blockType: 'prime-difference',
@@ -1211,6 +1226,8 @@ const report: Array<{
   sections: number
   media: number
   galleries: string[]
+  projectGrids: string[]
+  sectionOrder: string[]
   unsupported: string[]
   status: string
 }> = []
@@ -1274,6 +1291,8 @@ for (const slug of targetSlugs) {
       sections: 0,
       media: 0,
       galleries: [],
+      projectGrids: [],
+      sectionOrder: [],
       unsupported: ['missing or unpublished source page'],
       status: 'FAILED',
     })
@@ -1285,6 +1304,8 @@ for (const slug of targetSlugs) {
       sections: 0,
       media: 0,
       galleries: [],
+      projectGrids: [],
+      sectionOrder: [],
       unsupported: ['page has no Bricks source'],
       status: 'FAILED',
     })
@@ -1408,6 +1429,11 @@ for (const slug of targetSlugs) {
     page: slug,
     sections: sections.length,
     media: mediaIds.size,
+    sectionOrder: sections.map((section) => {
+      const value = section as Record<string, unknown>
+      const label = typeof value.heading === 'string' ? clean(value.heading) : undefined
+      return label ? `${String(value.blockType)}: ${label}` : String(value.blockType)
+    }),
     galleries: sections
       .filter((section) => section.blockType === 'gallery')
       .flatMap((section) => {
@@ -1421,6 +1447,14 @@ for (const slug of targetSlugs) {
         return [
           `${String(section.heading || 'Gallery')}: ${Array.isArray(section.items) ? section.items.length : 0}`,
         ]
+      }),
+    projectGrids: sections
+      .filter((section) => section.blockType === 'project-grid')
+      .map((section) => {
+        const value = section as Record<string, unknown>
+        const items = Array.isArray(value.items) ? value.items.length : 0
+        const heading = typeof value.heading === 'string' ? clean(value.heading) : undefined
+        return `${heading || 'Projects'}: ${items}`
       }),
     unsupported,
     status: 'IMPORTED',
@@ -1436,6 +1470,12 @@ console.table(
     Status: row.status,
   })),
 )
+for (const row of report)
+  if (row.projectGrids.length)
+    console.log(`${row.page} project grids: ${row.projectGrids.join(', ')}`)
+for (const row of report)
+  if (row.sectionOrder.length)
+    console.log(`${row.page} section order: ${row.sectionOrder.join(' -> ')}`)
 for (const row of report)
   if (row.galleries.length) console.log(`${row.page} galleries: ${row.galleries.join(', ')}`)
 for (const row of report)

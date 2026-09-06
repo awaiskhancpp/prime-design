@@ -93,7 +93,9 @@ export const landingPageBlocks: Block[] = [
   ]),
   base('sub-services', 'Sub-services', [
     text('eyebrow'),
-    text('heading', true),
+    // Some WordPress sub-service groups have no section heading; their first
+    // heading is the title of the first card. Do not require or invent one.
+    text('heading'),
     description(),
     {
       name: 'items',

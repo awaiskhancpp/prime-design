@@ -692,7 +692,7 @@ export interface Service {
           }
         | {
             eyebrow?: string | null;
-            heading: string;
+            heading?: string | null;
             description?: string | null;
             items?:
               | {
@@ -1978,7 +1978,7 @@ export interface LandingPage {
       }
     | {
         eyebrow?: string | null;
-        heading: string;
+        heading?: string | null;
         description?: string | null;
         items?:
           | {

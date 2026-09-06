@@ -17,7 +17,7 @@ import { LandingExperienceDifferenceSection } from './LandingExperienceDifferenc
 import { LandingPrimeDifferenceSection } from './LandingPrimeDifferenceSection'
 import { VideoCarousel } from './VideoCarousel'
 import { LandingProjectGridSection } from './LandingProjectGridSection'
-import { LandingProjectsSection } from './LandingProjectsSection'
+import { LandingSubServicesSection } from './LandingSubServicesSection'
 import { LandingRepairServicesSection } from './LandingRepairServicesSection'
 import { LandingServiceAreasSection } from './LandingServiceAreasSection'
 import { LandingFaqSection } from './LandingFaqSection'
@@ -263,7 +263,7 @@ function SubServicesBlock({ block }: { block: Block }) {
         .filter((item) => item.title)
     : []
   return items.length ? (
-    <LandingProjectsSection
+    <LandingSubServicesSection
       eyebrow={text(block.eyebrow)}
       heading={text(block.heading)}
       description={text(block.description)}

@@ -1,6 +1,19 @@
 import { BricksTreeNode, NormalizedSection, NormalizedImage, NormalizedVideo, WordPressPage, NormalizedFaqCategory, NormalizedTestimonial, NormalizedGalleryItem, NormalizedIntegration } from './types'
 
-const descendants = (node: BricksTreeNode): BricksTreeNode[] => [node, ...node.children.flatMap(descendants)]
+const hiddenNode = (node: BricksTreeNode) => {
+  const settings = node.settings
+  const hiddenByCss =
+    typeof settings._cssCustom === 'string' &&
+    new RegExp(`#brxe-${node.id}\\s*\\{[^}]*display\\s*:\\s*none`, 'i').test(
+      settings._cssCustom,
+    )
+  return settings._visibility === 'hidden' || settings._opacity === '0' || hiddenByCss
+}
+
+const descendants = (node: BricksTreeNode): BricksTreeNode[] => [
+  node,
+  ...node.children.flatMap((child) => (hiddenNode(child) ? [] : descendants(child))),
+]
 const textValue = (node: BricksTreeNode) => {
   const settings = node.settings
   return [settings.text, settings.textBasic, settings.content, settings.heading, settings.title]
@@ -32,6 +45,7 @@ const blockedContentWrappers = new Set(['tabs-nested', 'xproaccordion', 'slider-
 const sectionContentNodes = (section: BricksTreeNode) => {
   const result: BricksTreeNode[] = []
   const walk = (node: BricksTreeNode, blocked: boolean) => {
+    if (hiddenNode(node)) return
     const nextBlocked = blocked || blockedContentWrappers.has(node.name)
     if (!nextBlocked) result.push(node)
     if (!nextBlocked) node.children.forEach((child) => walk(child, false))
@@ -210,6 +224,10 @@ function classify(section: BricksTreeNode, allowHero: boolean, pageSlug: string)
   const heading = descendants(section).filter((node) => /heading|title/i.test(node.name)).map(textValue).filter((value): value is string => Boolean(value)).join(' ').replace(/<[^>]+>/g, ' ').toLowerCase()
   const imageCount = names.filter((name) => name === 'image').length
   const headingCount = names.filter((name) => /heading|title/i.test(name)).length
+  const hasProjectQuery = descendants(section).some((node) => {
+    const query = node.settings.query
+    return query && typeof query === 'object' && JSON.stringify(query).toLowerCase().includes('project')
+  })
 
   const hiddenByCss = typeof section.settings._cssCustom === 'string' &&
     new RegExp(`#brxe-${section.id}\\s*\\{[^}]*display\\s*:\\s*none`, 'i').test(section.settings._cssCustom)
@@ -229,10 +247,12 @@ function classify(section: BricksTreeNode, allowHero: boolean, pageSlug: string)
   if (names.some((name) => /beforeafter/i.test(name))) return 'before-after'
   if (names.some((name) => /carousel|slider/i.test(name))) return 'carousel'
   if (names.some((name) => /gallery/i.test(name))) return 'gallery'
+  if (hasProjectQuery) return 'gallery'
   if (names.some((name) => name === 'video')) return 'video'
   const background = section.settings._background
   if (allowHero && (names.includes('hero') || (background && names.some((name) => /heading|text/i.test(name))))) return 'hero'
   if (imageCount >= 2 && headingCount >= 2 && (text.includes('choose') || text.includes('kitchen') || text.includes('bathroom') || text.includes('style') || text.includes('custom'))) return 'sub-services'
+  if (heading.includes('choose a kitchen that reflects')) return 'image-text'
   if (names.some((name) => name === 'button') && names.some((name) => /heading|text/i.test(name))) return 'cta'
   if (names.some((name) => name === 'button')) return 'cta'
   if (names.some((name) => name === 'image') && names.some((name) => /heading|text/i.test(name))) return 'image-text'
