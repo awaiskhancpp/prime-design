@@ -21,9 +21,9 @@ export async function LandscapingServiceAreas() {
     <Section className="bg-white text-ink">
       <div className="grid gap-10  pt-10 lg:grid-cols-[0.85fr_1.15fr] lg:items-start lg:gap-20">
         <div>
-          <p className="text-xs font-semibold uppercase tracking-[0.2em] text-brass">{heading}</p>
+          {/* <p className="text-xs font-semibold uppercase tracking-[0.2em] text-brass">{heading}</p> */}
           <h2 className="mt-3 max-w-sm font-display text-3xl font-medium leading-tight tracking-tight md:text-4xl">
-            Built across Silicon Valley, one neighborhood at a time.
+            {heading}
           </h2>
           <Button href={trailingHref} variant="line" className="mt-6 text-ink">
             {trailingLabel}

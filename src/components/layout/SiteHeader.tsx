@@ -116,7 +116,7 @@ export async function SiteHeader({
             size="lg"
             variant={isLight ? 'outline' : 'outline-light'}
           >
-            {isMinimal ? 'Get A Quote' : 'Talk to an expert'}
+            {isMinimal ? 'Get A Quote' : 'Contact'}
           </Button>
         </div>
       </Container>

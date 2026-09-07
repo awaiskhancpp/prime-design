@@ -52,6 +52,12 @@ const categoryValue = (item: string) => {
   const match = item.match(/<category[^>]*domain=["']faq-category["'][^>]*>([\s\S]*?)<\/category>/i)
   return match ? decodeXml(match[1]).trim() : undefined
 }
+const categorySlugValue = (item: string) => {
+  const match = item.match(
+    /<category[^>]*domain=["']faq-category["'][^>]*nicename=["']([^"']+)["'][^>]*>/i,
+  )
+  return match ? decodeXml(match[1]).trim() : undefined
+}
 
 // A gallery widget references a HappyFiles folder by its numeric term_id
 // (e.g. settings.ids = { 0: "8" }). That id only maps to a slug via the
@@ -112,6 +118,7 @@ const parseItem = (item: string) => {
         title: text(item, 'title'),
         content: text(item, 'encoded'),
         category: categoryValue(item),
+        categorySlug: categorySlugValue(item),
         status: text(item, 'status') || undefined,
         meta,
       } satisfies WordPressFaq,

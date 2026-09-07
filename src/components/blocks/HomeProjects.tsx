@@ -23,7 +23,7 @@ export function HomeProjects() {
 
   return (
     <Section className="bg-white">
-      <SectionHeader align="center" eyebrow="Recent work" title="Our latest remodeling projects" />
+      <SectionHeader align="center" title="Our latest remodeling projects" />
 
       <div className="mt-10 grid grid-cols-1 gap-1 overflow-hidden  sm:grid-cols-2 lg:grid-cols-3">
         {latestProjects.map((project, index) => (
@@ -48,7 +48,7 @@ export function HomeProjects() {
       </div>
       <div className="flex justify-center">
         <Button href="/our-projects" variant="secondary" className="mt-7">
-          View All Projects
+          See More Projects
           <ArrowRight className="h-4 w-4" aria-hidden />
         </Button>
       </div>

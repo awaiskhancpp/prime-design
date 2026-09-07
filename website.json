@@ -206,19 +206,19 @@
     },
     {
       "title": "ADU & Garage Conversions",
-      "description": "Creating versatile and functional ADUs that provide homeowners with additional living space or rental opportunities.",
+      "description": "Our team specializes in creating versatile and functional ADU that provide homeowners with additional living space or rental opportunities.",
       "href": "/services/adu",
       "image": "/services/home-remodeling.jpeg"
     },
     {
       "title": "Home Additions",
-      "description": "Tailored to help you expand and enhance your living space without the hassle of moving.",
+      "description": "Our home addition services are tailored to help you expand and enhance your living space without the hassle of moving.",
       "href": "/services/additions",
       "image": "/services/kitchen-remodeling.jpeg"
     },
     {
       "title": "New Construction / Complete Renovation",
-      "description": "Dedicated to creating custom-built homes that reflect your unique style.",
+      "description": "Our experienced team is dedicated to creating custom-built homes that reflect your unique style.",
       "href": "/services/complete-renovation",
       "image": "/services/home-remodeling.jpeg"
     },
@@ -279,7 +279,7 @@
       "Los Gatos",
       "Silicon Valley"
     ],
-    "trailingLabel": "And surrounding cities!",
+    "trailingLabel": "surrounding cities!",
     "trailingHref": "/contact"
   },
   "about": {
@@ -289,44 +289,42 @@
     "ctaHref": "/contact",
     "kicker": "Need a new kitchen, bathroom, or complete home renovation?",
     "coreValues": {
-      "eyebrow": "Our principles",
-      "heading": "What guides every project",
-      "description": "The way we work matters as much as the spaces we create. These principles shape every conversation, decision, and detail from the first sketch to the final handoff.",
+      "heading": "Our Core Values",
+      "description": "At Prime Design & Build, we are passionately committed to delivering excellence in every facet of our business. We pride ourselves on upholding an unwavering standard of integrity, grounded in fairness, honesty, and personal responsibility.",
       "items": [
         {
           "title": "Customer Focus",
-          "description": "We listen closely to each homeowner and keep the project grounded in their goals, lifestyle, and experience."
+          "icon": "/about/about-customer-focused.svg"
         },
         {
           "title": "Uncompromising Quality",
-          "description": "We hold every stage of the work to a high standard, from the first design decision to the final detail."
+          "icon": "/about/about-uncompromising-quality.svg"
         },
         {
           "title": "Integrity and Transparency",
-          "description": "We communicate honestly, take responsibility, and make decisions with respect for the trust our clients place in us."
+          "icon": "/about/about-integrity-and-transparency.svg"
         },
         {
           "title": "Innovative Solutions",
-          "description": "We bring thoughtful ideas and practical problem-solving to create spaces that feel distinctive and work beautifully."
+          "icon": "/about/about-innovative-solutions.svg"
         },
         {
           "title": "Seamless Process",
-          "description": "We coordinate design, construction, and communication carefully so the journey feels clear from consultation to completion."
+          "icon": "/about/about-seamless-process.svg"
         },
         {
           "title": "Expertise and Knowledge",
-          "description": "Our experienced team combines design insight, construction knowledge, and local understanding to guide each project well."
+          "icon": "/about/about-expertise-and-knowledge.svg"
         }
       ]
     },
     "guidingPrinciple": {
       "eyebrow": "Our guiding principle",
-      "heading": "Reliability in every project we take on.",
+      "heading": "Prime Design & Build's Promise: Reliability in Every Project We Take On",
       "paragraphs": [
-        "We work closely with our clients to turn a clear vision into a home that feels considered, functional, and genuinely theirs.",
-        "From design and architecture through construction and completion, our team brings dependable communication, careful coordination, and a commitment to delivering on time and within budget."
+        "Our guiding principle is reliability. We believe in working closely with our clients to turn their vision into reality, with a commitment to delivering exceptional projects on time and within budget. Our team of experienced professionals upholds the highest standards of quality, safety, and expertise in every aspect of the project, from design to architecture, engineering, and completion.",
+        "Our reliability sets us apart in the industry and drives our mission to provide the best experience for every client, every time."
       ],
-      "signature": "Prime Design & Build",
       "image": "/services/home-remodeling.jpeg",
       "imageAlt": "A completed Prime Design & Build home remodeling project"
     },
@@ -338,29 +336,12 @@
       "videoPoster": "/services/home-remodeling.jpeg"
     },
     "faq": {
-      "eyebrow": "Frequently Asked Questions",
-      "heading": "A clearer way to begin.",
-      "description": "Here are a few of the questions homeowners ask before starting a remodeling or construction project with Prime Design & Build.",
+      "heading": "Frequently Asked Questions",
+      "description": "Here are some frequently asked questions about our company.",
       "items": [
         {
-          "question": "What sets Prime Design & Build apart from other remodeling companies?",
-          "answer": "We combine design, construction, and project coordination in one experienced team. This keeps communication direct and helps us make decisions with the complete project in view."
-        },
-        {
-          "question": "What types of projects do you take on?",
-          "answer": "We work on kitchens, bathrooms, complete home renovations, additions, ADUs, garage conversions, and new construction across Silicon Valley."
-        },
-        {
-          "question": "How do we get started?",
-          "answer": "Start with a conversation about your goals, home, and timing. We will learn what you are trying to achieve and explain the next steps for developing your project."
-        },
-        {
-          "question": "Will I have a dedicated point of contact?",
-          "answer": "Yes. Our project leadership and coordination team keeps communication organized and makes sure you know what is happening throughout the process."
-        },
-        {
-          "question": "Do you serve my area?",
-          "answer": "We serve homeowners across Silicon Valley, including Campbell, San Jose, Palo Alto, Cupertino, Mountain View, Sunnyvale, and surrounding communities."
+          "question": "What sets Prime Design & Build apart from other kitchen remodeling companies?",
+          "answer": "At Prime Design & Build, we stand out by combining innovative design, superior craftsmanship, and a commitment to customer satisfaction. Our team of experienced professionals ensures that every kitchen remodel is executed with the utmost precision and attention to detail."
         }
       ]
     }
@@ -473,27 +454,27 @@
     ],
     "serviceLinks": [
       {
-        "label": "Home Remodel in Silicon Valley",
+        "label": "Home Remodel",
         "href": "/services/complete-renovation"
       },
       {
-        "label": "Kitchen Remodeling in Silicon Valley",
+        "label": "Kitchen Remodeling",
         "href": "/services/kitchen-remodeling"
       },
       {
-        "label": "Bathroom Remodel in Silicon Valley",
+        "label": "Bathroom Remodel",
         "href": "/services/bathroom-remodeling"
       },
       {
-        "label": "ADU in Silicon Valley",
+        "label": "ADU",
         "href": "/services/adu"
       },
       {
-        "label": "Garage Conversion in Silicon Valley",
+        "label": "Garage Conversion",
         "href": "/services/adu"
       },
       {
-        "label": "House Additions in Silicon Valley",
+        "label": "House Additions",
         "href": "/services/additions"
       }
     ],

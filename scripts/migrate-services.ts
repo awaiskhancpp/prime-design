@@ -21,15 +21,42 @@ import type {
 const xmlPath =
   process.argv[2] || 'C:/Users/HP/Downloads/primedesignampbuild.WordPress.2026-08-28.xml'
 const uploadsPath = process.argv[3]
-const targetSlugs = [
-  'kitchen-remodeling-information',
-  'bathroom-remodeling-information',
-  'additions-remodeling-information',
-  'home-remodeling-information',
-  'outdoor-hardscape-outdoor-kitchen-information',
-  'siding-installation-replacement-information',
-  'comprehensive-home-repair-installation-services-in-silicon-valley',
-  'remodeling-information',
+// Verified against the real WordPress export: these are the only top-level
+// pages with real Bricks content that represent a distinct service (not a
+// thin city page, not a Google Ads landing page, not a utility page), cross-
+// checked against what the site's own "Services" hub page (id 353) actually
+// lists. Kitchen Remodeling additionally has 3 real sub-style pages nested
+// under it (also cross-checked against that same hub page).
+const targetServices: Array<{
+  wordpressPageId: number
+  serviceSlug: string
+  title: string
+  parentServiceSlug?: string
+}> = [
+  { wordpressPageId: 327, serviceSlug: 'kitchen-remodeling', title: 'Kitchen Remodeling' },
+  { wordpressPageId: 337, serviceSlug: 'bathroom-remodeling', title: 'Bathroom Remodeling' },
+  { wordpressPageId: 335, serviceSlug: 'home-remodeling', title: 'Home Remodeling' },
+  { wordpressPageId: 1976, serviceSlug: 'adu', title: 'ADU' },
+  { wordpressPageId: 1978, serviceSlug: 'additions', title: 'Additions' },
+  { wordpressPageId: 1980, serviceSlug: 'complete-renovation', title: 'Complete Renovation' },
+  {
+    wordpressPageId: 329,
+    serviceSlug: 'european-kitchen',
+    title: 'European Kitchen',
+    parentServiceSlug: 'kitchen-remodeling',
+  },
+  {
+    wordpressPageId: 331,
+    serviceSlug: 'custom-kitchen',
+    title: 'Custom Kitchen',
+    parentServiceSlug: 'kitchen-remodeling',
+  },
+  {
+    wordpressPageId: 333,
+    serviceSlug: 'shaker-kitchen',
+    title: 'Shaker Kitchen',
+    parentServiceSlug: 'kitchen-remodeling',
+  },
 ]
 
 const sourcePhone = website.header.phoneCta
@@ -1247,8 +1274,9 @@ async function resolveMediaId(attachmentId: number | undefined, filename: string
   return id
 }
 
-for (const slug of targetSlugs) {
-  const page = source.pages.find((item) => item.slug === slug)
+for (const target of targetServices) {
+  const slug = target.serviceSlug
+  const page = source.pages.find((item) => item.id === target.wordpressPageId)
   if (!page || page.status !== 'publish') {
     report.push({
       page: slug,
@@ -1347,43 +1375,57 @@ for (const slug of targetSlugs) {
   const heroData = heroSource
     ? mapSection(heroSource, mediaIds, pagesById, source.projects, source.faqs, source)
     : undefined
-  const seoDescription = meta(page, 'rank_math_description')
   const existing = await payload.find({
-    collection: 'landing-pages',
+    collection: 'services',
     where: { slug: { equals: slug } },
     limit: 1,
   })
-  const record = {
-    title: page.title,
-    slug,
-    status: 'published',
-    template: 'information',
-    hero: heroData
-      ? {
-          eyebrow: sectionEyebrow(heroSource!),
-          heading: heroData.heading,
-          description: heroData.description,
-          backgroundMedia: (heroData.backgroundMedia as Record<string, unknown> | undefined)?.asset,
-          buttons: heroData.buttons,
-        }
-      : { heading: page.title },
-    sections,
-    sourceWordPressId: page.id,
-    sourceSlug: page.slug,
-    seo: {
-      metaTitle: meta(page, 'rank_math_title') || page.title,
-      metaDescription: seoDescription,
-      noIndex: false,
-    },
+  let parentServiceId: number | undefined
+  if (target.parentServiceSlug) {
+    const parentDoc = await payload.find({
+      collection: 'services',
+      where: { slug: { equals: target.parentServiceSlug } },
+      limit: 1,
+    })
+    parentServiceId = parentDoc.docs[0]?.id ? Number(parentDoc.docs[0].id) : undefined
+    if (!parentServiceId) {
+      console.warn(
+        `Parent service "${target.parentServiceSlug}" not found for "${slug}" — leaving parentService unset. Run the parent first, or create it manually, then rerun.`,
+      )
+    }
   }
+  const hero = heroData
+    ? {
+        eyebrow: sectionEyebrow(heroSource!),
+        heading: heroData.heading,
+        lead: heroData.description,
+        image: (heroData.backgroundMedia as Record<string, unknown> | undefined)?.asset,
+      }
+    : undefined
   if (existing.docs[0]) {
+    // Existing record: only touch hero + sections. Everything else
+    // (shortDescription, featured, contentBlocks, sectionOrder, faqs,
+    // relatedServices, SEO) is presumed hand-curated and left alone.
     await payload.update({
-      collection: 'landing-pages',
+      collection: 'services',
       id: existing.docs[0].id,
-      data: record as never,
+      data: {
+        hero,
+        sections,
+        ...(parentServiceId ? { parentService: parentServiceId } : {}),
+      } as never,
     })
   } else {
-    await payload.create({ collection: 'landing-pages', data: record as never })
+    await payload.create({
+      collection: 'services',
+      data: {
+        title: target.title,
+        slug,
+        hero,
+        sections,
+        ...(parentServiceId ? { parentService: parentServiceId } : {}),
+      } as never,
+    })
   }
   report.push({
     page: slug,

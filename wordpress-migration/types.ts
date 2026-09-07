@@ -32,6 +32,7 @@ export type WordPressFaq = {
   title: string
   content: string
   category?: string
+  categorySlug?: string
   status?: string
   meta: XmlMeta[]
 }

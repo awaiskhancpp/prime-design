@@ -6,16 +6,25 @@ import { Section } from '@/components/ui/Section'
 import { cn } from '@/lib/utils'
 
 import BeforeAfterSlider from './BeforeAfterSlider'
+import { SectionHeader } from '../ui/SectionHeader'
 
 export function HomeFeatureBlocks() {
   return (
-    <>
-      {website.featureBlocks.map((block, index) => {
-        const reversed = index % 2 === 1
+    <Section className="bg-white">
+      {/* Single Section Header */}
+      <SectionHeader
+        eyebrow="Remodel Your Entire Home With Prime Design & Build"
+        title="We don't just build Kitchens, We do it all."
+        align="center"
+      />
 
-        return (
-          <Section key={block.title} className={'bg-white'}>
-            <div className="grid items-center gap-10 lg:grid-cols-2 lg:gap-16">
+      {/* Container for all feature blocks */}
+      <div className="mt-12 flex flex-col gap-16 lg:gap-24">
+        {website.featureBlocks.map((block, index) => {
+          const reversed = index % 2 === 1
+
+          return (
+            <div key={block.title} className="grid items-center gap-10 lg:grid-cols-2 lg:gap-16">
               <div className={cn(reversed && 'lg:order-2')}>
                 <h2 className="font-display text-3xl font-medium leading-tight text-ink-2 md:text-4xl">
                   {block.title}
@@ -40,9 +49,9 @@ export function HomeFeatureBlocks() {
                 </div>
               </div>
             </div>
-          </Section>
-        )
-      })}
-    </>
+          )
+        })}
+      </div>
+    </Section>
   )
 }

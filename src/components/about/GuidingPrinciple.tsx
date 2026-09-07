@@ -26,7 +26,6 @@ export function GuidingPrinciple() {
               {paragraph}
             </p>
           ))}
-          <p className="mt-8 font-display text-2xl text-ink-2">{guidingPrinciple.signature}</p>
           <Button href="/contact" variant="line" className="mt-8 text-ink-2">
             Start your project <ArrowUpRight className="h-4 w-4" aria-hidden />
           </Button>

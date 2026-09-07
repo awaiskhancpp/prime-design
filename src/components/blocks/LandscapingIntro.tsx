@@ -44,18 +44,11 @@ export function LandscapingIntro() {
           </RevealLine>
 
           <div className="mt-6 space-y-3 text-base leading-relaxed text-ink-2/70 md:text-lg">
-            <RevealLine>
-              <p>
-                Where we transform blueprints into reality with unwavering dedication and unmatched
-                expertise.
-              </p>
-            </RevealLine>
-            <RevealLine>
-              <p>
-                Your vision is our foundation, and together, we construct a future of enduring
-                quality and innovation.
-              </p>
-            </RevealLine>
+            <p>
+              Where we transform blueprints into reality with unwavering dedication and unmatched
+              expertise. Your vision is our foundation, and together, we construct a future of
+              enduring quality and innovation. Let&apos;s build something extraordinary.
+            </p>
           </div>
         </div>
 

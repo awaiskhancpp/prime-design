@@ -10,14 +10,15 @@ import { Section } from '@/components/ui/Section'
 import { SectionHeader } from '@/components/ui/SectionHeader'
 
 export function AboutFaq() {
-  const [openIndex, setOpenIndex] = useState<number | null>(null)
+  // Initialize with 0 instead of null to keep the first item open
+  const [openIndex, setOpenIndex] = useState<number | null>(0)
   const { faq } = website.about
 
   return (
     <Section className="bg-white">
       <div className="grid gap-12 lg:grid-cols-[0.7fr_1.3fr] lg:gap-24">
         <div>
-          <SectionHeader eyebrow={faq.eyebrow} title={faq.heading} description={faq.description} />
+          <SectionHeader title={faq.heading} description={faq.description} />
           <Button
             href={`tel:${website.header.phoneOffice.replace(/[^\d+]/g, '')}`}
             variant="outline"
@@ -41,7 +42,13 @@ export function AboutFaq() {
                   onClick={() => setOpenIndex(isOpen ? null : index)}
                 >
                   <span>{item.question}</span>
-                  <Plus className={cn('h-5 w-5 shrink-0 text-brass transition-transform duration-300', isOpen && 'rotate-45')} aria-hidden />
+                  <Plus
+                    className={cn(
+                      'h-5 w-5 shrink-0 text-brass transition-transform duration-300',
+                      isOpen && 'rotate-45',
+                    )}
+                    aria-hidden
+                  />
                 </button>
                 <div
                   id={`faq-answer-${index}`}
@@ -51,7 +58,9 @@ export function AboutFaq() {
                   )}
                 >
                   <div className="min-h-0">
-                    <p className="max-w-2xl pb-6 pr-10 text-base leading-7 text-ink-2/70">{item.answer}</p>
+                    <p className="max-w-2xl pb-6 pr-10 text-base leading-7 text-ink-2/70">
+                      {item.answer}
+                    </p>
                   </div>
                 </div>
               </div>

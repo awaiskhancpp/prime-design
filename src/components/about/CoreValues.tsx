@@ -3,41 +3,26 @@ import Image from 'next/image'
 import website from '../../../website.json'
 import { Section } from '@/components/ui/Section'
 
-const valueIcons = [
-  '/about/about-customer-focused.svg',
-  '/about/about-uncompromising-quality.svg',
-  '/about/about-integrity-and-transparency.svg',
-  '/about/about-innovative-solutions.svg',
-  '/about/about-seamless-process.svg',
-  '/about/about-expertise-and-knowledge.svg',
-]
-
 export function CoreValues() {
   const { coreValues } = website.about
 
   return (
     <Section className="bg-white text-ink-2">
-      <div className="max-w-2xl">
-        <p className="text-xs font-semibold uppercase tracking-[0.24em] text-brass">
-          {coreValues.eyebrow}
-        </p>
-        <h2 className="mt-4 max-w-xl font-display text-4xl font-medium leading-tight tracking-tight text-ink-2 md:text-6xl">
+      <div className="mx-auto max-w-3xl">
+        <h2 className="mx-auto mt-4 max-w-xl text-center font-display text-4xl font-medium leading-tight tracking-tight text-ink-2 md:text-6xl">
           {coreValues.heading}
         </h2>
-        <p className="mt-6 max-w-xl text-base leading-7 text-ink-2/75 md:text-lg">
+        <p className="mx-auto mt-6 max-w-3xl text-center text-base leading-7 text-ink-2/75 md:text-lg">
           {coreValues.description}
         </p>
       </div>
 
       <div className="mt-14 grid gap-px bg-line md:grid-cols-2 lg:grid-cols-3">
-        {coreValues.items.map((value, index) => {
-          const icon = valueIcons[index]
-
+        {coreValues.items.map((value) => {
           return (
             <article key={value.title} className="bg-white px-6 py-8 md:px-7 lg:px-8 ">
-              <Image src={icon} alt="" aria-hidden="true" width={120} height={120} />
+              <Image src={value.icon} alt="" aria-hidden="true" width={120} height={120} />
               <h3 className="mt-6 font-display text-2xl font-medium text-ink-2">{value.title}</h3>
-              <p className="mt-3 text-sm leading-6 text-ink-2/70">{value.description}</p>
             </article>
           )
         })}
