@@ -54,14 +54,19 @@ const sectionContentNodes = (section: BricksTreeNode) => {
   return result
 }
 
-const primaryImageFromNode = (section: BricksTreeNode) => {
+const primaryImageFromNode = (section: BricksTreeNode, preferBackground = true) => {
   const background = mediaFromValue(
     section.settings._background || section.settings._backgroundImage || section.settings.background,
   )[0]
-  if (background) return background
-
   const directImage = sectionContentNodes(section).find((node) => node.name === 'image')
-  return directImage ? mediaFromNode(directImage)[0] : mediaFromNode(section)[0]
+  const contentImage = directImage ? mediaFromNode(directImage)[0] : undefined
+
+  // Bricks often uses a decorative section background (for example
+  // `service-bg.png`) together with a real content image. Image-and-text
+  // blocks must use the content image; hero-like blocks may still prefer the
+  // background image.
+  if (!preferBackground && contentImage) return contentImage
+  return background || contentImage || mediaFromNode(section)[0]
 }
 
 const videoFromNode = (node: BricksTreeNode): NormalizedVideo[] => {
@@ -319,7 +324,7 @@ export function normalizeBricksPage(page: WordPressPage, roots: BricksTreeNode[]
         required: `Add a normalizer/renderer for Bricks element "${node.name}"`,
       }))
     const images = mediaFromNode(section)
-    const primaryImage = primaryImageFromNode(section)
+    const primaryImage = primaryImageFromNode(section, type !== 'image-text')
     const videos = videoFromNode(section)
     const data = sectionData(section)
     const nestedData: Record<string, unknown> = {}

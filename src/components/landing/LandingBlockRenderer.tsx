@@ -39,7 +39,13 @@ function mediaUrl(value: unknown): string | undefined {
   const record = value as Record<string, unknown>
   if (typeof record.url === 'string') return record.url
   const assetUrl = 'asset' in record ? mediaUrl(record.asset) : undefined
-  return assetUrl || (typeof record.sourceUrl === 'string' ? record.sourceUrl : undefined)
+  const iconMediaUrl = 'iconMedia' in record ? mediaUrl(record.iconMedia) : undefined
+  return (
+    assetUrl ||
+    iconMediaUrl ||
+    (typeof record.sourceUrl === 'string' ? record.sourceUrl : undefined) ||
+    (typeof record.sourceSvgUrl === 'string' ? record.sourceSvgUrl : undefined)
+  )
 }
 
 function isPayloadFileUrl(value: string) {
@@ -222,6 +228,7 @@ function ProjectGridBlock({ block }: { block: Block }) {
   return (
     <LandingProjectGridSection
       eyebrow={text(block.eyebrow)}
+      eyebrowIcon={mediaUrl(block.eyebrowIcon)}
       heading={text(block.heading)}
       description={text(block.description)}
       items={items}

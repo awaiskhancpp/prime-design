@@ -92,7 +92,9 @@ function fallbackLandingPage(slug: string): LandingPage | undefined {
   }
 }
 
-const landingPageSlugs = [
+// These are only the legacy pages available when Payload is not configured.
+// With a database, any published landing-pages document is addressable by slug.
+const fallbackLandingPageSlugs = [
   'kitchen-remodeling-information',
   'bathroom-remodeling-information',
   'additions-remodeling-information',
@@ -104,8 +106,8 @@ const landingPageSlugs = [
 ] as const
 
 export async function resolveLandingPage(slug: string): Promise<LandingPage | undefined> {
-  if (!(landingPageSlugs as readonly string[]).includes(slug)) return undefined
   if (!process.env.DATABASE_URL) {
+    if (!(fallbackLandingPageSlugs as readonly string[]).includes(slug)) return undefined
     return shouldUseLocalFallback() ? fallbackLandingPage(slug) : undefined
   }
 
@@ -140,5 +142,22 @@ export async function resolveLandingPage(slug: string): Promise<LandingPage | un
 }
 
 export function listLandingPageSlugs(): string[] {
-  return [...landingPageSlugs]
+  return [...fallbackLandingPageSlugs]
+}
+
+export async function listPublishedLandingPageSlugs(): Promise<string[]> {
+  if (!process.env.DATABASE_URL) return [...fallbackLandingPageSlugs]
+
+  const payload = await getPayload({ config: configPromise })
+  const result = await payload.find({
+    collection: 'landing-pages',
+    where: { status: { equals: 'published' } },
+    depth: 0,
+    limit: 1000,
+  })
+  const slugs = result.docs
+    .map((record) => (typeof record.slug === 'string' ? record.slug : undefined))
+    .filter((slug): slug is string => Boolean(slug))
+
+  return slugs.length || !shouldUseLocalFallback() ? slugs : [...fallbackLandingPageSlugs]
 }

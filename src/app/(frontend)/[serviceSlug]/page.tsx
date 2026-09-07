@@ -8,6 +8,10 @@ import { listLandingPageSlugs, resolveLandingPage } from '@/lib/landingPages'
 import { resolvePageBySlug } from '@/lib/pages'
 import { resolveRedirect } from '@/lib/redirects'
 
+// Landing pages created in Payload are rendered on demand even when their
+// slugs were not known when the application was built.
+export const dynamicParams = true
+
 export function generateStaticParams() {
   return [
     ...services.map((service) => ({ serviceSlug: service.slug })),

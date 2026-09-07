@@ -498,6 +498,12 @@ function sectionEyebrow(section: NormalizedSection) {
     if (projectCount) return projectCount
   }
 
+  const iconBoxEyebrow = precedingNodes
+    .filter((node) => node.name === 'icon-box')
+    .map((node) => headingFromMarkup(node.settings.content))
+    .find((value): value is string => Boolean(value))
+  if (iconBoxEyebrow) return iconBoxEyebrow
+
   const semanticHeading = precedingNodes.find((node) => {
     if (node.name !== 'heading') return false
     const tag = typeof node.settings.tag === 'string' ? node.settings.tag.toLowerCase() : ''
@@ -516,6 +522,45 @@ function sectionEyebrow(section: NormalizedSection) {
     .filter((node) => node.name === 'text-basic')
     .map((node) => clean(node.settings.text))
     .find((value) => value && value.length <= 120)
+}
+
+function sourceProjectEyebrowIcon(section: NormalizedSection, source: WordPressSource) {
+  const nodes = treeNodes(section)
+  const data = dataOf(section)
+  const mainHeading = first([data.heading, ...(Array.isArray(data.headings) ? data.headings : [])])
+  const mainHeadingIndex = mainHeading
+    ? nodes.findIndex((node) => clean(node.settings.text) === mainHeading)
+    : -1
+  const precedingNodes = mainHeadingIndex >= 0 ? nodes.slice(0, mainHeadingIndex) : nodes
+  const iconNode = precedingNodes.find(
+    (node) =>
+      node.name === 'icon-box' &&
+      /^our projects$/i.test(headingFromMarkup(node.settings.content) || ''),
+  )
+  if (!iconNode || !iconNode.settings.icon || typeof iconNode.settings.icon !== 'object') {
+    return undefined
+  }
+
+  const icon = iconNode.settings.icon as Record<string, unknown>
+  const svg = icon.svg && typeof icon.svg === 'object' ? (icon.svg as Record<string, unknown>) : {}
+  const rawId = typeof svg.id === 'number' || typeof svg.id === 'string' ? Number(svg.id) : NaN
+  const attachment = Number.isFinite(rawId)
+    ? source.attachments.find((item) => item.id === rawId)
+    : undefined
+  const sourceId = attachment?.id || (Number.isFinite(rawId) ? rawId : undefined)
+  const filename =
+    (typeof svg.filename === 'string' && svg.filename) || attachment?.filename
+  const url = (typeof svg.url === 'string' && svg.url) || attachment?.url
+  if (!sourceId && !url) return undefined
+
+  return {
+    sourceId,
+    filename,
+    url,
+    library: typeof icon.library === 'string' ? icon.library : undefined,
+    name: filename,
+    status: 'unresolved' as const,
+  }
 }
 
 function htmlListItems(value: unknown) {
@@ -858,6 +903,17 @@ function mapSection(
           blockType: 'project-grid',
           ...common,
           eyebrow: sectionEyebrow(section),
+          eyebrowIcon: (() => {
+            const icon = sourceProjectEyebrowIcon(section, source)
+            return icon
+              ? {
+                  iconMedia: icon.sourceId ? mediaIds.get(icon.sourceId) : undefined,
+                  iconLibrary: icon.library,
+                  iconName: icon.name,
+                  sourceSvgUrl: icon.url,
+                }
+              : undefined
+          })(),
           heading,
           description: projectDescription,
           items: projectCards.map((project) => ({
@@ -1341,6 +1397,12 @@ for (const slug of targetSlugs) {
         Boolean(image.sourceId) &&
         all.findIndex((candidate) => candidate.sourceId === image.sourceId) === index,
     )
+  const projectGridEyebrowIcons: NormalizedImage[] = mergedSections
+    .filter((section) => section.type === 'gallery')
+    .flatMap((section) => {
+      const icon = sourceProjectEyebrowIcon(section, source)
+      return icon ? [icon] : []
+    })
   const happyFilesGalleryImages: NormalizedImage[] = normalized
     .filter((section) => section.type === 'gallery')
     .flatMap((section) => dynamicHappyFilesImages(section, source))
@@ -1365,6 +1427,7 @@ for (const slug of targetSlugs) {
   for (const image of [
     ...allImages,
     ...projectGalleryImages,
+    ...projectGridEyebrowIcons,
     ...happyFilesGalleryImages,
     ...tabbedGalleryImages,
   ]) {

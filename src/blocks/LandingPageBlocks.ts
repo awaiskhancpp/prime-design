@@ -4,6 +4,7 @@ import {
   faqCategoryFields,
   featureCardFields,
   galleryItemFields,
+  iconReferenceFields,
   imageTextContentFields,
   linkFields,
   mediaReferenceFields,
@@ -72,6 +73,7 @@ export const landingPageBlocks: Block[] = [
   ]),
   base('project-grid', 'Project Grid', [
     text('eyebrow'),
+    ...iconReferenceFields('eyebrowIcon'),
     text('heading'),
     description(),
     {

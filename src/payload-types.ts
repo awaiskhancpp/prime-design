@@ -632,6 +632,12 @@ export interface Service {
           }
         | {
             eyebrow?: string | null;
+            eyebrowIcon?: {
+              iconMedia?: (number | null) | Media;
+              iconLibrary?: string | null;
+              iconName?: string | null;
+              sourceSvgUrl?: string | null;
+            };
             heading?: string | null;
             description?: string | null;
             items?:
@@ -1918,6 +1924,12 @@ export interface LandingPage {
       }
     | {
         eyebrow?: string | null;
+        eyebrowIcon?: {
+          iconMedia?: (number | null) | Media;
+          iconLibrary?: string | null;
+          iconName?: string | null;
+          sourceSvgUrl?: string | null;
+        };
         heading?: string | null;
         description?: string | null;
         items?:
@@ -3074,6 +3086,14 @@ export interface ServicesSelect<T extends boolean = true> {
           | T
           | {
               eyebrow?: T;
+              eyebrowIcon?:
+                | T
+                | {
+                    iconMedia?: T;
+                    iconLibrary?: T;
+                    iconName?: T;
+                    sourceSvgUrl?: T;
+                  };
               heading?: T;
               description?: T;
               items?:
@@ -4058,6 +4078,14 @@ export interface LandingPagesSelect<T extends boolean = true> {
           | T
           | {
               eyebrow?: T;
+              eyebrowIcon?:
+                | T
+                | {
+                    iconMedia?: T;
+                    iconLibrary?: T;
+                    iconName?: T;
+                    sourceSvgUrl?: T;
+                  };
               heading?: T;
               description?: T;
               items?:

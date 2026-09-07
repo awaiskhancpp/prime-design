@@ -1,4 +1,4 @@
-import { listLandingPageSlugs, resolveLandingPage } from './landingPages'
+import { listPublishedLandingPageSlugs, resolveLandingPage } from './landingPages'
 import { resolveServices } from './services'
 import { resolveProjects } from './projects'
 import { resolveBlogPosts } from './blog'
@@ -87,8 +87,9 @@ function titleFromSlug(slug: string) {
 }
 
 async function landingPageResults(): Promise<SearchResult[]> {
+  const slugs = await listPublishedLandingPageSlugs()
   return Promise.all(
-    listLandingPageSlugs().map(async (slug) => {
+    slugs.map(async (slug) => {
       try {
         const page = await resolveLandingPage(slug)
         return {

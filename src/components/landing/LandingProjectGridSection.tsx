@@ -11,11 +11,13 @@ type ProjectItem = {
 
 export function LandingProjectGridSection({
   eyebrow,
+  eyebrowIcon,
   heading,
   description,
   items,
 }: {
   eyebrow?: string
+  eyebrowIcon?: string
   heading?: string
   description?: string
   items: ProjectItem[]
@@ -26,10 +28,21 @@ export function LandingProjectGridSection({
     <Section className="bg-white">
       <div className="grid gap-6 md:grid-cols-2 md:items-start md:gap-10">
         <div>
-          {eyebrow ? (
-            <p className="text-xs font-semibold uppercase tracking-[0.16em] text-brass">
-              {eyebrow}
-            </p>
+          {eyebrow || eyebrowIcon ? (
+            <div className="flex items-center gap-2 text-sm text-ink-2">
+              {eyebrowIcon ? (
+                <Image
+                  src={eyebrowIcon}
+                  alt=""
+                  width={16}
+                  height={16}
+                  className="h-4 w-4"
+                  unoptimized={eyebrowIcon.startsWith('http') || eyebrowIcon.includes('/api/media/file/')}
+                  aria-hidden="true"
+                />
+              ) : null}
+              {eyebrow ? <p>{eyebrow}</p> : null}
+            </div>
           ) : null}
           {heading ? (
             <h2 className="mt-3 font-display text-3xl font-medium text-ink md:text-5xl">
