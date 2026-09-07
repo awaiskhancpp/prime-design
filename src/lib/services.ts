@@ -167,7 +167,14 @@ export const services: Service[] = [
   },
 ]
 
-export const servicePathAliases: Record<string, string> = {}
+export const servicePathAliases: Record<string, string> = {
+  'shaker-kitchen': 'shaker-kitchen-silicon-valley',
+  'shaker-kitchens': 'shaker-kitchen-silicon-valley',
+  'custom-kitchen': 'custom-kitchen-silicon-valley',
+  'custom-kitchens': 'custom-kitchen-silicon-valley',
+  'european-kitchen': 'european-kitchen-silicon-valley',
+  'european-kitchens': 'european-kitchen-silicon-valley',
+}
 
 export const serviceDetails: Record<string, ServiceDetail> = {
   adu: {
@@ -351,6 +358,24 @@ export const serviceDetails: Record<string, ServiceDetail> = {
       'We build and finish your kitchen with careful attention to every detail.',
     ],
     gallery: [kitchen, kitchen],
+    contentBlocks: [
+      {
+        blockType: 'image-text',
+        eyebrow: 'Inspiration starts all around you',
+        heading: 'Versatile Door Options',
+        body: 'Our Shaker range offers both lay-on and in-frame doors. The traditional in-frame style presents doors and drawer frames that sit within the frames, with visible hinges when closed. For a more contemporary look, our lay-on design creates a seamless appearance as the doors lay over the frame, minimizing gaps between doors and drawers.',
+        image: kitchen,
+        imageSide: 'left',
+      },
+      {
+        blockType: 'image-text',
+        eyebrow: 'Want to know what really makes Shaker Kitchen so great?',
+        heading: 'Endless Finishes & Colors',
+        body: 'Express your individual style with a wide range of finishes and colors for your Shaker kitchen. Create a stunning focal point with a bold-colored kitchen island or achieve an understated elegance with a neutral color scheme complemented by wooden worktops or floors. From blue to grey Shaker kitchens and beyond, we provide an extensive palette to suit your taste.',
+        image: kitchen,
+        imageSide: 'right',
+      },
+    ],
   },
   'custom-kitchen-silicon-valley': {
     ...services[6],
@@ -452,9 +477,13 @@ const defaultDetailCopy = {
 }
 
 export function getServiceDetail(slug: string): ServiceDetail | undefined {
-  const detail = serviceDetails[slug]
+  const normalizedSlug = slug.replace(/-silicon-valley$/, '')
+  const detail =
+    serviceDetails[slug] ||
+    serviceDetails[normalizedSlug] ||
+    serviceDetails[`${normalizedSlug}-silicon-valley`]
   if (detail) return detail
-  const service = services.find((item) => item.slug === slug)
+  const service = services.find((item) => item.slug === slug || item.slug === normalizedSlug)
   if (!service) return undefined
   return {
     ...service,

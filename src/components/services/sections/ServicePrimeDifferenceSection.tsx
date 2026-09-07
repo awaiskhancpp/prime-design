@@ -2,6 +2,7 @@ import Image from 'next/image'
 
 import { Section } from '@/components/ui/Section'
 import type { ServiceDetail } from '@/lib/services'
+import { VideoCarousel, type CarouselVideo } from '@/components/landing/VideoCarousel'
 
 export type PrimeDifferenceContent = {
   eyebrow?: string
@@ -10,6 +11,7 @@ export type PrimeDifferenceContent = {
   body?: string
   checklist?: string[]
   reasons?: { icon?: string; title: string; body?: string }[]
+  videos?: CarouselVideo[]
 }
 
 export type WordPressDifferenceFeature = {
@@ -113,6 +115,7 @@ export function ServicePrimeDifferenceSection({
   body,
   checklist,
   reasons,
+  videos,
 }: PrimeDifferenceContent) {
   return (
     <Section className="bg-white">
@@ -201,6 +204,12 @@ export function ServicePrimeDifferenceSection({
           ))}
         </div>
       </div>
+
+      {videos?.length ? (
+        <div className="mx-auto mt-14 max-w-3xl">
+          <VideoCarousel videos={videos} />
+        </div>
+      ) : null}
     </Section>
   )
 }

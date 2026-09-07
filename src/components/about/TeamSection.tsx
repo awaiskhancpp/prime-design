@@ -117,10 +117,14 @@ function Portrait({
   variant = 'grid',
 }: {
   member: TeamMember
-  variant?: 'grid' | 'modal'
+  variant?: 'grid' | 'modal' | 'featured'
 }) {
   const aspectClasses =
-    variant === 'modal' ? 'aspect-[4/3] md:aspect-auto md:h-full md:min-h-[26rem]' : 'aspect-[4/5]'
+    variant === 'modal'
+      ? 'aspect-[4/3] md:aspect-auto md:h-full md:min-h-[26rem]'
+      : variant === 'featured'
+        ? 'aspect-[4/3]'
+        : 'aspect-[4/5]'
 
   return (
     <div className={`relative overflow-hidden bg-ink-2 ${aspectClasses}`}>
@@ -135,10 +139,18 @@ function Portrait({
   )
 }
 
-function TeamCard({ member, onClick }: { member: TeamMember; onClick: () => void }) {
+function TeamCard({
+  member,
+  onClick,
+  variant = 'grid',
+}: {
+  member: TeamMember
+  onClick: () => void
+  variant?: 'grid' | 'featured'
+}) {
   return (
     <article className="border border-line bg-white transition-colors hover:border-brass">
-      <Portrait member={member} />
+      <Portrait member={member} variant={variant} />
       <div className="flex items-end justify-between gap-4 border-t border-line px-6 py-6">
         <div>
           <h3 className="font-display text-2xl font-medium text-ink-2">{member.name}</h3>
@@ -182,8 +194,11 @@ export function TeamSection() {
           </Button>
         </div>
 
-        {/* Featured Section: Text + Bounded CEO Card */}
-        <div className="mt-20 grid items-start gap-10 md:grid-cols-2 lg:gap-16">
+        {/* Featured Section: Text + Bounded CEO Card — both columns sized to
+            match each other in height (items-center + a shorter 4:3 crop on
+            the featured card) instead of a tall portrait card towering over
+            a much shorter text block. */}
+        <div className="mt-20 grid items-center gap-10 md:grid-cols-2 lg:gap-16">
           <div className="max-w-xl">
             <h2 className="font-display text-4xl font-medium leading-tight text-ink-2 md:text-5xl">
               Meet the team
@@ -202,8 +217,8 @@ export function TeamSection() {
             </p>
           </div>
 
-          <div className="w-full max-w-sm md:ml-auto">
-            <TeamCard member={ceo} onClick={() => setSelectedMember(ceo)} />
+          <div className="w-full max-w-md md:ml-auto">
+            <TeamCard member={ceo} onClick={() => setSelectedMember(ceo)} variant="featured" />
           </div>
         </div>
 

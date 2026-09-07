@@ -83,16 +83,20 @@ const replaceAcfTokens = (value: string) =>
     return ''
   })
 
+let currentContextPageTitle = ''
 const unresolvedDynamicTokens = new Set<string>()
-const stripUnresolvedDynamicTags = (value: string) =>
-  value.replace(/\{(post_[a-z0-9_]+)(?::\d+)?\}/gi, (token) => {
+const resolveDynamicTags = (value: string) =>
+  value.replace(/\{(post_[a-z0-9_]+)(?::\d+)?\}/gi, (token, key: string) => {
+    if (key.toLowerCase() === 'post_title' && currentContextPageTitle) {
+      return currentContextPageTitle
+    }
     unresolvedDynamicTokens.add(token)
     return ''
   })
 
 const clean = (value: unknown): string | undefined => {
   if (typeof value !== 'string') return undefined
-  const result = stripUnresolvedDynamicTags(replaceAcfTokens(value))
+  const result = resolveDynamicTags(replaceAcfTokens(value))
     .replace(/<[^>]+>/g, ' ')
     .replace(/&nbsp;/gi, ' ')
     .replace(/\s+/g, ' ')
@@ -371,13 +375,21 @@ function subServiceItems(
   }
 
   const headings = nodes.filter((node) => node.name === 'heading' && clean(node.settings.text))
-  const images = sourceImages(section).slice(1)
-  return headings.slice(1).map((node, index) => {
+  const cardHeadings = headings.length > 1 ? headings.slice(1) : headings
+  const rawImages = sourceImages(section)
+  const images = rawImages.length > cardHeadings.length ? rawImages.slice(1) : rawImages
+  return cardHeadings.map((node, index) => {
     const headingIndex = nodes.indexOf(node)
-    const description = nodes
-      .slice(headingIndex + 1)
-      .find((candidate) => candidate.name === 'text-basic' && clean(candidate.settings.text))
-    const image = images[index]
+    const nextHeading = cardHeadings[index + 1]
+    const nextHeadingIndex = nextHeading ? nodes.indexOf(nextHeading) : nodes.length
+    const scopeNodes = nodes.slice(headingIndex + 1, nextHeadingIndex)
+    const description = scopeNodes.find(
+      (candidate) =>
+        candidate.name === 'text-basic' &&
+        clean(candidate.settings.text) &&
+        clean(candidate.settings.text) !== 'Learn more',
+    )
+    const image = images[index] || rawImages[index]
     const link =
       node.settings.link && typeof node.settings.link === 'object'
         ? (node.settings.link as Record<string, unknown>)
@@ -712,7 +724,7 @@ function dynamicProjectImages(section: NormalizedSection, projects: WordPressPro
     projectGalleryIds(project).flatMap((sourceId) => {
       if (seen.has(sourceId)) return []
       seen.add(sourceId)
-      return [{ sourceId, status: 'unresolved' as const }]
+      return [{ sourceId, status: 'unresolved' as const, projectTitle: clean(project.title) }]
     }),
   )
 }
@@ -824,6 +836,94 @@ function mapSection(
         buttons: buttonData(section, pagesById),
         alignment: 'left',
       }
+    case 'craftsmanship':
+      return {
+        blockType: 'craftsmanship',
+        ...common,
+        eyebrow: sectionEyebrow(section),
+        heading,
+        description,
+        media: ref,
+      }
+    case 'silicon-valley-loves':
+      return {
+        blockType: 'silicon-valley-loves',
+        ...common,
+        eyebrow: sectionEyebrow(section),
+        heading,
+        description,
+      }
+    case 'quote':
+      return {
+        blockType: 'quote',
+        ...common,
+        heading,
+        // body paragraphs become the pull-quote text; prefer the first body item
+        quote: sourceBody[0] || description,
+        description: sourceBody.slice(1).join('\n\n') || undefined,
+        attribution: undefined,
+      }
+    case 'process': {
+      // Extract numbered steps from icon-box / list elements if present,
+      // or from child blocks / headings + text-basic.
+      const stepNodes = treeNodes(section).filter(
+        (node) => node.name === 'icon-box' || node.name === 'list',
+      )
+      let steps: Array<{
+        title: string
+        description: string
+        image?: Record<string, unknown>
+      }> = stepNodes.map((node, stepIdx) => ({
+        title: clean(
+          String(node.settings.title || node.settings.heading || `Step ${stepIdx + 1}`),
+        ) || `Step ${stepIdx + 1}`,
+        description: clean(String(node.settings.content || node.settings.text || '')) || '',
+        image: undefined,
+      }))
+
+      if (!steps.length) {
+        const allTree = treeNodes(section)
+        const stepHeadings = allTree.filter(
+          (node) => /heading|title/i.test(node.name) && clean(node.settings.text),
+        )
+        const relevantHeadings =
+          stepHeadings.length > 1 && clean(stepHeadings[0]?.settings.text) === heading
+            ? stepHeadings.slice(1)
+            : stepHeadings
+        if (relevantHeadings.length >= 2) {
+          steps = relevantHeadings.map((hNode, hIdx) => {
+            const hIndex = allTree.indexOf(hNode)
+            const nextHeading = relevantHeadings[hIdx + 1]
+            const nextHeadingIndex = nextHeading ? allTree.indexOf(nextHeading) : allTree.length
+            const scopeNodes = allTree.slice(hIndex + 1, nextHeadingIndex)
+            const descNode = scopeNodes.find(
+              (n) =>
+                n.name === 'text-basic' &&
+                clean(n.settings.text) &&
+                !/^step\s*\d+$/i.test(clean(n.settings.text) || ''),
+            )
+            const imgNode = scopeNodes.find((n) => n.name === 'image' && imageFromTreeNode(n))
+            const img = imgNode ? imageFromTreeNode(imgNode) : undefined
+            const imgId = sourceImageMediaId(img, mediaIds)
+            return {
+              title: clean(hNode.settings.text) || `Step ${hIdx + 1}`,
+              description: clean(descNode?.settings.text) || '',
+              image: img ? mediaRef(img, imgId) : undefined,
+            }
+          })
+        }
+      }
+
+      return {
+        blockType: 'process',
+        ...common,
+        eyebrow: sectionEyebrow(section),
+        heading,
+        description,
+        steps,
+      }
+    }
+
     case 'video': {
       const video = section.videos[0]
       return {
@@ -923,8 +1023,8 @@ function mapSection(
       const dynamicImages = dynamicProjectImages(section, projects)
         .map((image, index) => ({
           media: mediaIds.get(image.sourceId!),
-          caption: undefined,
-          alt: `Project gallery image ${index + 1}`,
+          caption: image.projectTitle,
+          alt: image.projectTitle || `Project gallery image ${index + 1}`,
           sourceOrder: index,
           sourceAttachmentId: image.sourceId,
         }))
@@ -963,15 +1063,17 @@ function mapSection(
         afterMedia: sourceImageMediaId(beforeAfterImages[1], mediaIds),
       }
     }
-    case 'sub-services':
+    case 'sub-services': {
+      const subServicesDescription = sourceBody.length > 1 ? sourceBody[0] : description
       return {
         blockType: 'sub-services',
         ...common,
         eyebrow: sectionEyebrow(section),
         heading: heading || 'Our Services',
-        description,
+        description: subServicesDescription,
         items: subServiceItems(section, mediaIds, pagesById),
       }
+    }
     case 'prime-difference':
       return {
         blockType: 'prime-difference',
@@ -1194,22 +1296,39 @@ function mapSection(
     case 'utility':
       return undefined
     case 'content':
-    case 'unsupported':
+    case 'unsupported': {
       // Keep an existing, already-rendered block shape for source sections
       // that do not yet have a specialized semantic mapper. The old importer
       // returned undefined here, which silently deleted source sections.
       // Provenance and extracted source text remain in sourceMetadata so the
       // block can be enriched later without another schema fork.
+      //
+      // IMPORTANT: Never promote body text (paragraphs) into the heading slot.
+      // Body text is typically 100-500+ chars and contains multiple sentences.
+      // A heading should be ≤100 chars and not end mid-sentence. If the first
+      // body item looks like body copy, leave the heading empty so the renderer
+      // won't display it at display-font scale.
+      const looksLikeBodyText = (value: string) =>
+        value.length > 100 || (value.match(/\.\s+[A-Z]/g) || []).length >= 1
+      const bodyHeadingCandidate =
+        sourceBody[0] && !looksLikeBodyText(sourceBody[0]) ? sourceBody[0] : undefined
+      const fallbackHeading = heading || bodyHeadingCandidate
+      const bodyForDescription = fallbackHeading
+        ? heading
+          ? sourceBody
+          : sourceBody.slice(1)
+        : sourceBody
       return {
         blockType: 'image-text',
         ...common,
         eyebrow: sectionEyebrow(section),
-        heading: heading || sourceBody[0] || `Source section ${section.order + 1}`,
-        description: heading ? description : sourceBody.slice(1).join('\n\n') || description,
+        heading: fallbackHeading,
+        description: bodyForDescription.join('\n\n') || description,
         media: ref,
         buttons: buttonData(section, pagesById),
         alignment: 'left',
       }
+    }
     default:
       return undefined
   }
@@ -1220,6 +1339,79 @@ const source = await parseWordPressXmlFile(xmlPath)
 const localFiles = await fileIndex(uploadsPath)
 const attachmentMap = new Map(source.attachments.map((attachment) => [attachment.id, attachment]))
 const mediaCache = new Map<string, number>()
+
+// Hero background videos are hosted externally (not WordPress attachments),
+// so unlike images there's no local file to read — this actually downloads
+// the remote file and creates a Media record for it. Automated downloading
+// of arbitrary remote files needs guardrails a human would otherwise apply
+// by hand, so: cap the size rather than pulling down something unexpectedly
+// huge, dedupe against an existing Media record by sourceUrl so re-running
+// this script doesn't redownload every time, and never let one bad/
+// unreachable URL crash the whole migration — log and skip instead.
+const MAX_VIDEO_DOWNLOAD_BYTES = 200 * 1024 * 1024 // 200MB
+const videoCache = new Map<string, number | undefined>()
+
+async function resolveVideoMedia(url: string | undefined): Promise<number | undefined> {
+  if (!url) return undefined
+  if (videoCache.has(url)) return videoCache.get(url)
+
+  const existing = await payload.find({
+    collection: 'media',
+    where: { sourceUrl: { equals: url } },
+    limit: 1,
+  })
+  if (existing.docs[0]) {
+    const id = Number(existing.docs[0].id)
+    videoCache.set(url, id)
+    return id
+  }
+
+  try {
+    const response = await fetch(url)
+    if (!response.ok) {
+      console.warn(`[hero video] Skipped ${url} — HTTP ${response.status}`)
+      videoCache.set(url, undefined)
+      return undefined
+    }
+    const contentLength = Number(response.headers.get('content-length') || 0)
+    if (contentLength > MAX_VIDEO_DOWNLOAD_BYTES) {
+      console.warn(
+        `[hero video] Skipped ${url} — ${(contentLength / 1024 / 1024).toFixed(0)}MB exceeds the ${MAX_VIDEO_DOWNLOAD_BYTES / 1024 / 1024}MB automatic-download cap. Upload it manually if it should be used.`,
+      )
+      videoCache.set(url, undefined)
+      return undefined
+    }
+    const buffer = Buffer.from(await response.arrayBuffer())
+    if (buffer.length > MAX_VIDEO_DOWNLOAD_BYTES) {
+      console.warn(
+        `[hero video] Skipped ${url} — downloaded size ${(buffer.length / 1024 / 1024).toFixed(0)}MB exceeds the cap.`,
+      )
+      videoCache.set(url, undefined)
+      return undefined
+    }
+    const name = decodeURIComponent(url.split('/').pop() || 'hero-video.mp4').split('?')[0]
+    const mimetype = name.endsWith('.webm')
+      ? 'video/webm'
+      : name.endsWith('.mov')
+        ? 'video/quicktime'
+        : 'video/mp4'
+    const created = await payload.create({
+      collection: 'media',
+      data: { alt: name, sourceUrl: url },
+      file: { data: buffer, mimetype, name, size: buffer.length },
+    })
+    const id = Number(created.id)
+    videoCache.set(url, id)
+    return id
+  } catch (error) {
+    console.warn(
+      `[hero video] Failed to download ${url}:`,
+      error instanceof Error ? error.message : error,
+    )
+    videoCache.set(url, undefined)
+    return undefined
+  }
+}
 const report: Array<{
   page: string
   sections: number
@@ -1275,6 +1467,7 @@ async function resolveMediaId(attachmentId: number | undefined, filename: string
 }
 
 for (const target of targetServices) {
+  currentContextPageTitle = target.title
   const slug = target.serviceSlug
   const page = source.pages.find((item) => item.id === target.wordpressPageId)
   if (!page || page.status !== 'publish') {
@@ -1394,12 +1587,17 @@ for (const target of targetServices) {
       )
     }
   }
+  const heroVideoUrl = (heroData?.sourceMetadata as Record<string, unknown> | undefined)
+    ?.backgroundVideoUrl
+  const heroVideoId =
+    typeof heroVideoUrl === 'string' ? await resolveVideoMedia(heroVideoUrl) : undefined
   const hero = heroData
     ? {
         eyebrow: sectionEyebrow(heroSource!),
         heading: heroData.heading,
         lead: heroData.description,
         image: (heroData.backgroundMedia as Record<string, unknown> | undefined)?.asset,
+        video: heroVideoId,
       }
     : undefined
   if (existing.docs[0]) {

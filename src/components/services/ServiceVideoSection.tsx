@@ -67,7 +67,8 @@ const videosBySlug: Record<string, ServiceVideoContent> = {
 }
 
 export function getServiceVideo(slug: string) {
-  return videosBySlug[slug]
+  const normalizedSlug = slug.replace(/-silicon-valley$/, '')
+  return videosBySlug[slug] || videosBySlug[normalizedSlug] || videosBySlug[`${normalizedSlug}-silicon-valley`]
 }
 
 // Location pages carry a fuller marketing block above the video than the

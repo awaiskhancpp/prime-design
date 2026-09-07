@@ -11,6 +11,27 @@ function galleryImagesFor(service: ServiceDetail) {
   const cmsGallery = service.contentBlocks?.find((block) => block.blockType === 'gallery')
   const fromCms = cmsGallery && cmsGallery.blockType === 'gallery' ? cmsGallery.images : []
 
+  // New pipeline: service.sections[] gallery block(s) — flat items and/or
+  // grouped items (e.g. "Kitchens" / "Bathrooms" tabs from WordPress).
+  const sectionGalleries = (service.sections || []).filter(
+    (section) => section && section.blockType === 'gallery',
+  )
+  const fromSections = sectionGalleries.flatMap((section) => {
+    const flatItems = Array.isArray(section.items) ? section.items : []
+    const groupItems = Array.isArray(section.groups)
+      ? (section.groups as Record<string, unknown>[]).flatMap((group) =>
+          Array.isArray(group.items) ? group.items : [],
+        )
+      : []
+    return [...flatItems, ...groupItems]
+      .map((item) => {
+        const value = item as Record<string, unknown>
+        const media = value.media as Record<string, unknown> | string | undefined
+        return typeof media === 'string' ? media : (media as Record<string, unknown>)?.url
+      })
+      .filter((url): url is string => typeof url === 'string')
+  })
+
   const category = service.slug.includes('kitchen')
     ? galleryCategories.find((item) => item.slug === 'kitchens')
     : service.slug.includes('bathroom')
@@ -19,7 +40,13 @@ function galleryImagesFor(service: ServiceDetail) {
         ? galleryCategories.find((item) => item.slug === 'adu-additions')
         : undefined
 
-  const combined = [...fromCms, ...service.gallery, ...(category?.images ?? []), service.image]
+  const combined = [
+    ...fromSections,
+    ...fromCms,
+    ...service.gallery,
+    ...(category?.images ?? []),
+    service.image,
+  ]
   return [...new Set(combined.filter(Boolean))].slice(0, 6)
 }
 

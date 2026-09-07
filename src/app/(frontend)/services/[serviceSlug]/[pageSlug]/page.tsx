@@ -4,6 +4,9 @@ import { ServiceTemplate } from '@/components/services/ServiceTemplate'
 import { resolveServiceDetail } from '@/lib/services'
 
 const kitchenDetails = [
+  'european-kitchen',
+  'shaker-kitchen',
+  'custom-kitchen',
   'european-kitchen-silicon-valley',
   'shaker-kitchen-silicon-valley',
   'custom-kitchen-silicon-valley',

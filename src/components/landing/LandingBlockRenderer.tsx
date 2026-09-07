@@ -10,14 +10,12 @@ import BeforeAfterSlider from '@/components/blocks/BeforeAfterSlider'
 import { LandingFindUs } from './LandingFindUs'
 import { LandingGallerySection } from './LandingGallerySection'
 import { LandingGalleryTabs } from './LandingGalleryTabs'
-import { LandingTestimonialsSection } from './LandingTestimonialsSection'
 import { LandingLuxuryCta } from './LandingLuxuryCta'
 import { LandingCtaSection } from './LandingCtaSection'
 import { LandingExperienceDifferenceSection } from './LandingExperienceDifferenceSection'
 import { LandingPrimeDifferenceSection } from './LandingPrimeDifferenceSection'
-import { VideoCarousel } from './VideoCarousel'
 import { LandingProjectGridSection } from './LandingProjectGridSection'
-import { LandingSubServicesSection } from './LandingSubServicesSection'
+import { LandingProjectsSection } from './LandingProjectsSection'
 import { LandingRepairServicesSection } from './LandingRepairServicesSection'
 import { LandingServiceAreasSection } from './LandingServiceAreasSection'
 import { LandingFaqSection } from './LandingFaqSection'
@@ -29,23 +27,16 @@ import type { LandingPageBlock } from '@/lib/landingPages'
 
 type Block = LandingPageBlock & Record<string, unknown>
 
-function text(value: unknown) {
+export function text(value: unknown) {
   return typeof value === 'string' ? value : undefined
 }
 
-function mediaUrl(value: unknown): string | undefined {
+export function mediaUrl(value: unknown): string | undefined {
   if (typeof value === 'string') return value
   if (!value || typeof value !== 'object') return undefined
   const record = value as Record<string, unknown>
   if (typeof record.url === 'string') return record.url
-  const assetUrl = 'asset' in record ? mediaUrl(record.asset) : undefined
-  const iconMediaUrl = 'iconMedia' in record ? mediaUrl(record.iconMedia) : undefined
-  return (
-    assetUrl ||
-    iconMediaUrl ||
-    (typeof record.sourceUrl === 'string' ? record.sourceUrl : undefined) ||
-    (typeof record.sourceSvgUrl === 'string' ? record.sourceSvgUrl : undefined)
-  )
+  return mediaUrl(record.asset)
 }
 
 function isPayloadFileUrl(value: string) {
@@ -81,7 +72,7 @@ function HeroBlock({ block }: { block: Block }) {
     return <UnsupportedLandingBlock block={block} />
   return (
     <PageHero
-      headerVariant="minimal"
+      showHeader={false}
       eyebrow={text(block.eyebrow) || 'Prime Design & Build'}
       title={text(block.heading) || ''}
       description={text(block.description)}
@@ -157,10 +148,7 @@ function GalleryBlock({ block }: { block: Block }) {
           label: text(group.label) || text(group.heading) || 'Gallery',
           images: Array.isArray(group.items)
             ? group.items
-                .map((item) => {
-                  const value = item as Record<string, unknown>
-                  return mediaUrl(value.media) || text(value.sourceUrl)
-                })
+                .map((item) => mediaUrl((item as Record<string, unknown>)?.media))
                 .filter((value): value is string => Boolean(value))
             : [],
         }))
@@ -181,7 +169,7 @@ function GalleryBlock({ block }: { block: Block }) {
     ? block.items
         .flatMap((item) => {
           const value = item as Record<string, unknown>
-          const url = mediaUrl(value.media) || text(value.sourceUrl)
+          const url = mediaUrl(value.media)
           if (!url) return []
 
           return {
@@ -228,7 +216,6 @@ function ProjectGridBlock({ block }: { block: Block }) {
   return (
     <LandingProjectGridSection
       eyebrow={text(block.eyebrow)}
-      eyebrowIcon={mediaUrl(block.eyebrowIcon)}
       heading={text(block.heading)}
       description={text(block.description)}
       items={items}
@@ -270,7 +257,7 @@ function SubServicesBlock({ block }: { block: Block }) {
         .filter((item) => item.title)
     : []
   return items.length ? (
-    <LandingSubServicesSection
+    <LandingProjectsSection
       eyebrow={text(block.eyebrow)}
       heading={text(block.heading)}
       description={text(block.description)}
@@ -310,23 +297,25 @@ function FaqBlock({ block }: { block: Block }) {
 
 function VideoCarouselBlock({ block }: { block: Block }) {
   const items = Array.isArray(block.items) ? block.items : []
-  const videos = items
-    .map((item) => item as Record<string, unknown>)
-    .map((item) => ({
-      url: text(item.externalUrl) || mediaUrl(item.video),
-      poster: mediaUrl(item.poster),
-      caption: text(item.caption),
-    }))
-    .filter(
-      (item): item is { url: string; poster: string | undefined; caption: string | undefined } =>
-        Boolean(item.url),
-    )
-
-  if (!videos.length) return <UnsupportedLandingBlock block={block} />
-
   return (
     <Section className="bg-white">
-      <VideoCarousel videos={videos} />
+      <div className="grid gap-8 md:grid-cols-2">
+        {items.map((item, index) => {
+          const value = item as Record<string, unknown>
+          const url = text(value.externalUrl) || mediaUrl(value.video)
+          return url ? (
+            <video
+              key={text(value.sourceId) || index}
+              className="aspect-video w-full object-cover"
+              controls
+              playsInline
+              poster={mediaUrl(value.poster)}
+            >
+              <source src={url} />
+            </video>
+          ) : null
+        })}
+      </div>
     </Section>
   )
 }
@@ -518,7 +507,6 @@ export const landingBlockRegistry: Record<string, Renderer> = {
     <LandingServiceAreasSection
       eyebrow={text(block.eyebrow)}
       heading={text(block.heading)}
-      description={text(block.description)}
       areas={
         Array.isArray(block.areas)
           ? block.areas.map((area) => {
@@ -564,38 +552,6 @@ export const landingBlockRegistry: Record<string, Renderer> = {
   ),
   faq: FaqBlock,
   testimonials: () => <TestimonialsSpotlight />,
-  'landing-testimonials': ({ block }) => (
-    <LandingTestimonialsSection
-      eyebrow={text(block.eyebrow)}
-      heading={text(block.heading)}
-      description={text(block.description)}
-      providers={
-        Array.isArray(block.providers)
-          ? block.providers.map((provider) => {
-              const value = provider as Record<string, unknown>
-              return {
-                name: text(value.name) || 'Reviews',
-                collectionId: text(value.collectionId),
-                reviewUrl: text(value.reviewUrl),
-                rating: typeof value.rating === 'number' ? value.rating : undefined,
-                reviewCount: typeof value.reviewCount === 'number' ? value.reviewCount : undefined,
-                reviews: Array.isArray(value.reviews)
-                  ? value.reviews.map((review) => {
-                      const item = review as Record<string, unknown>
-                      return {
-                        reviewer: text(item.reviewer),
-                        rating: typeof item.rating === 'number' ? item.rating : undefined,
-                        body: text(item.body),
-                        date: text(item.date),
-                      }
-                    })
-                  : [],
-              }
-            })
-          : []
-      }
-    />
-  ),
   booking: ({ block }) => (
     <LandingBookingSection heading={text(block.heading) || 'Request an Estimate Appointment'} />
   ),

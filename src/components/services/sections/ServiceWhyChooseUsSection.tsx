@@ -15,7 +15,7 @@ export function ServiceWhyChooseUsSection({
   items = homeRepairWhyChooseContent.items,
 }: {
   heading?: string
-  items?: typeof homeRepairWhyChooseContent.items
+  items?: Array<{ title: string; description?: string }>
 }) {
   return (
     <section className="py-16 text-ink md:py-20">
@@ -32,7 +32,9 @@ export function ServiceWhyChooseUsSection({
               </span>
               <div>
                 <p className="font-semibold text-ink">{item.title}</p>
-                <p className="mt-0.5 text-sm text-ink/65">{item.description}</p>
+                {item.description ? (
+                  <p className="mt-0.5 text-sm text-ink/65">{item.description}</p>
+                ) : null}
               </div>
             </div>
           ))}

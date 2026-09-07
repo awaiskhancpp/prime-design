@@ -1,0 +1,858 @@
+
+================================================================================
+PAGE: Kitchen Remodeling (slug: kitchen-remodeling, WP ID: 327)
+Roots count: 12 | Normalized count: 7
+================================================================================
+
+--- Root 1 (Root ID: eb329f, Name: section) ---
+  Normalized Type: ✅ hero | Classification: supported
+  Elements present: section, container, heading, text-basic, div, button, image
+  Images count: 1 | Icons/Lists count: 0
+  HEADINGS (1):
+    [1] <h1> "Kitchen Remodeling never looked so good" (39 chars)
+  BODY TEXTS (1):
+    [1] (241 chars): "At {acf_company_name}, we understand the importance of a well-designed and functional kitchen. Our expert team is dedica..."
+  BUTTONS (2):
+    "Talk to an expert" -> {"type":"internal","postId":"310"}
+    "View Our Portfolio" -> {"type":"internal","postId":"339"}
+
+--- Root 2 (Root ID: ywssqh, Name: template) ---
+  Normalized Status: ⏭️  SKIPPED (non-section root element)
+  Elements present: template
+  Images count: 0 | Icons/Lists count: 0
+  HEADINGS: [NONE - No explicit heading element]
+
+--- Root 3 (Root ID: fc00ff, Name: section) ---
+  Normalized Type: ✅ video | Classification: supported
+  Elements present: section, container, text-basic, heading, video
+  Images count: 0 | Icons/Lists count: 0
+  HEADINGS (1):
+    [1] <h2> "Take a tour through one of our stunning kitchen transformations." (64 chars)
+  BODY TEXTS (1):
+    [1] (47 chars): "#1 Kitchen Remodeling Company in Silicon Valley"
+
+--- Root 4 (Root ID: 264328, Name: section) ---
+  Normalized Type: ✅ sub-services | Classification: supported
+  Elements present: section, container, block, heading, text-basic, div, button, image
+  Images count: 3 | Icons/Lists count: 0
+  HEADINGS (4):
+    [1] <h2> "Choose a Kitchen That Reflects Your Unique Style and Vision." (60 chars)
+    [2] <h2> "Custom Kitchen" (14 chars)
+    [3] <h2> "European Kitchen" (16 chars)
+    [4] <h2> "Shaker Kitchen" (14 chars)
+  BODY TEXTS (7):
+    [1] (258 chars): "Our experts at {acf_company_name} never want you to feel limited when it comes to picking your dream kitchen. That's why..."
+    [2] (60 chars): "Create a Kitchen That Reflects Your Unique Style and Vision."
+    [3] (10 chars): "Learn more"
+    [4] (65 chars): "Experience the Perfect Blend of Sophistication and Functionality."
+    [5] (10 chars): "Learn more"
+    [6] (63 chars): "Discover the Classic Beauty and Versatility of Shaker Kitchens."
+    [7] (10 chars): "Learn more"
+  BUTTONS (2):
+    "View our gallery" -> {"type":"internal","postId":"349"}
+    "Talk to an expert" -> {"type":"internal","postId":"339"}
+
+--- Root 5 (Root ID: f6a1a9, Name: section) ---
+  Normalized Type: ✅ process | Classification: supported
+  Elements present: section, container, block, image, heading, text-basic, text, button
+  Images count: 2 | Icons/Lists count: 0
+  HEADINGS (1):
+    [1] <h2> "We make it easy for you" (23 chars)
+  BODY TEXTS (2):
+    [1] (11 chars): "Our Process"
+    [2] (401 chars): "{acf_company_name} paves the way for your dream kitchen with an easy and straightforward approach. From concept to compl..."
+  BUTTONS (1):
+    "Free on-site estimate" -> undefined
+
+--- Root 6 (Root ID: zvpjyr, Name: section) ---
+  Normalized Type: ✅ process | Classification: partial
+  Elements present: section, container, block, heading, text-basic, image, code
+  Images count: 6 | Icons/Lists count: 0
+  HEADINGS (6):
+    [1] <h3> "Initial Consultation" (20 chars)
+    [2] <h3> "Customized Design" (17 chars)
+    [3] <h3> "Efficient Project Management" (28 chars)
+    [4] <h3> "Skilled Craftsmanship" (21 chars)
+    [5] <h3> "Clear Communication and Timely Updates" (38 chars)
+    [6] <h3> "Final Reveal" (12 chars)
+  BODY TEXTS (12):
+    [1] (6 chars): "Step 1"
+    [2] (233 chars): "Let's start by scheduling a consultation to discuss your kitchen ideas, preferences, and budget. Our team will listen ca..."
+    [3] (6 chars): "Step 2"
+    [4] (281 chars): "Based on our discussion, our talented designers will create a personalized design plan that showcases your unique style ..."
+    [5] (6 chars): "Step 3"
+    [6] (262 chars): "Once you approve the design, our dedicated project management team takes over to handle all the coordination. We'll sour..."
+    [7] (6 chars): "Step 4"
+    [8] (277 chars): "Our experienced craftsmen will work diligently to bring the design plan to reality with their expertise. From handling d..."
+    [9] (6 chars): "Step 5"
+    [10] (263 chars): "We believe in open and transparent communication. Throughout the remodeling journey, we'll keep you informed about the p..."
+    [11] (6 chars): "Step 6"
+    [12] (311 chars): "Once the construction is finished, we'll conduct a comprehensive inspection to ensure everything meets our high standard..."
+
+--- Root 7 (Root ID: sapdlr, Name: template) ---
+  Normalized Status: ⏭️  SKIPPED (non-section root element)
+  Elements present: template
+  Images count: 0 | Icons/Lists count: 0
+  HEADINGS: [NONE - No explicit heading element]
+
+--- Root 8 (Root ID: fznkim, Name: template) ---
+  Normalized Status: ⏭️  SKIPPED (non-section root element)
+  Elements present: template
+  Images count: 0 | Icons/Lists count: 0
+  HEADINGS: [NONE - No explicit heading element]
+
+--- Root 9 (Root ID: sgqbmt, Name: template) ---
+  Normalized Status: ⏭️  SKIPPED (non-section root element)
+  Elements present: template
+  Images count: 0 | Icons/Lists count: 0
+  HEADINGS: [NONE - No explicit heading element]
+
+--- Root 10 (Root ID: 880bef, Name: section) ---
+  Normalized Type: ✅ faq | Classification: supported
+  Elements present: section, container, block, heading, text-basic, button, text
+  Images count: 0 | Icons/Lists count: 0
+  HEADINGS (2):
+    [1] <h2> "Frequently Asked Questions" (26 chars)
+    [2] <h2> "{post_title}" (12 chars)
+  BODY TEXTS (2):
+    [1] (225 chars): "Do you have a kitchen project? Whether it’s a detailed vision or just some vague ideas, your design starts with an appoi..."
+    [2] (14 chars): "{post_content}"
+  BUTTONS (1):
+    "Speak with an expert" -> {"type":"internal","postId":"310"}
+
+--- Root 11 (Root ID: ebcd59, Name: section) ---
+  Normalized Type: ✅ gallery | Classification: supported
+  Elements present: section, container, heading, text, text-basic, image-gallery, button
+  Images count: 0 | Icons/Lists count: 0
+  HEADINGS (1):
+    [1] <h2> "Get Inspired" (12 chars)
+  BODY TEXTS (2):
+    [1] (198 chars): "Client satisfaction is our #1 priority. No matter the type of project we rake on, the entire process, from the consultat..."
+    [2] (11 chars): "Our Gallery"
+  BUTTONS (1):
+    "Visit our gallery" -> {"type":"internal","postId":"349"}
+
+--- Root 12 (Root ID: hbgfbw, Name: template) ---
+  Normalized Status: ⏭️  SKIPPED (non-section root element)
+  Elements present: template
+  Images count: 0 | Icons/Lists count: 0
+  HEADINGS: [NONE - No explicit heading element]
+
+================================================================================
+PAGE: Bathroom Remodeling (slug: bathroom-remodeling, WP ID: 337)
+Roots count: 12 | Normalized count: 7
+================================================================================
+
+--- Root 1 (Root ID: lqvdyr, Name: section) ---
+  Normalized Type: ✅ hero | Classification: supported
+  Elements present: section, container, heading, text-basic, div, button, image
+  Images count: 1 | Icons/Lists count: 0
+  HEADINGS (1):
+    [1] <h1> "Crafting Your Dream Bathroom , Our Specialty" (44 chars)
+  BODY TEXTS (1):
+    [1] (131 chars): "Let our expert team transform your bathroom into a space of beauty and functionality. Start your bathroom remodeling jou..."
+  BUTTONS (2):
+    "Get a Free Consultation" -> {"postId":"310","type":"external","url":"#contact"}
+    "Explore Our Portfolio" -> {"type":"internal","postId":"339"}
+
+--- Root 2 (Root ID: toxrwe, Name: template) ---
+  Normalized Status: ⏭️  SKIPPED (non-section root element)
+  Elements present: template
+  Images count: 0 | Icons/Lists count: 0
+  HEADINGS: [NONE - No explicit heading element]
+
+--- Root 3 (Root ID: vmkcra, Name: section) ---
+  Normalized Type: ✅ process | Classification: partial
+  Elements present: section, container, block, heading, text-basic, image, code
+  Images count: 6 | Icons/Lists count: 0
+  HEADINGS (6):
+    [1] <h3> "Comprehensive Consultation" (26 chars)
+    [2] <h3> "Customized Design" (17 chars)
+    [3] <h3> "Efficient Project Management" (28 chars)
+    [4] <h3> "Skilled Craftsmanship" (21 chars)
+    [5] <h3> "Clear Communication and Timely Updates" (38 chars)
+    [6] <h3> "Final Reveal" (12 chars)
+  BODY TEXTS (12):
+    [1] (6 chars): "Step 1"
+    [2] (233 chars): "Let's start by scheduling a consultation to discuss your kitchen ideas, preferences, and budget. Our team will listen ca..."
+    [3] (6 chars): "Step 2"
+    [4] (282 chars): "Based on our discussion, our talented designers will create a personalized design plan that showcases your unique style ..."
+    [5] (6 chars): "Step 3"
+    [6] (262 chars): "Once you approve the design, our dedicated project management team takes over to handle all the coordination. We'll sour..."
+    [7] (6 chars): "Step 4"
+    [8] (277 chars): "Our experienced craftsmen will work diligently to bring the design plan to reality with their expertise. From handling d..."
+    [9] (6 chars): "Step 5"
+    [10] (263 chars): "We believe in open and transparent communication. Throughout the remodeling journey, we'll keep you informed about the p..."
+    [11] (6 chars): "Step 6"
+    [12] (312 chars): "Once the construction is finished, we'll conduct a comprehensive inspection to ensure everything meets our high standard..."
+
+--- Root 4 (Root ID: afqqmn, Name: section) ---
+  Normalized Type: ✅ sub-services | Classification: supported
+  Elements present: section, container, block, heading, text-basic, div, button, image
+  Images count: 3 | Icons/Lists count: 0
+  HEADINGS (4):
+    [1] <h2> "Witness the Beauty of Our Bathroom Transformations" (50 chars)
+    [2] <h2> "Custom Bathtubs" (15 chars)
+    [3] <h2> "Custom Showers" (14 chars)
+    [4] <h2> "Custom Layouts" (14 chars)
+  BODY TEXTS (7):
+    [1] (150 chars): "Browse through our portfolio to see the stunning results of our meticulous bathroom remodeling projects. Experience the ..."
+    [2] (61 chars): "Create a Bathroom That Reflects Your Unique Style and Vision."
+    [3] (10 chars): "Learn more"
+    [4] (65 chars): "Experience the Perfect Blend of Sophistication and Functionality."
+    [5] (10 chars): "Learn more"
+    [6] (44 chars): "See what we can do to transform your layout."
+    [7] (10 chars): "Learn more"
+  BUTTONS (2):
+    "View our gallery" -> {"type":"internal","postId":"349"}
+    "Talk to an expert" -> {"type":"external","postId":"339","url":"#contact","ariaLabel":"Contact us today"}
+
+--- Root 5 (Root ID: otyszx, Name: section) ---
+  Normalized Type: ✅ gallery | Classification: supported
+  Elements present: section, container, heading, text, text-basic, image-gallery, button
+  Images count: 0 | Icons/Lists count: 0
+  HEADINGS (1):
+    [1] <h2> "Get Inspired" (12 chars)
+  BODY TEXTS (2):
+    [1] (198 chars): "Client satisfaction is our #1 priority. No matter the type of project we rake on, the entire process, from the consultat..."
+    [2] (11 chars): "Our Gallery"
+  BUTTONS (1):
+    "Visit our gallery" -> {"type":"internal","postId":"349"}
+
+--- Root 6 (Root ID: gfpzcg, Name: section) ---
+  Normalized Type: ✅ cta | Classification: supported
+  Elements present: section, container, block, image, heading, text-basic, text, button
+  Images count: 2 | Icons/Lists count: 0
+  HEADINGS (1):
+    [1] <h2> "Let's build your dream bathroom, step-by-step" (45 chars)
+  BODY TEXTS (2):
+    [1] (15 chars): "We make it easy"
+    [2] (228 chars): "{acf_company_name} specializes in designing delightful bathrooms that harmonize functionality, aesthetics, and your pers..."
+  BUTTONS (1):
+    "Free on-site estimate" -> {"type":"external","url":"#contact"}
+
+--- Root 7 (Root ID: gtnalv, Name: template) ---
+  Normalized Status: ⏭️  SKIPPED (non-section root element)
+  Elements present: template
+  Images count: 0 | Icons/Lists count: 0
+  HEADINGS: [NONE - No explicit heading element]
+
+--- Root 8 (Root ID: gqtmgo, Name: template) ---
+  Normalized Status: ⏭️  SKIPPED (non-section root element)
+  Elements present: template
+  Images count: 0 | Icons/Lists count: 0
+  HEADINGS: [NONE - No explicit heading element]
+
+--- Root 9 (Root ID: kyoowv, Name: section) ---
+  Normalized Type: ✅ faq | Classification: supported
+  Elements present: section, container, block, heading, text-basic, button, text
+  Images count: 0 | Icons/Lists count: 0
+  HEADINGS (2):
+    [1] <h2> "Frequently Asked Questions" (26 chars)
+    [2] <h2> "{post_title}" (12 chars)
+  BODY TEXTS (2):
+    [1] (225 chars): "Do you have a kitchen project? Whether it’s a detailed vision or just some vague ideas, your design starts with an appoi..."
+    [2] (14 chars): "{post_content}"
+  BUTTONS (1):
+    "Speak with an expert" -> {"type":"external","postId":"310","url":"#contact"}
+
+--- Root 10 (Root ID: nrjtrl, Name: template) ---
+  Normalized Status: ⏭️  SKIPPED (non-section root element)
+  Elements present: template
+  Images count: 0 | Icons/Lists count: 0
+  HEADINGS: [NONE - No explicit heading element]
+
+--- Root 11 (Root ID: gtinkw, Name: template) ---
+  Normalized Status: ⏭️  SKIPPED (non-section root element)
+  Elements present: template
+  Images count: 0 | Icons/Lists count: 0
+  HEADINGS: [NONE - No explicit heading element]
+
+--- Root 12 (Root ID: ea6aa7, Name: section) ---
+  Normalized Type: ✅ contact-form | Classification: partial
+  Elements present: section, container, div, text-basic, heading, text, xfluentform, video
+  Images count: 0 | Icons/Lists count: 0
+  HEADINGS (1):
+    [1] <h2> "Ready to discuss your needs?" (28 chars)
+  BODY TEXTS (3):
+    [1] (39 chars): "Start Crafting Your Dream Project Today"
+    [2] (43 chars): "Give us a call at {acf_company_phone_clean}"
+    [3] (117 chars): "To get in touch, simply fill out the form on this page and we will get back to you within 2-3 hours on business days."
+  SPECIAL WIDGETS: xfluentform
+
+================================================================================
+PAGE: Home Remodeling (slug: home-remodeling, WP ID: 335)
+Roots count: 12 | Normalized count: 7
+================================================================================
+
+--- Root 1 (Root ID: qoslih, Name: section) ---
+  Normalized Type: ✅ hero | Classification: supported
+  Elements present: section, container, heading, text-basic, div, button, image
+  Images count: 1 | Icons/Lists count: 0
+  HEADINGS (1):
+    [1] <h1> "Transform Your Home, Create Lasting Impressions" (47 chars)
+  BODY TEXTS (1):
+    [1] (108 chars): "Step into a world of endless possibilities as we revitalize your home. Because your dreams deserve the best."
+  BUTTONS (2):
+    "Start your renovation" -> {"postId":"310","type":"external","url":"#contact"}
+    "Explore Our Portfolio" -> {"type":"internal","postId":"339"}
+
+--- Root 2 (Root ID: foalud, Name: section) ---
+  Normalized Type: ✅ testimonials | Classification: supported
+  Elements present: section, container, text-basic, heading, div, button, video
+  Images count: 0 | Icons/Lists count: 0
+  HEADINGS (1):
+    [1] <h2> "Real Homes, Real Stories" (24 chars)
+  BODY TEXTS (8):
+    [1] (47 chars): "#1 Kitchen Remodeling Company in Silicon Valley"
+    [2] (111 chars): "Explore the success stories of homeowners who entrusted {acf_company_name} to create their dream living spaces."
+    [3] (121 chars): "{acf_company_name}' team of experts brought new life to our home. Their commitment to quality and design is unparalleled..."
+    [4] (15 chars): "Alex and Sophia"
+    [5] (155 chars): "Choosing {acf_company_name} was the best decision we made for our home remodeling. Their expertise and professionalism m..."
+    [6] (16 chars): "Robert and Laura"
+    [7] (139 chars): "{acf_company_name} captured our vision perfectly and delivered exceptional results. Our home now reflects our unique sty..."
+    [8] (17 chars): "Jonathan and Emma"
+  BUTTONS (1):
+    "Contact us now" -> {"type":"external","url":"#contact"}
+
+--- Root 3 (Root ID: cducqf, Name: template) ---
+  Normalized Status: ⏭️  SKIPPED (non-section root element)
+  Elements present: template
+  Images count: 0 | Icons/Lists count: 0
+  HEADINGS: [NONE - No explicit heading element]
+
+--- Root 4 (Root ID: dugnmd, Name: section) ---
+  Normalized Type: ✅ process | Classification: supported
+  Elements present: section, container, heading, text, block, icon, text-basic, image
+  Images count: 1 | Icons/Lists count: 0
+  HEADINGS (5):
+    [1] <h2> "A Client-Centered Approach to Home Remodeling" (45 chars)
+    [2] <h2> "Free Consultation" (17 chars)
+    [3] <h2> "Customized Design" (17 chars)
+    [4] <h2> "Skilled Project Management" (26 chars)
+    [5] <h2> "Quality Craftsmanship" (21 chars)
+  BODY TEXTS (5):
+    [1] (83 chars): "No matter the type of project we take on, the entire process, from start to finish."
+    [2] (177 chars): "We begin by understanding your vision, lifestyle, and goals for your home. Our experienced team listens attentively to y..."
+    [3] (125 chars): "Our talented designers translate your vision into a personalized design plan that captures your unique style and prefere..."
+    [4] (213 chars): "Our dedicated project managers oversee every aspect of the renovation process, ensuring seamless coordination of contrac..."
+    [5] (83 chars): "Our skilled craftsmen bring precision and artistry to every detail of your project."
+
+--- Root 5 (Root ID: fpkrwk, Name: section) ---
+  Normalized Type: ✅ gallery | Classification: supported
+  Elements present: section, container, heading, text, text-basic, image-gallery, button
+  Images count: 0 | Icons/Lists count: 0
+  HEADINGS (1):
+    [1] <h2> "Get Inspired" (12 chars)
+  BODY TEXTS (2):
+    [1] (198 chars): "Client satisfaction is our #1 priority. No matter the type of project we rake on, the entire process, from the consultat..."
+    [2] (11 chars): "Our Gallery"
+  BUTTONS (1):
+    "Visit our gallery" -> {"type":"internal","postId":"349"}
+
+--- Root 6 (Root ID: spwvde, Name: section) ---
+  Normalized Type: ✅ craftsmanship | Classification: supported
+  Elements present: section, container, block, image, heading, text-basic, text, button
+  Images count: 2 | Icons/Lists count: 0
+  HEADINGS (1):
+    [1] <h2> "Craftsmanship That Transforms" (29 chars)
+  BODY TEXTS (2):
+    [1] (15 chars): "We make it easy"
+    [2] (664 chars): "At {acf_company_name}, we take pride in our unwavering commitment to professionalism. Our team of experts is dedicated t..."
+  BUTTONS (1):
+    "Free on-site estimate" -> {"type":"external","url":"#contact"}
+
+--- Root 7 (Root ID: tgyeim, Name: template) ---
+  Normalized Status: ⏭️  SKIPPED (non-section root element)
+  Elements present: template
+  Images count: 0 | Icons/Lists count: 0
+  HEADINGS: [NONE - No explicit heading element]
+
+--- Root 8 (Root ID: sftcrh, Name: template) ---
+  Normalized Status: ⏭️  SKIPPED (non-section root element)
+  Elements present: template
+  Images count: 0 | Icons/Lists count: 0
+  HEADINGS: [NONE - No explicit heading element]
+
+--- Root 9 (Root ID: kohjux, Name: template) ---
+  Normalized Status: ⏭️  SKIPPED (non-section root element)
+  Elements present: template
+  Images count: 0 | Icons/Lists count: 0
+  HEADINGS: [NONE - No explicit heading element]
+
+--- Root 10 (Root ID: nxmlkp, Name: section) ---
+  Normalized Type: ✅ faq | Classification: supported
+  Elements present: section, container, block, heading, text-basic, button, text
+  Images count: 0 | Icons/Lists count: 0
+  HEADINGS (2):
+    [1] <h2> "Frequently Asked Questions" (26 chars)
+    [2] <h2> "{post_title}" (12 chars)
+  BODY TEXTS (2):
+    [1] (233 chars): "Do you have a home remodeling project? Whether it’s a detailed vision or just some vague ideas, your design starts with ..."
+    [2] (14 chars): "{post_content}"
+  BUTTONS (1):
+    "Speak with an expert" -> {"type":"external","postId":"310","url":"#contact"}
+
+--- Root 11 (Root ID: ijyxal, Name: template) ---
+  Normalized Status: ⏭️  SKIPPED (non-section root element)
+  Elements present: template
+  Images count: 0 | Icons/Lists count: 0
+  HEADINGS: [NONE - No explicit heading element]
+
+--- Root 12 (Root ID: xdcwtr, Name: section) ---
+  Normalized Type: ✅ contact-form | Classification: partial
+  Elements present: section, container, div, text-basic, heading, text, xfluentform, video
+  Images count: 0 | Icons/Lists count: 0
+  HEADINGS (1):
+    [1] <h2> "Ready to discuss your needs?" (28 chars)
+  BODY TEXTS (3):
+    [1] (39 chars): "Start Crafting Your Dream Project Today"
+    [2] (43 chars): "Give us a call at {acf_company_phone_clean}"
+    [3] (117 chars): "To get in touch, simply fill out the form on this page and we will get back to you within 2-3 hours on business days."
+  SPECIAL WIDGETS: xfluentform
+
+================================================================================
+PAGE: ADU (slug: adu, WP ID: 1976)
+Roots count: 7 | Normalized count: 4
+================================================================================
+
+--- Root 1 (Root ID: qoslih, Name: section) ---
+  Normalized Type: ✅ hero | Classification: supported
+  Elements present: section, container, heading, text-basic, div, button, image
+  Images count: 1 | Icons/Lists count: 0
+  HEADINGS (1):
+    [1] <h1> "{post_title} & Garage Conversions" (33 chars)
+  BODY TEXTS (1):
+    [1] (89 chars): "Transforming your existing garage or space into an ADU opens up a world of possibilities."
+  BUTTONS (2):
+    "Start your renovation" -> {"postId":"310","type":"external","url":"#contact"}
+    "Explore Our Portfolio" -> {"type":"internal","postId":"339"}
+
+--- Root 2 (Root ID: ykbajn, Name: section) ---
+  Normalized Type: ⚠️  image-text (generic fallback) | Classification: supported
+  Elements present: section, container, block, heading, text, image
+  Images count: 2 | Icons/Lists count: 0
+  HEADINGS (1):
+    [1] <h2> "Accessory Dwelling Units (ADUs) - Expanding Your Living Space" (61 chars)
+  BODY TEXTS (1):
+    [1] (1544 chars): "Key Features: Customized ADU designs tailored to your unique needs and preferences High-quality construction materials a..."
+
+--- Root 3 (Root ID: cducqf, Name: template) ---
+  Normalized Status: ⏭️  SKIPPED (non-section root element)
+  Elements present: template
+  Images count: 0 | Icons/Lists count: 0
+  HEADINGS: [NONE - No explicit heading element]
+
+--- Root 4 (Root ID: spwvde, Name: section) ---
+  Normalized Type: ✅ craftsmanship | Classification: supported
+  Elements present: section, container, block, image, heading, text-basic, text, button
+  Images count: 2 | Icons/Lists count: 0
+  HEADINGS (1):
+    [1] <h2> "Craftsmanship That Transforms" (29 chars)
+  BODY TEXTS (2):
+    [1] (15 chars): "We make it easy"
+    [2] (664 chars): "At {acf_company_name}, we take pride in our unwavering commitment to professionalism. Our team of experts is dedicated t..."
+  BUTTONS (1):
+    "Free on-site estimate" -> {"type":"external","url":"#contact"}
+
+--- Root 5 (Root ID: kohjux, Name: template) ---
+  Normalized Status: ⏭️  SKIPPED (non-section root element)
+  Elements present: template
+  Images count: 0 | Icons/Lists count: 0
+  HEADINGS: [NONE - No explicit heading element]
+
+--- Root 6 (Root ID: ijyxal, Name: template) ---
+  Normalized Status: ⏭️  SKIPPED (non-section root element)
+  Elements present: template
+  Images count: 0 | Icons/Lists count: 0
+  HEADINGS: [NONE - No explicit heading element]
+
+--- Root 7 (Root ID: xdcwtr, Name: section) ---
+  Normalized Type: ✅ contact-form | Classification: partial
+  Elements present: section, container, div, text-basic, heading, text, xfluentform, video
+  Images count: 0 | Icons/Lists count: 0
+  HEADINGS (1):
+    [1] <h2> "Ready to discuss your needs?" (28 chars)
+  BODY TEXTS (3):
+    [1] (39 chars): "Start Crafting Your Dream Project Today"
+    [2] (43 chars): "Give us a call at {acf_company_phone_clean}"
+    [3] (117 chars): "To get in touch, simply fill out the form on this page and we will get back to you within 2-3 hours on business days."
+  SPECIAL WIDGETS: xfluentform
+
+================================================================================
+PAGE: Additions (slug: additions, WP ID: 1978)
+Roots count: 8 | Normalized count: 4
+================================================================================
+
+--- Root 1 (Root ID: bssyrg, Name: section) ---
+  Normalized Type: ✅ hero | Classification: supported
+  Elements present: section, container, heading, text-basic, div, button, image
+  Images count: 1 | Icons/Lists count: 0
+  HEADINGS (1):
+    [1] <h1> "Room {post_title}" (17 chars)
+  BODY TEXTS (1):
+    [1] (216 chars): "Our team of experts will work closely with you to understand your needs and preferences, assess the available space, and..."
+  BUTTONS (2):
+    "Start your renovation" -> {"postId":"310","type":"external","url":"#contact"}
+    "Explore Our Portfolio" -> {"type":"internal","postId":"339"}
+
+--- Root 2 (Root ID: akguig, Name: section) ---
+  Normalized Type: ⚠️  image-text (generic fallback) | Classification: supported
+  Elements present: section, container, block, heading, text, image
+  Images count: 2 | Icons/Lists count: 0
+  HEADINGS (1):
+    [1] <h2> "Home Additions - Enhancing Your Living Space" (44 chars)
+  BODY TEXTS (1):
+    [1] (2201 chars): "Key Features: Customized home addition designs that seamlessly integrate with your existing structure Attention to archi..."
+
+--- Root 3 (Root ID: rsemus, Name: section) ---
+  Normalized Type: ✅ testimonials | Classification: supported
+  Elements present: section, container, text-basic, heading, div, button, video
+  Images count: 0 | Icons/Lists count: 0
+  HEADINGS (1):
+    [1] <h2> "Real Homes, Real Stories" (24 chars)
+  BODY TEXTS (8):
+    [1] (44 chars): "#1 Home Remodeling Company in Silicon Valley"
+    [2] (111 chars): "Explore the success stories of homeowners who entrusted {acf_company_name} to create their dream living spaces."
+    [3] (120 chars): "{acf_company_name} team of experts brought new life to our home. Their commitment to quality and design is unparalleled."
+    [4] (15 chars): "Alex and Sophia"
+    [5] (155 chars): "Choosing {acf_company_name} was the best decision we made for our home remodeling. Their expertise and professionalism m..."
+    [6] (16 chars): "Robert and Laura"
+    [7] (139 chars): "{acf_company_name} captured our vision perfectly and delivered exceptional results. Our home now reflects our unique sty..."
+    [8] (17 chars): "Jonathan and Emma"
+  BUTTONS (1):
+    "Contact us now" -> {"type":"external","url":"#contact"}
+
+--- Root 4 (Root ID: pfgjxh, Name: template) ---
+  Normalized Status: ⏭️  SKIPPED (non-section root element)
+  Elements present: template
+  Images count: 0 | Icons/Lists count: 0
+  HEADINGS: [NONE - No explicit heading element]
+
+--- Root 5 (Root ID: qtezog, Name: template) ---
+  Normalized Status: ⏭️  SKIPPED (non-section root element)
+  Elements present: template
+  Images count: 0 | Icons/Lists count: 0
+  HEADINGS: [NONE - No explicit heading element]
+
+--- Root 6 (Root ID: cqadza, Name: template) ---
+  Normalized Status: ⏭️  SKIPPED (non-section root element)
+  Elements present: template
+  Images count: 0 | Icons/Lists count: 0
+  HEADINGS: [NONE - No explicit heading element]
+
+--- Root 7 (Root ID: nntqkr, Name: template) ---
+  Normalized Status: ⏭️  SKIPPED (non-section root element)
+  Elements present: template
+  Images count: 0 | Icons/Lists count: 0
+  HEADINGS: [NONE - No explicit heading element]
+
+--- Root 8 (Root ID: xfkatk, Name: section) ---
+  Normalized Type: ✅ contact-form | Classification: partial
+  Elements present: section, container, div, text-basic, heading, text, xfluentform, video
+  Images count: 0 | Icons/Lists count: 0
+  HEADINGS (1):
+    [1] <h2> "Ready to discuss your needs?" (28 chars)
+  BODY TEXTS (3):
+    [1] (39 chars): "Start Crafting Your Dream Project Today"
+    [2] (43 chars): "Give us a call at {acf_company_phone_clean}"
+    [3] (117 chars): "To get in touch, simply fill out the form on this page and we will get back to you within 2-3 hours on business days."
+  SPECIAL WIDGETS: xfluentform
+
+================================================================================
+PAGE: Complete Renovation (slug: complete-renovation, WP ID: 1980)
+Roots count: 7 | Normalized count: 5
+================================================================================
+
+--- Root 1 (Root ID: dolrxd, Name: section) ---
+  Normalized Type: ✅ hero | Classification: supported
+  Elements present: section, container, heading, text-basic, div, button, image
+  Images count: 1 | Icons/Lists count: 0
+  HEADINGS (1):
+    [1] <h1> "{post_title}" (12 chars)
+  BODY TEXTS (1):
+    [1] (328 chars): "Our experienced team of architects, designers, and builders is dedicated to creating custom-built homes that reflect you..."
+  BUTTONS (2):
+    "Start your renovation" -> {"postId":"310","type":"external","url":"#contact"}
+    "Explore Our Portfolio" -> {"type":"internal","postId":"339"}
+
+--- Root 2 (Root ID: kublxd, Name: section) ---
+  Normalized Type: ⚠️  image-text (generic fallback) | Classification: supported
+  Elements present: section, container, block, heading, text, image
+  Images count: 3 | Icons/Lists count: 0
+  HEADINGS (1):
+    [1] <h2> "Home Additions - Enhancing Your Living Space" (44 chars)
+  BODY TEXTS (1):
+    [1] (2201 chars): "Key Features: Customized home addition designs that seamlessly integrate with your existing structure Attention to archi..."
+
+--- Root 3 (Root ID: apydlu, Name: template) ---
+  Normalized Status: ⏭️  SKIPPED (non-section root element)
+  Elements present: template
+  Images count: 0 | Icons/Lists count: 0
+  HEADINGS: [NONE - No explicit heading element]
+
+--- Root 4 (Root ID: ixxabz, Name: section) ---
+  Normalized Type: ✅ process | Classification: supported
+  Elements present: section, container, heading, text, block, icon, text-basic, image
+  Images count: 1 | Icons/Lists count: 0
+  HEADINGS (5):
+    [1] <h2> "A Client-Centered Approach to Home Remodeling" (45 chars)
+    [2] <h2> "Free Consultation" (17 chars)
+    [3] <h2> "Customized Design" (17 chars)
+    [4] <h2> "Skilled Project Management" (26 chars)
+    [5] <h2> "Quality Craftsmanship" (21 chars)
+  BODY TEXTS (5):
+    [1] (83 chars): "No matter the type of project we take on, the entire process, from start to finish."
+    [2] (177 chars): "We begin by understanding your vision, lifestyle, and goals for your home. Our experienced team listens attentively to y..."
+    [3] (125 chars): "Our talented designers translate your vision into a personalized design plan that captures your unique style and prefere..."
+    [4] (213 chars): "Our dedicated project managers oversee every aspect of the renovation process, ensuring seamless coordination of contrac..."
+    [5] (83 chars): "Our skilled craftsmen bring precision and artistry to every detail of your project."
+
+--- Root 5 (Root ID: jxiuun, Name: section) ---
+  Normalized Type: ✅ craftsmanship | Classification: supported
+  Elements present: section, container, block, image, heading, text-basic, text, button
+  Images count: 2 | Icons/Lists count: 0
+  HEADINGS (1):
+    [1] <h2> "Craftsmanship That Transforms" (29 chars)
+  BODY TEXTS (2):
+    [1] (15 chars): "We make it easy"
+    [2] (664 chars): "At {acf_company_name}, we take pride in our unwavering commitment to professionalism. Our team of experts is dedicated t..."
+  BUTTONS (1):
+    "Free on-site estimate" -> {"type":"external","url":"#contact"}
+
+--- Root 6 (Root ID: stjlfb, Name: template) ---
+  Normalized Status: ⏭️  SKIPPED (non-section root element)
+  Elements present: template
+  Images count: 0 | Icons/Lists count: 0
+  HEADINGS: [NONE - No explicit heading element]
+
+--- Root 7 (Root ID: snygqd, Name: section) ---
+  Normalized Type: ✅ contact-form | Classification: partial
+  Elements present: section, container, div, text-basic, heading, text, xfluentform, video
+  Images count: 0 | Icons/Lists count: 0
+  HEADINGS (1):
+    [1] <h2> "Ready to discuss your needs?" (28 chars)
+  BODY TEXTS (3):
+    [1] (39 chars): "Start Crafting Your Dream Project Today"
+    [2] (43 chars): "Give us a call at {acf_company_phone_clean}"
+    [3] (117 chars): "To get in touch, simply fill out the form on this page and we will get back to you within 2-3 hours on business days."
+  SPECIAL WIDGETS: xfluentform
+
+================================================================================
+PAGE: European Kitchen (slug: european-kitchen, WP ID: 329)
+Roots count: 6 | Normalized count: 3
+================================================================================
+
+--- Root 1 (Root ID: 052cf0, Name: section) ---
+  Normalized Type: ✅ hero | Classification: supported
+  Elements present: section, container, text-basic, heading, button, div, video, block, image
+  Images count: 1 | Icons/Lists count: 0
+  HEADINGS (1):
+    [1] <h1> "European Kitchens: Make your kitchen scream 'Mamma mia!'" (56 chars)
+  BODY TEXTS (2):
+    [1] (12 chars): "{post_title}"
+    [2] (81 chars): "Experience the allure of European kitchens that blend elegance and functionality."
+  BUTTONS (1):
+    "Schedule a Consultation" -> {"type":"meta","useDynamicData":"#contact"}
+
+--- Root 2 (Root ID: dvqnrg, Name: template) ---
+  Normalized Status: ⏭️  SKIPPED (non-section root element)
+  Elements present: template
+  Images count: 0 | Icons/Lists count: 0
+  HEADINGS: [NONE - No explicit heading element]
+
+--- Root 3 (Root ID: fc57b3, Name: section) ---
+  Normalized Type: ✅ prime-difference | Classification: partial
+  Elements present: section, container, heading, text-basic, divider, block, svg, image
+  Images count: 2 | Icons/Lists count: 0
+  HEADINGS (5):
+    [1] <h2> "The Prime Difference" (20 chars)
+    [2] <h2> "Our passion for:" (16 chars)
+    [3] <h4> "Craftsmanship in every project" (30 chars)
+    [4] <h4> "Attention to detail, aiming for perfection" (42 chars)
+    [5] <h4> "Dedication to customer satisfaction" (35 chars)
+  BODY TEXTS (2):
+    [1] (157 chars): "At Prime Kitchens, we understand that your kitchen is the heart of your home, and when it comes to European kitchen remo..."
+    [2] (26 chars): "Why Choose Prime Kitchens?"
+
+--- Root 4 (Root ID: eaxnqj, Name: section) ---
+  Normalized Type: ✅ sub-services | Classification: supported
+  Elements present: section, container, heading, text-basic, block, text, image
+  Images count: 3 | Icons/Lists count: 0
+  HEADINGS (4):
+    [1] <h2> "What are features of a {post_title}?" (36 chars)
+    [2] <h3> "Transform Your Kitchen into a Work of Art" (41 chars)
+    [3] <h3> "Key Elements of European Kitchens" (33 chars)
+    [4] <h3> "Premium Materials for European Kitchens" (39 chars)
+  BODY TEXTS (8):
+    [1] (92 chars): "Here are some features that set a {post_title} apart from the rest of the "boring" kitchens."
+    [2] (30 chars): "Learn more about {post_title}s"
+    [3] (33 chars): "Inspiration starts all around you"
+    [4] (246 chars): "Modern and sleek designs with clean lines Rustic and charming styles with warm earthy tones Contemporary designs featuri..."
+    [5] (58 chars): "Want to know what really makes European Kitchens so great?"
+    [6] (213 chars): "Here's what gives your kitchen a European charm: Streamlined and minimalist design Abundance of natural light Open and a..."
+    [7] (18 chars): "From the ground up"
+    [8] (228 chars): "Unleash the Beauty and Durability: High-quality hardwoods, such as oak, walnut, and beech Stylish glass and metal accent..."
+
+--- Root 5 (Root ID: voatas, Name: template) ---
+  Normalized Status: ⏭️  SKIPPED (non-section root element)
+  Elements present: template
+  Images count: 0 | Icons/Lists count: 0
+  HEADINGS: [NONE - No explicit heading element]
+
+--- Root 6 (Root ID: oqraxx, Name: template) ---
+  Normalized Status: ⏭️  SKIPPED (non-section root element)
+  Elements present: template
+  Images count: 0 | Icons/Lists count: 0
+  HEADINGS: [NONE - No explicit heading element]
+
+================================================================================
+PAGE: Custom Kitchen (slug: custom-kitchen, WP ID: 331)
+Roots count: 8 | Normalized count: 5
+================================================================================
+
+--- Root 1 (Root ID: mseonp, Name: section) ---
+  Normalized Type: ✅ hero | Classification: supported
+  Elements present: section, container, text-basic, heading, button, div, video, block, image
+  Images count: 1 | Icons/Lists count: 0
+  HEADINGS (1):
+    [1] <h1> "Custom Kitchens: Designed to Inspire, Built to Amaze" (52 chars)
+  BODY TEXTS (2):
+    [1] (12 chars): "{post_title}"
+    [2] (85 chars): "Unleash your creativity with a tailor-made kitchen that reflects your personal style."
+  BUTTONS (1):
+    "Schedule a Consultation" -> {"type":"meta","useDynamicData":"#contact"}
+
+--- Root 2 (Root ID: ezrdwe, Name: template) ---
+  Normalized Status: ⏭️  SKIPPED (non-section root element)
+  Elements present: template
+  Images count: 0 | Icons/Lists count: 0
+  HEADINGS: [NONE - No explicit heading element]
+
+--- Root 3 (Root ID: ruuubp, Name: section) ---
+  Normalized Type: ⚠️  image-text (generic fallback) | Classification: supported
+  Elements present: section, container, heading, text-basic, block, list, image
+  Images count: 1 | Icons/Lists count: 1
+  HEADINGS (1):
+    [1] <h2> "The Power of Customization" (26 chars)
+  BODY TEXTS (2):
+    [1] (89 chars): "Discover the benefits of choosing a custom kitchen tailored to your exact specifications."
+    [2] (26 chars): "Your Vision, Our Expertise"
+
+--- Root 4 (Root ID: guwogy, Name: section) ---
+  Normalized Type: ✅ sub-services | Classification: supported
+  Elements present: section, container, heading, text-basic, block, div, icon, image
+  Images count: 4 | Icons/Lists count: 0
+  HEADINGS (5):
+    [1] <h2> "Discover Your Signature Style" (29 chars)
+    [2] <h2> "Modern Sophistication" (21 chars)
+    [3] <h2> "Timeless Charm" (14 chars)
+    [4] <h2> "Rustic Retreats" (15 chars)
+    [5] <h2> "Minimalist Elegance" (19 chars)
+  BODY TEXTS (5):
+    [1] (21 chars): "Endless Possibilities"
+    [2] (111 chars): "Embrace sleek lines, contemporary finishes, and state-of-the-art appliances for a kitchen that exudes elegance."
+    [3] (92 chars): "Find classic appeal with traditional styles, intricate details, and warm, inviting finishes."
+    [4] (97 chars): "Create a cozy, farmhouse-inspired kitchen with natural materials, rustic accents, and warm tones."
+    [5] (105 chars): "Experience the beauty of simplicity with minimalist designs that emphasize clean lines and functionality."
+
+--- Root 5 (Root ID: qvbxtl, Name: section) ---
+  Normalized Type: ✅ sub-services | Classification: supported
+  Elements present: section, container, heading, text-basic, block, image, div
+  Images count: 4 | Icons/Lists count: 0
+  HEADINGS (5):
+    [1] <h2> "Materials Crafted to Perfection" (31 chars)
+    [2] <h2> "Exquisite Countertops" (21 chars)
+    [3] <h2> "Custom Cabinetry" (16 chars)
+    [4] <h2> "Durable Flooring" (16 chars)
+    [5] <h2> "Stylish Accents" (15 chars)
+  BODY TEXTS (6):
+    [1] (87 chars): "Immerse yourself in the finest selection of premium materials for your custom kitchen ."
+    [2] (22 chars): "Uncompromising Quality"
+    [3] (108 chars): "Choose from a range of luxurious options, including granite, quartz, and marble, for a stunning centerpiece."
+    [4] (115 chars): "Experience the beauty and functionality of handcrafted cabinets, meticulously designed to meet your specific needs."
+    [5] (128 chars): "Discover high-quality flooring materials that provide both style and durability, setting the foundation for your custom ..."
+    [6] (107 chars): "Select the perfect hardware and fixtures to add the finishing touches and elevate your kitchen's aesthetic."
+
+--- Root 6 (Root ID: jobucz, Name: section) ---
+  Normalized Type: ✅ prime-difference | Classification: partial
+  Elements present: section, container, heading, text-basic, divider, block, svg, image
+  Images count: 2 | Icons/Lists count: 0
+  HEADINGS (5):
+    [1] <h2> "The Prime Difference" (20 chars)
+    [2] <h2> "Our passion for:" (16 chars)
+    [3] <h4> "Craftsmanship in every project" (30 chars)
+    [4] <h4> "Attention to detail, aiming for perfection" (42 chars)
+    [5] <h4> "Dedication to customer satisfaction" (35 chars)
+  BODY TEXTS (2):
+    [1] (157 chars): "At Prime Kitchens, we understand that your kitchen is the heart of your home, and when it comes to European kitchen remo..."
+    [2] (26 chars): "Why Choose Prime Kitchens?"
+
+--- Root 7 (Root ID: bgjpyg, Name: template) ---
+  Normalized Status: ⏭️  SKIPPED (non-section root element)
+  Elements present: template
+  Images count: 0 | Icons/Lists count: 0
+  HEADINGS: [NONE - No explicit heading element]
+
+--- Root 8 (Root ID: ondpga, Name: template) ---
+  Normalized Status: ⏭️  SKIPPED (non-section root element)
+  Elements present: template
+  Images count: 0 | Icons/Lists count: 0
+  HEADINGS: [NONE - No explicit heading element]
+
+================================================================================
+PAGE: Shaker Kitchen (slug: shaker-kitchen, WP ID: 333)
+Roots count: 6 | Normalized count: 2
+================================================================================
+
+--- Root 1 (Root ID: pnkusn, Name: section) ---
+  Normalized Type: ✅ hero | Classification: supported
+  Elements present: section, container, text-basic, heading, button, div, video, block, image
+  Images count: 1 | Icons/Lists count: 0
+  HEADINGS (1):
+    [1] <h1> "Simple, Functional, and Crafted with Integrity" (46 chars)
+  BODY TEXTS (2):
+    [1] (26 chars): "The {post_title} Aesthetic"
+    [2] (332 chars): "Dating back to the mid-eighteenth century , Shaker-style kitchens embody simplicity , functionality , and unparalleled c..."
+  BUTTONS (1):
+    "Schedule a Consultation" -> {"type":"meta","useDynamicData":"#contact"}
+
+--- Root 2 (Root ID: mojcyl, Name: template) ---
+  Normalized Status: ⏭️  SKIPPED (non-section root element)
+  Elements present: template
+  Images count: 0 | Icons/Lists count: 0
+  HEADINGS: [NONE - No explicit heading element]
+
+--- Root 3 (Root ID: vepyru, Name: section) ---
+  Normalized Type: ✅ sub-services | Classification: supported
+  Elements present: section, container, heading, text-basic, block, text, image
+  Images count: 2 | Icons/Lists count: 0
+  HEADINGS (3):
+    [1] <h2> "What makes a {post_title} stand out?" (36 chars)
+    [2] <h3> "Versatile Door Options" (22 chars)
+    [3] <h3> "Endless Finishes & Colors" (25 chars)
+  BODY TEXTS (6):
+    [1] (92 chars): "Here are some features that set a {post_title} apart from the rest of the "boring" kitchens."
+    [2] (30 chars): "Learn more about {post_title}s"
+    [3] (33 chars): "Inspiration starts all around you"
+    [4] (335 chars): "Our Shaker range offers both lay-on and in-frame doors. The traditional in-frame style presents doors and drawer fronts ..."
+    [5] (53 chars): "Want to know what really makes {post_title} so great?"
+    [6] (365 chars): "Express your individual style with a wide range of finishes and colors for your Shaker kitchen. Create a stunning focal ..."
+
+--- Root 4 (Root ID: wmmthy, Name: template) ---
+  Normalized Status: ⏭️  SKIPPED (non-section root element)
+  Elements present: template
+  Images count: 0 | Icons/Lists count: 0
+  HEADINGS: [NONE - No explicit heading element]
+
+--- Root 5 (Root ID: vubqpv, Name: template) ---
+  Normalized Status: ⏭️  SKIPPED (non-section root element)
+  Elements present: template
+  Images count: 0 | Icons/Lists count: 0
+  HEADINGS: [NONE - No explicit heading element]
+
+--- Root 6 (Root ID: dmmonc, Name: template) ---
+  Normalized Status: ⏭️  SKIPPED (non-section root element)
+  Elements present: template
+  Images count: 0 | Icons/Lists count: 0
+  HEADINGS: [NONE - No explicit heading element]

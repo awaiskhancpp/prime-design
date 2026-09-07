@@ -4,7 +4,6 @@ import type { ReactNode } from 'react'
 import { HomeContact } from '@/components/blocks/HomeContact'
 import { Contact as GalleryContact } from '@/components/gallery/Contact'
 import { LandscapingCta } from '@/components/blocks/LandscapingCta'
-import { LandscapingServiceAreas } from '@/components/blocks/LandscapingServiceAreas'
 import { ProjectsReviews } from '@/components/projects/ProjectsReviews'
 import { SiteFooter } from '@/components/layout/SiteFooter'
 import { SiteHeader } from '@/components/layout/SiteHeader'
@@ -33,8 +32,13 @@ import {
   getRealHomesContent,
   ServiceRealHomesStoriesSection,
 } from './sections/ServiceRealHomesStoriesSection'
+import {
+  getWordPressDifferenceContent,
+  ServicePrimeDifferenceSection,
+} from './sections/ServicePrimeDifferenceSection'
 import { ServiceSiliconValleyLovesSection } from './sections/ServiceSiliconValleyLovesSection'
-import { LandingBlockRenderer } from '@/components/landing/LandingBlockRenderer'
+import { mediaUrl, sharedSectionRegistry, text } from '@/components/landing/LandingBlockRenderer'
+import type { CarouselVideo } from '@/components/landing/VideoCarousel'
 
 function splitLabeledLine(line: string) {
   const separator = line.indexOf(':')
@@ -175,7 +179,29 @@ const servicePageSections: Record<string, ServicePageSections> = {
     faq: true,
     estimate: true,
   },
+  'european-kitchen': {
+    ...defaultServicePageSections,
+    video: true,
+    videoFirst: true,
+    whyChooseUs: true,
+    estimate: true,
+    reviews: true,
+    contact: true,
+    visualProcess: true,
+    contactVariant: 'gallery',
+  },
   'european-kitchen-silicon-valley': {
+    ...defaultServicePageSections,
+    video: true,
+    videoFirst: true,
+    whyChooseUs: true,
+    estimate: true,
+    reviews: true,
+    contact: true,
+    visualProcess: true,
+    contactVariant: 'gallery',
+  },
+  'shaker-kitchen': {
     ...defaultServicePageSections,
     video: true,
     videoFirst: true,
@@ -197,6 +223,15 @@ const servicePageSections: Record<string, ServicePageSections> = {
     visualProcess: true,
     contactVariant: 'gallery',
   },
+  'custom-kitchen': {
+    ...defaultServicePageSections,
+    video: true,
+    videoFirst: true,
+    reviews: true,
+    contact: true,
+    visualProcess: true,
+    contactVariant: 'gallery',
+  },
   'custom-kitchen-silicon-valley': {
     ...defaultServicePageSections,
     video: true,
@@ -209,7 +244,13 @@ const servicePageSections: Record<string, ServicePageSections> = {
 }
 
 function getServicePageSections(slug: string) {
-  return servicePageSections[slug] || defaultServicePageSections
+  const normalized = slug.replace(/-silicon-valley$/, '')
+  return (
+    servicePageSections[slug] ||
+    servicePageSections[normalized] ||
+    servicePageSections[`${normalized}-silicon-valley`] ||
+    defaultServicePageSections
+  )
 }
 
 function ServiceOverview({
@@ -535,24 +576,318 @@ export function ServiceContentBlocks({
   )
 }
 
-export function ServiceTemplate({ service }: { service: ServiceDetail }) {
-  if (service.sections?.length) {
-    return (
-      <div className="min-h-screen bg-white">
-        <SiteHeader />
-        <main>
-          <ServiceHero service={service} />
-          <LandingBlockRenderer
-            sections={service.sections.filter((section) => section.blockType !== 'hero')}
-          />
-        </main>
-        <LandscapingServiceAreas />
-        <LandscapingCta />
-        <SiteFooter />
-      </div>
-    )
-  }
+// Maps a migrated service.sections[] block to the bespoke, hand-designed
+// Service section component for that content type, wherever one exists —
+// so migrated WordPress data renders through this site's actual designed
+// service-page components instead of the generic landing-page versions.
+// Block types with no dedicated Service design (before-after,
+// find-us, video-carousel, gallery-carousel, project-grid) fall back to the
+// shared landing registry, which already has a real design for each.
+export function ServiceSectionRenderer({
+  sections,
+  service,
+}: {
+  sections: NonNullable<ServiceDetail['sections']>
+  service: ServiceDetail
+}) {
+  const rendered: ReactNode[] = []
+  const skip = new Set<number>()
 
+  sections.forEach((rawSection, index) => {
+    if (skip.has(index)) return
+    const block = rawSection as Record<string, unknown>
+    const blockType = block.blockType
+    const headingText = text(block.heading) || ''
+    const headingLower = headingText.toLowerCase()
+
+    if (blockType === 'prime-difference') {
+      const features = Array.isArray(block.features)
+        ? (block.features as Array<Record<string, unknown>>).map((feature) => ({
+            title: text(feature.title) || '',
+            description: text(feature.description),
+          }))
+        : []
+      const content = getWordPressDifferenceContent({
+        eyebrow: text(block.eyebrow),
+        heading: headingText || 'The Prime Difference',
+        description: text(block.description),
+        features,
+      })
+      const videos: CarouselVideo[] = Array.isArray(block.videos)
+        ? (block.videos as Array<Record<string, unknown>>)
+            .map((video) => ({
+              url: text(video.externalUrl) || mediaUrl(video.video) || '',
+              poster: mediaUrl(video.poster),
+              caption: text(video.caption),
+            }))
+            .filter((video) => video.url)
+        : []
+      rendered.push(<ServicePrimeDifferenceSection key={index} {...content} videos={videos} />)
+      return
+    }
+
+    if (blockType === 'experience-difference') {
+      const features = Array.isArray(block.features)
+        ? (block.features as Array<Record<string, unknown>>)
+            .map((feature) => ({
+              title: text(feature.title) || '',
+              description: text(feature.description),
+            }))
+            .filter((item) => item.title)
+        : []
+      rendered.push(
+        <ServiceWhyChooseUsSection
+          key={index}
+          heading={headingText || 'Why Choose Prime Design & Build?'}
+          items={features.length ? features : undefined}
+        />,
+      )
+      return
+    }
+
+    if (
+      blockType === 'craftsmanship' ||
+      (blockType === 'image-text' && headingLower.includes('craftsmanship'))
+    ) {
+      const defaultContent = getCraftsmanshipContent(service)
+      const image = mediaUrl(block.media) || mediaUrl(block.image)
+      const images: [string, string] = image
+        ? [image, defaultContent.images[1] || service.image]
+        : defaultContent.images
+      const bodyText = text(block.description) || text(block.body)
+      const bodyParagraphs = bodyText ? [bodyText] : defaultContent.body
+      rendered.push(
+        <ServiceCraftsmanshipTransformsSection
+          key={index}
+          eyebrow={text(block.eyebrow) || defaultContent.eyebrow}
+          heading="Craftsmanship That"
+          headingAccent="Transforms"
+          body={bodyParagraphs}
+          images={images}
+          cta={defaultContent.cta}
+        />,
+      )
+      return
+    }
+
+    if (
+      blockType === 'process' ||
+      (blockType === 'image-text' &&
+        (headingLower.includes('client-centered') || headingLower.includes('process')))
+    ) {
+      if (
+        service.slug === 'home-remodeling' ||
+        service.slug === 'complete-renovation' ||
+        headingLower.includes('client-centered')
+      ) {
+        rendered.push(<HomeRemodelingProcessSection key={index} />)
+        return
+      }
+
+      const rawSteps = Array.isArray(block.steps)
+        ? (block.steps as Array<Record<string, unknown>>)
+        : []
+      const steps = rawSteps.map((step, sIdx) => ({
+        title: text(step.title) || `Step ${sIdx + 1}`,
+        description: text(step.description) || '',
+        image: mediaUrl(step.image),
+      }))
+      const fallbackProcess = getServiceProcess(service)
+      rendered.push(
+        <ServiceProcessSection
+          key={index}
+          eyebrow={text(block.eyebrow) || 'Our process'}
+          title={headingText || fallbackProcess?.title || 'We make it easy for you'}
+          description={text(block.description) || fallbackProcess?.description}
+          steps={steps.length ? steps : (fallbackProcess?.steps || [])}
+        />,
+      )
+      return
+    }
+
+    if (
+      blockType === 'silicon-valley-loves' ||
+      (blockType === 'image-text' && headingLower.includes('silicon valley loves'))
+    ) {
+      rendered.push(<ServiceSiliconValleyLovesSection key={index} />)
+      return
+    }
+
+    if (
+      blockType === 'quote' ||
+      (blockType === 'image-text' &&
+        (headingLower.includes('our promise') || headingLower.includes('crafting your dream home')))
+    ) {
+      const fallbackQuote = getServiceQuote(service.slug)
+      rendered.push(
+        <ServiceQuoteSection
+          key={index}
+          heading={headingText || fallbackQuote?.heading || 'Crafting your dream home, our promise'}
+          quote={text(block.quote) || text(block.description) || fallbackQuote?.quote || ''}
+          attribution={
+            text(block.attribution) ||
+            fallbackQuote?.attribution ||
+            'Noah, Co-founder of Prime Design & Build'
+          }
+          image={mediaUrl(block.media) || mediaUrl(block.image) || service.image}
+        />,
+      )
+      return
+    }
+
+    if (blockType === 'sub-services') {
+      const cards = Array.isArray(block.items)
+        ? (block.items as Array<Record<string, unknown>>)
+            .map((item) => {
+              const link = item.link as Record<string, unknown> | undefined
+              return {
+                title: text(item.title) || '',
+                description: text(item.description) || '',
+                image: mediaUrl(item.media) || service.image,
+                href: text(link?.url) || '/contact',
+              }
+            })
+            .filter((card) => card.title)
+        : []
+      if (cards.length) {
+        rendered.push(
+          <ServiceOfferingsSection
+            key={index}
+            eyebrow={text(block.eyebrow)}
+            title={headingText || 'Our Services'}
+            description={text(block.description)}
+            cards={cards}
+          />,
+        )
+        return
+      }
+    }
+
+    if (blockType === 'repair-services') {
+      const categories = Array.isArray(block.categories)
+        ? (block.categories as Array<Record<string, unknown>>).map((category) => ({
+            title: text(category.title) || 'Service',
+            label: text(category.heading) || 'Includes:',
+            image: mediaUrl(category.media) || service.image,
+            body: text(category.description) || '',
+            items: Array.isArray(category.features)
+              ? (category.features as Array<Record<string, unknown>>)
+                  .map((feature) => text(feature.text))
+                  .filter((item): item is string => Boolean(item))
+              : [],
+          }))
+        : []
+      if (categories.length) {
+        rendered.push(<ServiceHomeRepairCategoriesSection key={index} categories={categories} />)
+        return
+      }
+    }
+
+    if (blockType === 'landing-testimonials' || blockType === 'testimonials') {
+      const testimonials = (Array.isArray(block.providers) ? block.providers : [])
+        .flatMap((provider) => {
+          const value = provider as Record<string, unknown>
+          return Array.isArray(value.reviews) ? value.reviews : []
+        })
+        .map((review) => {
+          const value = review as Record<string, unknown>
+          return {
+            quote: text(value.body) || '',
+            attribution: text(value.reviewer) || 'Prime Design & Build client',
+          }
+        })
+        .filter((item) => item.quote)
+        .slice(0, 3)
+      if (testimonials.length) {
+        rendered.push(
+          <ServiceRealHomesStoriesSection
+            key={index}
+            eyebrow={text(block.eyebrow) || '#1 Home Remodeling Company in Silicon Valley'}
+            heading={headingText || 'Real Homes,'}
+            headingAccent="Real Stories"
+            description={
+              text(block.description) ||
+              'Explore the success stories of homeowners who entrusted Prime Design & Build.'
+            }
+            testimonials={testimonials}
+            cta={{ label: 'Contact us now', href: '/contact' }}
+          />,
+        )
+        return
+      }
+      if (blockType === 'testimonials') {
+        rendered.push(<ProjectsReviews key={index} />)
+        return
+      }
+    }
+
+    if (blockType === 'cta') {
+      if (
+        headingLower.includes('estimate') ||
+        headingLower.includes('schedule') ||
+        headingLower.includes('get started')
+      ) {
+        rendered.push(<ServiceEstimateCta key={index} />)
+        return
+      }
+    }
+
+    if (blockType === 'contact-form' || blockType === 'booking' || blockType === 'form') {
+      if (!rendered.some((node) => (node as { key?: string })?.key === 'service-contact')) {
+        rendered.push(<HomeContact key="service-contact" />)
+      }
+      return
+    }
+
+    if (blockType === 'video') {
+      const url = text(block.externalUrl) || mediaUrl(block.video)
+      if (url) {
+        rendered.push(
+          <ServiceVideoSection
+            key={index}
+            eyebrow={text(block.eyebrow)}
+            title={headingText || 'See the difference'}
+            description={text(block.description)}
+            videoUrl={url}
+            poster={mediaUrl(block.poster)}
+          />,
+        )
+        return
+      }
+    }
+
+    if (blockType === 'gallery') {
+      if (!rendered.some((node) => (node as { key?: string })?.key === 'service-gallery')) {
+        rendered.push(<ServiceGallery key="service-gallery" service={service} />)
+      }
+      return
+    }
+
+    if (blockType === 'faq') {
+      if (!rendered.some((node) => (node as { key?: string })?.key === 'service-faq')) {
+        rendered.push(<ServiceFaq key="service-faq" slug={service.slug} />)
+      }
+      return
+    }
+
+    if (blockType === 'service-areas') {
+      if (!rendered.some((node) => (node as { key?: string })?.key === 'service-areas')) {
+        rendered.push(<ServiceAreasSection key="service-areas" service={service} />)
+      }
+      return
+    }
+
+    // No bespoke Service design for this block type — use the shared
+    // landing registry's version, which is a real, finished design too
+    // (hero is handled separately and excluded before this ever runs).
+    const Renderer = sharedSectionRegistry[blockType as string]
+    if (Renderer) rendered.push(<Renderer key={index} block={rawSection as never} />)
+  })
+
+  return <>{rendered}</>
+}
+
+export function ServiceTemplate({ service }: { service: ServiceDetail }) {
   const sections = getServicePageSections(service.slug)
   const hasCmsBlocks = Boolean(service.contentBlocks?.length)
   // Verified against the real WordPress export: these three pages only
@@ -592,22 +927,22 @@ export function ServiceTemplate({ service }: { service: ServiceDetail }) {
   ) : null
 
   const fallbackOrder = [
+    'video',
+    'estimate',
     'intro',
     'home-repair-categories',
     'why-choose-us',
     'real-homes',
-    'video',
     'offerings',
     'process',
     'gallery',
     'craftsmanship',
-    'service-areas',
     'quote',
     'faq',
-    'estimate',
     'silicon-valley-loves',
     'reviews',
     'contact',
+    'service-areas',
   ]
   const order = service.sectionOrder?.length ? service.sectionOrder : fallbackOrder
   const sectionNodes: Array<{ key: string; node: ReactNode }> = [
@@ -654,19 +989,51 @@ export function ServiceTemplate({ service }: { service: ServiceDetail }) {
     },
     {
       key: 'process',
-      node:
-        sections.homeProcess && sections.process ? (
-          <HomeRemodelingProcessSection />
-        ) : sections.process && process ? (
-          <ServiceProcessSection {...process} />
-        ) : null,
+      node: (() => {
+        if (!sections.process) return null
+        if (sections.homeProcess) return <HomeRemodelingProcessSection />
+        const cmsProcess = service.sections?.find((s) => s.blockType === 'process') as Record<string, unknown> | undefined
+        const rawSteps = Array.isArray(cmsProcess?.steps) ? (cmsProcess.steps as Array<Record<string, unknown>>) : []
+        if (rawSteps.length) {
+          const mappedSteps = rawSteps.map((s, sIdx) => ({
+            title: String(s.title || `Step ${sIdx + 1}`),
+            description: String(s.description || ''),
+            image: typeof s.image === 'object' && s.image ? (s.image as { url?: string })?.url : undefined,
+          }))
+          return (
+            <ServiceProcessSection
+              eyebrow={String(cmsProcess?.eyebrow || 'Our process')}
+              title={String(cmsProcess?.heading || process?.title || 'We make it easy for you')}
+              description={String(cmsProcess?.description || process?.description || '')}
+              steps={mappedSteps}
+            />
+          )
+        }
+        return process ? <ServiceProcessSection {...process} /> : null
+      })(),
     },
     { key: 'gallery', node: sections.gallery ? <ServiceGallery service={service} /> : null },
     {
       key: 'craftsmanship',
-      node: sections.craftsmanship ? (
-        <ServiceCraftsmanshipTransformsSection {...getCraftsmanshipContent(service)} />
-      ) : null,
+      node: (() => {
+        if (!sections.craftsmanship) return null
+        const cmsCraft = service.sections?.find((s) => s.blockType === 'craftsmanship') as Record<string, unknown> | undefined
+        const defaultContent = getCraftsmanshipContent(service)
+        if (cmsCraft) {
+          const bodyText = typeof cmsCraft.description === 'string' ? cmsCraft.description : ''
+          return (
+            <ServiceCraftsmanshipTransformsSection
+              eyebrow={String(cmsCraft.eyebrow || defaultContent.eyebrow)}
+              heading="Craftsmanship That"
+              headingAccent="Transforms"
+              body={bodyText ? [bodyText] : defaultContent.body}
+              images={defaultContent.images}
+              cta={defaultContent.cta}
+            />
+          )
+        }
+        return <ServiceCraftsmanshipTransformsSection {...defaultContent} />
+      })(),
     },
     { key: 'service-areas', node: <ServiceAreasSection service={service} /> },
     {
@@ -710,7 +1077,6 @@ export function ServiceTemplate({ service }: { service: ServiceDetail }) {
           <div key={key}>{node}</div>
         ))}
       </main>
-      <LandscapingServiceAreas />
       <LandscapingCta />
       <SiteFooter />
     </div>

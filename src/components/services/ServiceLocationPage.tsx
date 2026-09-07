@@ -14,7 +14,7 @@ import {
 } from './sections/ServicePrimeDifferenceSection'
 import { Contact } from '../gallery/Contact'
 import { ServiceLocationFooter } from './ServiceLocationFooter'
-import { LandingBlockRenderer } from '@/components/landing/LandingBlockRenderer'
+import { ServiceSectionRenderer } from './ServiceDetailPage'
 
 export function ServiceLocationPage({
   entry,
@@ -58,7 +58,7 @@ export function ServiceLocationPage({
       <div className="min-h-screen bg-white">
         <ServiceLocationHeroForm service={service} location={entry.location} />
         <main>
-          <LandingBlockRenderer sections={inheritedSections} />
+          <ServiceSectionRenderer sections={inheritedSections as never} service={service} />
           <ServiceLocationFooter />
         </main>
       </div>

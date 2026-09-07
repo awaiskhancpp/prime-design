@@ -408,6 +408,7 @@ function classify(
     .filter((value): value is string => Boolean(value))
     .join(' ')
     .replace(/<[^>]+>/g, ' ')
+    .replace(/\s+/g, ' ')
     .toLowerCase()
   const heading = descendants(section)
     .filter((node) => /heading|title/i.test(node.name))
@@ -415,6 +416,10 @@ function classify(
     .filter((value): value is string => Boolean(value))
     .join(' ')
     .replace(/<[^>]+>/g, ' ')
+    // Normalize whitespace: HTML tags get replaced with a space and can create
+    // double-spaces that break substring matching (e.g. 'the prime  difference').
+    .replace(/\s+/g, ' ')
+    .trim()
     .toLowerCase()
   const imageCount = names.filter((name) => name === 'image').length
   const headingCount = names.filter((name) => /heading|title/i.test(name)).length
@@ -432,6 +437,21 @@ function classify(
     section.settings._position === 'sticky'
   )
     return 'utility'
+  // Hero detection: if allowHero is still true (this is the first section), and
+  // the section contains an explicit h1 tag, it's the hero — regardless of what
+  // the heading text says. This prevents keyword checks (quote, craftsmanship, etc.)
+  // from misclassifying sections like "Crafting Your Dream Bathroom, Our Specialty"
+  // which are unambiguously hero sections because they use an h1 tag.
+  if (allowHero) {
+    const hasH1Tag = descendants(section).some(
+      (node) => /heading|title/i.test(node.name) && node.settings.tag === 'h1',
+    )
+    const hasBackground =
+      section.settings._background ||
+      section.settings._backgroundImage ||
+      section.settings.background
+    if (hasH1Tag && (hasBackground || names.includes('image'))) return 'hero'
+  }
   if (
     pageSlug === 'comprehensive-home-repair-installation-services-in-silicon-valley' &&
     (names.includes('code') || (names.includes('text') && text.includes('repair')))
@@ -441,9 +461,65 @@ function classify(
   if (
     heading.includes('our happy') ||
     heading.includes('happy customers') ||
+    // "Real Homes, Real Stories" is a testimonials carousel — it contains
+    // embedded videos but is semantically a testimonial section.
+    heading.includes('real homes') ||
     (names.includes('tabs-nested') && names.includes('shortcode') && text.includes('rating'))
   )
     return 'testimonials'
+  if (heading.includes('silicon valley') && heading.includes('luxury home contractor'))
+    return 'luxury-cta'
+  if (
+    (heading.includes('experience the') && heading.includes('prime difference')) ||
+    heading.includes('why choose prime design')
+  )
+    return 'experience-difference'
+  // "The Prime Difference" — checked before faq/sub-services because these
+  // sections have multiple images+headings that trigger those heuristics.
+  if (
+    heading.includes('the prime difference') ||
+    (heading.includes('prime difference') && heading.includes('passion for'))
+  )
+    return 'prime-difference'
+  if (heading.includes('areas we service')) return 'service-areas'
+  // Process sections — check multi-step patterns (Step 1 / Step 2 / client-centered)
+  // before craftsmanship so process sections that happen to have a "Skilled Craftsmanship"
+  // step are not misclassified as the dedicated Craftsmanship That Transforms section.
+  if (
+    (text.includes('step 1') && text.includes('step 2')) ||
+    heading.includes('client-centered') ||
+    heading.includes('our process') ||
+    heading.includes('remodeling process') ||
+    heading.includes('adu process') ||
+    heading.includes('addition process') ||
+    heading.includes('renovation process') ||
+    heading.includes('bathroom process') ||
+    heading.includes('kitchen process')
+  )
+    return 'process'
+  // Craftsmanship — checked before faq and contact-form because some
+  // craftsmanship sections (e.g. spwvde) contain code or xfluentform elements.
+  if (
+    heading.includes('craftsmanship that transforms') ||
+    heading.includes('craftsmanship in every project') ||
+    heading.includes('craftsmanship') ||
+    text.includes('craftsmanship that transforms')
+  )
+    return 'craftsmanship'
+  // Sub-services structural heuristic — checked before the process keyword list
+  // because process/overview sections that happen to mention "kitchen" would
+  // otherwise be misclassified. Sub-services has a specific structure:
+  // 2+ images, 2+ headings, and service-category keywords in text.
+  if (
+    imageCount >= 2 &&
+    headingCount >= 2 &&
+    (text.includes('choose') ||
+      text.includes('kitchen') ||
+      text.includes('bathroom') ||
+      text.includes('style') ||
+      text.includes('custom'))
+  )
+    return 'sub-services'
   if (
     names.includes('xproaccordion') ||
     (names.includes('tabs-nested') && text.includes('question')) ||
@@ -457,15 +533,6 @@ function classify(
     })
   )
     return 'faq'
-  if (heading.includes('silicon valley') && heading.includes('luxury home contractor'))
-    return 'luxury-cta'
-  if (
-    (heading.includes('experience the') && heading.includes('prime difference')) ||
-    heading.includes('why choose prime design')
-  )
-    return 'experience-difference'
-  if (heading.includes('the prime difference')) return 'prime-difference'
-  if (heading.includes('areas we service')) return 'service-areas'
   if (names.includes('shortcode') && !text.trim()) return 'booking'
   if (
     names.includes('xfluentform') ||
@@ -473,6 +540,34 @@ function classify(
     heading.includes('get in touch')
   )
     return 'contact-form'
+  // Silicon Valley Loves — checked before gallery heuristics.
+  if (
+    heading.includes('silicon valley loves') ||
+    (heading.includes('silicon valley') && heading.includes('loves'))
+  )
+    return 'silicon-valley-loves'
+  // Quote / promise sections.
+  if (
+    heading.includes('our promise') ||
+    heading.includes('crafting your dream home') ||
+    (heading.includes('crafting') && heading.includes('dream'))
+  )
+    return 'quote'
+  // Process sections — checked after sub-services to prevent image-grid sections
+  // from being misclassified. The process keyword patterns target specific known
+  // headings used in Prime Design's step-by-step process explanations.
+  if (
+    heading.includes('client-centered') ||
+    heading.includes('our process') ||
+    heading.includes('remodeling process') ||
+    heading.includes('adu process') ||
+    heading.includes('addition process') ||
+    heading.includes('renovation process') ||
+    heading.includes('bathroom process') ||
+    heading.includes('kitchen process') ||
+    heading.includes('we make it easy')
+  )
+    return 'process'
   if (
     heading.includes('witness the beauty') ||
     heading.includes('enhancing your living space') ||
@@ -490,16 +585,6 @@ function classify(
     (names.includes('hero') || (background && names.some((name) => /heading|text/i.test(name))))
   )
     return 'hero'
-  if (
-    imageCount >= 2 &&
-    headingCount >= 2 &&
-    (text.includes('choose') ||
-      text.includes('kitchen') ||
-      text.includes('bathroom') ||
-      text.includes('style') ||
-      text.includes('custom'))
-  )
-    return 'sub-services'
   if (names.some((name) => name === 'button') && names.some((name) => /heading|text/i.test(name)))
     return 'cta'
   if (names.some((name) => name === 'button')) return 'cta'

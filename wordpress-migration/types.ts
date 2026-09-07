@@ -165,6 +165,10 @@ export type NormalizedSection = {
     | 'find-us'
     | 'luxury-cta'
     | 'repair-services'
+    | 'craftsmanship'
+    | 'silicon-valley-loves'
+    | 'quote'
+    | 'process'
     | 'utility'
     | 'unsupported'
   order: number
