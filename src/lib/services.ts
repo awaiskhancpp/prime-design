@@ -1,6 +1,7 @@
 import { getPayload } from 'payload'
 import configPromise from '@payload-config'
 import { shouldUseLocalFallback } from './runtime'
+import { richTextHasContent, type RichTextValue } from './richText'
 
 export type Service = {
   slug: string
@@ -22,6 +23,16 @@ export type ServiceDetail = Service & {
   heroVideoUrl?: string
   contentBlocks?: ServiceContentBlock[]
   sections?: Array<{ blockType: string; [key: string]: unknown }>
+  /**
+   * CMS-authored rich text for the overview lists (Key Features / Benefits /
+   * Process). When present, these render instead of the static string
+   * lists above.
+   */
+  overviewRich?: {
+    keyFeatures?: RichTextValue
+    benefits?: RichTextValue
+    process?: RichTextValue
+  }
   seo?: {
     metaTitle?: string | null
     metaDescription?: string | null
@@ -503,6 +514,12 @@ type PayloadServiceRecord = {
   slug: string
   description?: string | null
   shortDescription?: string | null
+  /** Rich text overview fields (Key Features / Benefits / Process steps). */
+  overview?: {
+    keyFeatures?: unknown
+    benefits?: unknown
+    process?: unknown
+  } | null
   hero?: {
     eyebrow?: string | null
     heading?: string | null
@@ -702,6 +719,21 @@ export async function resolveServiceDetail(slug: string): Promise<ServiceDetail 
     image: payloadImageUrl(record.hero?.image) || base.image,
     heroVideoUrl: payloadImageUrl(record.hero?.video) || base.heroVideoUrl,
     contentBlocks: normalizePayloadBlocks(record.contentBlocks),
+    // Rich text overview lists: only include fields with real content so
+    // empty editor states keep the static fallback lists.
+    overviewRich: record.overview
+      ? {
+          keyFeatures: richTextHasContent(record.overview.keyFeatures as RichTextValue)
+            ? (record.overview.keyFeatures as RichTextValue)
+            : undefined,
+          benefits: richTextHasContent(record.overview.benefits as RichTextValue)
+            ? (record.overview.benefits as RichTextValue)
+            : undefined,
+          process: richTextHasContent(record.overview.process as RichTextValue)
+            ? (record.overview.process as RichTextValue)
+            : undefined,
+        }
+      : undefined,
     sections: record.sections?.filter(
       (block): block is { blockType: string; [key: string]: unknown } =>
         Boolean(block && typeof block.blockType === 'string'),

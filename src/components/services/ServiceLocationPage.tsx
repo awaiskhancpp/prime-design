@@ -15,7 +15,7 @@ import {
 } from './sections/ServicePrimeDifferenceSection'
 import { Contact } from '../gallery/Contact'
 import { ServiceLocationFooter } from './ServiceLocationFooter'
-import { ServiceSectionRenderer } from './ServiceDetailPage'
+import { ServiceSectionRenderer } from './ServiceSectionRenderer'
 
 export function ServiceLocationPage({
   entry,
