@@ -1,11 +1,10 @@
-import Image from 'next/image'
 import Link from 'next/link'
 import type { ReactNode } from 'react'
 
 import { PageHero } from '@/components/layout/PageHero'
-import { Button } from '@/components/ui/Button'
 import { Section } from '@/components/ui/Section'
 import { ServiceVideoSection } from '@/components/services/ServiceVideoSection'
+import { ServiceImageTextSection } from '@/components/services/sections/ServiceImageTextSection'
 import BeforeAfterSlider from '@/components/blocks/BeforeAfterSlider'
 import { LandingFindUs } from './LandingFindUs'
 import { LandingGallerySection } from './LandingGallerySection'
@@ -42,10 +41,6 @@ export function mediaUrl(value: unknown): string | undefined {
   if (typeof record.sourceUrl === 'string') return record.sourceUrl
   if (typeof record.full === 'string') return record.full
   return mediaUrl(record.asset)
-}
-
-function isPayloadFileUrl(value: string) {
-  return value.startsWith('/api/media/file/') || value.includes('/api/media/file/')
 }
 
 function button(value: unknown) {
@@ -90,44 +85,17 @@ function HeroBlock({ block }: { block: Block }) {
 }
 
 function ImageTextBlock({ block }: { block: Block }) {
-  const image = mediaUrl(block.media)
   const heading = text(block.heading)
   if (!heading) return <UnsupportedLandingBlock block={block} />
-  const cta = button(block.buttons)
   return (
-    <Section className="bg-white">
-      <div className="grid gap-10 md:grid-cols-2 md:items-center">
-        <div className={text(block.alignment) === 'right' ? 'md:order-2' : undefined}>
-          {text(block.eyebrow) ? (
-            <p className="text-xs font-semibold uppercase tracking-[0.2em] text-brass">
-              {text(block.eyebrow)}
-            </p>
-          ) : null}
-          <h2 className="mt-3 font-display text-3xl font-medium text-ink md:text-5xl">{heading}</h2>
-          {text(block.description) ? (
-            <p className="mt-5 max-w-xl whitespace-pre-line text-base leading-7 text-ink-2/75">
-              {text(block.description)}
-            </p>
-          ) : null}
-          {cta ? (
-            <Button href={cta.href} variant="outline" className="mt-6">
-              {cta.label}
-            </Button>
-          ) : null}
-        </div>
-        {image ? (
-          <div className="relative aspect-[4/3] overflow-hidden bg-paper-2">
-            <Image
-              src={image}
-              alt={heading}
-              fill
-              className="object-cover"
-              unoptimized={isPayloadFileUrl(image)}
-            />
-          </div>
-        ) : null}
-      </div>
-    </Section>
+    <ServiceImageTextSection
+      eyebrow={text(block.eyebrow)}
+      heading={heading}
+      description={text(block.description)}
+      image={mediaUrl(block.media)}
+      imageSide={text(block.alignment)}
+      cta={button(block.buttons)}
+    />
   )
 }
 

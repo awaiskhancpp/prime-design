@@ -64,7 +64,7 @@ const faqsBySlug: Record<string, ServiceFaqContent> = {
       'Planning a room addition? We’ll look at how the new space should connect to your home, then help you think through layout, budget, and next steps.',
     items: itemsFrom('Room Additions Questions'),
   },
-  financing: {
+  finance: {
     description:
       'Need help funding a remodel? Here are the questions homeowners ask most often about paying for the work.',
     items: itemsFrom('Finance Questions'),

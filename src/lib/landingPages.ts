@@ -101,7 +101,6 @@ const fallbackLandingPageSlugs = [
   'home-remodeling-information',
   'outdoor-hardscape-outdoor-kitchen-information',
   'siding-installation-replacement-information',
-  'comprehensive-home-repair-installation-services-in-silicon-valley',
   'remodeling-information',
 ] as const
 

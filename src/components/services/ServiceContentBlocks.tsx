@@ -50,7 +50,11 @@ function MediaTextLayout({
 }
 
 /** `intro` / `image-text` — eyebrow + heading + body + optional bullet list. */
-function IntroBlock({ block }: { block: Extract<ServiceContentBlock, { blockType: 'intro' | 'image-text' }> }) {
+function IntroBlock({
+  block,
+}: {
+  block: Extract<ServiceContentBlock, { blockType: 'intro' | 'image-text' }>
+}) {
   return (
     <MediaTextLayout image={block.image} imageSide={block.imageSide} imageAlt={block.heading}>
       <div>
@@ -123,7 +127,10 @@ function ChecklistBlock({
         )}
         <ul className="mt-5 grid gap-3">
           {block.items.map((item) => (
-            <li key={item.text} className="flex items-start gap-3 text-base leading-7 text-ink-2/75">
+            <li
+              key={item.text}
+              className="flex items-start gap-3 text-base leading-7 text-ink-2/75"
+            >
               <span className="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-brass/15 text-brass">
                 <Check className="h-3 w-3" strokeWidth={3} aria-hidden />
               </span>
@@ -172,7 +179,10 @@ function GalleryBlock({
       )}
       <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
         {block.images.map((image, imageIndex) => (
-          <div key={`${image}-${imageIndex}`} className="relative aspect-[4/3] overflow-hidden bg-paper-2">
+          <div
+            key={`${image}-${imageIndex}`}
+            className="relative aspect-[4/3] overflow-hidden bg-paper-2"
+          >
             <Image
               src={image}
               alt={`${service.title} image ${imageIndex + 1}`}
@@ -262,5 +272,9 @@ export function ServiceContentBlocks({
   service: ServiceDetail
   blocks: NonNullable<ServiceDetail['contentBlocks']>
 }) {
-  return <div className="grid gap-14">{blocks.map((block, index) => renderContentBlock(service, block, index))}</div>
+  return (
+    <div className="grid gap-14">
+      {blocks.map((block, index) => renderContentBlock(service, block, index))}
+    </div>
+  )
 }

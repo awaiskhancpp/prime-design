@@ -28,13 +28,14 @@ const localAreas: SiteArea[] = website.serviceAreas.cities.map((name) => ({
 
 type PayloadSiteSettings = {
   company?: {
-    companyPhone?: string | null
-    companyPhoneClean?: string | null
-    companyEmail?: string | null
-    companyLicense?: string | null
+    name?: string | null
+    phone?: string | null
+    phoneClean?: string | null
+    email?: string | null
+    license?: string | null
     addresses?: Array<{ address?: string | null }> | null
   } | null
-  serviceAreas?: Array<{ name?: string | null; slug?: string | null } | number> | null
+  serviceAreas?: Array<{ location?: { name?: string | null; slug?: string | null } } | number> | null
 }
 
 export async function resolveSiteAreas(): Promise<SiteArea[]> {
@@ -43,9 +44,14 @@ export async function resolveSiteAreas(): Promise<SiteArea[]> {
   const payload = await getPayload({ config: configPromise })
   const settings = (await payload.findGlobal({ slug: 'site-settings', depth: 1 })) as PayloadSiteSettings
   const areas = settings.serviceAreas
-    ?.filter((area): area is { name?: string | null; slug?: string | null } => typeof area === 'object')
-    .map((area) => ({ name: area.name || '', slug: area.slug || '' }))
-    .filter((area) => area.name && area.slug)
+    ?.filter((area): area is { location?: { name?: string | null; slug?: string | null } } =>
+      typeof area === 'object',
+    )
+    .map((area) => ({
+      name: area.location?.name || '',
+      slug: area.location?.slug || area.location?.name?.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '') || '',
+    }))
+    .filter((area) => area.name)
 
   return areas?.length ? areas : localAreas
 }
@@ -58,11 +64,11 @@ export async function resolveSiteSettings(): Promise<SiteSettingsValue> {
   const company = settings.company
 
   return {
-    phone: company?.companyPhone || localSettings.phone,
+    phone: company?.phone || localSettings.phone,
     phoneClean:
-      company?.companyPhoneClean || company?.companyPhone?.replace(/[^\d+]/g, '') || localSettings.phoneClean,
-    email: company?.companyEmail || localSettings.email,
-    license: company?.companyLicense || localSettings.license,
+      company?.phoneClean || company?.phone?.replace(/[^\d+]/g, '') || localSettings.phoneClean,
+    email: company?.email || localSettings.email,
+    license: company?.license || localSettings.license,
     addresses:
       company?.addresses?.map((item) => item.address || '').filter(Boolean) || localSettings.addresses,
   }

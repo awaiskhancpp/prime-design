@@ -2,21 +2,20 @@ import Link from 'next/link'
 import { Container } from '../ui/Container'
 import { ArrowRight } from 'lucide-react'
 
-export function ServiceEstimateCta() {
+export function ServiceEstimateCta({
+  heading = 'Ready to schedule your free estimate?',
+  description = 'Contact us here or reach us at (650) 235-4863',
+}: {
+  heading?: string
+  description?: string
+}) {
   return (
     <section className="bg-brass">
       <Container>
         <div className=" flex flex-wrap items-center justify-between gap-5 py-9">
           <div>
-            <h2 className="font-display text-3xl font-semibold text-white">
-              Ready to schedule your free estimate?
-            </h2>
-            <p className="mt-2 text-sm text-white/85 ">
-              Contact us here or reach us at{' '}
-              <a href="tel:6502354863" className="underline">
-                (650) 235-4863
-              </a>{' '}
-            </p>
+            <h2 className="font-display text-3xl font-semibold text-white">{heading}</h2>
+            {description ? <p className="mt-2 text-sm text-white/85 ">{description}</p> : null}
           </div>
           <Link
             href="/contact"

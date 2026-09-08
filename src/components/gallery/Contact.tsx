@@ -5,21 +5,7 @@ import { Button } from '@/components/ui/Button'
 import { Input } from '@/components/ui/Input'
 import { Section } from '@/components/ui/Section'
 import { Textarea } from '@/components/ui/Textarea'
-
-const contactDetails = [
-  { icon: Mail, label: website.header.email, href: `mailto:${website.header.email}` },
-  {
-    icon: Phone,
-    label: website.footer.phone,
-    href: `tel:${website.footer.phone.replace(/[^\d+]/g, '')}`,
-  },
-  { icon: MapPin, label: website.footer.addresses[0], href: undefined },
-]
-
-const reviewBadges = [
-  { name: 'Google', ...website.reviewSummary.google },
-  { name: 'Yelp', ...website.reviewSummary.yelp },
-]
+import { resolveSiteSettings } from '@/lib/siteSettings'
 
 // Real project walkthrough footage already hosted for the site — using the
 // team-intro clip since it reads as a testimonial in this spot. Swap for a
@@ -27,7 +13,14 @@ const reviewBadges = [
 // fits better.
 const featuredVideo = website.projectVideos.find((video) => video.title === 'Client walkthrough')
 
-export function Contact() {
+export async function Contact() {
+  const settings = await resolveSiteSettings()
+  const contactDetails = [
+    { icon: Mail, label: settings.email, href: `mailto:${settings.email}` },
+    { icon: Phone, label: settings.phone, href: `tel:${settings.phoneClean}` },
+    { icon: MapPin, label: settings.addresses[0], href: undefined },
+  ]
+
   return (
     <Section id="contact" className="relative ">
       {/* 

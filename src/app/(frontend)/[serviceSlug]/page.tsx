@@ -2,8 +2,7 @@ import type { Metadata } from 'next'
 import { notFound, permanentRedirect, redirect } from 'next/navigation'
 import { PayloadPage } from '@/components/pages/PayloadPage'
 import { LandingPageRenderer } from '@/components/landing/LandingPageRenderer'
-import { ServiceTemplate } from '@/components/services/ServiceTemplate'
-import { getServiceDetailForPath, servicePathAliases, services } from '@/lib/services'
+import { getServiceDetailForPath, resolveServiceDetail, servicePathAliases, services } from '@/lib/services'
 import { listLandingPageSlugs, resolveLandingPage } from '@/lib/landingPages'
 import { resolvePageBySlug } from '@/lib/pages'
 import { resolveRedirect } from '@/lib/redirects'
@@ -54,7 +53,13 @@ export async function generateMetadata({
   const { serviceSlug } = await params
   await applyLegacyRedirect(`/${serviceSlug}`)
 
-  const service = await getServiceDetailForPath(serviceSlug)
+  // Alias service paths (e.g. `/finance`, `/comprehensive-…`) resolve against
+  // the CMS first, exactly like their canonical `/services/…` twins, so the
+  // imported hero/SEO from WordPress drives the metadata.
+  const aliasTarget = servicePathAliases[serviceSlug]
+  const service = aliasTarget
+    ? await resolveServiceDetail(aliasTarget)
+    : await getServiceDetailForPath(serviceSlug)
   if (service) {
     return buildSeoMetadata(service.seo, {
       title: service.title,
@@ -82,13 +87,25 @@ export default async function ServiceSlugRoute({
   params: Promise<{ serviceSlug: string }>
 }) {
   const { serviceSlug } = await params
-  const service = await getServiceDetailForPath(serviceSlug)
 
-  // Aliased service paths render the service page here, at their own URL.
-  if (servicePathAliases[serviceSlug]) {
-    if (!service) notFound()
-    return <ServiceTemplate service={service} />
+  // Service path aliases (WordPress-era URLs like `/finance` and
+  // `/comprehensive-…`) all live under `/services/...` as real service pages,
+  // so redirect them to their canonical service URL instead of rendering a
+  // duplicate copy at the root.
+  const aliasTarget = servicePathAliases[serviceSlug]
+  if (aliasTarget) {
+    const kitchenSubPages = [
+      'european-kitchen-silicon-valley',
+      'custom-kitchen-silicon-valley',
+      'shaker-kitchen-silicon-valley',
+    ]
+    const canonical = kitchenSubPages.includes(aliasTarget)
+      ? `/services/kitchen-remodeling/${aliasTarget}`
+      : `/services/${aliasTarget}`
+    permanentRedirect(canonical)
   }
+
+  const service = await getServiceDetailForPath(serviceSlug)
   // Canonical service slugs live under /services/... — redirect there.
   if (service || services.some((item) => item.slug === serviceSlug)) {
     permanentRedirect(`/services/${serviceSlug}`)

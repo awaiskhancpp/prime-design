@@ -1,5 +1,5 @@
 import { Fragment, type ReactNode } from 'react'
-import { HomeContact } from '@/components/blocks/HomeContact'
+import { Contact as GalleryContact } from '@/components/gallery/Contact'
 import { ProjectsReviews } from '@/components/projects/ProjectsReviews'
 import type { ServiceDetail } from '@/lib/services'
 import { getServiceProcess, ServiceProcessSection } from './ServiceProcessSection'
@@ -10,6 +10,7 @@ import { ServiceAreasSection } from './ServiceAreasSection'
 import { ServiceEstimateCta } from './ServiceEstimateCta'
 import { ServiceFaqLoader } from './ServiceFaqLoader'
 import { ServiceGallery } from './ServiceGallery'
+import { ServiceImageTextSection } from './sections/ServiceImageTextSection'
 import { getServiceQuote, ServiceQuoteSection } from './ServiceQuoteSection'
 import {
   getCraftsmanshipContent,
@@ -25,29 +26,13 @@ import {
 import { ServiceSiliconValleyLovesSection } from './sections/ServiceSiliconValleyLovesSection'
 import { mediaUrl, sharedSectionRegistry, text } from '@/components/landing/LandingBlockRenderer'
 import type { CarouselVideo } from '@/components/landing/VideoCarousel'
-
-/**
- * Renders the CMS "Page Builder" sections of a service (the WordPress-derived
- * blocks the editor maintains in Payload) in their exact CMS order.
- *
- * Each block type maps to the bespoke, hand-designed Service section
- * component for that content type wherever one exists — so migrated
- * WordPress data renders through this site's actual designed service-page
- * components instead of the generic landing-page versions. Block types with
- * no dedicated Service design (before-after, find-us, video-carousel,
- * gallery-carousel, project-grid, ...) fall back to the shared landing
- * registry at the bottom, which already has a finished design for each.
- *
- * Legacy content often arrived as generic `image-text` blocks; several
- * branches below also match on heading keywords ("Craftsmanship", "Our
- * promise", ...) so that old data still renders as the intended section.
- */
+import type { ComponentType } from 'react'
 
 /** A single CMS section block, in its raw (untyped) payload shape. */
 type RawBlock = Record<string, unknown>
 
 /** A section renderer's result: the element plus the React key to use. */
-type RenderedSection = { key: string; node: ReactNode }
+export type RenderedSection = { key: string; node: ReactNode }
 
 /** Coerce a block field to a plain string (handles rich-text arrays). */
 function str(value: unknown): string {
@@ -78,7 +63,10 @@ function renderPrimeDifference(block: RawBlock, headingText: string): RenderedSe
       caption: str(video.caption),
     }))
     .filter((video) => video.url)
-  return { key: 'prime-difference', node: <ServicePrimeDifferenceSection {...content} videos={videos} /> }
+  return {
+    key: 'prime-difference',
+    node: <ServicePrimeDifferenceSection {...content} videos={videos} />,
+  }
 }
 
 /** `experience-difference` — "Why Choose Prime Design & Build?" grid. */
@@ -99,8 +87,6 @@ function renderWhyChooseUs(block: RawBlock, headingText: string): RenderedSectio
 
 /** `craftsmanship` — "Craftsmanship That Transforms" split-image section. */
 function renderCraftsmanship(block: RawBlock, service: ServiceDetail): RenderedSection {
-  // CMS copy overrides the curated defaults piece by piece; anything the
-  // editor left blank falls back to the default content.
   const defaultContent = getCraftsmanshipContent(service)
   const image = mediaUrl(block.media) || mediaUrl(block.image)
   const images: [string, string] = image
@@ -130,9 +116,6 @@ function renderProcess(
   headingLower: string,
   service: ServiceDetail,
 ): RenderedSection {
-  // The home-remodeling / complete-renovation pages — and any copy titled
-  // "client-centered ..." — use the bespoke multi-step design instead of
-  // the generic numbered steps.
   const useBespokeProcess =
     service.slug === 'home-remodeling' ||
     service.slug === 'complete-renovation' ||
@@ -163,7 +146,11 @@ function renderProcess(
 }
 
 /** `quote` — "Our promise" pull-quote with portrait. */
-function renderQuote(block: RawBlock, headingText: string, service: ServiceDetail): RenderedSection {
+function renderQuote(
+  block: RawBlock,
+  headingText: string,
+  service: ServiceDetail,
+): RenderedSection {
   const fallbackQuote = getServiceQuote(service.slug)
   return {
     key: 'quote',
@@ -199,7 +186,6 @@ function renderOfferings(
       }
     })
     .filter((card) => card.title)
-  // No usable cards → let the shared landing registry try this block type.
   if (!cards.length) return null
   return {
     key: 'sub-services',
@@ -226,7 +212,10 @@ function renderRepairCategories(block: RawBlock, service: ServiceDetail): Render
       .filter((item): item is string => Boolean(item)),
   }))
   if (!categories.length) return null
-  return { key: 'repair-services', node: <ServiceHomeRepairCategoriesSection categories={categories} /> }
+  return {
+    key: 'repair-services',
+    node: <ServiceHomeRepairCategoriesSection categories={categories} />,
+  }
 }
 
 /**
@@ -239,7 +228,6 @@ function renderTestimonials(
   headingText: string,
   blockType: string,
 ): RenderedSection | null {
-  // Review rows are nested per review-provider; flatten to the reviews.
   const testimonials = blocks(block.providers)
     .flatMap((provider) => blocks(provider.reviews))
     .map((review) => ({
@@ -296,22 +284,27 @@ function renderVideo(block: RawBlock, headingText: string): RenderedSection | nu
  * when nothing bespoke applies, so the caller can try the shared landing
  * registry.
  *
+ * `ContactComponent` lets callers control which contact form the CMS
+ * `contact-form`/`booking`/`form` block renders — it must be the same
+ * component `ServiceTemplate` uses for the static fallback (driven by
+ * `sections.contactVariant`), or the two paths silently disagree the way
+ * the hardcoded `<HomeContact />` used to.
+ *
  * `singletonKeys` tracks already-rendered one-per-page sections (contact,
  * gallery, FAQ, service areas) so migrated content that repeats them does
  * not produce duplicates.
  */
-function renderSection(
+export function renderSection(
   rawSection: object,
   service: ServiceDetail,
   singletonKeys: Set<string>,
+  ContactComponent: ComponentType = GalleryContact,
 ): RenderedSection | null {
   const block = rawSection as RawBlock
   const blockType = block.blockType
   const headingText = str(block.heading)
   const headingLower = headingText.toLowerCase()
 
-  // Legacy `image-text` blocks are re-routed to their real section design
-  // when the heading gives away what the block was meant to be.
   const isImageText = blockType === 'image-text'
 
   if (blockType === 'prime-difference') return renderPrimeDifference(block, headingText)
@@ -329,7 +322,10 @@ function renderSection(
     return renderProcess(block, headingText, headingLower, service)
   }
 
-  if (blockType === 'silicon-valley-loves' || (isImageText && headingLower.includes('silicon valley loves'))) {
+  if (
+    blockType === 'silicon-valley-loves' ||
+    (isImageText && headingLower.includes('silicon valley loves'))
+  ) {
     return { key: 'silicon-valley-loves', node: <ServiceSiliconValleyLovesSection /> }
   }
 
@@ -339,6 +335,38 @@ function renderSection(
       (headingLower.includes('our promise') || headingLower.includes('crafting your dream home')))
   ) {
     return renderQuote(block, headingText, service)
+  }
+
+  // Generic image + text (e.g. the "Home Additions - Enhancing Your Living
+  // Space" block) — rendered by the dedicated rich-text image-text section so
+  // the WordPress bullet copy displays as a proper list, not raw text.
+  if (isImageText) {
+    const image = mediaUrl(block.media)
+    const buttons = Array.isArray(block.buttons) ? block.buttons : []
+    const ctaButton = buttons.find(
+      (item): item is Record<string, unknown> =>
+        Boolean(item && typeof item === 'object' && str((item as Record<string, unknown>).label)),
+    )
+    return {
+      key: 'shared-registry',
+      node: (
+        <ServiceImageTextSection
+          eyebrow={str(block.eyebrow) || undefined}
+          heading={headingText}
+          description={str(block.description) || undefined}
+          image={image}
+          imageSide={str(block.alignment) || undefined}
+          cta={
+            ctaButton
+              ? {
+                  label: str(ctaButton.label),
+                  href: str(ctaButton.url) || '#contact',
+                }
+              : undefined
+          }
+        />
+      ),
+    }
   }
 
   if (blockType === 'sub-services') return renderOfferings(block, headingText, service)
@@ -355,14 +383,21 @@ function renderSection(
       headingLower.includes('schedule') ||
       headingLower.includes('get started'))
   ) {
-    return { key: 'estimate-cta', node: <ServiceEstimateCta /> }
+    return {
+      key: 'estimate-cta',
+      node: (
+        <ServiceEstimateCta
+          heading={headingText || undefined}
+          description={str(block.description) || undefined}
+        />
+      ),
+    }
   }
 
-  // One-per-page sections: skip repeats of a section already rendered.
   if (blockType === 'contact-form' || blockType === 'booking' || blockType === 'form') {
     if (singletonKeys.has('service-contact')) return null
     singletonKeys.add('service-contact')
-    return { key: 'service-contact', node: <HomeContact /> }
+    return { key: 'service-contact', node: <ContactComponent /> }
   }
 
   if (blockType === 'gallery') {
@@ -385,9 +420,6 @@ function renderSection(
 
   if (blockType === 'video') return renderVideo(block, headingText)
 
-  // No bespoke Service design for this block type — use the shared landing
-  // registry's version, which is a real, finished design too (the hero is
-  // handled separately and excluded before this renderer ever runs).
   const Renderer = sharedSectionRegistry[blockType as string]
   if (Renderer) {
     return { key: 'shared-registry', node: <Renderer block={rawSection as never} /> }
@@ -398,18 +430,19 @@ function renderSection(
 export function ServiceSectionRenderer({
   sections,
   service,
+  ContactComponent,
 }: {
   sections: NonNullable<ServiceDetail['sections']>
   service: ServiceDetail
+  ContactComponent?: ComponentType
 }) {
   const rendered: ReactNode[] = []
   const singletonKeys = new Set<string>()
   let index = 0
 
   for (const rawSection of sections) {
-    const result = renderSection(rawSection, service, singletonKeys)
+    const result = renderSection(rawSection, service, singletonKeys, ContactComponent)
     if (result) {
-      // Key by position so repeated sections of the same type stay distinct.
       rendered.push(<Fragment key={`${result.key}-${index++}`}>{result.node}</Fragment>)
     }
   }

@@ -46,7 +46,7 @@ export const serviceFaqCategories: Record<string, { description: string; categor
       'Planning a room addition? We’ll look at how the new space should connect to your home, then help you think through layout, budget, and next steps.',
     categoryTitle: 'Room Additions Questions',
   },
-  financing: {
+  finance: {
     description:
       'Need help funding a remodel? Here are the questions homeowners ask most often about paying for the work.',
     categoryTitle: 'Finance Questions',

@@ -1,7 +1,7 @@
 import type { Metadata } from 'next'
-import { notFound } from 'next/navigation'
+import { notFound, permanentRedirect } from 'next/navigation'
 import { ServiceTemplate } from '@/components/services/ServiceTemplate'
-import { resolveServiceDetail, services } from '@/lib/services'
+import { resolveServiceDetail, servicePathAliases, services } from '@/lib/services'
 import { serviceMetadata } from '@/lib/seo'
 
 // Service pages are CMS-driven: render on each request so Payload edits
@@ -13,13 +13,20 @@ export function generateStaticParams() {
   return services.map((service) => ({ serviceSlug: service.slug }))
 }
 
+// Old internal service slugs (e.g. `/services/financing`, `/services/
+// home-repair-installation-services`) now redirect to their WordPress slugs.
+const targetOf = (slug: string) => {
+  const alias = servicePathAliases[slug]
+  return alias && services.some((service) => service.slug === alias) ? alias : slug
+}
+
 export async function generateMetadata({
   params,
 }: {
   params: Promise<{ serviceSlug: string }>
 }): Promise<Metadata> {
   const { serviceSlug } = await params
-  return serviceMetadata(await resolveServiceDetail(serviceSlug))
+  return serviceMetadata(await resolveServiceDetail(targetOf(serviceSlug)))
 }
 
 /** `/services/[serviceSlug]` — a CMS-driven service detail page. */
@@ -29,7 +36,9 @@ export default async function ServicePage({
   params: Promise<{ serviceSlug: string }>
 }) {
   const { serviceSlug } = await params
-  const service = await resolveServiceDetail(serviceSlug)
+  const target = targetOf(serviceSlug)
+  if (target !== serviceSlug) permanentRedirect(`/services/${target}`)
+  const service = await resolveServiceDetail(target)
   if (!service) notFound()
   return <ServiceTemplate service={service} />
 }

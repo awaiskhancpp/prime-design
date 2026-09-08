@@ -163,15 +163,15 @@ export const services: Service[] = [
     image: home,
   },
   {
-    slug: 'home-repair-installation-services',
+    slug: 'comprehensive-home-repair-installation-services-in-silicon-valley',
     title: 'Home Repair Services',
     description:
       'Keep your home comfortable, functional, and beautiful with dependable repair and installation services from Prime Design & Build.',
     image: home,
   },
   {
-    slug: 'financing',
-    title: 'Financing',
+    slug: 'finance',
+    title: 'Finance',
     description:
       'Explore flexible financing options to help bring your remodeling vision to life within your budget.',
     image: home,
@@ -185,6 +185,14 @@ export const servicePathAliases: Record<string, string> = {
   'custom-kitchens': 'custom-kitchen-silicon-valley',
   'european-kitchen': 'european-kitchen-silicon-valley',
   'european-kitchens': 'european-kitchen-silicon-valley',
+  // The Home Repair service lives at its WordPress slug
+  // `comprehensive-home-repair-installation-services-in-silicon-valley`;
+  // keep the older internal slug redirecting to it.
+  'home-repair-installation-services':
+    'comprehensive-home-repair-installation-services-in-silicon-valley',
+  // The Finance service lives at its WordPress slug `finance`; keep the older
+  // internal slug redirecting to it.
+  financing: 'finance',
 }
 
 export const serviceDetails: Record<string, ServiceDetail> = {
@@ -440,7 +448,7 @@ export const serviceDetails: Record<string, ServiceDetail> = {
     ],
     gallery: [beforeAfter, home],
   },
-  financing: {
+  finance: {
     ...services[10],
     eyebrow: 'Financing Your Dream Home',
     lead: 'Let our tailored financing options pave the way to your dream home, combining style and affordability.',

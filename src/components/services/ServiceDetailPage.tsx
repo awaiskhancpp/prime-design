@@ -1,5 +1,7 @@
 import type { ReactNode } from 'react'
 import { HomeContact } from '@/components/blocks/HomeContact'
+import { LandscapingServiceAreas } from '@/components/blocks/LandscapingServiceAreas'
+import { WhyChooseUs } from '@/components/gallery/WhyChooseUs'
 import { Contact as GalleryContact } from '@/components/gallery/Contact'
 import { LandscapingCta } from '@/components/blocks/LandscapingCta'
 import { SiteFooter } from '@/components/layout/SiteFooter'
@@ -37,7 +39,11 @@ import {
 import { getServicePageSections } from './servicePageLayout'
 import { ServiceOverview } from './ServiceOverview'
 import { ServiceContentBlocks } from './ServiceContentBlocks'
-import { ServiceSectionRenderer } from './ServiceSectionRenderer'
+import {
+  ServiceSectionRenderer,
+  renderSection,
+  type RenderedSection,
+} from './ServiceSectionRenderer'
 import { ServiceAreasSection } from './ServiceAreasSection'
 
 /**
@@ -46,8 +52,12 @@ import { ServiceAreasSection } from './ServiceAreasSection'
  * A service page is assembled from three content sources, in this priority:
  *
  *   1. CMS "Page Builder" sections (`service.sections`) — WordPress-derived
- *      blocks the editor maintains in Payload. Rendered in exact CMS order
- *      by `ServiceSectionRenderer`.
+ *      blocks the editor maintains in Payload. Each block is resolved via
+ *      `renderSection` to its bespoke Service design (or the shared landing
+ *      registry when no bespoke design exists) and placed in that section's
+ *      real position from `FALLBACK_SECTION_ORDER` — not bundled into one
+ *      undifferentiated clump. Only block types `renderSection` cannot
+ *      resolve at all land in the small residual `cms-body` slot.
  *   2. Curated "Page Content" blocks (`service.contentBlocks`) — rendered by
  *      `ServiceContentBlocks`.
  *   3. A static per-slug layout (flags from `servicePageLayout.ts`) with
@@ -55,8 +65,8 @@ import { ServiceAreasSection } from './ServiceAreasSection'
  *      ...). Used for section types the CMS has not authored, so nothing
  *      that was showing ever disappears.
  *
- * The two CMS sources suppress the static section of the same type (no
- * double rendering), and `service.sectionOrder` from the CMS controls the
+ * Within a given slot, CMS content wins over the static/curated version —
+ * they never render both. `service.sectionOrder` from the CMS controls the
  * final section order (falling back to `FALLBACK_SECTION_ORDER`).
  */
 
@@ -66,6 +76,7 @@ const FALLBACK_SECTION_ORDER = [
   'estimate',
   'intro',
   'home-repair-categories',
+  'prime-difference',
   'real-homes',
   'offerings',
   'process',
@@ -81,6 +92,20 @@ const FALLBACK_SECTION_ORDER = [
 ] as const
 
 /**
+ * `renderSection`'s internal keys don't all match `FALLBACK_SECTION_ORDER`'s
+ * names one-for-one (e.g. it returns 'sub-services' for what the order list
+ * calls 'offerings'). This is the single place that reconciles the two, so
+ * every CMS-resolved section still lands in its correct ordered slot.
+ */
+const SLOT_KEY_ALIASES: Record<string, string> = {
+  'sub-services': 'offerings',
+  'service-contact': 'contact',
+  'service-gallery': 'gallery',
+  'service-faq': 'faq',
+  'estimate-cta': 'estimate',
+}
+
+/**
  * Render the service page shell: header, hero, the ordered section stack,
  * and footer. This is the component every service route renders.
  */
@@ -88,9 +113,10 @@ export function ServiceTemplate({ service }: { service: ServiceDetail }) {
   // ---- 1. Resolve layout flags and curated content ----------------------
 
   const sections = getServicePageSections(service.slug)
-  // Verified against the real WordPress export: the gallery-variant contact
-  // form is only used by pages that only ever existed at `-silicon-valley`
-  // suffixed slugs.
+  // Every service page uses the gallery/Contact design (the default
+  // `contactVariant` is 'gallery'). This same component must be used for BOTH
+  // the CMS-authored contact block and the static fallback below — otherwise
+  // a CMS `contact-form` block silently renders a different variant.
   const ContactSection = sections.contactVariant === 'gallery' ? GalleryContact : HomeContact
 
   const offerings = getServiceOfferings(service.slug)
@@ -104,9 +130,6 @@ export function ServiceTemplate({ service }: { service: ServiceDetail }) {
   const cmsQuote = service.contentBlocks?.find((block) => block.blockType === 'quote')
   const cmsVideos = service.contentBlocks?.filter((block) => block.blockType === 'video') ?? []
 
-  // Content blocks whose block type has a dedicated section slot below are
-  // excluded here so they cannot render twice (video/process/gallery/quote,
-  // and sub-services when the curated offerings section is showing).
   const contentBlocks = service.contentBlocks?.filter((block) => {
     if (
       block.blockType === 'video' ||
@@ -127,11 +150,50 @@ export function ServiceTemplate({ service }: { service: ServiceDetail }) {
   )
   const hasCmsSections = cmsContentSections.length > 0
   const cmsBlockTypes = new Set(cmsContentSections.map((block) => String(block.blockType)))
-  /** True when the CMS has already authored a section of one of these types. */
   const cmsHas = (...types: string[]) => types.some((type) => cmsBlockTypes.has(type))
 
-  // Video section: CMS video blocks win, then the curated per-slug video.
-  const videoSection = cmsVideos.length ? (
+  // Resolve every CMS section up front, once, through the same dispatcher
+  // used for the residual clump — so a section that resolves to a known
+  // slot key (e.g. 'craftsmanship', 'gallery', 'quote') is pulled OUT of
+  // the clump and placed at that slot's real position, and only sections
+  // `renderSection` genuinely can't place fall through to `cms-body`.
+  const cmsSlotNodes = new Map<string, ReactNode>()
+  const residualCmsSections: NonNullable<ServiceDetail['sections']> = []
+  const slotSingletons = new Set<string>()
+  for (const rawSection of cmsContentSections) {
+    const result: RenderedSection | null = renderSection(
+      rawSection,
+      service,
+      slotSingletons,
+      ContactSection,
+    )
+    if (!result || result.key === 'shared-registry') {
+      // Either nothing resolved, or it resolved via the generic shared
+      // registry with no specific ordered slot — both go in the residual
+      // clump, positioned near the intro as before.
+      if (result) cmsSlotNodes.set(`shared-registry-${residualCmsSections.length}`, result.node)
+      else residualCmsSections.push(rawSection)
+      continue
+    }
+    const slotKey = SLOT_KEY_ALIASES[result.key] || result.key
+    // First CMS section for a given slot wins; a page legitimately
+    // repeating a section type (e.g. two 'video' blocks) is rare enough
+    // that keeping only the first avoids two unrelated videos silently
+    // fighting for the same slot position.
+    if (!cmsSlotNodes.has(slotKey)) cmsSlotNodes.set(slotKey, result.node)
+  }
+  // Shared-registry results (no dedicated slot) render in encounter order,
+  // right alongside whatever residual sections remain.
+  const sharedRegistryNodes = [...cmsSlotNodes.entries()]
+    .filter(([key]) => key.startsWith('shared-registry-'))
+    .map(([, node]) => node)
+  for (const key of [...cmsSlotNodes.keys()]) {
+    if (key.startsWith('shared-registry-')) cmsSlotNodes.delete(key)
+  }
+
+  // Video section: a CMS 'video' block (resolved above) wins, then legacy
+  // `contentBlocks` video entries, then the curated per-slug video.
+  const legacyVideoSection = cmsVideos.length ? (
     cmsVideos.map((block, index) =>
       block.blockType === 'video' ? (
         <ServiceVideoSection
@@ -145,21 +207,16 @@ export function ServiceTemplate({ service }: { service: ServiceDetail }) {
   ) : fallbackVideo ? (
     <ServiceVideoSection {...fallbackVideo} />
   ) : null
+  const videoSection = cmsSlotNodes.get('video') ?? legacyVideoSection
 
   // ---- 3. Build one node per section slot -------------------------------
 
-  // Each slot renders `null` when suppressed: either its layout flag is off,
-  // or the CMS already supplies that section type (checked via `cmsHas`) so
-  // the static version would duplicate it.
   const sectionNodes: Array<{ key: string; node: ReactNode }> = [
     {
       key: 'intro',
       node:
         !sections.homeRepairCategories &&
         (contentBlocks?.length || !hasCmsBlocks) &&
-        // When the CMS supplies the page body as full WordPress-style
-        // sections (image+text, sub-services cards, prime-difference), the
-        // generic key-features overview would duplicate that content.
         !(hasCmsSections && cmsHas('image-text', 'sub-services', 'prime-difference')) ? (
           <Section>
             {contentBlocks?.length ? (
@@ -176,76 +233,88 @@ export function ServiceTemplate({ service }: { service: ServiceDetail }) {
     },
     {
       key: 'home-repair-categories',
-      node: sections.homeRepairCategories ? (
-        <ServiceHomeRepairCategoriesSection categories={homeRepairCategoriesContent} />
-      ) : null,
+      // A CMS `repair-services` block (same conceptual section, migrated
+      // data) takes priority over the static hardcoded categories so the
+      // two don't both render.
+      node:
+        cmsSlotNodes.get('repair-services') ??
+        (sections.homeRepairCategories ? (
+          <ServiceHomeRepairCategoriesSection categories={homeRepairCategoriesContent} />
+        ) : null),
+    },
+    {
+      key: 'prime-difference',
+      node: cmsSlotNodes.get('prime-difference') ?? null,
     },
     {
       key: 'why-choose-us',
       node:
-        (sections.homeRepairWhyChooseUs || sections.whyChooseUs) &&
-        !(hasCmsSections && cmsHas('prime-difference', 'experience-difference')) ? (
-          <ServiceWhyChooseUsSection />
-        ) : null,
+        service.slug === 'additions' ? (
+          // Additions shows the "Experience the Prime Difference" design.
+          <WhyChooseUs />
+        ) : (
+          cmsSlotNodes.get('why-choose-us') ??
+          (sections.homeRepairWhyChooseUs || sections.whyChooseUs ? (
+            <ServiceWhyChooseUsSection />
+          ) : null)
+        ),
     },
     {
       key: 'real-homes',
       node:
-        sections.realHomes && !(hasCmsSections && cmsHas('landing-testimonials', 'testimonials')) ? (
+        cmsSlotNodes.get('real-homes') ??
+        (sections.realHomes ? (
           <ServiceRealHomesStoriesSection {...getRealHomesContent(service)} />
-        ) : null,
+        ) : null),
     },
     {
-      // `videoFirst` layouts render the video above this stack, right
-      // after the hero (see the JSX at the bottom).
       key: 'video',
-      node: !sections.videoFirst && !(hasCmsSections && cmsHas('video')) ? videoSection : null,
+      node: !sections.videoFirst ? videoSection : null,
     },
     {
       key: 'offerings',
       node:
-        sections.offerings && offerings && !(hasCmsSections && cmsHas('sub-services')) ? (
-          <ServiceOfferingsSection {...offerings} />
-        ) : null,
+        cmsSlotNodes.get('offerings') ??
+        (sections.offerings && offerings ? <ServiceOfferingsSection {...offerings} /> : null),
     },
     {
-      // Process: CMS-authored process blocks render through the CMS body
-      // (ServiceSectionRenderer); this slot only shows the static design.
       key: 'process',
-      node: (() => {
-        if (!sections.process) return null
-        if (hasCmsSections && cmsHas('process')) return null
-        if (sections.homeProcess) return <HomeRemodelingProcessSection />
-        return process ? <ServiceProcessSection {...process} /> : null
-      })(),
+      node:
+        cmsSlotNodes.get('process') ??
+        (() => {
+          if (!sections.process) return null
+          if (sections.homeProcess) return <HomeRemodelingProcessSection />
+          return process ? <ServiceProcessSection {...process} /> : null
+        })(),
     },
     {
       key: 'gallery',
       node:
-        sections.gallery && !(hasCmsSections && cmsHas('gallery')) ? (
-          <ServiceGallery service={service} />
-        ) : null,
+        cmsSlotNodes.get('gallery') ??
+        (sections.gallery ? <ServiceGallery service={service} /> : null),
     },
     {
-      // Craftsmanship: same suppression rule as process — a CMS
-      // craftsmanship block renders through the CMS body instead.
       key: 'craftsmanship',
       node:
-        sections.craftsmanship && !(hasCmsSections && cmsHas('craftsmanship')) ? (
+        cmsSlotNodes.get('craftsmanship') ??
+        (sections.craftsmanship ? (
           <ServiceCraftsmanshipTransformsSection {...getCraftsmanshipContent(service)} />
-        ) : null,
+        ) : null),
     },
     {
       key: 'service-areas',
-      node: !(hasCmsSections && cmsHas('service-areas')) ? (
-        <ServiceAreasSection service={service} />
-      ) : null,
+      node:
+        service.slug === 'additions' ? (
+          <LandscapingServiceAreas />
+        ) : (
+          cmsSlotNodes.get('service-areas') ?? <ServiceAreasSection service={service} />
+        ),
     },
     {
-      // Quote: CMS quote block (from contentBlocks) wins over curated.
       key: 'quote',
       node:
-        sections.quote && cmsQuote && cmsQuote.blockType === 'quote' ? (
+        cmsSlotNodes.get('quote') ??
+        (sections.quote && cmsQuote && cmsQuote.blockType === 'quote' ? (
           <ServiceQuoteSection
             heading="Our promise"
             quote={cmsQuote.quote}
@@ -254,61 +323,79 @@ export function ServiceTemplate({ service }: { service: ServiceDetail }) {
           />
         ) : sections.quote && fallbackQuote ? (
           <ServiceQuoteSection {...fallbackQuote} />
-        ) : null,
+        ) : null),
     },
     {
       key: 'faq',
       node:
-        sections.faq && !(hasCmsSections && cmsHas('faq')) ? (
-          <ServiceFaqLoader slug={service.slug} />
-        ) : null,
+        cmsSlotNodes.get('faq') ?? (sections.faq ? <ServiceFaqLoader slug={service.slug} /> : null),
     },
-    { key: 'estimate', node: sections.estimate ? <ServiceEstimateCta /> : null },
+    {
+      key: 'estimate',
+      node: cmsSlotNodes.get('estimate') ?? (sections.estimate ? <ServiceEstimateCta /> : null),
+    },
     {
       key: 'silicon-valley-loves',
-      node: sections.siliconValleyLoves ? <ServiceSiliconValleyLovesSection /> : null,
+      node:
+        cmsSlotNodes.get('silicon-valley-loves') ??
+        (sections.siliconValleyLoves ? <ServiceSiliconValleyLovesSection /> : null),
     },
     {
       key: 'reviews',
-      node:
-        sections.reviews && !(hasCmsSections && cmsHas('testimonials')) ? (
-          <ReviewsSection />
-        ) : null,
+      node: cmsSlotNodes.get('reviews') ?? (sections.reviews ? <ReviewsSection /> : null),
     },
     {
       key: 'contact',
-      node:
-        sections.contact && !(hasCmsSections && cmsHas('contact-form', 'booking', 'form')) ? (
-          <ContactSection />
-        ) : null,
+      node: cmsSlotNodes.get('contact') ?? (sections.contact ? <ContactSection /> : null),
     },
     {
-      // The full CMS-authored body — every non-hero Payload section, in
-      // exact CMS order, through the WordPress→Service component map.
+      // Only truly-unresolvable CMS sections land here now, plus anything
+      // that matched the shared registry with no dedicated slot.
       key: 'cms-body',
       node:
-        cmsContentSections.length > 0 ? (
-          <ServiceSectionRenderer
-            sections={cmsContentSections as NonNullable<ServiceDetail['sections']>}
-            service={service}
-          />
+        residualCmsSections.length || sharedRegistryNodes.length ? (
+          <>
+            {sharedRegistryNodes}
+            {residualCmsSections.length ? (
+              <ServiceSectionRenderer
+                sections={residualCmsSections}
+                service={service}
+                ContactComponent={ContactSection}
+              />
+            ) : null}
+          </>
         ) : null,
     },
   ]
 
   // ---- 4. Order the sections and render ----------------------------------
 
-  // The CMS order wins when provided; otherwise the fallback order above.
+  // Per-page order overrides — the sequence shown on the original WordPress
+  // page when it differs from the shared default.
+  const PAGE_SECTION_ORDERS: Record<string, string[]> = {
+    // Additions (WP page 1978): "Home Additions" image-text → Real Homes →
+    // video → free estimate → Prime Difference → reviews → contact → areas.
+    additions: [
+      'intro',
+      'real-homes',
+      'video',
+      'estimate',
+      'why-choose-us',
+      'reviews',
+      'contact',
+      'service-areas',
+    ],
+  }
+
   const order: string[] = service.sectionOrder?.length
     ? service.sectionOrder
-    : [...FALLBACK_SECTION_ORDER]
+    : PAGE_SECTION_ORDERS[service.slug]
+      ? PAGE_SECTION_ORDERS[service.slug]
+      : [...FALLBACK_SECTION_ORDER]
 
-  /** Sort position for a section key (unknown keys sort last). */
   const rank = (key: string) => {
     const index = order.indexOf(key)
     if (index >= 0) return index
-    // CMS-authored body sits right after the intro (or early when intro is
-    // skipped) so the page follows the section order the editor maintains.
     if (key === 'cms-body') {
       const introIndex = order.indexOf('intro')
       return introIndex < 0 ? 1 : introIndex + 0.5
@@ -325,9 +412,7 @@ export function ServiceTemplate({ service }: { service: ServiceDetail }) {
       <SiteHeader />
       <main>
         <ServiceHero service={service} />
-        {sections.videoFirst && !(hasCmsSections && cmsHas('video')) ? (
-          <div>{videoSection}</div>
-        ) : null}
+        {sections.videoFirst ? <div>{videoSection}</div> : null}
         {orderedSections.map(({ key, node }) => (
           <div key={key}>{node}</div>
         ))}

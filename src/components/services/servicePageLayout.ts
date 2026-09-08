@@ -89,7 +89,10 @@ export const DEFAULT_SERVICE_PAGE_SECTIONS: ServicePageSections = {
   contact: false,
   visualProcess: false,
   homeProcess: false,
-  contactVariant: 'home',
+  // Every service page uses the gallery/Contact design (heading, details,
+  // form + sticky video). Keeping the variant switch lets a future page opt
+  // back into a simpler contact if ever needed.
+  contactVariant: 'gallery',
   processLabel: 'remodeling',
 }
 
@@ -184,16 +187,17 @@ const SERVICE_PAGE_LAYOUTS: Record<string, ServicePageSections> = {
     homeProcess: true,
   },
 
-  // Home repair & installation — minimal page: just the category cards and
-  // the home-repair "why choose us" variant.
-  'home-repair-installation-services': {
+  // Home repair & installation — minimal page: just the category cards, the
+  // home-repair "why choose us" variant, and the closing contact section.
+  'comprehensive-home-repair-installation-services-in-silicon-valley': {
     ...DEFAULT_SERVICE_PAGE_SECTIONS,
     homeRepairCategories: true,
     homeRepairWhyChooseUs: true,
+    contact: true,
   },
 
   // Financing — informational page, no gallery/video.
-  financing: {
+  finance: {
     ...DEFAULT_SERVICE_PAGE_SECTIONS,
     process: true,
     whyChooseUs: true,
