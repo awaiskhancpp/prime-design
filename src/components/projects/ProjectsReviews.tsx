@@ -64,15 +64,15 @@ export function ProjectsReviews({
             See what people in <span className="text-brass">Silicon Valley</span> are saying about
             us
           </h2>
-          <div className="mt-8 flex flex-wrap items-center gap-6">
+          <div className="mt-8 flex flex-wrap items-center gap-12">
             {reviewBadges.map((badge) => (
               <Image
                 key={badge.src}
                 src={badge.src}
                 alt={badge.alt}
-                width={145}
-                height={62}
-                className="h-auto w-auto  object-contain"
+                width={90}
+                height={90}
+                className="h-auto w-auto"
               />
             ))}
           </div>
