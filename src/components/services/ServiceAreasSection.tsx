@@ -29,6 +29,12 @@ const serviceAreaLabels: Record<string, string> = {
   'kitchen-remodeling': 'Kitchen remodeling',
   'bathroom-remodeling': 'Bathroom remodeling',
   'home-remodeling': 'Home remodeling',
+  adu: 'ADU & garage conversions',
+  additions: 'Room additions',
+  'complete-renovation': 'Complete home renovation',
+  'european-kitchen': 'European kitchen remodeling',
+  'custom-kitchen': 'Custom kitchen remodeling',
+  'shaker-kitchen': 'Shaker kitchen remodeling',
 }
 
 export function getServiceAreaLocations(serviceSlug: string) {

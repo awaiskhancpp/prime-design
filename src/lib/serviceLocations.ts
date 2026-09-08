@@ -59,6 +59,12 @@ export const serviceLocations: ServiceLocation[] = [
   'kitchen-remodeling',
   'bathroom-remodeling',
   'home-remodeling',
+  'adu',
+  'additions',
+  'complete-renovation',
+  'european-kitchen',
+  'custom-kitchen',
+  'shaker-kitchen',
 ].flatMap((serviceSlug) =>
   serviceLocationCities.map((name) => ({
     serviceSlug,

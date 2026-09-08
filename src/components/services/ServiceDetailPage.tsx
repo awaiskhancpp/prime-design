@@ -699,7 +699,7 @@ export function ServiceSectionRenderer({
           eyebrow={text(block.eyebrow) || 'Our process'}
           title={headingText || fallbackProcess?.title || 'We make it easy for you'}
           description={text(block.description) || fallbackProcess?.description}
-          steps={steps.length ? steps : (fallbackProcess?.steps || [])}
+          steps={steps.length ? steps : fallbackProcess?.steps || []}
         />,
       )
       return
@@ -992,13 +992,19 @@ export function ServiceTemplate({ service }: { service: ServiceDetail }) {
       node: (() => {
         if (!sections.process) return null
         if (sections.homeProcess) return <HomeRemodelingProcessSection />
-        const cmsProcess = service.sections?.find((s) => s.blockType === 'process') as Record<string, unknown> | undefined
-        const rawSteps = Array.isArray(cmsProcess?.steps) ? (cmsProcess.steps as Array<Record<string, unknown>>) : []
+        const cmsProcess = service.sections?.find((s) => s.blockType === 'process') as
+          Record<string, unknown> | undefined
+        const rawSteps = Array.isArray(cmsProcess?.steps)
+          ? (cmsProcess.steps as Array<Record<string, unknown>>)
+          : []
         if (rawSteps.length) {
           const mappedSteps = rawSteps.map((s, sIdx) => ({
             title: String(s.title || `Step ${sIdx + 1}`),
             description: String(s.description || ''),
-            image: typeof s.image === 'object' && s.image ? (s.image as { url?: string })?.url : undefined,
+            image:
+              typeof s.image === 'object' && s.image
+                ? (s.image as { url?: string })?.url
+                : undefined,
           }))
           return (
             <ServiceProcessSection
@@ -1017,7 +1023,8 @@ export function ServiceTemplate({ service }: { service: ServiceDetail }) {
       key: 'craftsmanship',
       node: (() => {
         if (!sections.craftsmanship) return null
-        const cmsCraft = service.sections?.find((s) => s.blockType === 'craftsmanship') as Record<string, unknown> | undefined
+        const cmsCraft = service.sections?.find((s) => s.blockType === 'craftsmanship') as
+          Record<string, unknown> | undefined
         const defaultContent = getCraftsmanshipContent(service)
         if (cmsCraft) {
           const bodyText = typeof cmsCraft.description === 'string' ? cmsCraft.description : ''

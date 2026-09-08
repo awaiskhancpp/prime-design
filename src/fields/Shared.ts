@@ -92,8 +92,18 @@ export const imageTextContentFields = (): Field[] => [
 ]
 
 export const provenanceFields = (): Field[] => [
-  { name: 'sourceId', type: 'text' },
-  { name: 'sourceElementType', type: 'text' },
-  { name: 'sourceAttachmentId', type: 'number' },
-  { name: 'sourceMetadata', type: 'json' },
+  {
+    type: 'collapsible',
+    label: 'Source Provenance (migration data)',
+    admin: {
+      initCollapsed: true,
+      condition: () => false,
+    },
+    fields: [
+      { name: 'sourceId', type: 'text' },
+      { name: 'sourceElementType', type: 'text' },
+      { name: 'sourceAttachmentId', type: 'number' },
+      { name: 'sourceMetadata', type: 'json' },
+    ],
+  },
 ]

@@ -113,7 +113,7 @@ Roots count: 12 | Normalized count: 7
   Images count: 0 | Icons/Lists count: 0
   HEADINGS (2):
     [1] <h2> "Frequently Asked Questions" (26 chars)
-    [2] <h2> "{post_title}" (12 chars)
+    [2] <h2> "Kitchen Remodeling" (18 chars)
   BODY TEXTS (2):
     [1] (225 chars): "Do you have a kitchen project? Whether it’s a detailed vision or just some vague ideas, your design starts with an appoi..."
     [2] (14 chars): "{post_content}"
@@ -249,7 +249,7 @@ Roots count: 12 | Normalized count: 7
   Images count: 0 | Icons/Lists count: 0
   HEADINGS (2):
     [1] <h2> "Frequently Asked Questions" (26 chars)
-    [2] <h2> "{post_title}" (12 chars)
+    [2] <h2> "Bathroom Remodeling" (19 chars)
   BODY TEXTS (2):
     [1] (225 chars): "Do you have a kitchen project? Whether it’s a detailed vision or just some vague ideas, your design starts with an appoi..."
     [2] (14 chars): "{post_content}"
@@ -386,7 +386,7 @@ Roots count: 12 | Normalized count: 7
   Images count: 0 | Icons/Lists count: 0
   HEADINGS (2):
     [1] <h2> "Frequently Asked Questions" (26 chars)
-    [2] <h2> "{post_title}" (12 chars)
+    [2] <h2> "Home Remodeling" (15 chars)
   BODY TEXTS (2):
     [1] (233 chars): "Do you have a home remodeling project? Whether it’s a detailed vision or just some vague ideas, your design starts with ..."
     [2] (14 chars): "{post_content}"
@@ -421,7 +421,7 @@ Roots count: 7 | Normalized count: 4
   Elements present: section, container, heading, text-basic, div, button, image
   Images count: 1 | Icons/Lists count: 0
   HEADINGS (1):
-    [1] <h1> "{post_title} & Garage Conversions" (33 chars)
+    [1] <h1> "ADU & Garage Conversions" (24 chars)
   BODY TEXTS (1):
     [1] (89 chars): "Transforming your existing garage or space into an ADU opens up a world of possibilities."
   BUTTONS (2):
@@ -489,7 +489,7 @@ Roots count: 8 | Normalized count: 4
   Elements present: section, container, heading, text-basic, div, button, image
   Images count: 1 | Icons/Lists count: 0
   HEADINGS (1):
-    [1] <h1> "Room {post_title}" (17 chars)
+    [1] <h1> "Room Additions" (14 chars)
   BODY TEXTS (1):
     [1] (216 chars): "Our team of experts will work closely with you to understand your needs and preferences, assess the available space, and..."
   BUTTONS (2):
@@ -569,7 +569,7 @@ Roots count: 7 | Normalized count: 5
   Elements present: section, container, heading, text-basic, div, button, image
   Images count: 1 | Icons/Lists count: 0
   HEADINGS (1):
-    [1] <h1> "{post_title}" (12 chars)
+    [1] <h1> "Complete Renovation" (19 chars)
   BODY TEXTS (1):
     [1] (328 chars): "Our experienced team of architects, designers, and builders is dedicated to creating custom-built homes that reflect you..."
   BUTTONS (2):
@@ -650,7 +650,7 @@ Roots count: 6 | Normalized count: 3
   HEADINGS (1):
     [1] <h1> "European Kitchens: Make your kitchen scream 'Mamma mia!'" (56 chars)
   BODY TEXTS (2):
-    [1] (12 chars): "{post_title}"
+    [1] (16 chars): "European Kitchen"
     [2] (81 chars): "Experience the allure of European kitchens that blend elegance and functionality."
   BUTTONS (1):
     "Schedule a Consultation" -> {"type":"meta","useDynamicData":"#contact"}
@@ -680,13 +680,13 @@ Roots count: 6 | Normalized count: 3
   Elements present: section, container, heading, text-basic, block, text, image
   Images count: 3 | Icons/Lists count: 0
   HEADINGS (4):
-    [1] <h2> "What are features of a {post_title}?" (36 chars)
+    [1] <h2> "What are features of a European Kitchen?" (40 chars)
     [2] <h3> "Transform Your Kitchen into a Work of Art" (41 chars)
     [3] <h3> "Key Elements of European Kitchens" (33 chars)
     [4] <h3> "Premium Materials for European Kitchens" (39 chars)
   BODY TEXTS (8):
-    [1] (92 chars): "Here are some features that set a {post_title} apart from the rest of the "boring" kitchens."
-    [2] (30 chars): "Learn more about {post_title}s"
+    [1] (96 chars): "Here are some features that set a European Kitchen apart from the rest of the "boring" kitchens."
+    [2] (34 chars): "Learn more about European Kitchens"
     [3] (33 chars): "Inspiration starts all around you"
     [4] (246 chars): "Modern and sleek designs with clean lines Rustic and charming styles with warm earthy tones Contemporary designs featuri..."
     [5] (58 chars): "Want to know what really makes European Kitchens so great?"
@@ -718,7 +718,7 @@ Roots count: 8 | Normalized count: 5
   HEADINGS (1):
     [1] <h1> "Custom Kitchens: Designed to Inspire, Built to Amaze" (52 chars)
   BODY TEXTS (2):
-    [1] (12 chars): "{post_title}"
+    [1] (14 chars): "Custom Kitchen"
     [2] (85 chars): "Unleash your creativity with a tailor-made kitchen that reflects your personal style."
   BUTTONS (1):
     "Schedule a Consultation" -> {"type":"meta","useDynamicData":"#contact"}
@@ -812,7 +812,7 @@ Roots count: 6 | Normalized count: 2
   HEADINGS (1):
     [1] <h1> "Simple, Functional, and Crafted with Integrity" (46 chars)
   BODY TEXTS (2):
-    [1] (26 chars): "The {post_title} Aesthetic"
+    [1] (28 chars): "The Shaker Kitchen Aesthetic"
     [2] (332 chars): "Dating back to the mid-eighteenth century , Shaker-style kitchens embody simplicity , functionality , and unparalleled c..."
   BUTTONS (1):
     "Schedule a Consultation" -> {"type":"meta","useDynamicData":"#contact"}
@@ -828,15 +828,15 @@ Roots count: 6 | Normalized count: 2
   Elements present: section, container, heading, text-basic, block, text, image
   Images count: 2 | Icons/Lists count: 0
   HEADINGS (3):
-    [1] <h2> "What makes a {post_title} stand out?" (36 chars)
+    [1] <h2> "What makes a Shaker Kitchen stand out?" (38 chars)
     [2] <h3> "Versatile Door Options" (22 chars)
     [3] <h3> "Endless Finishes & Colors" (25 chars)
   BODY TEXTS (6):
-    [1] (92 chars): "Here are some features that set a {post_title} apart from the rest of the "boring" kitchens."
-    [2] (30 chars): "Learn more about {post_title}s"
+    [1] (94 chars): "Here are some features that set a Shaker Kitchen apart from the rest of the "boring" kitchens."
+    [2] (32 chars): "Learn more about Shaker Kitchens"
     [3] (33 chars): "Inspiration starts all around you"
     [4] (335 chars): "Our Shaker range offers both lay-on and in-frame doors. The traditional in-frame style presents doors and drawer fronts ..."
-    [5] (53 chars): "Want to know what really makes {post_title} so great?"
+    [5] (55 chars): "Want to know what really makes Shaker Kitchen so great?"
     [6] (365 chars): "Express your individual style with a wide range of finishes and colors for your Shaker kitchen. Create a stunning focal ..."
 
 --- Root 4 (Root ID: wmmthy, Name: template) ---

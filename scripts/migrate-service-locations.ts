@@ -10,12 +10,19 @@ import { parentServices, transformWordPressServiceLocations } from './transform-
 dotenv.config({ path: path.resolve(process.cwd(), '.env.local') })
 dotenv.config({ path: path.resolve(process.cwd(), '.env') })
 
-const input = process.argv[2] || 'C:/Users/HP/Downloads/primedesignampbuild.WordPress.2026-08-26.xml'
+const input =
+  process.argv[2] || 'C:/Users/HP/Downloads/primedesignampbuild.WordPress.2026-08-28.xml'
 
 const serviceTitles: Record<string, string> = {
   'kitchen-remodeling': 'Kitchen Remodeling',
   'bathroom-remodeling': 'Bathroom Remodeling',
   'home-remodeling': 'Home Remodeling',
+  adu: 'ADU & Garage Conversions',
+  additions: 'Room Additions',
+  'complete-renovation': 'Complete Renovation',
+  'european-kitchen': 'European Kitchen Remodeling',
+  'custom-kitchen': 'Custom Kitchen Remodeling',
+  'shaker-kitchen': 'Shaker Kitchen Remodeling',
 }
 
 async function upsert() {

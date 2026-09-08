@@ -35,9 +35,15 @@ const targetServices = [
   },
 ]
 
+let activePageTitle = ''
+
 function clean(value: unknown): string {
   if (typeof value !== 'string') return ''
-  return value
+  let text = value
+  if (activePageTitle) {
+    text = text.replace(/\{post_title(?::\d+)?\}/gi, activePageTitle)
+  }
+  return text
     .replace(/<[^>]+>/g, ' ')
     .replace(/&nbsp;/gi, ' ')
     .replace(/\s+/g, ' ')
@@ -56,6 +62,7 @@ async function run() {
   const output: string[] = []
 
   for (const target of targetServices) {
+    activePageTitle = target.title
     const page = source.pages.find((p) => p.id === target.wordpressPageId)
     if (!page || !page.bricksSerialized) {
       output.push(`\n=== PAGE: ${target.title} (${target.serviceSlug}) - NO BRICKS CONTENT ===`)

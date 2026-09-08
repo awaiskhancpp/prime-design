@@ -14,6 +14,12 @@ export const parentServices: Record<number, string> = {
   327: 'kitchen-remodeling',
   337: 'bathroom-remodeling',
   335: 'home-remodeling',
+  1976: 'adu',
+  1978: 'additions',
+  1980: 'complete-renovation',
+  329: 'european-kitchen',
+  331: 'custom-kitchen',
+  333: 'shaker-kitchen',
 }
 
 const field = (source: string, tag: string) => {

@@ -237,30 +237,30 @@ export interface FaqCategory {
  */
 export interface Service {
   id: number;
+  /**
+   * The public name of this service (e.g. "Kitchen Remodeling", "ADU & Garage Conversions")
+   */
   title: string;
+  /**
+   * URL slug (e.g. "kitchen-remodeling")
+   */
   slug: string;
   /**
-   * Optional parent service for a service subcategory.
+   * Optional parent service (for sub-categories like Shaker Kitchen -> Kitchen Remodeling)
    */
   parentService?: (number | null) | Service;
-  shortDescription?: string | null;
-  description?: string | null;
-  hero?: {
-    eyebrow?: string | null;
-    heading?: string | null;
-    lead?: string | null;
-    image?: (number | null) | Media;
-    /**
-     * Optional uploaded background video. Use this instead of an external video URL when available.
-     */
-    video?: (number | null) | Media;
-  };
-  featured?: boolean | null;
-  showInConsultationForm?: boolean | null;
-  sortOrder?: number | null;
   /**
-   * The complete ordered section sequence for this service. Use section keys once each; empty means legacy fallback while content is being migrated.
+   * Highlight this service in featured sections and navigation
    */
+  featured?: boolean | null;
+  /**
+   * Include in the service dropdown on booking and consultation forms
+   */
+  showInConsultationForm?: boolean | null;
+  /**
+   * Display order in navigation and menus (lower numbers first)
+   */
+  sortOrder?: number | null;
   sectionOrder?:
     | {
         section:
@@ -422,7 +422,7 @@ export interface Service {
       )[]
     | null;
   /**
-   * Canonical ordered sections for new service records. Existing contentBlocks and sectionOrder remain available during migration.
+   * Visual page blocks. Click "Add Block" below to compose your page.
    */
   sections?:
     | (
@@ -1235,7 +1235,34 @@ export interface Service {
           }
       )[]
     | null;
+  /**
+   * Brief summary displayed in service cards, search, and megamenu.
+   */
+  shortDescription?: string | null;
+  /**
+   * Full overview text describing this service.
+   */
+  description?: string | null;
+  /**
+   * Top banner copy and background media.
+   */
+  hero?: {
+    eyebrow?: string | null;
+    heading?: string | null;
+    lead?: string | null;
+    image?: (number | null) | Media;
+    /**
+     * Optional uploaded background video. Use this instead of an external video URL when available.
+     */
+    video?: (number | null) | Media;
+  };
+  /**
+   * Select FAQs relevant to this service
+   */
   faqs?: (number | Faq)[] | null;
+  /**
+   * Select services to recommend alongside this one
+   */
   relatedServices?: (number | Service)[] | null;
   seo?: {
     metaTitle?: string | null;
@@ -2750,17 +2777,6 @@ export interface ServicesSelect<T extends boolean = true> {
   title?: T;
   slug?: T;
   parentService?: T;
-  shortDescription?: T;
-  description?: T;
-  hero?:
-    | T
-    | {
-        eyebrow?: T;
-        heading?: T;
-        lead?: T;
-        image?: T;
-        video?: T;
-      };
   featured?: T;
   showInConsultationForm?: T;
   sortOrder?: T;
@@ -3562,6 +3578,17 @@ export interface ServicesSelect<T extends boolean = true> {
               id?: T;
               blockName?: T;
             };
+      };
+  shortDescription?: T;
+  description?: T;
+  hero?:
+    | T
+    | {
+        eyebrow?: T;
+        heading?: T;
+        lead?: T;
+        image?: T;
+        video?: T;
       };
   faqs?: T;
   relatedServices?: T;

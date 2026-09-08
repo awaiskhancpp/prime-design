@@ -161,50 +161,71 @@ export const Services: CollectionConfig = {
       'Reusable remodeling and construction services shared by service and location pages.',
   },
   fields: [
-    { name: 'title', type: 'text', required: true },
-    { name: 'slug', type: 'text', required: true, unique: true, index: true },
+    {
+      name: 'title',
+      type: 'text',
+      required: true,
+      admin: {
+        description: 'The public name of this service (e.g. "Kitchen Remodeling", "ADU & Garage Conversions")',
+      },
+    },
+    // Sidebar fields (metadata & publication settings)
+    {
+      name: 'slug',
+      type: 'text',
+      required: true,
+      unique: true,
+      index: true,
+      admin: {
+        position: 'sidebar',
+        description: 'URL slug (e.g. "kitchen-remodeling")',
+      },
+    },
     {
       name: 'parentService',
       type: 'relationship',
       relationTo: 'services' as CollectionSlug,
       index: true,
-      admin: { description: 'Optional parent service for a service subcategory.' },
+      admin: {
+        position: 'sidebar',
+        description: 'Optional parent service (for sub-categories like Shaker Kitchen -> Kitchen Remodeling)',
+      },
     },
-    { name: 'shortDescription', type: 'textarea' },
-    { name: 'description', type: 'textarea' },
     {
-      name: 'hero',
-      type: 'group',
-      fields: [
-        { name: 'eyebrow', type: 'text' },
-        { name: 'heading', type: 'text' },
-        { name: 'lead', type: 'textarea' },
-        { name: 'image', type: 'upload', relationTo: 'media' },
-        {
-          name: 'video',
-          type: 'upload',
-          relationTo: 'media',
-          admin: {
-            description:
-              'Optional uploaded background video. Use this instead of an external video URL when available.',
-          },
-        },
-      ],
+      name: 'featured',
+      type: 'checkbox',
+      defaultValue: false,
+      admin: {
+        position: 'sidebar',
+        description: 'Highlight this service in featured sections and navigation',
+      },
     },
-    { name: 'featured', type: 'checkbox', defaultValue: false },
     {
       name: 'showInConsultationForm',
       type: 'checkbox',
       defaultValue: true,
       label: 'Show in Consultation Form',
+      admin: {
+        position: 'sidebar',
+        description: 'Include in the service dropdown on booking and consultation forms',
+      },
     },
-    { name: 'sortOrder', type: 'number', defaultValue: 0 },
+    {
+      name: 'sortOrder',
+      type: 'number',
+      defaultValue: 0,
+      admin: {
+        position: 'sidebar',
+        description: 'Display order in navigation and menus (lower numbers first)',
+      },
+    },
+
+    // Legacy migration fields (hidden from admin UI, but kept before tabs to preserve Drizzle table naming order)
     {
       name: 'sectionOrder',
       type: 'array',
       admin: {
-        description:
-          'The complete ordered section sequence for this service. Use section keys once each; empty means legacy fallback while content is being migrated.',
+        condition: () => false,
       },
       fields: [
         {
@@ -232,23 +253,101 @@ export const Services: CollectionConfig = {
         },
       ],
     },
-    { name: 'contentBlocks', type: 'blocks', blocks: serviceContentBlocks },
     {
-      name: 'sections',
+      name: 'contentBlocks',
       type: 'blocks',
-      blocks: landingPageBlocks,
+      blocks: serviceContentBlocks,
       admin: {
-        description:
-          'Canonical ordered sections for new service records. Existing contentBlocks and sectionOrder remain available during migration.',
+        condition: () => false,
       },
     },
-    { name: 'faqs', type: 'relationship', relationTo: 'faqs', hasMany: true },
+
+    // Main workspace organized in tabs
     {
-      name: 'relatedServices',
-      type: 'relationship',
-      relationTo: 'services' as CollectionSlug,
-      hasMany: true,
+      type: 'tabs',
+      tabs: [
+        {
+          label: 'Page Builder (Sections)',
+          description:
+            'Active sections that build the public page. Add, edit, or drag to reorder visual blocks (Hero, Process, Sub-services, Image & Text, Craftsmanship, Testimonials, Form, etc.).',
+          fields: [
+            {
+              name: 'sections',
+              type: 'blocks',
+              blocks: landingPageBlocks,
+              admin: {
+                description:
+                  'Visual page blocks. Click "Add Block" below to compose your page.',
+              },
+            },
+          ],
+        },
+        {
+          label: 'Overview & Hero Fallback',
+          description:
+            'General copy and hero fallback. Used in preview cards, directory listings, and when no hero block is in sections.',
+          fields: [
+            {
+              name: 'shortDescription',
+              type: 'textarea',
+              admin: {
+                description: 'Brief summary displayed in service cards, search, and megamenu.',
+              },
+            },
+            {
+              name: 'description',
+              type: 'textarea',
+              admin: {
+                description: 'Full overview text describing this service.',
+              },
+            },
+            {
+              name: 'hero',
+              type: 'group',
+              label: 'Hero Banner Fallback',
+              admin: {
+                description: 'Top banner copy and background media.',
+              },
+              fields: [
+                { name: 'eyebrow', type: 'text' },
+                { name: 'heading', type: 'text' },
+                { name: 'lead', type: 'textarea' },
+                { name: 'image', type: 'upload', relationTo: 'media' },
+                {
+                  name: 'video',
+                  type: 'upload',
+                  relationTo: 'media',
+                  admin: {
+                    description:
+                      'Optional uploaded background video. Use this instead of an external video URL when available.',
+                  },
+                },
+              ],
+            },
+          ],
+        },
+        {
+          label: 'SEO & Relations',
+          description: 'Search engine metadata and related pages.',
+          fields: [
+            {
+              name: 'faqs',
+              type: 'relationship',
+              relationTo: 'faqs',
+              hasMany: true,
+              admin: { description: 'Select FAQs relevant to this service' },
+            },
+            {
+              name: 'relatedServices',
+              type: 'relationship',
+              relationTo: 'services' as CollectionSlug,
+              hasMany: true,
+              admin: { description: 'Select services to recommend alongside this one' },
+            },
+            ...SEOFields,
+          ],
+        },
+      ],
     },
-    ...SEOFields,
   ],
 }

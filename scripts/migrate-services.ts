@@ -84,11 +84,23 @@ const replaceAcfTokens = (value: string) =>
   })
 
 let currentContextPageTitle = ''
+let currentContextPageContent = ''
 const unresolvedDynamicTokens = new Set<string>()
 const resolveDynamicTags = (value: string) =>
-  value.replace(/\{(post_[a-z0-9_]+)(?::\d+)?\}/gi, (token, key: string) => {
-    if (key.toLowerCase() === 'post_title' && currentContextPageTitle) {
+  value.replace(/\{(post_[a-z0-9_]+)(?::(\d+))?\}/gi, (token, key: string, wordLimit?: string) => {
+    const normalizedKey = key.toLowerCase()
+    if (normalizedKey === 'post_title' && currentContextPageTitle) {
       return currentContextPageTitle
+    }
+    if (normalizedKey === 'post_content' && currentContextPageContent) {
+      // {post_content} with no page-loop context (e.g. FAQ sections, which
+      // resolve their own real per-post content via a dedicated query match
+      // and never reach this function) means "this page's own body copy" —
+      // same self-reference as {post_title}. {post_content:50} truncates to
+      // that many words, matching Bricks' own truncation syntax.
+      const words = currentContextPageContent.split(/\s+/).filter(Boolean)
+      const limited = wordLimit ? words.slice(0, Number(wordLimit)) : words
+      return limited.join(' ') + (wordLimit && words.length > Number(wordLimit) ? '…' : '')
     }
     unresolvedDynamicTokens.add(token)
     return ''
@@ -825,17 +837,38 @@ function mapSection(
         media: ref,
         buttons: buttonData(section, pagesById),
       }
-    case 'image-text':
+    case 'image-text': {
+      // Some image-text sections (ADU, Additions, Complete Renovation) contain
+      // HTML bullet lists ("Key Features: <ul><li>...</li>...") that get
+      // flattened into an unreadable wall of text by the normal clean() path.
+      // Detect and reformat them as newline-separated bullet items so the
+      // renderer's whitespace-pre-line styling presents them legibly.
+      const rawBodies = Array.isArray(data.body) ? data.body : []
+      const rawBodyWithList = rawBodies.find(
+        (value): value is string => typeof value === 'string' && /<li[\s>]/i.test(value),
+      )
+      let imageTextDescription = description
+      if (rawBodyWithList) {
+        const items = htmlListItems(rawBodyWithList)
+        if (items.length) {
+          const leadHtml = rawBodyWithList.replace(/<[ou]l[\s\S]*$/i, '')
+          const lead = clean(leadHtml)
+          imageTextDescription = [lead, ...items.map((item) => `• ${item}`)]
+            .filter(Boolean)
+            .join('\n')
+        }
+      }
       return {
         blockType: 'image-text',
         ...common,
         eyebrow: sectionEyebrow(section),
         heading: heading || 'Prime Design & Build',
-        description,
+        description: imageTextDescription,
         media: ref,
         buttons: buttonData(section, pagesById),
         alignment: 'left',
       }
+    }
     case 'craftsmanship':
       return {
         blockType: 'craftsmanship',
@@ -874,9 +907,9 @@ function mapSection(
         description: string
         image?: Record<string, unknown>
       }> = stepNodes.map((node, stepIdx) => ({
-        title: clean(
-          String(node.settings.title || node.settings.heading || `Step ${stepIdx + 1}`),
-        ) || `Step ${stepIdx + 1}`,
+        title:
+          clean(String(node.settings.title || node.settings.heading || `Step ${stepIdx + 1}`)) ||
+          `Step ${stepIdx + 1}`,
         description: clean(String(node.settings.content || node.settings.text || '')) || '',
         image: undefined,
       }))
@@ -1225,38 +1258,86 @@ function mapSection(
       }
     }
     case 'testimonials':
-    case 'testimonial':
+    case 'testimonial': {
+      const testimonialProviders: Record<string, unknown>[] = (
+        (data.testimonials as Array<Record<string, unknown>> | undefined) || []
+      ).map((provider) => {
+        const name = clean(provider.provider) || 'Testimonials'
+        const source = name.toLowerCase().includes('yelp') ? 'yelp' : 'google'
+        const summary =
+          source === 'yelp' ? website.reviewSummary.yelp : website.reviewSummary.google
+        return {
+          name,
+          collectionId: provider.collectionId,
+          reviewUrl: summary.url,
+          rating: summary.rating,
+          reviewCount: summary.count,
+          reviews: sourceTestimonials
+            .filter((review) => review.source === source)
+            .map((review) => ({
+              reviewer: review.name,
+              rating: review.rating,
+              body: review.text,
+              date: review.date,
+              sourceId: `${review.source}:${review.name}:${review.date}`,
+            })),
+        }
+      })
+
+      // Static testimonial quotes (e.g. "Real Homes, Real Stories" on Home
+      // Remodeling and Additions) are plain heading + text-basic nodes — not
+      // tabs-nested review widgets — so data.testimonials is empty for them.
+      // Extract quote/attribution pairs from the tree directly: a long body
+      // text (> 50 chars) immediately followed by a short couple name
+      // (< 50 chars, contains "and") like "Alex and Sophia".
+      if (!testimonialProviders.length) {
+        const textBasicValues = treeNodes(section)
+          .filter((node) => node.name === 'text-basic')
+          .map((node) => clean(node.settings.text))
+          .filter((value): value is string => Boolean(value))
+
+        const staticReviews: Array<{
+          reviewer: string
+          body: string
+          rating: number
+          sourceId: string
+        }> = []
+        for (let i = 0; i < textBasicValues.length - 1; i++) {
+          const current = textBasicValues[i]
+          const next = textBasicValues[i + 1]
+          if (
+            current.length > 50 &&
+            next.length < 50 &&
+            next.length > 3 &&
+            /\band\b/i.test(next)
+          ) {
+            staticReviews.push({
+              reviewer: next,
+              body: current,
+              rating: 5,
+              sourceId: `static:${next}`,
+            })
+            i++ // skip the attribution node
+          }
+        }
+
+        if (staticReviews.length) {
+          testimonialProviders.push({
+            name: 'Customer Stories',
+            reviews: staticReviews,
+          })
+        }
+      }
+
       return {
         blockType: 'landing-testimonials',
         ...common,
         eyebrow: sectionEyebrow(section),
         heading,
         description,
-        providers: ((data.testimonials as Array<Record<string, unknown>> | undefined) || []).map(
-          (provider) => {
-            const name = clean(provider.provider) || 'Testimonials'
-            const source = name.toLowerCase().includes('yelp') ? 'yelp' : 'google'
-            const summary =
-              source === 'yelp' ? website.reviewSummary.yelp : website.reviewSummary.google
-            return {
-              name,
-              collectionId: provider.collectionId,
-              reviewUrl: summary.url,
-              rating: summary.rating,
-              reviewCount: summary.count,
-              reviews: sourceTestimonials
-                .filter((review) => review.source === source)
-                .map((review) => ({
-                  reviewer: review.name,
-                  rating: review.rating,
-                  body: review.text,
-                  date: review.date,
-                  sourceId: `${review.source}:${review.name}:${review.date}`,
-                })),
-            }
-          },
-        ),
+        providers: testimonialProviders,
       }
+    }
     case 'booking':
     case 'contact-form':
     case 'form': {
@@ -1493,6 +1574,11 @@ for (const target of targetServices) {
     continue
   }
   const bricks = parseBricksSerialized(page.bricksSerialized)
+  currentContextPageContent = (page.content || '')
+    .replace(/<[^>]+>/g, ' ')
+    .replace(/&nbsp;/gi, ' ')
+    .replace(/\s+/g, ' ')
+    .trim()
   const normalized = normalizeBricksPage(page, bricks.roots)
   // A `video`/`carousel` section immediately following a `prime-difference`
   // section belongs inside it — the schema's videos field says as much
