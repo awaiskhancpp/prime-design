@@ -43,10 +43,6 @@ export function ProjectsTrustIntro() {
             a small floating card anchored to one corner, not a box that
             competes with the image for space. */}
         <div className="relative mb-8 sm:mb-10">
-          <div
-            className="absolute -bottom-5 -right-5 hidden h-full w-full bg-brass sm:block"
-            aria-hidden="true"
-          />
           <div className="relative aspect-[4/3] overflow-hidden bg-ink-2">
             <Image
               src="/services/kitchen-remodeling.jpeg"
