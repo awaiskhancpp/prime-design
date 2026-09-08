@@ -1,4 +1,5 @@
 import { ProjectsReviews } from '@/components/projects/ProjectsReviews'
+import { ReviewsSection } from './ReviewsSection'
 import { Section } from '@/components/ui/Section'
 import { getServiceQuote, ServiceQuoteSection } from './ServiceQuoteSection'
 import { getServiceOfferings, ServiceOfferingsSection } from './ServiceOfferingsSection'
@@ -86,7 +87,7 @@ export function ServiceLocationPage({
         ) : null}
         {enabled('offerings') && offerings ? <ServiceOfferingsSection {...offerings} /> : null}
         {enabled('quote') && quote ? <ServiceQuoteSection {...quote} /> : null}
-        {enabled('reviews') ? <ProjectsReviews /> : null}
+        {enabled('reviews') ? <ReviewsSection /> : null}
         {enabled('prime-difference') ? (
           <ServicePrimeDifferenceSection {...getPrimeDifferenceContent(service)} />
         ) : null}

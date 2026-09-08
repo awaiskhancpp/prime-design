@@ -15,7 +15,8 @@ import { getServiceVideo, ServiceVideoSection } from './ServiceVideoSection'
 import { HomeRemodelingProcessSection } from './sections/HomeRemodelingProcessSection'
 import { ServiceAreasSection } from './ServiceAreasSection'
 import { ServiceEstimateCta } from './ServiceEstimateCta'
-import { ServiceFaq } from './ServiceFaq'
+import { ServiceFaqLoader } from './ServiceFaqLoader'
+import { ReviewsSection } from './ReviewsSection'
 import { ServiceGallery } from './ServiceGallery'
 import { ServiceHero } from './ServiceHero'
 import { getServiceQuote, ServiceQuoteSection } from './ServiceQuoteSection'
@@ -868,7 +869,7 @@ export function ServiceSectionRenderer({
 
     if (blockType === 'faq') {
       if (!rendered.some((node) => (node as { key?: string })?.key === 'service-faq')) {
-        rendered.push(<ServiceFaq key="service-faq" slug={service.slug} />)
+        rendered.push(<ServiceFaqLoader key="service-faq" slug={service.slug} />)
       }
       return
     }
@@ -1110,7 +1111,7 @@ export function ServiceTemplate({ service }: { service: ServiceDetail }) {
       key: 'faq',
       node:
         sections.faq && !(hasCmsSections && cmsHas('faq')) ? (
-          <ServiceFaq slug={service.slug} />
+          <ServiceFaqLoader slug={service.slug} />
         ) : null,
     },
     { key: 'estimate', node: sections.estimate ? <ServiceEstimateCta /> : null },
@@ -1122,7 +1123,7 @@ export function ServiceTemplate({ service }: { service: ServiceDetail }) {
       key: 'reviews',
       node:
         sections.reviews && !(hasCmsSections && cmsHas('testimonials')) ? (
-          <ProjectsReviews />
+          <ReviewsSection />
         ) : null,
     },
     {

@@ -75,11 +75,21 @@ export function getServiceFaq(slug: string) {
   return faqsBySlug[slug]
 }
 
-export function ServiceFaq({ slug }: { slug: string }) {
+export function ServiceFaq({
+  slug,
+  items,
+  description,
+}: {
+  slug: string
+  items?: FaqItem[]
+  description?: string
+}) {
   const faq = getServiceFaq(slug)
+  const shownItems = items ?? faq?.items ?? []
+  const desc = description ?? faq?.description
   const [openIndex, setOpenIndex] = useState<number | null>(null)
 
-  if (!faq?.items.length) return null
+  if (!shownItems.length) return null
 
   return (
     <Section className="bg-white">
@@ -88,14 +98,14 @@ export function ServiceFaq({ slug }: { slug: string }) {
           <SectionHeader
             eyebrow="Questions"
             title="Frequently asked questions"
-            description={faq.description}
+            description={desc}
           />
           <Button href="/contact" variant="outline" size="md" className="mt-7">
             Speak with an expert
           </Button>
         </div>
         <div className="border-t border-line">
-          {faq.items.map((item, index) => {
+          {shownItems.map((item, index) => {
             const isOpen = openIndex === index
 
             return (

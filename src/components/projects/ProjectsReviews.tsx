@@ -34,8 +34,19 @@ function initials(name: string) {
     .toUpperCase()
 }
 
-export function ProjectsReviews() {
-  const { testimonialsFeatured, reviewSummary } = website
+export function ProjectsReviews({
+  testimonials,
+}: {
+  testimonials?: Array<{
+    author: string
+    source: string
+    rating: number
+    summary: string
+    timeAgo?: string
+  }>
+}) {
+  const { reviewSummary } = website
+  const list = testimonials ?? website.testimonialsFeatured
   const totalReviews = reviewSummary.google.count + reviewSummary.yelp.count
   const swiperRef = useRef<SwiperType | null>(null)
   const [mounted, setMounted] = useState(false)
@@ -104,8 +115,8 @@ export function ProjectsReviews() {
               slidesPerView={3}
               className="mt-10 h-[400px]"
             >
-              {testimonialsFeatured.map((testimonial) => (
-                <SwiperSlide key={testimonial.author}>
+              {list.map((testimonial, index) => (
+                <SwiperSlide key={index}>
                   <div className="flex h-full flex-col justify-center gap-2 border border-line bg-paper px-5 py-3">
                     <div className="flex items-center gap-3">
                       <div

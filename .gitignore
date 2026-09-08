@@ -55,3 +55,4 @@ node_modules/
 
 # Large WordPress export used by migration/audit scripts (kept out of Git).
 primedesignampbuild.WordPress.2026-08-28.xml
+.env*
