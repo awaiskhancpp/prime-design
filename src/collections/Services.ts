@@ -302,6 +302,44 @@ export const Services: CollectionConfig = {
               },
             },
             {
+              name: 'overview',
+              type: 'group',
+              label: 'Overview Lists (Key Features, Benefits, Process)',
+              admin: {
+                description:
+                  'Rich text versions of the overview lists. When filled, they replace the built-in Key Features / Benefits / Process lists on the service page.',
+              },
+              fields: [
+                {
+                  name: 'keyFeatures',
+                  type: 'richText',
+                  label: 'Key Features',
+                  admin: {
+                    description:
+                      'Bullet list of key features shown under the "Key Features" heading. Use bullet points; each line becomes one feature.',
+                  },
+                },
+                {
+                  name: 'benefits',
+                  type: 'richText',
+                  label: 'Benefits',
+                  admin: {
+                    description:
+                      'Bullet list shown under the "Benefits of [Service]" heading. Use bullet points.',
+                  },
+                },
+                {
+                  name: 'process',
+                  type: 'richText',
+                  label: 'Process Steps',
+                  admin: {
+                    description:
+                      'Numbered steps shown under the "Process" heading (only on pages that display the inline process). Use a numbered list.',
+                  },
+                },
+              ],
+            },
+            {
               name: 'hero',
               type: 'group',
               label: 'Hero Banner Fallback',

@@ -7,9 +7,22 @@ import { getServiceDetailForPath, servicePathAliases, services } from '@/lib/ser
 import { listLandingPageSlugs, resolveLandingPage } from '@/lib/landingPages'
 import { resolvePageBySlug } from '@/lib/pages'
 import { resolveRedirect } from '@/lib/redirects'
+import { buildSeoMetadata } from '@/lib/seo'
 
-// Landing pages created in Payload are rendered on demand even when their
-// slugs were not known when the application was built.
+/**
+ * `/[serviceSlug]` — the catch-all root route for top-level pages. It
+ * resolves, in order:
+ *
+ *   1. legacy WordPress redirects (301/308 → permanent, else temporary),
+ *   2. services and service path aliases (aliases render here; canonical
+ *      service slugs redirect to `/services/[serviceSlug]`),
+ *   3. landing pages (from Payload, rendered on demand),
+ *   4. generic Payload pages,
+ *   5. 404.
+ *
+ * Landing pages created in Payload are rendered on demand even when their
+ * slugs were not known when the application was built.
+ */
 export const dynamicParams = true
 
 export function generateStaticParams() {
@@ -20,50 +33,46 @@ export function generateStaticParams() {
   ]
 }
 
+/**
+ * Apply a legacy redirect if one matches the path: permanent status codes
+ * issue a 301/308, everything else a temporary redirect.
+ */
+async function applyLegacyRedirect(path: string) {
+  const legacyRedirect = await resolveRedirect(path)
+  if (!legacyRedirect) return
+  if (legacyRedirect.statusCode === '301' || legacyRedirect.statusCode === '308') {
+    permanentRedirect(legacyRedirect.newPath)
+  }
+  redirect(legacyRedirect.newPath)
+}
+
 export async function generateMetadata({
   params,
 }: {
   params: Promise<{ serviceSlug: string }>
 }): Promise<Metadata> {
   const { serviceSlug } = await params
-  const legacyRedirect = await resolveRedirect(`/${serviceSlug}`)
-  if (legacyRedirect) {
-    if (legacyRedirect.statusCode === '301' || legacyRedirect.statusCode === '308') {
-      permanentRedirect(legacyRedirect.newPath)
-    }
-    redirect(legacyRedirect.newPath)
-  }
+  await applyLegacyRedirect(`/${serviceSlug}`)
 
   const service = await getServiceDetailForPath(serviceSlug)
   if (service) {
-    return {
-      title: service.seo?.metaTitle || `${service.title} | Prime Design & Build`,
-      description: service.seo?.metaDescription || service.description,
-      alternates: service.seo?.canonicalUrl ? { canonical: service.seo.canonicalUrl } : undefined,
-      robots: service.seo?.noIndex ? { index: false, follow: false } : undefined,
-    }
+    return buildSeoMetadata(service.seo, {
+      title: service.title,
+      description: service.description,
+    })
   }
 
   const landingPage = await resolveLandingPage(serviceSlug)
   if (landingPage) {
-    return {
-      title: landingPage.seo?.metaTitle || `${landingPage.title} | Prime Design & Build`,
-      description: landingPage.seo?.metaDescription || landingPage.hero?.lead,
-      alternates: landingPage.seo?.canonicalUrl
-        ? { canonical: landingPage.seo.canonicalUrl }
-        : undefined,
-      robots: landingPage.seo?.noIndex ? { index: false, follow: false } : undefined,
-    }
+    return buildSeoMetadata(landingPage.seo, {
+      title: landingPage.title,
+      description: landingPage.hero?.lead,
+    })
   }
 
   const page = await resolvePageBySlug(serviceSlug)
   return page
-    ? {
-        title: page.seo?.metaTitle || `${page.title} | Prime Design & Build`,
-        description: page.seo?.metaDescription || page.hero?.description,
-        alternates: page.seo?.canonicalUrl ? { canonical: page.seo.canonicalUrl } : undefined,
-        robots: page.seo?.noIndex ? { index: false, follow: false } : undefined,
-      }
+    ? buildSeoMetadata(page.seo, { title: page.title, description: page.hero?.description })
     : {}
 }
 
@@ -74,10 +83,13 @@ export default async function ServiceSlugRoute({
 }) {
   const { serviceSlug } = await params
   const service = await getServiceDetailForPath(serviceSlug)
+
+  // Aliased service paths render the service page here, at their own URL.
   if (servicePathAliases[serviceSlug]) {
     if (!service) notFound()
     return <ServiceTemplate service={service} />
   }
+  // Canonical service slugs live under /services/... — redirect there.
   if (service || services.some((item) => item.slug === serviceSlug)) {
     permanentRedirect(`/services/${serviceSlug}`)
   }

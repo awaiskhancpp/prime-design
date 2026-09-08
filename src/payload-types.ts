@@ -1244,6 +1244,65 @@ export interface Service {
    */
   description?: string | null;
   /**
+   * Rich text versions of the overview lists. When filled, they replace the built-in Key Features / Benefits / Process lists on the service page.
+   */
+  overview?: {
+    /**
+     * Bullet list of key features shown under the "Key Features" heading. Use bullet points; each line becomes one feature.
+     */
+    keyFeatures?: {
+      root: {
+        type: string;
+        children: {
+          type: any;
+          version: number;
+          [k: string]: unknown;
+        }[];
+        direction: ('ltr' | 'rtl') | null;
+        format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+        indent: number;
+        version: number;
+      };
+      [k: string]: unknown;
+    } | null;
+    /**
+     * Bullet list shown under the "Benefits of [Service]" heading. Use bullet points.
+     */
+    benefits?: {
+      root: {
+        type: string;
+        children: {
+          type: any;
+          version: number;
+          [k: string]: unknown;
+        }[];
+        direction: ('ltr' | 'rtl') | null;
+        format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+        indent: number;
+        version: number;
+      };
+      [k: string]: unknown;
+    } | null;
+    /**
+     * Numbered steps shown under the "Process" heading (only on pages that display the inline process). Use a numbered list.
+     */
+    process?: {
+      root: {
+        type: string;
+        children: {
+          type: any;
+          version: number;
+          [k: string]: unknown;
+        }[];
+        direction: ('ltr' | 'rtl') | null;
+        format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+        indent: number;
+        version: number;
+      };
+      [k: string]: unknown;
+    } | null;
+  };
+  /**
    * Top banner copy and background media.
    */
   hero?: {
@@ -3581,6 +3640,13 @@ export interface ServicesSelect<T extends boolean = true> {
       };
   shortDescription?: T;
   description?: T;
+  overview?:
+    | T
+    | {
+        keyFeatures?: T;
+        benefits?: T;
+        process?: T;
+      };
   hero?:
     | T
     | {
