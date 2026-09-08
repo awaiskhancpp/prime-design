@@ -374,12 +374,14 @@ export function ServiceTemplate({ service }: { service: ServiceDetail }) {
   // page when it differs from the shared default.
   const PAGE_SECTION_ORDERS: Record<string, string[]> = {
     // Additions (WP page 1978): "Home Additions" image-text → Real Homes →
-    // video → free estimate → Prime Difference → reviews → contact → areas.
+    // video → free estimate → Silicon Valley Loves → Prime Difference →
+    // reviews → contact → areas.
     additions: [
       'intro',
       'real-homes',
       'video',
       'estimate',
+      'silicon-valley-loves',
       'why-choose-us',
       'reviews',
       'contact',
