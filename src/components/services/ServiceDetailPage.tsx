@@ -230,6 +230,7 @@ const servicePageSections: Record<string, ServicePageSections> = {
     videoFirst: true,
     reviews: true,
     contact: true,
+    estimate: true,
     visualProcess: true,
     contactVariant: 'gallery',
   },
@@ -239,6 +240,7 @@ const servicePageSections: Record<string, ServicePageSections> = {
     videoFirst: true,
     reviews: true,
     contact: true,
+    estimate: true,
     visualProcess: true,
     contactVariant: 'gallery',
   },
@@ -927,6 +929,23 @@ export function ServiceTemplate({ service }: { service: ServiceDetail }) {
     <ServiceVideoSection {...fallbackVideo} />
   ) : null
 
+  // CMS Page Builder (sections) content — the WordPress-derived blocks the
+  // editor maintains in Payload. When a service has sections we render those
+  // through the WordPress→Service component map in their exact CMS order and
+  // only fall back to the static per-slug layout for section types the CMS
+  // has not authored (so nothing that was showing disappears).
+  const cmsSections = (service.sections ?? []).filter(
+    (block) => block && typeof block.blockType === 'string',
+  ) as Array<Record<string, unknown>>
+  const cmsContentSections = cmsSections.filter((block) => block.blockType !== 'hero')
+  const hasCmsSections = cmsContentSections.length > 0
+  const cmsBlockTypes = new Set(cmsContentSections.map((block) => String(block.blockType)))
+  const cmsHas = (...types: string[]) => types.some((type) => cmsBlockTypes.has(type))
+  // Every non-hero CMS block renders in Payload order through the section
+  // renderer; the static shell blocks below are suppressed per type when the
+  // CMS already supplies that section (no double rendering).
+  const cmsRendererSections = cmsContentSections
+
   const fallbackOrder = [
     'video',
     'estimate',
@@ -950,7 +969,12 @@ export function ServiceTemplate({ service }: { service: ServiceDetail }) {
     {
       key: 'intro',
       node:
-        !sections.homeRepairCategories && (contentBlocks?.length || !hasCmsBlocks) ? (
+        !sections.homeRepairCategories &&
+        (contentBlocks?.length || !hasCmsBlocks) &&
+        // When the CMS supplies the page body as full WordPress-style sections
+        // (image+text, sub-services cards, prime-difference), the generic
+        // key-features overview would duplicate that content — skip it.
+        !(hasCmsSections && cmsHas('image-text', 'sub-services', 'prime-difference')) ? (
           <Section>
             {contentBlocks?.length ? (
               <ServiceContentBlocks service={service} blocks={contentBlocks} />
@@ -973,25 +997,36 @@ export function ServiceTemplate({ service }: { service: ServiceDetail }) {
     {
       key: 'why-choose-us',
       node:
-        sections.homeRepairWhyChooseUs || sections.whyChooseUs ? (
+        (sections.homeRepairWhyChooseUs || sections.whyChooseUs) &&
+        !(hasCmsSections && cmsHas('prime-difference', 'experience-difference')) ? (
           <ServiceWhyChooseUsSection />
         ) : null,
     },
     {
       key: 'real-homes',
-      node: sections.realHomes ? (
-        <ServiceRealHomesStoriesSection {...getRealHomesContent(service)} />
-      ) : null,
+      node:
+        sections.realHomes &&
+        !(hasCmsSections && cmsHas('landing-testimonials', 'testimonials')) ? (
+          <ServiceRealHomesStoriesSection {...getRealHomesContent(service)} />
+        ) : null,
     },
-    { key: 'video', node: !sections.videoFirst ? videoSection : null },
+    {
+      key: 'video',
+      node:
+        !sections.videoFirst && !(hasCmsSections && cmsHas('video')) ? videoSection : null,
+    },
     {
       key: 'offerings',
-      node: sections.offerings && offerings ? <ServiceOfferingsSection {...offerings} /> : null,
+      node:
+        sections.offerings && offerings && !(hasCmsSections && cmsHas('sub-services')) ? (
+          <ServiceOfferingsSection {...offerings} />
+        ) : null,
     },
     {
       key: 'process',
       node: (() => {
         if (!sections.process) return null
+        if (hasCmsSections && cmsHas('process')) return null // rendered by the CMS body
         if (sections.homeProcess) return <HomeRemodelingProcessSection />
         const cmsProcess = service.sections?.find((s) => s.blockType === 'process') as
           Record<string, unknown> | undefined
@@ -1019,11 +1054,18 @@ export function ServiceTemplate({ service }: { service: ServiceDetail }) {
         return process ? <ServiceProcessSection {...process} /> : null
       })(),
     },
-    { key: 'gallery', node: sections.gallery ? <ServiceGallery service={service} /> : null },
+    {
+      key: 'gallery',
+      node:
+        sections.gallery && !(hasCmsSections && cmsHas('gallery')) ? (
+          <ServiceGallery service={service} />
+        ) : null,
+    },
     {
       key: 'craftsmanship',
       node: (() => {
         if (!sections.craftsmanship) return null
+        if (hasCmsSections && cmsHas('craftsmanship')) return null // rendered by the CMS body
         const cmsCraft = service.sections?.find((s) => s.blockType === 'craftsmanship') as
           Record<string, unknown> | undefined
         const defaultContent = getCraftsmanshipContent(service)
@@ -1043,7 +1085,13 @@ export function ServiceTemplate({ service }: { service: ServiceDetail }) {
         return <ServiceCraftsmanshipTransformsSection {...defaultContent} />
       })(),
     },
-    { key: 'service-areas', node: <ServiceAreasSection service={service} /> },
+    {
+      key: 'service-areas',
+      node:
+        !(hasCmsSections && cmsHas('service-areas')) ? (
+          <ServiceAreasSection service={service} />
+        ) : null,
+    },
     {
       key: 'quote',
       node:
@@ -1058,29 +1106,66 @@ export function ServiceTemplate({ service }: { service: ServiceDetail }) {
           <ServiceQuoteSection {...fallbackQuote} />
         ) : null,
     },
-    { key: 'faq', node: sections.faq ? <ServiceFaq slug={service.slug} /> : null },
+    {
+      key: 'faq',
+      node:
+        sections.faq && !(hasCmsSections && cmsHas('faq')) ? (
+          <ServiceFaq slug={service.slug} />
+        ) : null,
+    },
     { key: 'estimate', node: sections.estimate ? <ServiceEstimateCta /> : null },
     {
       key: 'silicon-valley-loves',
       node: sections.siliconValleyLoves ? <ServiceSiliconValleyLovesSection /> : null,
     },
-    { key: 'reviews', node: sections.reviews ? <ProjectsReviews /> : null },
-    { key: 'contact', node: sections.contact ? <ContactSection /> : null },
+    {
+      key: 'reviews',
+      node:
+        sections.reviews && !(hasCmsSections && cmsHas('testimonials')) ? (
+          <ProjectsReviews />
+        ) : null,
+    },
+    {
+      key: 'contact',
+      node:
+        sections.contact && !(hasCmsSections && cmsHas('contact-form', 'booking', 'form')) ? (
+          <ContactSection />
+        ) : null,
+    },
+    {
+      key: 'cms-body',
+      node:
+        cmsRendererSections.length > 0 ? (
+          <ServiceSectionRenderer
+            sections={cmsRendererSections as NonNullable<ServiceDetail['sections']>}
+            service={service}
+          />
+        ) : null,
+    },
   ]
+  const rank = (key: string) => {
+    const index = order.indexOf(key)
+    if (index >= 0) return index
+    // CMS-authored body sits right after the intro (or early when intro is
+    // skipped) so the page follows the section order the editor maintains.
+    if (key === 'cms-body') {
+      const introIndex = order.indexOf('intro')
+      return introIndex < 0 ? 1 : introIndex + 0.5
+    }
+    return order.length
+  }
   const orderedSections = sectionNodes
     .filter(({ node }) => node !== null)
-    .sort((a, b) => {
-      const aIndex = order.indexOf(a.key)
-      const bIndex = order.indexOf(b.key)
-      return (aIndex < 0 ? order.length : aIndex) - (bIndex < 0 ? order.length : bIndex)
-    })
+    .sort((a, b) => rank(a.key) - rank(b.key))
 
   return (
     <div className="min-h-screen bg-white">
       <SiteHeader />
       <main>
         <ServiceHero service={service} />
-        {sections.videoFirst ? <div>{videoSection}</div> : null}
+        {sections.videoFirst && !(hasCmsSections && cmsHas('video')) ? (
+          <div>{videoSection}</div>
+        ) : null}
         {orderedSections.map(({ key, node }) => (
           <div key={key}>{node}</div>
         ))}

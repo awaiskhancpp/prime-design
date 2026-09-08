@@ -1,0 +1,508 @@
+
+================================================================================
+SERVICE-LOCATION PAGES AUDIT (45 /{serviceSlug}-in-{citySlug} pages)
+Generated from the WordPress WXR export with the same bricksParser / normalizer
+pipeline as service-pages-audit.txt.
+================================================================================
+
+Found 45 publish service-location pages (3 families x cities).
+NOTE — CRITICAL SOURCE-OF-TRUTH FINDING:
+Every one of these pages is an EMPTY STUB in the WXR export: content:encoded is
+empty, excerpt is empty, and NO _bricks_page_content_2 meta exists. Each stub only
+carries: city ACF field, _thumbnail_id, header overlay/color styling fields and
+rank_math SEO fields. The visible layout/content of these pages was NOT authored
+per-page in Bricks: it is rendered by one shared Bricks CONTENT TEMPLATE per
+service family, which interpolates dynamic-data tokens such as {acf_city},
+{acf_company_name} and {post_title}. Therefore the per-root extraction below is
+run against those content templates (Kitchen/Bathroom/Home Remodeling Landing
+Page), i.e. the real source sections each family's 15 city pages inherit.
+
+Cities covered (15): Silicon Valley, San Jose, Palo Alto, Mountain View, Sunnyvale, Santa Clara, Cupertino, Menlo Park, Redwood City, Fremont, Milpitas, Los Altos, Los Gatos, Saratoga, Campbell
+
+Per-page stub inventory (id, family, slug, city, thumbnail, rank_math_description):
+  1358	kitchen-remodeling	kitchen-remodeling-in-silicon-valley	city=Silicon Valley	thumb=1547	seo="Prime Design & Build specializes in kitchen remodeling in Silicon Valley. Transform your kitchen with expert craftsmanship and personalized designs. C..."
+  1374	kitchen-remodeling	kitchen-remodeling-in-san-jose	city=San Jose	thumb=1544	seo="Experience kitchen remodeling in San Jose like never before. Prime Design & Build combines elegance, functionality, and personalized service for stunn..."
+  1376	kitchen-remodeling	kitchen-remodeling-in-palo-alto	city=Palo Alto	thumb=1542	seo="Prime Design & Build offers premium kitchen remodeling in Palo Alto. From sleek modern designs to timeless classics, we bring your kitchen vision to l..."
+  1378	kitchen-remodeling	kitchen-remodeling-in-mountain-view	city=Mountain View	thumb=1541	seo="Prime Design & Build offers premium kitchen remodeling in Mountain View. Create a stylish, functional space with custom solutions and exceptional serv..."
+  1379	kitchen-remodeling	kitchen-remodeling-in-sunnyvale	city=Sunnyvale	thumb=1548	seo="Prime Design & Build offers expert kitchen remodeling in Sunnyvale with custom designs and high-quality craftsmanship. Transform your space with us."
+  1380	kitchen-remodeling	kitchen-remodeling-in-santa-clara	city=Santa Clara	thumb=1545	seo="Prime Design & Build offers expert kitchen remodeling in Santa Clara. Transform your kitchen with custom designs, high-quality craftsmanship, and unma..."
+  1381	kitchen-remodeling	kitchen-remodeling-in-cupertino	city=Cupertino	thumb=1535	seo="Prime Design & Build offers custom kitchen remodeling services in Cupertino, bringing your dream kitchen to life with expert craftsmanship and persona..."
+  1382	kitchen-remodeling	kitchen-remodeling-in-menlo-park	city=Menlo Park	thumb=1539	seo="Create a dream kitchen in Menlo Park with Prime Design & Build. Expert remodeling services tailored to your vision for timeless beauty and functionali..."
+  1383	kitchen-remodeling	kitchen-remodeling-in-redwood-city	city=Redwood City	thumb=1543	seo="Create your dream kitchen in Redwood City with Prime Design & Build. Personalized remodeling services deliver elegance, functionality, and superior qu..."
+  1384	kitchen-remodeling	kitchen-remodeling-in-fremont	city=Fremont	thumb=1536	seo="Prime Design & Build specializes in kitchen remodeling in Fremont, providing tailored solutions that reflect your personal style and maximize your kit..."
+  1385	kitchen-remodeling	kitchen-remodeling-in-milpitas	city=Milpitas	thumb=1540	seo="Transform your kitchen in Milpitas with Prime Design & Build. Custom remodeling tailored to your style, combining elegance, functionality, and quality..."
+  1386	kitchen-remodeling	kitchen-remodeling-in-los-altos	city=Los Altos	thumb=1537	seo="Create your dream kitchen in Los Altos with Prime Design & Build. Our custom remodeling services combine elegance, functionality, and unmatched crafts..."
+  1387	kitchen-remodeling	kitchen-remodeling-in-los-gatos	city=Los Gatos	thumb=1538	seo="Upgrade your Los Gatos kitchen with Prime Design & Build. From timeless classics to modern designs, we bring your vision to life with expert craftsman..."
+  1388	kitchen-remodeling	kitchen-remodeling-in-saratoga	city=Saratoga	thumb=1546	seo="Looking for kitchen remodeling in Saratoga? Prime Design & Build offers tailored designs, high-quality materials, and expert craftsmanship for your dr..."
+  1389	kitchen-remodeling	kitchen-remodeling-in-campbell	city=Campbell	thumb=1549	seo="Ready for a kitchen makeover? Prime Design & Build offers top-rated kitchen remodeling in Campbell to create a space that’s stylish, functional, and u..."
+  1450	home-remodeling	home-remodeling-in-san-jose	city=San Jose	thumb=1632	seo="Create your dream home in San Jose with Prime Design & Build. Enjoy a seamless remodeling experience, precision installation, and lasting beauty in ev..."
+  1451	home-remodeling	home-remodeling-in-palo-alto	city=Palo Alto	thumb=1630	seo="Enhance your Palo Alto home's appeal with Prime Design & Build's expert remodeling services, offering precision and quality for a stylish and function..."
+  1452	home-remodeling	home-remodeling-in-mountain-view	city=Mountain View	thumb=1629	seo="Transform your home in Mountain View with Prime Design & Build's expert remodeling services, delivering precision and craft for a personalized masterp..."
+  1453	home-remodeling	home-remodeling-in-sunnyvale	city=Sunnyvale	thumb=1636	seo="Home remodeling in Sunnyvale made easy with Prime Design & Build. Our skilled team offers personalized designs, precision installation, and exceptiona..."
+  1454	home-remodeling	home-remodeling-in-santa-clara	city=Santa Clara	thumb=1633	seo="Discover why Prime Design & Build is Santa Clara’s top choice for home remodeling. Enjoy expert craftsmanship and a seamless process to create your pe..."
+  1455	home-remodeling	home-remodeling-in-cupertino	city=Cupertino	thumb=1638	seo="Home remodeling in Cupertino with Dream, Design, Deliver by Prime Design & Build’s home remodeling marvels. Transform your home into a personalized ma..."
+  1456	home-remodeling	home-remodeling-in-menlo-park	city=Menlo Park	thumb=1627	seo="Home Remodeling in Menlo Park with Prime Design & Build, offering expert craftsmanship to transform your home into a personalized masterpiece with fin..."
+  1457	home-remodeling	home-remodeling-in-redwood-city	city=Redwood City	thumb=1631	seo="Transform your home in Redwood City with Prime Design & Build. Experience expert craftsmanship, seamless remodeling, and personalized designs for your..."
+  1458	home-remodeling	home-remodeling-in-fremont	city=Fremont	thumb=1624	seo="Transform your home in Fremont with Prime Design & Build’s expert remodeling services. From dream to design, we deliver personalized home transformati..."
+  1459	home-remodeling	home-remodeling-in-milpitas	city=Milpitas	thumb=1628	seo="Home Remodeling in Milpitas with Prime Design & Build, delivering expert craftsmanship and personalized solutions to transform your home into a stunni..."
+  1460	home-remodeling	home-remodeling-in-los-altos	city=Los Altos	thumb=1625	seo="Home Remodeling in Los Altos with Prime Design & Build, offering expert craftsmanship to transform your home into a personalized masterpiece with prec..."
+  1461	home-remodeling	home-remodeling-in-los-gatos	city=Los Gatos	thumb=1626	seo="Home Remodeling in Los Gatos with Prime Design & Build, offering expert craftsmanship to transform your home into a personalized masterpiece with prec..."
+  1462	home-remodeling	home-remodeling-in-saratoga	city=Saratoga	thumb=1634	seo="Prime Design & Build offers high-quality home remodeling in Saratoga. Create your dream space with our team’s precision and attention to detail for la..."
+  1463	home-remodeling	home-remodeling-in-campbell	city=Campbell	thumb=1637	seo="Home remodeling in Campbell with Dream, Design, Deliver by Prime Design & Build. Transform your home into a personalized masterpiece with expert craft..."
+  1478	home-remodeling	home-remodeling-in-silicon-valley	city=Silicon Valley	thumb=1635	seo="Transform your Silicon Valley home with Prime Design & Build. Expert craftsmanship and personalized designs create a seamless and stress-free remodeli..."
+  1402	bathroom-remodeling	bathroom-remodeling-in-silicon-valley	city=Silicon Valley	thumb=1580	seo="Prime Design & Build specializes in bathroom remodeling in Silicon Valley. Custom layouts, high-end materials, and personalized solutions for your per..."
+  1403	bathroom-remodeling	bathroom-remodeling-in-san-jose	city=San Jose	thumb=1577	seo="Prime Design & Build offers exceptional bathroom remodeling in San Jose. Enjoy tailored solutions, modern styles, and expert service for your perfect ..."
+  1404	bathroom-remodeling	bathroom-remodeling-in-palo-alto	city=Palo Alto	thumb=1575	seo="Redesign your bathroom in Palo Alto with Prime Design & Build. Enjoy customized solutions, modern elegance, and expert craftsmanship for your perfect ..."
+  1405	bathroom-remodeling	bathroom-remodeling-in-mountain-view	city=Mountain View	thumb=1574	seo="Transform your bathroom in Mountain View with Prime Design & Build. Enjoy expert remodeling, tailored designs, and top craftsmanship for your dream sp..."
+  1406	bathroom-remodeling	bathroom-remodeling-in-sunnyvale	city=Sunnyvale	thumb=1581	seo="Prime Design & Build offers custom bathroom remodeling in Sunnyvale, transforming your space with high-end materials, modern designs, and personalized..."
+  1407	bathroom-remodeling	bathroom-remodeling-in-santa-clara	city=Santa Clara	thumb=1578	seo="Elevate your bathroom in Santa Clara with Prime Design & Build. Custom remodeling, sleek designs, and professional service for a perfect bathroom make..."
+  1408	bathroom-remodeling	bathroom-remodeling-in-cupertino	city=Cupertino	thumb=1568	seo="Transform your bathroom into a dream space with Prime Design & Build's expert remodeling in Cupertino. Tailored designs, craftsmanship, and elegance a..."
+  1409	bathroom-remodeling	bathroom-remodeling-in-menlo-park	city=Menlo Park	thumb=1572	seo="Transform your bathroom in Menlo Park with Prime Design & Build. Enjoy tailored designs, expert craftsmanship, and timeless elegance in every detail."
+  1410	bathroom-remodeling	bathroom-remodeling-in-redwood-city	city=Redwood City	thumb=1576	seo="Transform your bathroom in Redwood City with Prime Design & Build. Tailored solutions, modern designs, and expert craftsmanship for your dream bathroo..."
+  1411	bathroom-remodeling	bathroom-remodeling-in-fremont	city=Fremont	thumb=1569	seo="Turn your bathroom into a dream space with Prime Design & Build’s expert remodeling in Fremont. Customized designs, top-notch craftsmanship, and elega..."
+  1412	bathroom-remodeling	bathroom-remodeling-in-milpitas	city=Milpitas	thumb=1573	seo="Redesign your bathroom in Milpitas with Prime Design & Build. Experience expert remodeling, personalized designs, and timeless elegance for your dream..."
+  1413	bathroom-remodeling	bathroom-remodeling-in-los-altos	city=Los Altos	thumb=1570	seo="Upgrade your bathroom in Los Altos with Prime Design & Build's expert remodeling. Enjoy tailored designs, superior craftsmanship, and timeless eleganc..."
+  1414	bathroom-remodeling	bathroom-remodeling-in-los-gatos	city=Los Gatos	thumb=1571	seo="Redesign your bathroom in Los Gatos with Prime Design & Build's expert remodeling services. Enjoy tailored designs, top craftsmanship, and timeless el..."
+  1415	bathroom-remodeling	bathroom-remodeling-in-saratoga	city=Saratoga	thumb=1579	seo="Elevate your bathroom in Saratoga with Prime Design & Build. Personalized remodeling services, sleek designs, and modern materials for a luxury transf..."
+  1416	bathroom-remodeling	bathroom-remodeling-in-campbell	city=Campbell	thumb=1582	seo="Discover Prime Design & Build's expert bathroom remodeling in Campbell. Transform your space with tailored designs, quality craftsmanship, and timeles..."
+
+================================================================================
+PAGE: Kitchen Remodeling Landing Page (family: kitchen-remodeling) (WP template ID: 1495)
+Applied to 15 city stubs: Silicon Valley, San Jose, Palo Alto, Mountain View, Sunnyvale, Santa Clara, Cupertino, Menlo Park, Redwood City, Fremont, Milpitas, Los Altos, Los Gatos, Saratoga, Campbell
+Roots count: 11 | Normalized count: 7
+================================================================================
+
+--- Root 1 (Root ID: ejkmxy, Name: section) ---
+  Normalized Type: ✅ hero | Classification: partial
+  Elements present: section, container, block, heading, text-basic, image, xfluentform, div
+  Images count: 4 | Icons/Lists count: 0
+  HEADINGS (1):
+    [1] <h1> "Kitchen Remodeling in {acf_city}" (32 chars)
+  BODY TEXTS (10):
+    [1] (50 chars): "The recipe for a Dream Kitchen , Your Masterpiece."
+    [2] (119 chars): "Serving {acf_city} with tailored kitchen remodeling solutions. At {acf_company_name}, we turn your vision into reality."
+    [3] (60 chars): "Experience the joy of timeless elegance with a modern twist."
+    [4] (61 chars): "Design your perfect kitchen with unmatched quality & service."
+    [5] (61 chars): "Find out why people keep raving about "The Prime Difference"."
+    [6] (76 chars): "Transform your home in {acf_city} by calling us at {acf_company_phone_clean}"
+    [7] (36 chars): "Let's talk about your dream kitchen."
+    [8] (89 chars): "Fill out the form below and one of our team members will contact you to help get started."
+    [9] (34 chars): "We're ready to discuss your needs!"
+    [10] (36 chars): "Call us at {acf_company_phone_clean}"
+  SPECIAL WIDGETS: xfluentform
+
+--- Root 2 (Root ID: jafkgy, Name: code) ---
+  Normalized Status: ⏭️  SKIPPED (non-section root element)
+  Elements present: code
+  Images count: 0 | Icons/Lists count: 0
+  HEADINGS: [NONE - No explicit heading element]
+  CODE (css/js snippet start): <style> .marquee {   width: 100%;   overflow: hidden;   position: relative; 	font-size: 50px; }  .marquee div {   display: flex; 	white-space: nowrap;   animati...
+
+--- Root 3 (Root ID: hbsmcp, Name: section) ---
+  Normalized Type: ✅ video | Classification: supported
+  Elements present: section, container, text-basic, heading, video
+  Images count: 0 | Icons/Lists count: 0
+  HEADINGS (1):
+    [1] <h2> "Your Dream Kitchen Remodeling in {acf_city} - A World of Possibilities!" (71 chars)
+  BODY TEXTS (2):
+    [1] (43 chars): "#1 Kitchen Remodeling Company in {acf_city}"
+    [2] (153 chars): "Imagine the joy of cooking in a kitchen that reflects your unique style and caters to your every need . With Prime {acf_company_name}, it's ..."
+
+--- Root 4 (Root ID: mdibwg, Name: section) ---
+  Normalized Type: ✅ cta | Classification: supported
+  Elements present: section, container, block, heading, text-basic, button, image
+  Images count: 1 | Icons/Lists count: 0
+  HEADINGS (1):
+    [1] <h2> "Don't Settle for a Mediocre Kitchen in {acf_city}" (49 chars)
+  BODY TEXTS (1):
+    [1] (646 chars): "As a homeowner in {acf_city}, you understand the significance of creating a kitchen that stands out and makes a statement. At {acf_company_n..."
+  BUTTONS (1):
+    "Talk to an expert" -> {"type":"external","postId":"339","url":"#contact"}
+
+--- Root 5 (Root ID: llptqa, Name: section) ---
+  Normalized Type: ✅ sub-services | Classification: supported
+  Elements present: section, container, block, heading, text-basic, image, div, button
+  Images count: 4 | Icons/Lists count: 0
+  HEADINGS (4):
+    [1] <h2> "Kitchen Remodeling in {acf_city} That Reflects Your Unique Style and Vision." (76 chars)
+    [2] <h2> "Custom Kitchen Remodeling in {acf_city}" (39 chars)
+    [3] <h2> "European Kitchen Remodeling in {acf_city}" (41 chars)
+    [4] <h2> "Shaker Kitchen Remodeling in {acf_city}" (39 chars)
+  BODY TEXTS (7):
+    [1] (273 chars): "Our experts at {acf_company_name} never want you to feel limited when it comes to picking your dream kitchen in {acf_city} . That's why we p..."
+    [2] (60 chars): "Create a Kitchen That Reflects Your Unique Style and Vision."
+    [3] (10 chars): "Learn more"
+    [4] (65 chars): "Experience the Perfect Blend of Sophistication and Functionality."
+    [5] (10 chars): "Learn more"
+    [6] (63 chars): "Discover the Classic Beauty and Versatility of Shaker Kitchens."
+    [7] (10 chars): "Learn more"
+  BUTTONS (1):
+    "Talk to an expert" -> {"type":"external","postId":"339","url":"#contact"}
+
+--- Root 6 (Root ID: qhgaov, Name: template) ---
+  Normalized Status: ⏭️  SKIPPED (non-section root element)
+  Elements present: template
+  Images count: 0 | Icons/Lists count: 0
+  EMBEDDED TEMPLATE REFS: #1160 (Noah Quote Section)
+  HEADINGS: [NONE - No explicit heading element]
+  SPECIAL WIDGETS: template
+
+--- Root 7 (Root ID: 168f22, Name: section) ---
+  Normalized Type: ⚠️  content (generic fallback) | Classification: partial
+  Elements present: section, container, heading, div, icon, text-basic, shortcode
+  Images count: 0 | Icons/Lists count: 0
+  HEADINGS (1):
+    [1] <h2> "See what people in {acf_city} are saying about us" (49 chars)
+  BODY TEXTS (2):
+    [1] (9 chars): "on Google"
+    [2] (7 chars): "on Yelp"
+  SPECIAL WIDGETS: shortcode
+
+--- Root 8 (Root ID: nqdsss, Name: template) ---
+  Normalized Status: ⏭️  SKIPPED (non-section root element)
+  Elements present: template
+  Images count: 0 | Icons/Lists count: 0
+  EMBEDDED TEMPLATE REFS: #1525 (Why Choose /w List)
+  HEADINGS: [NONE - No explicit heading element]
+  SPECIAL WIDGETS: template
+
+--- Root 9 (Root ID: ywqsqx, Name: template) ---
+  Normalized Status: ⏭️  SKIPPED (non-section root element)
+  Elements present: template
+  Images count: 0 | Icons/Lists count: 0
+  EMBEDDED TEMPLATE REFS: #1159 (Satisfaction Guaranteed)
+  HEADINGS: [NONE - No explicit heading element]
+  SPECIAL WIDGETS: template
+
+--- Root 10 (Root ID: 6e83cc, Name: section) ---
+  Normalized Type: ✅ contact-form | Classification: partial
+  Elements present: section, container, div, text-basic, heading, text, xfluentform, video
+  Images count: 0 | Icons/Lists count: 0
+  HEADINGS (1):
+    [1] <h2> "Ready to discuss your needs?" (28 chars)
+  BODY TEXTS (3):
+    [1] (53 chars): "Start Crafting Your Dream Project in {acf_city} Today"
+    [2] (43 chars): "Give us a call at {acf_company_phone_clean}"
+    [3] (117 chars): "To get in touch, simply fill out the form on this page and we will get back to you within 2-3 hours on business days."
+  SPECIAL WIDGETS: xfluentform
+
+--- Root 11 (Root ID: kwjjor, Name: section) ---
+  Normalized Type: ⚠️  image-text (generic fallback) | Classification: supported
+  Elements present: section, container, text-basic, image
+  Images count: 1 | Icons/Lists count: 0
+  HEADINGS: [NONE - No explicit heading element]
+  BODY TEXTS (1):
+    [1] (77 chars): "COPYRIGHT © {x_est_year_current_year} {acf_company_name} ALL RIGHTS RESERVED."
+
+================================================================================
+PAGE: Bathroom Remodeling Landing Page (family: bathroom-remodeling) (WP template ID: 1584)
+Applied to 15 city stubs: Silicon Valley, San Jose, Palo Alto, Mountain View, Sunnyvale, Santa Clara, Cupertino, Menlo Park, Redwood City, Fremont, Milpitas, Los Altos, Los Gatos, Saratoga, Campbell
+Roots count: 11 | Normalized count: 7
+================================================================================
+
+--- Root 1 (Root ID: pwnucn, Name: section) ---
+  Normalized Type: ✅ hero | Classification: partial
+  Elements present: section, container, block, heading, text-basic, image, xfluentform, div
+  Images count: 4 | Icons/Lists count: 0
+  HEADINGS (1):
+    [1] <h1> "Bathroom Remodeling in {acf_city}" (33 chars)
+  BODY TEXTS (10):
+    [1] (50 chars): "From Vision to Reality: Your Dream Bathroom Awaits"
+    [2] (153 chars): "Transforming {acf_city}'s bathrooms into dream havens, {acf_company_name} delivers tailored bathroom remodeling solutions that bring your vi..."
+    [3] (68 chars): "Indulge in the timeless elegance of modern bathroom transformations."
+    [4] (66 chars): "Build your bathroom oasis with cutting edge technology & material."
+    [5] (61 chars): "Find out why people keep raving about "The Prime Difference"."
+    [6] (76 chars): "Transform your home in {acf_city} by calling us at {acf_company_phone_clean}"
+    [7] (37 chars): "Let's talk about your dream bathroom."
+    [8] (89 chars): "Fill out the form below and one of our team members will contact you to help get started."
+    [9] (34 chars): "We're ready to discuss your needs!"
+    [10] (36 chars): "Call us at {acf_company_phone_clean}"
+  SPECIAL WIDGETS: xfluentform
+
+--- Root 2 (Root ID: xgojyu, Name: code) ---
+  Normalized Status: ⏭️  SKIPPED (non-section root element)
+  Elements present: code
+  Images count: 0 | Icons/Lists count: 0
+  HEADINGS: [NONE - No explicit heading element]
+  CODE (css/js snippet start): <style> .marquee {   width: 100%;   overflow: hidden;   position: relative; 	font-size: 50px; }  .marquee div {   display: flex; 	white-space: nowrap;   animati...
+
+--- Root 3 (Root ID: bedmwx, Name: section) ---
+  Normalized Type: ✅ video | Classification: supported
+  Elements present: section, container, text-basic, heading, video
+  Images count: 0 | Icons/Lists count: 0
+  HEADINGS (1):
+    [1] <h2> "Transform Your Bathroom into a Dream Space in {acf_city} - A World of Possibilities!" (84 chars)
+  BODY TEXTS (2):
+    [1] (44 chars): "#1 Bathroom Remodeling Company in {acf_city}"
+    [2] (140 chars): "Experience the luxury of a bathroom that embodies your personal style and fulfills your desires. With {acf_company_name}, it's within reach."
+
+--- Root 4 (Root ID: iiedkb, Name: section) ---
+  Normalized Type: ✅ cta | Classification: supported
+  Elements present: section, container, block, heading, text-basic, button, image
+  Images count: 1 | Icons/Lists count: 0
+  HEADINGS (1):
+    [1] <h2> "Don't Settle for a Mediocre Bathroom in {acf_city}" (50 chars)
+  BODY TEXTS (1):
+    [1] (654 chars): "As a homeowner in {acf_city} , you understand the importance of creating a bathroom that stands out and exudes style. At {acf_company_name} ..."
+  BUTTONS (1):
+    "Talk to an expert" -> {"type":"external","postId":"339","url":"#contact"}
+
+--- Root 5 (Root ID: lxzebs, Name: section) ---
+  Normalized Type: ✅ sub-services | Classification: supported
+  Elements present: section, container, block, heading, text-basic, image, div, button
+  Images count: 4 | Icons/Lists count: 0
+  HEADINGS (4):
+    [1] <h2> "Witness the Beauty of Our Bathroom Transformations" (50 chars)
+    [2] <h2> "Custom Bathtubs" (15 chars)
+    [3] <h2> "Custom Showers" (14 chars)
+    [4] <h2> "Custom Layouts" (14 chars)
+  BODY TEXTS (7):
+    [1] (150 chars): "Browse through our portfolio to see the stunning results of our meticulous bathroom remodeling projects. Experience the {acf_company_name} d..."
+    [2] (61 chars): "Create a Bathroom That Reflects Your Unique Style and Vision."
+    [3] (10 chars): "Learn more"
+    [4] (65 chars): "Experience the Perfect Blend of Sophistication and Functionality."
+    [5] (10 chars): "Learn more"
+    [6] (44 chars): "See what we can do to transform your layout."
+    [7] (10 chars): "Learn more"
+  BUTTONS (2):
+    "View our gallery" -> {"type":"internal","postId":"349"}
+    "Talk to an expert" -> {"type":"external","postId":"339","url":"#contact","ariaLabel":"Contact us today"}
+
+--- Root 6 (Root ID: empeij, Name: template) ---
+  Normalized Status: ⏭️  SKIPPED (non-section root element)
+  Elements present: template
+  Images count: 0 | Icons/Lists count: 0
+  EMBEDDED TEMPLATE REFS: #1160 (Noah Quote Section)
+  HEADINGS: [NONE - No explicit heading element]
+  SPECIAL WIDGETS: template
+
+--- Root 7 (Root ID: scqmyp, Name: section) ---
+  Normalized Type: ⚠️  content (generic fallback) | Classification: partial
+  Elements present: section, container, heading, div, icon, text-basic, shortcode
+  Images count: 0 | Icons/Lists count: 0
+  HEADINGS (1):
+    [1] <h2> "See what people in {acf_city} are saying about us" (49 chars)
+  BODY TEXTS (2):
+    [1] (9 chars): "on Google"
+    [2] (7 chars): "on Yelp"
+  SPECIAL WIDGETS: shortcode
+
+--- Root 8 (Root ID: hswnov, Name: template) ---
+  Normalized Status: ⏭️  SKIPPED (non-section root element)
+  Elements present: template
+  Images count: 0 | Icons/Lists count: 0
+  EMBEDDED TEMPLATE REFS: #1525 (Why Choose /w List)
+  HEADINGS: [NONE - No explicit heading element]
+  SPECIAL WIDGETS: template
+
+--- Root 9 (Root ID: afouft, Name: template) ---
+  Normalized Status: ⏭️  SKIPPED (non-section root element)
+  Elements present: template
+  Images count: 0 | Icons/Lists count: 0
+  EMBEDDED TEMPLATE REFS: #1159 (Satisfaction Guaranteed)
+  HEADINGS: [NONE - No explicit heading element]
+  SPECIAL WIDGETS: template
+
+--- Root 10 (Root ID: kpwfgz, Name: section) ---
+  Normalized Type: ✅ contact-form | Classification: partial
+  Elements present: section, container, div, text-basic, heading, text, xfluentform, video
+  Images count: 0 | Icons/Lists count: 0
+  HEADINGS (1):
+    [1] <h2> "Ready to discuss your needs?" (28 chars)
+  BODY TEXTS (3):
+    [1] (53 chars): "Start Crafting Your Dream Project in {acf_city} Today"
+    [2] (43 chars): "Give us a call at {acf_company_phone_clean}"
+    [3] (117 chars): "To get in touch, simply fill out the form on this page and we will get back to you within 2-3 hours on business days."
+  SPECIAL WIDGETS: xfluentform
+
+--- Root 11 (Root ID: bappxs, Name: section) ---
+  Normalized Type: ⚠️  image-text (generic fallback) | Classification: supported
+  Elements present: section, container, text-basic, image
+  Images count: 1 | Icons/Lists count: 0
+  HEADINGS: [NONE - No explicit heading element]
+  BODY TEXTS (1):
+    [1] (77 chars): "COPYRIGHT © {x_est_year_current_year} {acf_company_name} ALL RIGHTS RESERVED."
+
+================================================================================
+PAGE: Home Remodeling Landing Page (family: home-remodeling) (WP template ID: 1639)
+Applied to 15 city stubs: San Jose, Palo Alto, Mountain View, Sunnyvale, Santa Clara, Cupertino, Menlo Park, Redwood City, Fremont, Milpitas, Los Altos, Los Gatos, Saratoga, Campbell, Silicon Valley
+Roots count: 10 | Normalized count: 6
+================================================================================
+
+--- Root 1 (Root ID: fnwecc, Name: section) ---
+  Normalized Type: ✅ hero | Classification: partial
+  Elements present: section, container, block, heading, text-basic, image, xfluentform, div
+  Images count: 4 | Icons/Lists count: 0
+  HEADINGS (1):
+    [1] <h1> "Home Remodeling in {acf_city}" (29 chars)
+  BODY TEXTS (10):
+    [1] (68 chars): "Dream, Design, Deliver: {acf_company_name}'s Home Remodeling Marvels"
+    [2] (92 chars): "Transforming {acf_city} Homes into Personalized Masterpieces. Your Vision, Our Craftsmanship"
+    [3] (51 chars): "Seamless remodeling experience from start to finish"
+    [4] (65 chars): "Precision installation and meticulous finishes for lasting beauty"
+    [5] (60 chars): "Find out why people keep raving about "The Prime Difference""
+    [6] (76 chars): "Transform your home in {acf_city} by calling us at {acf_company_phone_clean}"
+    [7] (33 chars): "Let's talk about your dream home."
+    [8] (89 chars): "Fill out the form below and one of our team members will contact you to help get started."
+    [9] (34 chars): "We're ready to discuss your needs!"
+    [10] (36 chars): "Call us at {acf_company_phone_clean}"
+  SPECIAL WIDGETS: xfluentform
+
+--- Root 2 (Root ID: jcrefo, Name: code) ---
+  Normalized Status: ⏭️  SKIPPED (non-section root element)
+  Elements present: code
+  Images count: 0 | Icons/Lists count: 0
+  HEADINGS: [NONE - No explicit heading element]
+  CODE (css/js snippet start): <style> .marquee {   width: 100%;   overflow: hidden;   position: relative; 	font-size: 50px; }  .marquee div {   display: flex; 	white-space: nowrap;   animati...
+
+--- Root 3 (Root ID: kmwxlo, Name: section) ---
+  Normalized Type: ✅ video | Classification: supported
+  Elements present: section, container, text-basic, heading, video
+  Images count: 0 | Icons/Lists count: 0
+  HEADINGS (1):
+    [1] <h2> "Create Your Dream Home in {acf_city}" (36 chars)
+  BODY TEXTS (2):
+    [1] (40 chars): "#1 Home Remodeling Company in {acf_city}"
+    [2] (114 chars): "Unleash Your Imagination with {acf_company_name}' Remodeling Solutions With {acf_company_name}, it's within reach."
+
+--- Root 4 (Root ID: szmvry, Name: section) ---
+  Normalized Type: ✅ craftsmanship | Classification: supported
+  Elements present: section, container, block, heading, text-basic, button, image
+  Images count: 1 | Icons/Lists count: 0
+  HEADINGS (1):
+    [1] <h2> "Say Goodbye to Mediocre Homes in {acf_city} - Transform Yours with {acf_company_name}'s Craftsmanship" (101 chars)
+  BODY TEXTS (1):
+    [1] (747 chars): "At {acf_company_name}, we specialize in Home Remodeling in {acf_city} , bringing your vision to life with our high-quality craftsmanship . F..."
+  BUTTONS (1):
+    "Talk to an expert" -> {"type":"external","postId":"339","url":"#contact"}
+
+--- Root 5 (Root ID: jujzao, Name: template) ---
+  Normalized Status: ⏭️  SKIPPED (non-section root element)
+  Elements present: template
+  Images count: 0 | Icons/Lists count: 0
+  EMBEDDED TEMPLATE REFS: #1525 (Why Choose /w List)
+  HEADINGS: [NONE - No explicit heading element]
+  SPECIAL WIDGETS: template
+
+--- Root 6 (Root ID: qhcxqg, Name: template) ---
+  Normalized Status: ⏭️  SKIPPED (non-section root element)
+  Elements present: template
+  Images count: 0 | Icons/Lists count: 0
+  EMBEDDED TEMPLATE REFS: #1160 (Noah Quote Section)
+  HEADINGS: [NONE - No explicit heading element]
+  SPECIAL WIDGETS: template
+
+--- Root 7 (Root ID: anvmyp, Name: section) ---
+  Normalized Type: ⚠️  content (generic fallback) | Classification: partial
+  Elements present: section, container, heading, div, icon, text-basic, shortcode
+  Images count: 0 | Icons/Lists count: 0
+  HEADINGS (1):
+    [1] <h2> "See what people in {acf_city} are saying about us" (49 chars)
+  BODY TEXTS (2):
+    [1] (9 chars): "on Google"
+    [2] (7 chars): "on Yelp"
+  SPECIAL WIDGETS: shortcode
+
+--- Root 8 (Root ID: puovtt, Name: template) ---
+  Normalized Status: ⏭️  SKIPPED (non-section root element)
+  Elements present: template
+  Images count: 0 | Icons/Lists count: 0
+  EMBEDDED TEMPLATE REFS: #1159 (Satisfaction Guaranteed)
+  HEADINGS: [NONE - No explicit heading element]
+  SPECIAL WIDGETS: template
+
+--- Root 9 (Root ID: bzedkn, Name: section) ---
+  Normalized Type: ✅ contact-form | Classification: partial
+  Elements present: section, container, div, text-basic, heading, text, xfluentform, video
+  Images count: 0 | Icons/Lists count: 0
+  HEADINGS (1):
+    [1] <h2> "Ready to discuss your needs?" (28 chars)
+  BODY TEXTS (3):
+    [1] (53 chars): "Start Crafting Your Dream Project in {acf_city} Today"
+    [2] (43 chars): "Give us a call at {acf_company_phone_clean}"
+    [3] (117 chars): "To get in touch, simply fill out the form on this page and we will get back to you within 2-3 hours on business days."
+  SPECIAL WIDGETS: xfluentform
+
+--- Root 10 (Root ID: rusodp, Name: section) ---
+  Normalized Type: ⚠️  image-text (generic fallback) | Classification: supported
+  Elements present: section, container, text-basic, image
+  Images count: 1 | Icons/Lists count: 0
+  HEADINGS: [NONE - No explicit heading element]
+  BODY TEXTS (1):
+    [1] (77 chars): "COPYRIGHT © {x_est_year_current_year} {acf_company_name} ALL RIGHTS RESERVED."
+
+================================================================================
+APPENDIX: Section templates embedded via template elements (shared building blocks)
+================================================================================
+
+--- Template #1160: Noah Quote Section (type ?) ---
+  Root 882857 (section) -> ✅ quote | Classification: supported
+    [h2] "Crafting Your Dream Home, Our Promise" (37 chars)
+    body (226 chars): ""We're here to turn your house into a home, one project at a time. At {acf_company_name}, we believe in making your remo..."
+    body (38 chars): "Noah, Co-founder of {acf_company_name}"
+
+--- Template #1525: Why Choose /w List (type ?) ---
+  Root 599fec (section) -> ✅ prime-difference | Classification: supported
+    [h2] ""The Prime Difference"" (22 chars)
+    [h2] "Customer Satisfaction" (21 chars)
+    [h2] "Expertise" (9 chars)
+    [h2] "Attention to Detail" (19 chars)
+    [h2] "Quality Craftsmanship" (21 chars)
+    body (162 chars): "At {acf_company_name}, we understand that your kitchen is the heart of your home, and when it comes to European kitchen ..."
+    body (30 chars): "Why Choose {acf_company_name}?"
+    body (38 chars): "Experts on-site for accurate solutions"
+
+--- Template #1159: Satisfaction Guaranteed (type ?) ---
+  Root 7115ca (section) -> ✅ silicon-valley-loves | Classification: supported
+    [h2] "Silicon Valley Loves Working With Us!" (37 chars)
+    body (92 chars): "Our company guarantees to bring you the best experience possible. Call today to get a quote!"
+
+--- Template #1174: Free Estimate (type ?) ---
+  Root rrpyqt (section) -> ✅ hero | Classification: supported
+    [h2] "Ready to schedule your free estimate?" (37 chars)
+    body (56 chars): "Contact us here or reach us at {acf_company_phone_clean}"
+
+--- Template #1199: Contact Section /w Video (type ?) ---
+  Root 314ad3 (section) -> ✅ contact-form | Classification: partial
+    [h2] "Ready to discuss your needs?" (28 chars)
+    body (39 chars): "Start Crafting Your Dream Project Today"
+    body (43 chars): "Give us a call at {acf_company_phone_clean}"
+    body (117 chars): "To get in touch, simply fill out the form on this page and we will get back to you within 2-3 hours on business days."
+
+--- Template #1212: Why Choose (type ?) ---
+  Root kebupt (section) -> ✅ craftsmanship | Classification: supported
+    [h2] "Why choose {acf_company_name}?" (30 chars)
+    [h2] "Attention to Detail" (19 chars)
+    [h2] "Quality Craftsmanship" (21 chars)
+    [h2] "Professional Expertise" (22 chars)
+    [h2] "Customer Satisfaction" (21 chars)
+    body (33 chars): "Experience the "Prime Difference""
+    body (86 chars): "We meticulously plan and execute every project with precision and attention to detail."
+    body (81 chars): "Our commitment to quality ensures outstanding and beautiful home transformations."
+
+--- Template #1161: Testimonials Carousel (type ?) ---
+  Root c28e0a (section) -> ✅ image-text | Classification: partial
+    [h2] "See what people in Silicon Valley are saying about us" (53 chars)
+
+--- Template #1733: The Prime Difference (type ?) ---
+  Root ydqijq (section) -> ✅ prime-difference | Classification: partial
+    [h2] "The Prime Difference" (20 chars)
+    [h2] "Our passion for:" (16 chars)
+    [h4] "Craftsmanship in every project" (30 chars)
+    [h4] "Attention to detail, aiming for perfection" (42 chars)
+    [h4] "Dedication to customer satisfaction" (35 chars)
+    body (161 chars): "At {acf_company_name}, we understand that your kitchen is the heart of your home, and when it comes to European kitchen ..."
+    body (30 chars): "Why Choose {acf_company_name}?"
+
+--- Template #1756: Perfect Kitchen in 6 Steps (type ?) ---
+  Root zualoj (section) -> ✅ hero | Classification: partial
+    [h2] "Your Perfect Kitchen in 6 Steps" (31 chars)
+    body (1 chars): "1"
+    body (65 chars): "Take measurements and build custom 3D design for your new kitchen"
+    body (1 chars): "2"
+
+--- Template #1613: Service Areas Pages (type ?) ---
+  Root yertvl (section) -> ✅ image-text | Classification: supported
+    [h2] "We offer top Service Areas Pages in the following areas" (55 chars)
+    [h2] "Service Areas Pages" (19 chars)
+    [h2] "And all surrounding cities!" (27 chars)

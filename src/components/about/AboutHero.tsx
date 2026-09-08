@@ -12,7 +12,7 @@ export function AboutHero() {
       image="/services/home-remodeling.jpeg"
       imageAlt="A finished Prime Design & Build home remodeling project"
     >
-      <div className="mt-12 ">
+      <div className=" ">
         <Button href="/contact" variant="outline" className="mt-8 text-white">
           Unlock Your Dream Home Today
         </Button>

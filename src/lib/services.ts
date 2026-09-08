@@ -660,13 +660,23 @@ export async function resolveServiceDetail(slug: string): Promise<ServiceDetail 
   const fallback = getServiceDetail(slug)
   if (!process.env.DATABASE_URL) return shouldUseLocalFallback() ? fallback : undefined
   const payload = await getPayload({ config: configPromise })
-  const result = await payload.find({
-    collection: 'services',
-    where: { slug: { equals: slug } },
-    depth: 2,
-    limit: 1,
-  })
-  const record = result.docs[0] as unknown as PayloadServiceRecord | undefined
+
+  // Sub-service pages (e.g. /services/kitchen-remodeling/european-kitchen-silicon-valley)
+  // are published under the unsuffixed slug in the CMS (european-kitchen), so look the
+  // record up by the exact slug first and fall back to the "-silicon-valley"-stripped slug.
+  const findRecord = async (candidate: string) => {
+    const result = await payload.find({
+      collection: 'services',
+      where: { slug: { equals: candidate } },
+      depth: 2,
+      limit: 1,
+    })
+    return result.docs[0] as unknown as PayloadServiceRecord | undefined
+  }
+  const normalized = slug.replace(/-silicon-valley$/, '')
+  const record =
+    (await findRecord(slug)) ||
+    (normalized !== slug ? await findRecord(normalized) : undefined)
   if (!record) return shouldUseLocalFallback() ? fallback : undefined
   const base = fallback || {
     slug: record.slug,
