@@ -3,6 +3,9 @@ import { notFound } from 'next/navigation'
 import { ServiceTemplate } from '@/components/services/ServiceTemplate'
 import { resolveServiceDetail } from '@/lib/services'
 
+// Sub-service pages are CMS-driven: render on each request.
+export const dynamic = 'force-dynamic'
+
 const kitchenDetails = [
   'european-kitchen',
   'shaker-kitchen',

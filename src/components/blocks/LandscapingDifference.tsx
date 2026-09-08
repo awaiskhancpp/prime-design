@@ -5,6 +5,7 @@ import { useState } from 'react'
 import { Section } from '@/components/ui/Section'
 import { cn } from '@/lib/utils'
 import { Check } from 'lucide-react'
+import Image from 'next/image'
 
 const statLine = 'Over 350+ Projects in Silicon Valley'
 
@@ -14,6 +15,12 @@ const bullets = [
   { lead: 'Family-owned', text: ' and operated business' },
   { lead: 'Competitive', text: ' pricing for our services' },
   { lead: 'Quick response', text: ' for customer satisfaction' },
+]
+const socials = [
+  '/social/BB-ACCREDITED.jpeg',
+  '/social/Google.png',
+  '/social/houzz.png',
+  '/social/Yelp.png',
 ]
 
 const projectVideos = [
@@ -49,6 +56,11 @@ export function LandscapingDifference() {
 
   return (
     <Section className="">
+      <div className="mb-12 flex gap-5 justify-center">
+        {socials.map((s, i) => (
+          <Image src={s} alt="" key={i} width={180} height={90} />
+        ))}
+      </div>
       <div className="grid gap-12 lg:grid-cols-2 lg:items-center lg:gap-16">
         <div>
           <div className="relative aspect-[4/3] overflow-hidden bg-ink">

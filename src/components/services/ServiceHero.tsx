@@ -47,9 +47,11 @@ export function ServiceHero({ service }: { service: ServiceDetail }) {
 
       <Container className="relative z-10 w-full">
         <div className="max-w-3xl">
-          <p className="mb-5 text-xs font-semibold uppercase tracking-[0.2em] text-brass">
-            {service.eyebrow}
-          </p>
+          {service.eyebrow ? (
+            <p className="mb-5 text-xs font-semibold uppercase tracking-[0.2em] text-brass">
+              {service.eyebrow}
+            </p>
+          ) : null}
           <h1 className="max-w-2xl font-display text-5xl font-medium leading-tight tracking-tight md:text-7xl">
             {service.title}
           </h1>

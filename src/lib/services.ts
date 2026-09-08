@@ -487,7 +487,7 @@ export function getServiceDetail(slug: string): ServiceDetail | undefined {
   if (!service) return undefined
   return {
     ...service,
-    eyebrow: `${service.title} in Silicon Valley`,
+    eyebrow: '',
     lead: service.description,
     ...defaultDetailCopy,
   }
@@ -696,7 +696,9 @@ export async function resolveServiceDetail(slug: string): Promise<ServiceDetail 
     title: record.hero?.heading || record.title,
     description: record.description || base.description,
     lead: record.hero?.lead || base.lead,
-    eyebrow: record.hero?.eyebrow || base.eyebrow,
+    // Only show a hero eyebrow when WordPress actually authored one — never
+    // invent "… in Silicon Valley" or reuse the page title as an eyebrow.
+    eyebrow: record.hero?.eyebrow || '',
     image: payloadImageUrl(record.hero?.image) || base.image,
     heroVideoUrl: payloadImageUrl(record.hero?.video) || base.heroVideoUrl,
     contentBlocks: normalizePayloadBlocks(record.contentBlocks),

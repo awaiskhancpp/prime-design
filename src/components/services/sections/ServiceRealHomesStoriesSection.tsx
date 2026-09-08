@@ -53,7 +53,7 @@ export function ServiceRealHomesStoriesSection({
 }: ServiceRealHomesContent) {
   return (
     <Section className="">
-      <div className="mx-auto max-w-2xl text-center">
+      <div className="mx-auto max-w-5xl text-center">
         <p className="text-xs font-semibold uppercase tracking-[0.2em] text-brass-deep">
           {eyebrow}
         </p>
@@ -63,7 +63,7 @@ export function ServiceRealHomesStoriesSection({
             {headingAccent}
           </span>
         </h2>
-        <p className="mt-5 text-base leading-7 text-ink-2/70">{description}</p>
+        <p className="mt-5 text-base leading-7  text-ink-2/70">{description}</p>
       </div>
 
       <div className="mt-14 grid gap-6 md:grid-cols-3">

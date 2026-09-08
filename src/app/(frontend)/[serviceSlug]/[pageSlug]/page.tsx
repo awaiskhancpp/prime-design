@@ -5,6 +5,10 @@ import { resolveServiceDetail } from '@/lib/services'
 import { getServiceLocation, serviceLocations } from '@/lib/serviceLocations'
 import { resolveRedirect } from '@/lib/redirects'
 
+// Service-location pages are CMS-driven: render on each request so Payload
+// edits (SEO, featured image, section overrides) appear without a rebuild.
+export const dynamic = 'force-dynamic'
+
 export function generateStaticParams() {
   const locations = serviceLocations.map(({ serviceSlug, slug }) => ({
     serviceSlug,

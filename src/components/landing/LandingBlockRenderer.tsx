@@ -36,6 +36,11 @@ export function mediaUrl(value: unknown): string | undefined {
   if (!value || typeof value !== 'object') return undefined
   const record = value as Record<string, unknown>
   if (typeof record.url === 'string') return record.url
+  // Migrated WordPress media keeps its original URL in `sourceUrl` when the
+  // file was never uploaded to the Payload media collection — use it so
+  // images render even when only the source URL was preserved.
+  if (typeof record.sourceUrl === 'string') return record.sourceUrl
+  if (typeof record.full === 'string') return record.full
   return mediaUrl(record.asset)
 }
 
@@ -169,9 +174,10 @@ function GalleryBlock({ block }: { block: Block }) {
     ? block.items
         .flatMap((item) => {
           const value = item as Record<string, unknown>
-          const url = mediaUrl(value.media)
+          const url =
+            mediaUrl(value.media) ||
+            (typeof value.sourceUrl === 'string' ? value.sourceUrl : undefined)
           if (!url) return []
-
           return {
             url,
             caption: text(value.caption),

@@ -3,6 +3,10 @@ import { notFound } from 'next/navigation'
 import { ServiceTemplate } from '@/components/services/ServiceTemplate'
 import { resolveServiceDetail, services } from '@/lib/services'
 
+// Service pages are CMS-driven: render on each request so Payload edits
+// (sections, copy, SEO) appear without a rebuild.
+export const dynamic = 'force-dynamic'
+
 export function generateStaticParams() {
   return services.map((service) => ({ serviceSlug: service.slug }))
 }

@@ -27,7 +27,11 @@ function galleryImagesFor(service: ServiceDetail) {
       .map((item) => {
         const value = item as Record<string, unknown>
         const media = value.media as Record<string, unknown> | string | undefined
-        return typeof media === 'string' ? media : (media as Record<string, unknown>)?.url
+        const url = typeof media === 'string' ? media : (media as Record<string, unknown>)?.url
+        // WordPress gallery items keep their original URL in `sourceUrl` when
+        // no media record was uploaded for them.
+        const sourceUrl = typeof value.sourceUrl === 'string' ? value.sourceUrl : undefined
+        return url || sourceUrl
       })
       .filter((url): url is string => typeof url === 'string')
   })
