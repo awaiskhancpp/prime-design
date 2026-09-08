@@ -130,6 +130,7 @@ const servicePageSections: Record<string, ServicePageSections> = {
     ...defaultServicePageSections,
     video: true,
     process: true,
+    inlineProcess: false,
     offerings: true,
     gallery: true,
     quote: true,
