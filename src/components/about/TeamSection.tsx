@@ -117,14 +117,10 @@ function Portrait({
   variant = 'grid',
 }: {
   member: TeamMember
-  variant?: 'grid' | 'modal' | 'featured'
+  variant?: 'grid' | 'modal'
 }) {
   const aspectClasses =
-    variant === 'modal'
-      ? 'aspect-[4/3] md:aspect-auto md:h-full md:min-h-[26rem]'
-      : variant === 'featured'
-        ? 'aspect-[4/3]'
-        : 'aspect-[4/5]'
+    variant === 'modal' ? 'aspect-[4/3] md:aspect-auto md:h-full md:min-h-[26rem]' : 'aspect-[4/5]'
 
   return (
     <div className={`relative overflow-hidden bg-ink-2 ${aspectClasses}`}>
@@ -139,18 +135,10 @@ function Portrait({
   )
 }
 
-function TeamCard({
-  member,
-  onClick,
-  variant = 'grid',
-}: {
-  member: TeamMember
-  onClick: () => void
-  variant?: 'grid' | 'featured'
-}) {
+function TeamCard({ member, onClick }: { member: TeamMember; onClick: () => void }) {
   return (
     <article className="border border-line bg-white transition-colors hover:border-brass">
-      <Portrait member={member} variant={variant} />
+      <Portrait member={member} />
       <div className="flex items-end justify-between gap-4 border-t border-line px-6 py-6">
         <div>
           <h3 className="font-display text-2xl font-medium text-ink-2">{member.name}</h3>
@@ -194,12 +182,16 @@ export function TeamSection() {
           </Button>
         </div>
 
-        {/* Featured Section: Text + Bounded CEO Card — both columns sized to
-            match each other in height (items-center + a shorter 4:3 crop on
-            the featured card) instead of a tall portrait card towering over
-            a much shorter text block. */}
-        <div className="mt-20 grid items-center gap-10 md:grid-cols-2 lg:gap-16">
-          <div className="max-w-xl">
+        {/* Featured row: paragraph + CEO card, side by side. This uses the
+            SAME column grid (md:grid-cols-2 lg:grid-cols-3) as the team
+            grid below, with the card taking exactly one column and the
+            text taking the rest. That's what makes the card's width
+            identical to the grid cards below — same track math, not a
+            separately guessed max-width. The card itself also uses the
+            default 'grid' Portrait variant (aspect-[4/5]), same as every
+            other card, so the aspect ratio matches too. */}
+        <div className="mt-20 grid gap-6 md:grid-cols-2 lg:grid-cols-3 lg:items-center">
+          <div className="md:col-span-1 lg:col-span-2">
             <h2 className="font-display text-4xl font-medium leading-tight text-ink-2 md:text-5xl">
               Meet the team
             </h2>
@@ -207,7 +199,7 @@ export function TeamSection() {
               The Faces Behind Prime Design and Build
             </p>
             <div className="mt-6 h-1 w-12 bg-brass" aria-hidden />
-            <p className="mt-6 text-base leading-7 text-ink-2/75">
+            <p className="mt-6 max-w-xl text-base leading-7 text-ink-2/75">
               Here, we showcase the talented individuals who bring their expertise, passion, and
               creativity to Prime Design & Build. Each team member plays a vital role in shaping our
               company&apos;s success and delivering outstanding results for our clients. Through
@@ -217,13 +209,15 @@ export function TeamSection() {
             </p>
           </div>
 
-          <div className="w-full max-w-md md:ml-auto">
-            <TeamCard member={ceo} onClick={() => setSelectedMember(ceo)} variant="featured" />
+          <div className="md:col-span-1 lg:col-span-1">
+            <TeamCard member={ceo} onClick={() => setSelectedMember(ceo)} />
           </div>
         </div>
 
-        {/* Remaining Team Grid */}
-        <div className="mt-16 grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+        {/* Remaining Team Grid — identical column structure as the row
+            above, so every card (including the CEO's, above) is the same
+            width. */}
+        <div className="mt-6 grid gap-6 md:grid-cols-2 lg:grid-cols-3">
           {restOfTeam.map((member) => (
             <TeamCard key={member.name} member={member} onClick={() => setSelectedMember(member)} />
           ))}
