@@ -122,6 +122,8 @@ export type NormalizedTestimonial = {
   title?: string
   shortcode?: string
   collectionId?: string
+  quote?: string
+  attribution?: string
 }
 
 export type NormalizedGalleryItem = {

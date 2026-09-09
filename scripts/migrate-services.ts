@@ -578,6 +578,34 @@ function htmlListItems(value: unknown) {
     .filter((item): item is string => Boolean(item))
 }
 
+// ServiceTemplate's "intro" section reads service.contentBlocks, not
+// service.sections — so a real <ul><li> feature list buried in a WordPress
+// image-text section reaches neither field unless we build this explicitly.
+// Without it, the page falls back to a hardcoded static keyFeatures array
+// that has nothing to do with this specific page's real content.
+function contentBlocksFromNormalized(normalized: NormalizedSection[]) {
+  const blocks: Array<Record<string, unknown>> = []
+  for (const section of normalized) {
+    if (section.type !== 'image-text') continue
+    const sectionData = dataOf(section)
+    const rawBody = Array.isArray(sectionData.body)
+      ? (sectionData.body as unknown[]).find((value) => typeof value === 'string')
+      : undefined
+    const items = htmlListItems(rawBody)
+    if (items.length === 0) continue
+    const heading = first([
+      sectionData.heading,
+      ...(Array.isArray(sectionData.headings) ? sectionData.headings : []),
+    ])
+    blocks.push({
+      blockType: 'checklist',
+      heading: heading || 'Key Features',
+      items: items.map((text) => ({ text })),
+    })
+  }
+  return blocks
+}
+
 function projectGalleryIds(project: WordPressProject) {
   const value = project.meta.find((item) => item.key === 'project_gallery')?.value || ''
   return [...value.matchAll(/i:\d+;s:\d+:"(\d+)";/g)].map((match) => Number(match[1]))
@@ -837,38 +865,17 @@ function mapSection(
         media: ref,
         buttons: buttonData(section, pagesById),
       }
-    case 'image-text': {
-      // Some image-text sections (ADU, Additions, Complete Renovation) contain
-      // HTML bullet lists ("Key Features: <ul><li>...</li>...") that get
-      // flattened into an unreadable wall of text by the normal clean() path.
-      // Detect and reformat them as newline-separated bullet items so the
-      // renderer's whitespace-pre-line styling presents them legibly.
-      const rawBodies = Array.isArray(data.body) ? data.body : []
-      const rawBodyWithList = rawBodies.find(
-        (value): value is string => typeof value === 'string' && /<li[\s>]/i.test(value),
-      )
-      let imageTextDescription = description
-      if (rawBodyWithList) {
-        const items = htmlListItems(rawBodyWithList)
-        if (items.length) {
-          const leadHtml = rawBodyWithList.replace(/<[ou]l[\s\S]*$/i, '')
-          const lead = clean(leadHtml)
-          imageTextDescription = [lead, ...items.map((item) => `• ${item}`)]
-            .filter(Boolean)
-            .join('\n')
-        }
-      }
+    case 'image-text':
       return {
         blockType: 'image-text',
         ...common,
         eyebrow: sectionEyebrow(section),
         heading: heading || 'Prime Design & Build',
-        description: imageTextDescription,
+        description,
         media: ref,
         buttons: buttonData(section, pagesById),
         alignment: 'left',
       }
-    }
     case 'craftsmanship':
       return {
         blockType: 'craftsmanship',
@@ -1259,83 +1266,56 @@ function mapSection(
     }
     case 'testimonials':
     case 'testimonial': {
-      const testimonialProviders: Record<string, unknown>[] = (
+      const testimonialRecords =
         (data.testimonials as Array<Record<string, unknown>> | undefined) || []
-      ).map((provider) => {
-        const name = clean(provider.provider) || 'Testimonials'
-        const source = name.toLowerCase().includes('yelp') ? 'yelp' : 'google'
-        const summary =
-          source === 'yelp' ? website.reviewSummary.yelp : website.reviewSummary.google
-        return {
-          name,
-          collectionId: provider.collectionId,
-          reviewUrl: summary.url,
-          rating: summary.rating,
-          reviewCount: summary.count,
-          reviews: sourceTestimonials
-            .filter((review) => review.source === source)
-            .map((review) => ({
-              reviewer: review.name,
-              rating: review.rating,
-              body: review.text,
-              date: review.date,
-              sourceId: `${review.source}:${review.name}:${review.date}`,
-            })),
-        }
-      })
-
-      // Static testimonial quotes (e.g. "Real Homes, Real Stories" on Home
-      // Remodeling and Additions) are plain heading + text-basic nodes — not
-      // tabs-nested review widgets — so data.testimonials is empty for them.
-      // Extract quote/attribution pairs from the tree directly: a long body
-      // text (> 50 chars) immediately followed by a short couple name
-      // (< 50 chars, contains "and") like "Alex and Sophia".
-      if (!testimonialProviders.length) {
-        const textBasicValues = treeNodes(section)
-          .filter((node) => node.name === 'text-basic')
-          .map((node) => clean(node.settings.text))
-          .filter((value): value is string => Boolean(value))
-
-        const staticReviews: Array<{
-          reviewer: string
-          body: string
-          rating: number
-          sourceId: string
-        }> = []
-        for (let i = 0; i < textBasicValues.length - 1; i++) {
-          const current = textBasicValues[i]
-          const next = textBasicValues[i + 1]
-          if (
-            current.length > 50 &&
-            next.length < 50 &&
-            next.length > 3 &&
-            /\band\b/i.test(next)
-          ) {
-            staticReviews.push({
-              reviewer: next,
-              body: current,
-              rating: 5,
-              sourceId: `static:${next}`,
+      const staticQuotes = testimonialRecords.filter((record) => record.quote && record.attribution)
+      const providers =
+        staticQuotes.length > 0
+          ? [
+              {
+                name: 'Client Stories',
+                collectionId: undefined,
+                reviewUrl: undefined,
+                rating: undefined,
+                reviewCount: undefined,
+                reviews: staticQuotes.map((record) => ({
+                  reviewer: clean(record.attribution),
+                  rating: undefined,
+                  body: clean(record.quote),
+                  date: undefined,
+                  sourceId: String(record.sourceId),
+                })),
+              },
+            ]
+          : testimonialRecords.map((provider) => {
+              const name = clean(provider.provider) || 'Testimonials'
+              const source = name.toLowerCase().includes('yelp') ? 'yelp' : 'google'
+              const summary =
+                source === 'yelp' ? website.reviewSummary.yelp : website.reviewSummary.google
+              return {
+                name,
+                collectionId: provider.collectionId,
+                reviewUrl: summary.url,
+                rating: summary.rating,
+                reviewCount: summary.count,
+                reviews: sourceTestimonials
+                  .filter((review) => review.source === source)
+                  .map((review) => ({
+                    reviewer: review.name,
+                    rating: review.rating,
+                    body: review.text,
+                    date: review.date,
+                    sourceId: `${review.source}:${review.name}:${review.date}`,
+                  })),
+              }
             })
-            i++ // skip the attribution node
-          }
-        }
-
-        if (staticReviews.length) {
-          testimonialProviders.push({
-            name: 'Customer Stories',
-            reviews: staticReviews,
-          })
-        }
-      }
-
       return {
         blockType: 'landing-testimonials',
         ...common,
         eyebrow: sectionEyebrow(section),
         heading,
         description,
-        providers: testimonialProviders,
+        providers,
       }
     }
     case 'booking':
@@ -1686,16 +1666,20 @@ for (const target of targetServices) {
         video: heroVideoId,
       }
     : undefined
+  const extractedContentBlocks = contentBlocksFromNormalized(normalized)
   if (existing.docs[0]) {
-    // Existing record: only touch hero + sections. Everything else
-    // (shortDescription, featured, contentBlocks, sectionOrder, faqs,
-    // relatedServices, SEO) is presumed hand-curated and left alone.
+    // Existing record: only touch hero + sections (+ contentBlocks, but only
+    // when we actually extracted real new content — an empty result never
+    // overwrites whatever's already there). shortDescription, featured,
+    // sectionOrder, faqs, and relatedServices are presumed hand-curated and
+    // left alone either way.
     await payload.update({
       collection: 'services',
       id: existing.docs[0].id,
       data: {
         hero,
         sections,
+        ...(extractedContentBlocks.length ? { contentBlocks: extractedContentBlocks } : {}),
         ...(parentServiceId ? { parentService: parentServiceId } : {}),
       } as never,
     })
@@ -1707,6 +1691,7 @@ for (const target of targetServices) {
         slug,
         hero,
         sections,
+        ...(extractedContentBlocks.length ? { contentBlocks: extractedContentBlocks } : {}),
         ...(parentServiceId ? { parentService: parentServiceId } : {}),
       } as never,
     })

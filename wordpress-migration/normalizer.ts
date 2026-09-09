@@ -188,6 +188,32 @@ function testimonialsFromNode(section: BricksTreeNode): NormalizedTestimonial[] 
       }
     })
     .filter((item) => item.title)
+  if (titles.length === 0) {
+    // No tabs widget: some pages hand-author testimonials directly as a row
+    // of cards, each a `div` with exactly two text-basic children (the
+    // quote, then the attribution name) — real content with no query/API
+    // behind it at all, so there's nothing to resolve except read it as-is.
+    const cards = nodes.filter((node) => {
+      const children = node.children || []
+      return (
+        node.name === 'div' &&
+        children.length === 2 &&
+        children.every((child) => child.name === 'text-basic')
+      )
+    })
+    return cards
+      .map((card) => {
+        const [quoteNode, attributionNode] = card.children!
+        const quote = cleanText(
+          typeof quoteNode.settings.text === 'string' ? quoteNode.settings.text : '',
+        )
+        const attribution = cleanText(
+          typeof attributionNode.settings.text === 'string' ? attributionNode.settings.text : '',
+        )
+        return { sourceId: card.id, provider: attribution, quote, attribution }
+      })
+      .filter((item) => item.quote && item.attribution)
+  }
   const shortcodes = nodes
     .filter((node) => node.name === 'shortcode')
     .map((node) =>
@@ -280,9 +306,7 @@ function listItemsFromNode(node: BricksTreeNode) {
     .map(cleanText)
 }
 
-function repairCategories(
-  section: BricksTreeNode,
-): Array<{
+function repairCategories(section: BricksTreeNode): Array<{
   sourceId: string
   title: string
   html: string

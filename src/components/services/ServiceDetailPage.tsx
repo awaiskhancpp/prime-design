@@ -127,6 +127,11 @@ export function ServiceTemplate({ service }: { service: ServiceDetail }) {
   // ---- 2. Collect the CMS-authored content ------------------------------
 
   const hasCmsBlocks = Boolean(service.contentBlocks?.length)
+  const hasOverviewRich = Boolean(
+    service.overviewRich?.keyFeatures ||
+      service.overviewRich?.benefits ||
+      service.overviewRich?.process,
+  )
   const cmsQuote = service.contentBlocks?.find((block) => block.blockType === 'quote')
   const cmsVideos = service.contentBlocks?.filter((block) => block.blockType === 'video') ?? []
 
@@ -215,19 +220,30 @@ export function ServiceTemplate({ service }: { service: ServiceDetail }) {
     {
       key: 'intro',
       node:
-        !sections.homeRepairCategories &&
-        (contentBlocks?.length || !hasCmsBlocks) &&
-        !(hasCmsSections && cmsHas('image-text', 'sub-services', 'prime-difference')) ? (
+        !sections.homeRepairCategories && hasOverviewRich ? (
+          // Rich-text overview lists (Key Features / Benefits / Process) from
+          // Payload take priority over both the legacy checklist blocks and
+          // the built-in static arrays.
           <Section>
-            {contentBlocks?.length ? (
-              <ServiceContentBlocks service={service} blocks={contentBlocks} />
-            ) : (
-              <ServiceOverview
-                service={service}
-                showInlineProcess={sections.inlineProcess}
-                hasVisualProcess={sections.visualProcess}
-              />
-            )}
+            <ServiceOverview
+              service={service}
+              showInlineProcess={sections.inlineProcess}
+              hasVisualProcess={sections.visualProcess}
+            />
+          </Section>
+        ) : !sections.homeRepairCategories && contentBlocks?.length ? (
+          <Section>
+            <ServiceContentBlocks service={service} blocks={contentBlocks} />
+          </Section>
+        ) : !sections.homeRepairCategories &&
+          !hasCmsBlocks &&
+          !(hasCmsSections && cmsHas('image-text', 'sub-services', 'prime-difference')) ? (
+          <Section>
+            <ServiceOverview
+              service={service}
+              showInlineProcess={sections.inlineProcess}
+              hasVisualProcess={sections.visualProcess}
+            />
           </Section>
         ) : null,
     },
@@ -253,10 +269,10 @@ export function ServiceTemplate({ service }: { service: ServiceDetail }) {
           // Additions shows the "Experience the Prime Difference" design.
           <WhyChooseUs />
         ) : (
-          cmsSlotNodes.get('why-choose-us') ??
+          (cmsSlotNodes.get('why-choose-us') ??
           (sections.homeRepairWhyChooseUs || sections.whyChooseUs ? (
             <ServiceWhyChooseUsSection />
-          ) : null)
+          ) : null))
         ),
     },
     {
@@ -307,7 +323,7 @@ export function ServiceTemplate({ service }: { service: ServiceDetail }) {
         service.slug === 'additions' ? (
           <LandscapingServiceAreas />
         ) : (
-          cmsSlotNodes.get('service-areas') ?? <ServiceAreasSection service={service} />
+          (cmsSlotNodes.get('service-areas') ?? <ServiceAreasSection service={service} />)
         ),
     },
     {
