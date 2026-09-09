@@ -41,7 +41,7 @@ export function ServiceOverview({
   // Feature image plus the first two gallery shots, de-duplicated.
   const sideImages = [...new Set([service.image, ...service.gallery].filter(Boolean))].slice(0, 2)
   const showProcess =
-    showInlineProcess && !hasVisualProcess && Boolean(rich?.process || service.process.length > 0)
+    showInlineProcess && !hasVisualProcess && Boolean(rich?.process || service.processSteps.length > 0)
 
   return (
     <div className="grid gap-10 lg:grid-cols-[1.1fr_0.9fr] lg:items-start lg:gap-16">
@@ -127,7 +127,7 @@ export function ServiceOverview({
                     efficient. Here&rsquo;s an overview of how we work:
                   </p>
                   <ol className="mt-5 grid gap-4 text-base leading-7 text-ink-2/70">
-                    {service.process.map((item, index) => {
+                    {service.processSteps.map((item, index) => {
                       const { title, description } = splitLabeledLine(item)
                       return (
                         <li key={item} className="flex gap-3">

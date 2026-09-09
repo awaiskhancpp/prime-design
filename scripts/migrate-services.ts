@@ -612,13 +612,6 @@ function projectGalleryIds(project: WordPressProject) {
 }
 
 function dynamicHappyFilesImages(section: NormalizedSection, source: WordPressSource) {
-  // A `happyfiles-gallery` node stores the folder it displays as a numeric
-  // term_id in settings.ids (e.g. { 0: "8" }). That id only resolves to a
-  // slug via the WXR's top-level term registry, and only attachments carry
-  // the slug directly. Previously this data was captured as a `galleryId`
-  // pointer and then silently dropped downstream because it had no mediaId
-  // — which is why curated galleries (e.g. the ~50-photo "Kitchens (GALLERY)"
-  // folder) fell through to the much larger, unscoped "all projects" pool.
   const folderIds = treeNodes(section)
     .filter((node) => node.name === 'happyfiles-gallery' || node.name === 'image-gallery')
     .map((node) => {
@@ -716,9 +709,6 @@ function dynamicGalleryGroups(
         sourceAttachmentId: attachment.id,
       }))
 
-    // Keep unresolved source IDs during the discovery pass. The importer
-    // resolves media after it has collected every attachment ID, including
-    // IDs found inside tab panes.
     return items.length ? [{ label, items }] : []
   })
 }
@@ -736,15 +726,12 @@ function projectQueryProjects(section: NormalizedSection, projects: WordPressPro
   const result: WordPressProject[] = []
 
   for (const query of projectQueries) {
-    // Real Bricks project cards scope the loop to project posts. Preserve those
-    // post boundaries so the landing page does not flatten every project's
-    // nested gallery into one visible image list.
     const postIn = Array.isArray(query.post__in)
       ? (query.post__in as unknown[]).map((v) => Number(v)).filter((n) => !Number.isNaN(n))
       : undefined
     const scopedProjects = postIn
       ? postIn.map((id) => byId.get(id)).filter((p): p is WordPressProject => Boolean(p))
-      : projects // no post__in on this query: it really does mean "all projects"
+      : projects
     const cap =
       typeof query.posts_per_page === 'string' || typeof query.posts_per_page === 'number'
         ? Number(query.posts_per_page)
@@ -826,9 +813,6 @@ function mapSection(
   source: WordPressSource,
 ): Record<string, unknown> | undefined {
   const data = dataOf(section)
-  // WordPress explicitly marks some duplicate/template roots as hidden. They
-  // are source diagnostics, not visible page sections, and must not be loaded
-  // into the frontend as content.
   if (isHiddenSourceSection(section)) return undefined
   const heading = first([data.heading, ...(Array.isArray(data.headings) ? data.headings : [])])
   const sourceBody = Array.isArray(data.body)
@@ -898,14 +882,11 @@ function mapSection(
         blockType: 'quote',
         ...common,
         heading,
-        // body paragraphs become the pull-quote text; prefer the first body item
         quote: sourceBody[0] || description,
         description: sourceBody.slice(1).join('\n\n') || undefined,
         attribution: undefined,
       }
     case 'process': {
-      // Extract numbered steps from icon-box / list elements if present,
-      // or from child blocks / headings + text-basic.
       const stepNodes = treeNodes(section).filter(
         (node) => node.name === 'icon-box' || node.name === 'list',
       )
@@ -980,9 +961,6 @@ function mapSection(
     case 'gallery': {
       const projectCards = dynamicProjectCards(section, projects, mediaIds)
       if (projectCards.length) {
-        // Project-loop card templates contain dynamic placeholders such as
-        // `{post_title}` and `{post_content}`. They are not section copy and
-        // must never be rendered literally above the project grid.
         const projectDescription =
           sourceBody
             .filter(
@@ -1048,9 +1026,6 @@ function mapSection(
           sourceAttachmentId: image.sourceId,
         }))
         .filter((item) => item.media)
-      // A curated HappyFiles folder (e.g. "Kitchens (GALLERY)") is a specific,
-      // hand-picked set of photos for this exact gallery widget — prefer it
-      // over the much broader, unscoped "every project on the site" fallback.
       const happyFilesImages = dynamicHappyFilesImages(section, source)
         .map((image, index) => ({
           media: mediaIds.get(image.sourceId!),
@@ -1074,10 +1049,6 @@ function mapSection(
         ...common,
         heading,
         description,
-        // A HappyFiles widget is an explicit source selection. Prefer its
-        // resolved folder contents over generic normalized image nodes from
-        // the surrounding Bricks section, which may belong to another
-        // element in that section.
         items: happyFilesImages.length
           ? happyFilesImages
           : items.length
@@ -1237,9 +1208,6 @@ function mapSection(
             ? (query!.tax_query_advanced[0] as Record<string, unknown> | undefined)
             : undefined
           const querySlug = typeof taxQuery?.terms === 'string' ? taxQuery.terms : undefined
-          // A real query/taxonomy-slug link is reliable; matching by the
-          // human-readable category title is a fallback for the older
-          // tabs/accordion pages that have a title but no query.
           const matches = querySlug
             ? faqRecords.filter((faq) => faq.categorySlug === querySlug)
             : faqRecords.filter(
@@ -1358,17 +1326,6 @@ function mapSection(
       return undefined
     case 'content':
     case 'unsupported': {
-      // Keep an existing, already-rendered block shape for source sections
-      // that do not yet have a specialized semantic mapper. The old importer
-      // returned undefined here, which silently deleted source sections.
-      // Provenance and extracted source text remain in sourceMetadata so the
-      // block can be enriched later without another schema fork.
-      //
-      // IMPORTANT: Never promote body text (paragraphs) into the heading slot.
-      // Body text is typically 100-500+ chars and contains multiple sentences.
-      // A heading should be ≤100 chars and not end mid-sentence. If the first
-      // body item looks like body copy, leave the heading empty so the renderer
-      // won't display it at display-font scale.
       const looksLikeBodyText = (value: string) =>
         value.length > 100 || (value.match(/\.\s+[A-Z]/g) || []).length >= 1
       const bodyHeadingCandidate =
@@ -1401,15 +1358,7 @@ const localFiles = await fileIndex(uploadsPath)
 const attachmentMap = new Map(source.attachments.map((attachment) => [attachment.id, attachment]))
 const mediaCache = new Map<string, number>()
 
-// Hero background videos are hosted externally (not WordPress attachments),
-// so unlike images there's no local file to read — this actually downloads
-// the remote file and creates a Media record for it. Automated downloading
-// of arbitrary remote files needs guardrails a human would otherwise apply
-// by hand, so: cap the size rather than pulling down something unexpectedly
-// huge, dedupe against an existing Media record by sourceUrl so re-running
-// this script doesn't redownload every time, and never let one bad/
-// unreachable URL crash the whole migration — log and skip instead.
-const MAX_VIDEO_DOWNLOAD_BYTES = 200 * 1024 * 1024 // 200MB
+const MAX_VIDEO_DOWNLOAD_BYTES = 200 * 1024 * 1024
 const videoCache = new Map<string, number | undefined>()
 
 async function resolveVideoMedia(url: string | undefined): Promise<number | undefined> {
@@ -1560,11 +1509,6 @@ for (const target of targetServices) {
     .replace(/\s+/g, ' ')
     .trim()
   const normalized = normalizeBricksPage(page, bricks.roots)
-  // A `video`/`carousel` section immediately following a `prime-difference`
-  // section belongs inside it — the schema's videos field says as much
-  // ("Ordered videos embedded in the WordPress Prime Difference section"),
-  // but the source page renders them as separate adjacent Bricks sections.
-  // Merge and drop the standalone section so it isn't also imported on its own.
   const mergedFollowOnIds = new Set<string>()
   normalized.forEach((section, index) => {
     if (section.type !== 'prime-difference') return
@@ -1596,9 +1540,6 @@ for (const target of targetServices) {
         Boolean(image.sourceId) &&
         all.findIndex((candidate) => candidate.sourceId === image.sourceId) === index,
     )
-  // Tab panes are a separate source-discovery path. Include their attachment
-  // IDs before resolving media; otherwise the final grouped block can only
-  // reference media that happened to be discovered elsewhere.
   const tabbedGalleryImages: NormalizedImage[] = mergedSections
     .filter((section) => section.type === 'gallery')
     .flatMap((section) => dynamicGalleryGroups(section, source, new Map()))
@@ -1668,11 +1609,6 @@ for (const target of targetServices) {
     : undefined
   const extractedContentBlocks = contentBlocksFromNormalized(normalized)
   if (existing.docs[0]) {
-    // Existing record: only touch hero + sections (+ contentBlocks, but only
-    // when we actually extracted real new content — an empty result never
-    // overwrites whatever's already there). shortDescription, featured,
-    // sectionOrder, faqs, and relatedServices are presumed hand-curated and
-    // left alone either way.
     await payload.update({
       collection: 'services',
       id: existing.docs[0].id,

@@ -1,6 +1,19 @@
 import Image from 'next/image'
 
-export type HomeRepairCategory = (typeof homeRepairCategoriesContent)[number]
+import { RichTextContent } from '@/components/rich-text/RichTextContent'
+import type { RichTextValue } from '@/lib/richText'
+import { Section } from '@/components/ui/Section'
+
+export type HomeRepairCategory = {
+  title: string
+  label: string
+  image: string
+  /** Body copy — Payload rich text (Lexical JSON) or a plain string fallback. */
+  body: RichTextValue | string
+  items: string[]
+  /** Optional paragraph(s) after the bullet list (Door, Flooring, Interior). */
+  closingBody?: RichTextValue | string
+}
 
 /**
  * ServiceHomeRepairCategoriesSection
@@ -11,6 +24,10 @@ export type HomeRepairCategory = (typeof homeRepairCategoriesContent)[number]
  * a different bullet-list label ("Services include:" vs "Key benefits:"
  * vs "Flooring types we work with:", etc.) rather than one generic label
  * for all six.
+ *
+ * The body and closing paragraphs come from Payload rich text fields. The
+ * section's own spacing/typography is applied on a wrapper so the rich text
+ * renderer cannot drift the card design.
  */
 export function ServiceHomeRepairCategoriesSection({
   categories = homeRepairCategoriesContent,
@@ -18,7 +35,7 @@ export function ServiceHomeRepairCategoriesSection({
   categories?: HomeRepairCategory[]
 }) {
   return (
-    <div className="grid gap-20">
+    <Section className="grid gap-20">
       {categories.map((category, index) => {
         const [firstWord, ...rest] = category.title.split(' ')
         const imageOnRight = index % 2 === 1
@@ -44,7 +61,13 @@ export function ServiceHomeRepairCategoriesSection({
                 {firstWord}
               </p>
               <h3 className="font-display text-3xl font-semibold text-ink">{rest.join(' ')}</h3>
-              <p className="mt-4 text-base leading-7 text-ink-2/75">{category.body}</p>
+              {typeof category.body === 'string' ? (
+                <p className="mt-4 text-base leading-7 text-ink-2/75">{category.body}</p>
+              ) : (
+                <div className="mt-4 text-base leading-7 text-ink-2/75 [&_p]:mt-0 [&_p]:text-ink-2/75">
+                  <RichTextContent data={category.body} />
+                </div>
+              )}
               <h4 className="mt-6 font-semibold text-ink-2">{category.label}</h4>
               <ul className="mt-3 grid gap-2 text-sm leading-6 text-ink-2/75">
                 {category.items.map((item) => (
@@ -54,14 +77,20 @@ export function ServiceHomeRepairCategoriesSection({
                   </li>
                 ))}
               </ul>
-              {category.closingBody && (
-                <p className="mt-5 text-base leading-7 text-ink-2/75">{category.closingBody}</p>
-              )}
+              {category.closingBody ? (
+                typeof category.closingBody === 'string' ? (
+                  <p className="mt-5 text-base leading-7 text-ink-2/75">{category.closingBody}</p>
+                ) : (
+                  <div className="mt-5 text-base leading-7 text-ink-2/75 [&_p]:mt-0 [&_p]:text-ink-2/75">
+                    <RichTextContent data={category.closingBody} />
+                  </div>
+                )
+              ) : null}
             </div>
           </div>
         )
       })}
-    </div>
+    </Section>
   )
 }
 const cabinet = '/services/kitchen-remodeling.jpeg'
@@ -71,7 +100,7 @@ const flooring = '/before-after/bathroom_remodeling_after.jpeg'
 const painting = '/services/kitchen-remodeling.jpeg'
 const window_ = '/services/home-remodeling.jpeg'
 
-export const homeRepairCategoriesContent = [
+export const homeRepairCategoriesContent: HomeRepairCategory[] = [
   {
     title: 'Cabinet Repair & Installation',
     label: 'Services include:',
@@ -85,7 +114,7 @@ export const homeRepairCategoriesContent = [
     ],
   },
   {
-    title: 'Door Installation & Door Repair',
+    title: 'Door Installation & Repair',
     label: 'We service and install:',
     image: door,
     body: 'Transform your home’s entryways with expert door installation and repair services. We work with a wide range of door types to enhance both functionality and aesthetics. Whether you need a high-tech automatic door or a rustic barn door, our skilled technicians ensure a perfect fit, smooth operation, and long-lasting durability.',
@@ -99,6 +128,8 @@ export const homeRepairCategoriesContent = [
       'Screen doors',
       'Security doors',
     ],
+    closingBody:
+      'If you’re experiencing issues such as squeaking hinges, damaged frames, or drafts, our door repair specialists can quickly diagnose and fix the problem, restoring both security and style to your home.',
   },
   {
     title: 'Drywall Repair, Installation & Replacement',

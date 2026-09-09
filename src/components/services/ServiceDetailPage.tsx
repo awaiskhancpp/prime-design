@@ -1,6 +1,7 @@
 import type { ReactNode } from 'react'
 import { HomeContact } from '@/components/blocks/HomeContact'
 import { LandscapingServiceAreas } from '@/components/blocks/LandscapingServiceAreas'
+import { ServiceAreasStrip } from './ServiceAreasStrip'
 import { WhyChooseUs } from '@/components/gallery/WhyChooseUs'
 import { Contact as GalleryContact } from '@/components/gallery/Contact'
 import { LandscapingCta } from '@/components/blocks/LandscapingCta'
@@ -310,14 +311,23 @@ export function ServiceTemplate({ service }: { service: ServiceDetail }) {
               description: step.description || '',
               image: step.image || fallbackSteps[index]?.image,
             }))
-            // Bathroom renders its "Let's build your dream bathroom" header in
-            // the separate craftsmanship slot, so the process slot only shows
-            // the steps (hideHeader). Kitchen keeps header + steps together.
+            // Home Remodeling keeps the bespoke "A Client-Centered Approach"
+            // design (side image + steps), now fed from Payload. Bathroom shows
+            // only the steps (its header lives in the craftsmanship slot).
+            if (service.slug === 'home-remodeling') {
+              return (
+                <HomeRemodelingProcessSection
+                  title={payloadProcess.title}
+                  description={payloadProcess.description}
+                  steps={steps}
+                />
+              )
+            }
             if (service.slug === 'bathroom-remodeling') {
               return (
                 <ServiceProcessSection
-                  eyebrow={payloadProcess.eyebrow || 'We make it easy'}
-                  title={payloadProcess.title || 'Let’s build your dream bathroom'}
+                  eyebrow={payloadProcess.eyebrow || 'Our process'}
+                  title={payloadProcess.title || 'A Client-Centered Approach to Home Remodeling'}
                   description=""
                   steps={steps}
                   hideHeader
@@ -374,8 +384,12 @@ export function ServiceTemplate({ service }: { service: ServiceDetail }) {
     },
     {
       key: 'service-areas',
+      // The comprehensive home repair page keeps only the city-pill strip
+      // (LandingServiceAreasSection, rendered by the `areas-we-service` slot
+      // below Why Choose Us) — no "Service areas" cards section.
       node:
-        service.slug === 'additions' || service.slug === 'complete-renovation' ? (
+        service.slug === 'comprehensive-home-repair-installation-services-in-silicon-valley' ? null : service.slug === 'additions' ||
+          service.slug === 'complete-renovation' ? (
           <LandscapingServiceAreas serviceSlug={service.slug} />
         ) : (
           (cmsSlotNodes.get('service-areas') ?? <ServiceAreasSection service={service} />)
@@ -384,11 +398,11 @@ export function ServiceTemplate({ service }: { service: ServiceDetail }) {
     {
       key: 'areas-we-service',
       node:
-        service.slug === 'kitchen-remodeling' || service.slug === 'bathroom-remodeling' ? (
-          <LandscapingServiceAreas
-            serviceSlug={service.slug}
-            heading={service.areasWeService?.heading}
-          />
+        service.slug === 'kitchen-remodeling' ||
+        service.slug === 'bathroom-remodeling' ||
+        service.slug === 'home-remodeling' ||
+        service.slug === 'comprehensive-home-repair-installation-services-in-silicon-valley' ? (
+          <ServiceAreasStrip serviceSlug={service.slug} heading={service.areasWeService?.heading} />
         ) : null,
     },
     {
@@ -535,6 +549,28 @@ export function ServiceTemplate({ service }: { service: ServiceDetail }) {
       'service-areas',
       'reviews',
       'contact',
+      'areas-we-service',
+    ],
+    // Home Remodeling (WP page 335).
+    'home-remodeling': [
+      'real-homes',
+      'video',
+      'estimate',
+      'process',
+      'gallery',
+      'craftsmanship',
+      'service-areas',
+      'silicon-valley-loves',
+      'prime-difference',
+      'faq',
+      'reviews',
+      'contact',
+      'areas-we-service',
+    ],
+    // Home Repair & Installation.
+    'comprehensive-home-repair-installation-services-in-silicon-valley': [
+      'home-repair-categories',
+      'why-choose-us',
       'areas-we-service',
     ],
   }

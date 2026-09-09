@@ -64,13 +64,13 @@ export function PageHero({
       {showHeader ? <SiteHeader variant={headerVariant} /> : null}
 
       <Container className="relative z-10 w-full max-w-none">
-        <div className="max-w-3xl">
+        <div className="">
           <p className="text-xs font-semibold uppercase tracking-[0.24em] text-brass">{eyebrow}</p>
-          <h1 className="mt-1 max-w-4xl font-display text-5xl font-medium leading-tight tracking-tight md:text-7xl">
+          <h1 className=" max-w-4xl font-display text-5xl font-medium leading-tight tracking-tight md:text-7xl">
             {title}
           </h1>
           {description ? (
-            <p className="mt-4 max-w-2xl text-base leading-7 text-white/85 md:text-lg">
+            <p className="mt-1 max-w-3xl text-base leading-7 text-white/85 md:text-lg">
               {description}
             </p>
           ) : null}

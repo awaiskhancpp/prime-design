@@ -439,6 +439,16 @@ export const Services: CollectionConfig = {
               ],
             },
             {
+              name: 'galleryImages',
+              type: 'upload',
+              relationTo: 'media',
+              hasMany: true,
+              label: 'Gallery Images',
+              admin: {
+                description: 'Photos shown in the gallery section. Empty falls back to the built-in gallery.',
+              },
+            },
+            {
               name: 'hero',
               type: 'group',
               label: 'Hero Banner Fallback',

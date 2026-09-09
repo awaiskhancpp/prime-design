@@ -159,13 +159,21 @@ export const landingPageBlocks: Block[] = [
       name: 'categories',
       type: 'array' as const,
       fields: [
+        // Full WordPress heading (e.g. "Cabinet Repair & Installation") —
+        // the section splits it into the gradient first word + heading rest.
         text('title', true),
-        { name: 'description', type: 'textarea' as const },
+        // The WordPress sub-heading above the bullet list ("Services
+        // include:", "We service and install:", "Key benefits:", ...).
+        text('label'),
+        // Body copy — rich text so formatting is preserved in the editor.
+        { name: 'description', type: 'richText' as const },
         {
           name: 'features',
           type: 'array' as const,
           fields: [{ name: 'text', type: 'text' as const }],
         },
+        // Optional paragraph(s) after the list (Door, Flooring, Interior).
+        { name: 'closingBody', type: 'richText' as const },
         ...mediaReferenceFields(),
         text('sourceId'),
       ],

@@ -182,21 +182,18 @@ const SERVICE_PAGE_LAYOUTS: Record<string, ServicePageSections> = {
     craftsmanship: true,
     realHomes: true,
     siliconValleyLoves: true,
-    whyChooseUs: true,
     faq: true,
     estimate: true,
     reviews: true,
     contact: true,
-    homeProcess: true,
   },
 
   // Home repair & installation — minimal page: just the category cards, the
-  // home-repair "why choose us" variant, and the closing contact section.
+  // home-repair "why choose us" variant, and the areas strip.
   'comprehensive-home-repair-installation-services-in-silicon-valley': {
     ...DEFAULT_SERVICE_PAGE_SECTIONS,
     homeRepairCategories: true,
     homeRepairWhyChooseUs: true,
-    contact: true,
   },
 
   // Financing — informational page, no gallery/video.

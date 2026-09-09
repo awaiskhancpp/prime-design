@@ -904,13 +904,43 @@ export interface Service {
             categories?:
               | {
                   title: string;
-                  description?: string | null;
+                  label?: string | null;
+                  description?: {
+                    root: {
+                      type: string;
+                      children: {
+                        type: any;
+                        version: number;
+                        [k: string]: unknown;
+                      }[];
+                      direction: ('ltr' | 'rtl') | null;
+                      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+                      indent: number;
+                      version: number;
+                    };
+                    [k: string]: unknown;
+                  } | null;
                   features?:
                     | {
                         text?: string | null;
                         id?: string | null;
                       }[]
                     | null;
+                  closingBody?: {
+                    root: {
+                      type: string;
+                      children: {
+                        type: any;
+                        version: number;
+                        [k: string]: unknown;
+                      }[];
+                      direction: ('ltr' | 'rtl') | null;
+                      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+                      indent: number;
+                      version: number;
+                    };
+                    [k: string]: unknown;
+                  } | null;
                   media?: {
                     asset?: (number | null) | Media;
                     alt?: string | null;
@@ -1404,6 +1434,10 @@ export interface Service {
   areasWeService?: {
     heading?: string | null;
   };
+  /**
+   * Photos shown in the gallery section. Empty falls back to the built-in gallery.
+   */
+  galleryImages?: (number | Media)[] | null;
   /**
    * Top banner copy and background media.
    */
@@ -2370,13 +2404,43 @@ export interface LandingPage {
         categories?:
           | {
               title: string;
-              description?: string | null;
+              label?: string | null;
+              description?: {
+                root: {
+                  type: string;
+                  children: {
+                    type: any;
+                    version: number;
+                    [k: string]: unknown;
+                  }[];
+                  direction: ('ltr' | 'rtl') | null;
+                  format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+                  indent: number;
+                  version: number;
+                };
+                [k: string]: unknown;
+              } | null;
               features?:
                 | {
                     text?: string | null;
                     id?: string | null;
                   }[]
                 | null;
+              closingBody?: {
+                root: {
+                  type: string;
+                  children: {
+                    type: any;
+                    version: number;
+                    [k: string]: unknown;
+                  }[];
+                  direction: ('ltr' | 'rtl') | null;
+                  format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+                  indent: number;
+                  version: number;
+                };
+                [k: string]: unknown;
+              } | null;
               media?: {
                 asset?: (number | null) | Media;
                 alt?: string | null;
@@ -3505,6 +3569,7 @@ export interface ServicesSelect<T extends boolean = true> {
                 | T
                 | {
                     title?: T;
+                    label?: T;
                     description?: T;
                     features?:
                       | T
@@ -3512,6 +3577,7 @@ export interface ServicesSelect<T extends boolean = true> {
                           text?: T;
                           id?: T;
                         };
+                    closingBody?: T;
                     media?:
                       | T
                       | {
@@ -3796,6 +3862,7 @@ export interface ServicesSelect<T extends boolean = true> {
     | {
         heading?: T;
       };
+  galleryImages?: T;
   hero?:
     | T
     | {
@@ -4562,6 +4629,7 @@ export interface LandingPagesSelect<T extends boolean = true> {
                 | T
                 | {
                     title?: T;
+                    label?: T;
                     description?: T;
                     features?:
                       | T
@@ -4569,6 +4637,7 @@ export interface LandingPagesSelect<T extends boolean = true> {
                           text?: T;
                           id?: T;
                         };
+                    closingBody?: T;
                     media?:
                       | T
                       | {

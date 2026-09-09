@@ -22,6 +22,7 @@ import { LandingBookingSection } from './LandingBookingSection'
 import { LandingContact } from './Contact'
 import { TestimonialsSpotlight } from '@/components/testimonials/TestimonialsSpotlight'
 import { faqCategories } from '@/lib/faq'
+import { richTextToPlainText } from '@/lib/richText'
 import type { LandingPageBlock } from '@/lib/landingPages'
 
 type Block = LandingPageBlock & Record<string, unknown>
@@ -258,10 +259,18 @@ function FaqBlock({ block }: { block: Block }) {
               ? questions
                   .map((question) => {
                     const item = question as Record<string, unknown>
-                    return { question: text(item.question) || '', answer: text(item.answer) || '' }
+                    return {
+                      question: text(item.question) || '',
+                      // FAQs answers are Lexical rich text now — flatten to
+                      // plain text for this section's design.
+                      answer: richTextToPlainText(item.answer),
+                    }
                   })
                   .filter((item) => item.question && item.answer)
-              : source?.items || [],
+              : source?.items.map((item) => ({
+                  question: item.question,
+                  answer: richTextToPlainText(item.answer),
+                })) || [],
           }
         })
         .filter((category) => category.items.length)
@@ -385,8 +394,10 @@ function RepairServicesBlock({ block }: { block: Block }) {
         {categories.map((category) => (
           <article key={text(category.title)} className="border border-line bg-white p-6">
             <h3 className="font-display text-2xl text-ink">{text(category.title)}</h3>
-            {text(category.description) ? (
-              <p className="mt-3 text-sm leading-6 text-ink-2/75">{text(category.description)}</p>
+            {richTextToPlainText(category.description) ? (
+              <p className="mt-3 text-sm leading-6 text-ink-2/75">
+                {richTextToPlainText(category.description)}
+              </p>
             ) : null}
             {Array.isArray(category.features) ? (
               <ul className="mt-4 list-disc space-y-2 pl-5 text-sm text-ink-2/75">

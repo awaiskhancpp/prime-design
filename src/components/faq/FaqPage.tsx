@@ -5,6 +5,7 @@ import { LandscapingServiceAreas } from '@/components/blocks/LandscapingServiceA
 import { SiteFooter } from '@/components/layout/SiteFooter'
 import { PageHero } from '@/components/layout/PageHero'
 import { Section } from '@/components/ui/Section'
+import { RichTextContent } from '@/components/rich-text/RichTextContent'
 import { faqCategories } from '@/lib/faq'
 
 export function FaqPage() {
@@ -39,9 +40,15 @@ export function FaqPage() {
                             aria-hidden
                           />
                         </summary>
-                        <p className="max-w-3xl pb-5 pr-10 text-sm leading-7 text-ink-2/70">
-                          {item.answer}
-                        </p>
+                        {typeof item.answer === 'string' ? (
+                          <p className="max-w-3xl pb-5 pr-10 text-sm leading-7 text-ink-2/70">
+                            {item.answer}
+                          </p>
+                        ) : (
+                          <div className="max-w-3xl pb-5 pr-10 text-sm leading-7 text-ink-2/70">
+                            <RichTextContent data={item.answer} />
+                          </div>
+                        )}
                       </details>
                     ))}
                   </div>

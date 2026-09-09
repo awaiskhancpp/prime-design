@@ -17,7 +17,7 @@ export type ServiceDetail = Service & {
   lead: string
   keyFeatures: string[]
   benefits: string[]
-  process: string[]
+  processSteps: string[]
   gallery: string[]
   introHeading?: string
   heroVideoUrl?: string
@@ -238,7 +238,7 @@ export const serviceDetails: Record<string, ServiceDetail> = {
       'Extra income potential: Rent out your ADU to generate additional monthly income and offset your mortgage or other expenses.',
       'Flexible design options: Choose from a range of architectural styles, floor plans, and amenities to create a space that suits your lifestyle.',
     ],
-    process: [
+    processSteps: [
       'Initial consultation: Discuss your requirements, budget, and design preferences with our team.',
       'Design and planning: Our experts will create detailed blueprints and design concepts for your ADU.',
       'Construction: Our skilled builders will construct your ADU with attention to detail and quality craftsmanship.',
@@ -265,7 +265,7 @@ export const serviceDetails: Record<string, ServiceDetail> = {
       'Value enhancement: A well-designed and executed addition can significantly increase the value of your property.',
       'Avoiding the cost and stress of moving: Expand your home without the hassle of a full-scale move, allowing you to stay in your beloved neighborhood.',
     ],
-    process: [
+    processSteps: [
       'Consultation: Our team will meet with you to understand your goals, requirements, and budget for the home addition project.',
       'Design and Planning: Our expert designers will create detailed plans that integrate seamlessly with your existing home structure, considering aesthetics, functionality, and your specific needs.',
       'Permitting and Approvals: We’ll handle the necessary permits and ensure compliance with local building codes and regulations.',
@@ -293,7 +293,7 @@ export const serviceDetails: Record<string, ServiceDetail> = {
       'High-quality materials selected for beauty and durability',
       'A seamless design-build experience with one trusted team',
     ],
-    process: [
+    processSteps: [
       'Initial consultation: We learn about your goals, taste, budget, and how you use your kitchen.',
       'Customized design: Our designers turn your ideas into a practical, beautiful plan.',
       'Efficient project management: We coordinate every detail and keep you informed.',
@@ -322,7 +322,7 @@ export const serviceDetails: Record<string, ServiceDetail> = {
       'Focus on functionality and efficiency',
       'Incorporation of smart storage solutions',
     ],
-    process: [
+    processSteps: [
       'Share your inspiration and how you want the kitchen to work.',
       'Refine the layout, cabinetry, materials, and finishes with our design team.',
       'Review the complete plan and selections before construction begins.',
@@ -395,7 +395,7 @@ export const serviceDetails: Record<string, ServiceDetail> = {
       'A kitchen built for everyday use and long-term enjoyment',
       'A flexible design that remains timeless as trends change',
     ],
-    process: [
+    processSteps: [
       'Explore the Shaker look and identify the details that speak to you.',
       'Choose cabinetry, hardware, colors, and materials with our design team.',
       'Approve a coordinated design that balances beauty with function.',
@@ -439,7 +439,7 @@ export const serviceDetails: Record<string, ServiceDetail> = {
       'Rustic refinement with warmth and character',
       'Minimalist elegance with a calm, uncluttered feel',
     ],
-    process: [
+    processSteps: [
       'Consultation: We discuss your vision, priorities, and budget.',
       'Design: We create a custom layout, elevations, and material palette.',
       'Selections: You choose the finishes, fixtures, and accents that make it yours.',
@@ -464,7 +464,7 @@ export const serviceDetails: Record<string, ServiceDetail> = {
       'Improve comfort, function, efficiency, and long-term value',
       'Rely on one experienced team for design and construction',
     ],
-    process: [
+    processSteps: [
       'Free consultation: We understand your vision and priorities.',
       'Customized design: We develop a plan tailored to your home and lifestyle.',
       'Skilled project management: We coordinate people, materials, and timelines.',
@@ -489,7 +489,7 @@ export const serviceDetails: Record<string, ServiceDetail> = {
       'Plan your renovation around a realistic budget',
       'Keep design, construction, and financing moving together',
     ],
-    process: [
+    processSteps: [
       'Schedule a consultation: Reach out to our team to discuss your renovation needs.',
       'Explore financing options: Review the available solutions with our knowledgeable specialists.',
       'Application and approval: Once you select a plan, complete the application process.',
@@ -511,7 +511,7 @@ const defaultDetailCopy = {
     'A coordinated design-build experience with one trusted team',
     'Craftsmanship focused on detail, durability, and long-term value',
   ],
-  process: [
+  processSteps: [
     'Initial consultation: We learn about your goals, home, and budget.',
     'Customized design: We develop a plan around your needs and style.',
     'Project management: We coordinate the work and keep you informed.',
@@ -559,6 +559,7 @@ type PayloadServiceRecord = {
   clientApproach?: unknown
   /** Side image for the "A Client-Centered Approach" section. */
   clientApproachImage?: number | PayloadMedia | null
+  galleryImages?: Array<number | PayloadMedia | null> | null
   process?: {
     eyebrow?: string | null
     title?: string | null
@@ -767,7 +768,7 @@ export async function resolveServiceDetail(slug: string): Promise<ServiceDetail 
     heroVideoUrl: payloadImageUrl(record.hero?.video),
     keyFeatures: [],
     benefits: [],
-    process: [],
+    processSteps: [],
     gallery: [],
   }
   return {
@@ -803,6 +804,12 @@ export async function resolveServiceDetail(slug: string): Promise<ServiceDetail 
       ? (record.clientApproach as RichTextValue)
       : undefined,
     clientApproachImage: payloadImageUrl(record.clientApproachImage),
+    gallery: record.galleryImages?.map(payloadImageUrl).filter((url): url is string => Boolean(url))
+      .length
+      ? (record.galleryImages
+          ?.map(payloadImageUrl)
+          .filter((url): url is string => Boolean(url)) ?? base.gallery)
+      : base.gallery,
     process: record.process
       ? {
           eyebrow: record.process.eyebrow ?? undefined,

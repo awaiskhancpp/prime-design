@@ -16,7 +16,7 @@ import {
   getCraftsmanshipContent,
   ServiceCraftsmanshipTransformsSection,
 } from './sections/ServiceCraftsmanshipTransformsSection'
-import { ServiceHomeRepairCategoriesSection } from './sections/ServiceHomeRepairCategoriesSection'
+import { ServiceHomeRepairCategoriesSection, type HomeRepairCategory } from './sections/ServiceHomeRepairCategoriesSection'
 import { ServiceWhyChooseUsSection } from './sections/ServiceWhyChooseUsSection'
 import { ServiceRealHomesStoriesSection } from './sections/ServiceRealHomesStoriesSection'
 import {
@@ -204,12 +204,15 @@ function renderOfferings(
 function renderRepairCategories(block: RawBlock, service: ServiceDetail): RenderedSection | null {
   const categories = blocks(block.categories).map((category) => ({
     title: str(category.title) || 'Service',
-    label: str(category.heading) || 'Includes:',
+    label: str(category.label) || 'Includes:',
     image: mediaUrl(category.media) || service.image,
-    body: str(category.description),
+    // Rich text (Lexical) from Payload — the section renders it with the
+    // card's own typography.
+    body: (category.description as HomeRepairCategory['body']) || '',
     items: blocks(category.features)
       .map((feature) => str(feature.text))
       .filter((item): item is string => Boolean(item)),
+    closingBody: category.closingBody as HomeRepairCategory['closingBody'],
   }))
   if (!categories.length) return null
   return {

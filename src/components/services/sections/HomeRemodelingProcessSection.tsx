@@ -14,12 +14,12 @@ import { cn } from '@/lib/utils'
 // now fully independent — edit it freely without affecting any other
 // service page.
 
-const title = 'A Client-Centered Approach to Home Remodeling'
-const description =
+const defaultTitle = 'A Client-Centered Approach to Home Remodeling'
+const defaultDescription =
   'No matter the type of project we take on, the entire process, from start to finish.'
-const sideImage = '/prime-design-phone.webp'
+const defaultSideImage = '/prime-design-phone.webp'
 
-const steps: ServiceContentStep[] = [
+const defaultSteps: ServiceContentStep[] = [
   {
     title: 'Free Consultation',
     description:
@@ -42,12 +42,22 @@ const steps: ServiceContentStep[] = [
   },
 ]
 
-export function HomeRemodelingProcessSection() {
+export function HomeRemodelingProcessSection({
+  title = defaultTitle,
+  description = defaultDescription,
+  steps = defaultSteps,
+  sideImage = defaultSideImage,
+}: {
+  title?: string
+  description?: string
+  steps?: ServiceContentStep[]
+  sideImage?: string
+} = {}) {
   if (!steps.length) return null
 
   return (
     <Section className="bg-white">
-      <SectionHeader align="center" eyebrow="Our process" title={title} description={description} />
+      <SectionHeader align="center" title={title} description={description} />
 
       <div className="mt-14 grid gap-12 lg:grid-cols-[1fr_0.7fr] lg:items-start lg:gap-16">
         <ol className="grid gap-10 md:gap-10">

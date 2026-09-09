@@ -3,11 +3,12 @@ import { Wrench } from 'lucide-react'
 
 import { Section } from '@/components/ui/Section'
 import { SectionHeader } from '@/components/ui/SectionHeader'
+import { richTextToPlainText, type RichTextValue } from '@/lib/richText'
 
 type Category = {
   title?: string
   heading?: string
-  description?: string
+  description?: RichTextValue | string
   features?: Array<{ text?: string }>
   media?: unknown
 }
@@ -62,7 +63,11 @@ export function LandingRepairServicesSection({
             <div className={index % 2 ? 'md:order-1' : undefined}>
               <p className="text-xs font-semibold uppercase tracking-[0.2em] text-brass-deep">{category.title}</p>
               <h3 className="mt-2 font-display text-2xl font-medium text-ink">{category.heading || category.title}</h3>
-              {category.description ? <p className="mt-3 text-base leading-7 text-ink-2/75">{category.description}</p> : null}
+              {richTextToPlainText(category.description) ? (
+                <p className="mt-3 text-base leading-7 text-ink-2/75">
+                  {richTextToPlainText(category.description)}
+                </p>
+              ) : null}
               {category.features?.length ? (
                 <ul className="mt-5 grid gap-2.5 border-t border-line pt-5">
                   {category.features.filter((feature) => feature.text).map((feature, featureIndex) => (
