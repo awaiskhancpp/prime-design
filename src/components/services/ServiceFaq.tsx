@@ -3,6 +3,7 @@
 import { Plus } from 'lucide-react'
 import { useState } from 'react'
 
+import { RichTextContent } from '@/components/rich-text/RichTextContent'
 import { Button } from '@/components/ui/Button'
 import { Section } from '@/components/ui/Section'
 import { SectionHeader } from '@/components/ui/SectionHeader'
@@ -96,8 +97,7 @@ export function ServiceFaq({
       <div className="grid gap-12 lg:grid-cols-[0.7fr_1.3fr] lg:gap-24">
         <div>
           <SectionHeader
-            eyebrow="Questions"
-            title="Frequently asked questions"
+            title="Frequently Asked Questions"
             description={desc}
           />
           <Button href="/contact" variant="outline" size="md" className="mt-7">
@@ -134,9 +134,15 @@ export function ServiceFaq({
                   )}
                 >
                   <div className="min-h-0">
-                    <p className="max-w-2xl pb-6 pr-10 text-base leading-7 text-ink-2/70">
-                      {item.answer}
-                    </p>
+                    {typeof item.answer === 'string' ? (
+                      <p className="max-w-2xl pb-6 pr-10 text-base leading-7 text-ink-2/70">
+                        {item.answer}
+                      </p>
+                    ) : (
+                      <div className="max-w-2xl pb-6 pr-10 text-base leading-7 text-ink-2/70">
+                        <RichTextContent data={item.answer} />
+                      </div>
+                    )}
                   </div>
                 </div>
               </div>

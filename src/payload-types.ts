@@ -209,7 +209,21 @@ export interface Media {
 export interface Faq {
   id: number;
   question: string;
-  answer: string;
+  answer: {
+    root: {
+      type: string;
+      children: {
+        type: any;
+        version: number;
+        [k: string]: unknown;
+      }[];
+      direction: ('ltr' | 'rtl') | null;
+      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+      indent: number;
+      version: number;
+    };
+    [k: string]: unknown;
+  };
   category: number | FaqCategory;
   sortOrder?: number | null;
   visible?: boolean | null;
@@ -1301,6 +1315,94 @@ export interface Service {
       };
       [k: string]: unknown;
     } | null;
+  };
+  /**
+   * Optional "Craftsmanship That Transforms" split-image section shown below the process section. Use an H2 heading followed by body paragraphs.
+   */
+  craftsmanship?: {
+    root: {
+      type: string;
+      children: {
+        type: any;
+        version: number;
+        [k: string]: unknown;
+      }[];
+      direction: ('ltr' | 'rtl') | null;
+      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+      indent: number;
+      version: number;
+    };
+    [k: string]: unknown;
+  } | null;
+  /**
+   * Optional "A Client-Centered Approach to Home Remodeling" section shown below the estimate CTA. Use an H2 heading, a paragraph, and a numbered list of steps.
+   */
+  clientApproach?: {
+    root: {
+      type: string;
+      children: {
+        type: any;
+        version: number;
+        [k: string]: unknown;
+      }[];
+      direction: ('ltr' | 'rtl') | null;
+      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+      indent: number;
+      version: number;
+    };
+    [k: string]: unknown;
+  } | null;
+  /**
+   * Side image shown next to the "A Client-Centered Approach" section (phone mockup). Falls back to the built-in image when empty.
+   */
+  clientApproachImage?: (number | null) | Media;
+  /**
+   * Structured "We make it easy for you" process section (header + numbered steps with images).
+   */
+  process?: {
+    eyebrow?: string | null;
+    title?: string | null;
+    description?: string | null;
+    steps?:
+      | {
+          title: string;
+          description: string;
+          image?: (number | null) | Media;
+          id?: string | null;
+        }[]
+      | null;
+  };
+  /**
+   * Structured "Crafting Your Dream Home, Our Promise" pull-quote section.
+   */
+  quote?: {
+    heading?: string | null;
+    quote?: string | null;
+    attribution?: string | null;
+    image?: (number | null) | Media;
+  };
+  /**
+   * Structured "Silicon Valley Loves Working With Us!" section.
+   */
+  siliconValleyLoves?: {
+    eyebrow?: string | null;
+    heading?: string | null;
+    body?: string | null;
+    image?: (number | null) | Media;
+    stats?:
+      | {
+          value?: string | null;
+          label?: string | null;
+          detail?: string | null;
+          id?: string | null;
+        }[]
+      | null;
+  };
+  /**
+   * Structured "Areas we service" section (heading only; cities are linked from service-locations).
+   */
+  areasWeService?: {
+    heading?: string | null;
   };
   /**
    * Top banner copy and background media.
@@ -3646,6 +3748,53 @@ export interface ServicesSelect<T extends boolean = true> {
         keyFeatures?: T;
         benefits?: T;
         process?: T;
+      };
+  craftsmanship?: T;
+  clientApproach?: T;
+  clientApproachImage?: T;
+  process?:
+    | T
+    | {
+        eyebrow?: T;
+        title?: T;
+        description?: T;
+        steps?:
+          | T
+          | {
+              title?: T;
+              description?: T;
+              image?: T;
+              id?: T;
+            };
+      };
+  quote?:
+    | T
+    | {
+        heading?: T;
+        quote?: T;
+        attribution?: T;
+        image?: T;
+      };
+  siliconValleyLoves?:
+    | T
+    | {
+        eyebrow?: T;
+        heading?: T;
+        body?: T;
+        image?: T;
+        stats?:
+          | T
+          | {
+              value?: T;
+              label?: T;
+              detail?: T;
+              id?: T;
+            };
+      };
+  areasWeService?:
+    | T
+    | {
+        heading?: T;
       };
   hero?:
     | T

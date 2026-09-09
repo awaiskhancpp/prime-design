@@ -126,16 +126,21 @@ const SERVICE_PAGE_LAYOUTS: Record<string, ServicePageSections> = {
     processLabel: 'home addition',
   },
 
-  // Complete renovation — bespoke home-remodeling process design.
+  // Complete renovation — mirrors the Additions layout (real homes, Silicon
+  // Valley Loves, Prime Difference, reviews, contact) plus the bespoke
+  // "A Client-Centered Approach to Home Remodeling" process section (the
+  // HomeRemodelingProcessSection design) below the estimate CTA. The source
+  // WordPress page has no standalone video section, so none is rendered here.
   'complete-renovation': {
     ...DEFAULT_SERVICE_PAGE_SECTIONS,
-    process: true,
     inlineProcess: true,
     craftsmanship: true,
+    siliconValleyLoves: true,
+    whyChooseUs: true,
     estimate: true,
     reviews: true,
     contact: true,
-    homeProcess: true,
+    processLabel: 'complete renovation',
   },
 
   // Kitchen remodeling — the fullest page: video, process, offerings,
@@ -161,9 +166,7 @@ const SERVICE_PAGE_LAYOUTS: Record<string, ServicePageSections> = {
     process: true,
     offerings: true,
     gallery: true,
-    craftsmanship: true,
     siliconValleyLoves: true,
-    whyChooseUs: true,
     faq: true,
     estimate: true,
     reviews: true,

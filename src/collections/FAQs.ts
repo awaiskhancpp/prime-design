@@ -9,7 +9,7 @@ export const FAQs: CollectionConfig = {
   },
   fields: [
     { name: 'question', type: 'text', required: true },
-    { name: 'answer', type: 'textarea', required: true },
+    { name: 'answer', type: 'richText', required: true },
     {
       name: 'category',
       type: 'relationship',

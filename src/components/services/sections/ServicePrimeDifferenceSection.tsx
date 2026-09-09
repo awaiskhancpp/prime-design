@@ -102,12 +102,6 @@ export function getPrimeDifferenceContent(service: ServiceDetail): PrimeDifferen
   }
 }
 
-const reviewBadges = [
-  { src: '/social/Yelp.png', alt: 'Yelp' },
-  { src: '/social/Google.png', alt: 'Google' },
-  { src: '/social/houzz.png', alt: 'Houzz' },
-]
-
 export function ServicePrimeDifferenceSection({
   eyebrow,
   heading,
@@ -123,14 +117,13 @@ export function ServicePrimeDifferenceSection({
         <div>
           {eyebrow ? <p className="font-display text-lg italic text-ink-2/70">{eyebrow}</p> : null}
           <h2 className="mt-3 font-display text-4xl font-medium leading-tight tracking-tight text-ink md:text-5xl">
-            &ldquo;{heading}
+            {heading}
             {headingAccent ? ' ' : null}
             {headingAccent ? (
               <span className="bg-gradient-to-r from-brass to-brass-deep bg-clip-text text-transparent">
                 {headingAccent}
               </span>
             ) : null}
-            &rdquo;
           </h2>
           {body ? <p className="mt-6 text-base leading-7 text-ink-2/75">{body}</p> : null}
 
@@ -154,20 +147,6 @@ export function ServicePrimeDifferenceSection({
               ))}
             </ul>
           ) : null}
-
-          <div className="mt-8 flex flex-wrap items-center gap-6">
-            {reviewBadges.map((badge) => (
-              <div key={badge.alt} className="flex flex-col items-start gap-1">
-                <Image
-                  src={badge.src}
-                  alt={badge.alt}
-                  width={110}
-                  height={40}
-                  className=" object-contain"
-                />
-              </div>
-            ))}
-          </div>
         </div>
 
         <div className="grid gap-6 sm:grid-cols-2">

@@ -4,26 +4,8 @@ import { ArrowRight } from 'lucide-react'
 
 import { Section } from '@/components/ui/Section'
 import { SectionHeader } from '@/components/ui/SectionHeader'
-import { serviceLocations } from '@/lib/serviceLocations'
+import { getServiceAreas } from '@/lib/serviceAreas.server'
 import type { ServiceDetail } from '@/lib/services'
-
-const cityOrder = [
-  'Campbell',
-  'Saratoga',
-  'Los Gatos',
-  'Los Altos',
-  'Milpitas',
-  'Fremont',
-  'Redwood City',
-  'Menlo Park',
-  'Cupertino',
-  'Santa Clara',
-  'Sunnyvale',
-  'Mountain View',
-  'Palo Alto',
-  'San Jose',
-  'Silicon Valley',
-]
 
 const serviceAreaLabels: Record<string, string> = {
   'kitchen-remodeling': 'Kitchen remodeling',
@@ -37,14 +19,8 @@ const serviceAreaLabels: Record<string, string> = {
   'shaker-kitchen': 'Shaker kitchen remodeling',
 }
 
-export function getServiceAreaLocations(serviceSlug: string) {
-  return serviceLocations
-    .filter((entry) => entry.serviceSlug === serviceSlug)
-    .sort((a, b) => cityOrder.indexOf(a.location.name) - cityOrder.indexOf(b.location.name))
-}
-
-export function ServiceAreasSection({ service }: { service: ServiceDetail }) {
-  const locations = getServiceAreaLocations(service.slug)
+export async function ServiceAreasSection({ service }: { service: ServiceDetail }) {
+  const locations = await getServiceAreas(service.slug)
   if (!locations.length) return null
 
   const serviceLabel = serviceAreaLabels[service.slug] || service.title
@@ -93,6 +69,31 @@ export function ServiceAreasSection({ service }: { service: ServiceDetail }) {
             </article>
           )
         })}
+
+        {/* "And all the surrounding cities" card — no image. */}
+        <article className="group flex h-full flex-col">
+          <div className="flex flex-1 flex-col border border-line bg-paper p-6">
+            <p className="text-xs font-semibold uppercase tracking-[0.2em] text-brass">
+              Everywhere else
+            </p>
+            <h3 className="mt-3 font-display text-2xl font-medium leading-tight text-ink-2 md:text-3xl">
+              And all the surrounding cities
+            </h3>
+            <p className="mt-3 text-base leading-7 text-ink-2/70">
+              We work across the whole Silicon Valley region. If your city isn&rsquo;t listed, get in
+              touch and we&rsquo;ll confirm we can help.
+            </p>
+            <div className="mt-auto pt-5">
+              <Link
+                href="/contact"
+                className="inline-flex items-center gap-2 border border-brass px-4 py-2 text-xs font-semibold uppercase tracking-[0.12em] text-brass-deep transition-colors hover:bg-brass hover:text-white"
+              >
+                Contact us
+                <ArrowRight />
+              </Link>
+            </div>
+          </div>
+        </article>
       </div>
     </Section>
   )

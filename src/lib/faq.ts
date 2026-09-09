@@ -1,4 +1,6 @@
-export type FaqItem = { question: string; answer: string }
+import type { RichTextValue } from './richText'
+
+export type FaqItem = { question: string; answer: string | RichTextValue }
 
 export type FaqCategory = { title: string; items: FaqItem[] }
 

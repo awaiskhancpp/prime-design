@@ -1,8 +1,10 @@
 import Image from 'next/image'
 import { ArrowRight } from 'lucide-react'
 
+import { RichTextContent } from '@/components/rich-text/RichTextContent'
 import { Button } from '@/components/ui/Button'
 import { Section } from '@/components/ui/Section'
+import type { RichTextValue } from '@/lib/richText'
 import type { ServiceDetail } from '@/lib/services'
 
 export type ServiceCraftsmanshipContent = {
@@ -39,7 +41,8 @@ export function ServiceCraftsmanshipTransformsSection({
   body,
   images,
   cta,
-}: ServiceCraftsmanshipContent) {
+  content,
+}: ServiceCraftsmanshipContent & { content?: RichTextValue }) {
   return (
     <Section className="">
       <div className="grid items-center gap-14 lg:grid-cols-[0.85fr_1fr] lg:gap-20">
@@ -71,20 +74,26 @@ export function ServiceCraftsmanshipTransformsSection({
           <p className="text-xs font-semibold uppercase tracking-[0.2em] text-brass-deep">
             {eyebrow}
           </p>
-          <h2 className="mt-3 font-display text-4xl font-medium leading-tight tracking-tight text-ink md:text-5xl">
-            {heading}{' '}
-            <span className="bg-gradient-to-r from-brass to-brass-deep bg-clip-text text-transparent">
-              {headingAccent}
-            </span>
-          </h2>
+          {content ? (
+            <RichTextContent data={content} />
+          ) : (
+            <>
+              <h2 className="mt-3 font-display text-4xl font-medium leading-tight tracking-tight text-ink md:text-5xl">
+                {heading}{' '}
+                <span className="bg-gradient-to-r from-brass to-brass-deep bg-clip-text text-transparent">
+                  {headingAccent}
+                </span>
+              </h2>
 
-          <div className="mt-6 grid gap-4">
-            {body.map((paragraph) => (
-              <p key={paragraph} className="text-base leading-7 text-ink-2/70">
-                {paragraph}
-              </p>
-            ))}
-          </div>
+              <div className="mt-6 grid gap-4">
+                {body.map((paragraph) => (
+                  <p key={paragraph} className="text-base leading-7 text-ink-2/70">
+                    {paragraph}
+                  </p>
+                ))}
+              </div>
+            </>
+          )}
 
           <div className="mt-9">
             <Button

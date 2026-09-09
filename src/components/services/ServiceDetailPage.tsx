@@ -24,6 +24,7 @@ import {
   ServiceRealHomesStoriesSection,
 } from './sections/ServiceRealHomesStoriesSection'
 import { ServiceSiliconValleyLovesSection } from './sections/ServiceSiliconValleyLovesSection'
+import { ServiceClientApproachSection } from './sections/ServiceClientApproachSection'
 import { ServiceEstimateCta } from './ServiceEstimateCta'
 import { ServiceFaqLoader } from './ServiceFaqLoader'
 import { ReviewsSection } from './ReviewsSection'
@@ -265,8 +266,9 @@ export function ServiceTemplate({ service }: { service: ServiceDetail }) {
     {
       key: 'why-choose-us',
       node:
-        service.slug === 'additions' ? (
-          // Additions shows the "Experience the Prime Difference" design.
+        service.slug === 'additions' || service.slug === 'complete-renovation' ? (
+          // Additions + Complete Renovation show the "Experience the Prime
+          // Difference" design.
           <WhyChooseUs />
         ) : (
           (cmsSlotNodes.get('why-choose-us') ??
@@ -300,6 +302,56 @@ export function ServiceTemplate({ service }: { service: ServiceDetail }) {
         (() => {
           if (!sections.process) return null
           if (sections.homeProcess) return <HomeRemodelingProcessSection />
+          const payloadProcess = service.process
+          if (payloadProcess?.steps?.length) {
+            const fallbackSteps = process?.steps ?? []
+            const steps = payloadProcess.steps.map((step, index) => ({
+              title: step.title || `Step ${index + 1}`,
+              description: step.description || '',
+              image: step.image || fallbackSteps[index]?.image,
+            }))
+            // Bathroom renders its "Let's build your dream bathroom" header in
+            // the separate craftsmanship slot, so the process slot only shows
+            // the steps (hideHeader). Kitchen keeps header + steps together.
+            if (service.slug === 'bathroom-remodeling') {
+              return (
+                <ServiceProcessSection
+                  eyebrow={payloadProcess.eyebrow || 'We make it easy'}
+                  title={payloadProcess.title || 'Let’s build your dream bathroom'}
+                  description=""
+                  steps={steps}
+                  hideHeader
+                />
+              )
+            }
+            const craftContent = getCraftsmanshipContent(service)
+            return (
+              <>
+                {/* "Our Process / We make it easy for you" — craftsmanship design
+                    (2 images + button + heading + text), separate from steps. */}
+                <ServiceCraftsmanshipTransformsSection
+                  eyebrow={payloadProcess.eyebrow || 'Our Process'}
+                  heading="We make it easy for"
+                  headingAccent="you"
+                  body={
+                    payloadProcess.description
+                      ? [payloadProcess.description]
+                      : craftContent.body
+                  }
+                  images={craftContent.images}
+                  cta={craftContent.cta}
+                />
+                {/* Steps — separate section, no repeated header. */}
+                <ServiceProcessSection
+                  eyebrow={payloadProcess.eyebrow || 'Our process'}
+                  title={payloadProcess.title || 'We make it easy for you'}
+                  description=""
+                  steps={steps}
+                  hideHeader
+                />
+              </>
+            )
+          }
           return process ? <ServiceProcessSection {...process} /> : null
         })(),
     },
@@ -314,23 +366,43 @@ export function ServiceTemplate({ service }: { service: ServiceDetail }) {
       node:
         cmsSlotNodes.get('craftsmanship') ??
         (sections.craftsmanship ? (
-          <ServiceCraftsmanshipTransformsSection {...getCraftsmanshipContent(service)} />
+          <ServiceCraftsmanshipTransformsSection
+            {...getCraftsmanshipContent(service)}
+            content={service.craftsmanship}
+          />
         ) : null),
     },
     {
       key: 'service-areas',
       node:
-        service.slug === 'additions' ? (
-          <LandscapingServiceAreas />
+        service.slug === 'additions' || service.slug === 'complete-renovation' ? (
+          <LandscapingServiceAreas serviceSlug={service.slug} />
         ) : (
           (cmsSlotNodes.get('service-areas') ?? <ServiceAreasSection service={service} />)
         ),
     },
     {
+      key: 'areas-we-service',
+      node:
+        service.slug === 'kitchen-remodeling' || service.slug === 'bathroom-remodeling' ? (
+          <LandscapingServiceAreas
+            serviceSlug={service.slug}
+            heading={service.areasWeService?.heading}
+          />
+        ) : null,
+    },
+    {
       key: 'quote',
       node:
         cmsSlotNodes.get('quote') ??
-        (sections.quote && cmsQuote && cmsQuote.blockType === 'quote' ? (
+        (service.quote?.quote ? (
+          <ServiceQuoteSection
+            heading={service.quote.heading || fallbackQuote?.heading || 'Crafting your dream home, our promise'}
+            quote={service.quote.quote}
+            attribution={service.quote.attribution || 'Prime Design & Build'}
+            image={service.quote.image || fallbackQuote?.image || service.image}
+          />
+        ) : sections.quote && cmsQuote && cmsQuote.blockType === 'quote' ? (
           <ServiceQuoteSection
             heading="Our promise"
             quote={cmsQuote.quote}
@@ -351,10 +423,22 @@ export function ServiceTemplate({ service }: { service: ServiceDetail }) {
       node: cmsSlotNodes.get('estimate') ?? (sections.estimate ? <ServiceEstimateCta /> : null),
     },
     {
+      key: 'client-approach',
+      node:
+        service.slug === 'complete-renovation' && service.clientApproach ? (
+          <ServiceClientApproachSection
+            content={service.clientApproach}
+            image={service.clientApproachImage}
+          />
+        ) : null,
+    },
+    {
       key: 'silicon-valley-loves',
       node:
         cmsSlotNodes.get('silicon-valley-loves') ??
-        (sections.siliconValleyLoves ? <ServiceSiliconValleyLovesSection /> : null),
+        (sections.siliconValleyLoves ? (
+          <ServiceSiliconValleyLovesSection content={service.siliconValleyLoves} />
+        ) : null),
     },
     {
       key: 'reviews',
@@ -402,6 +486,56 @@ export function ServiceTemplate({ service }: { service: ServiceDetail }) {
       'reviews',
       'contact',
       'service-areas',
+    ],
+    // Complete Renovation mirrors Additions' section sequence (no standalone
+    // video section — the WordPress page does not have one). Its process
+    // section ("A Client-Centered Approach to Home Remodeling") sits directly
+    // below the estimate CTA.
+    'complete-renovation': [
+      'intro',
+      'estimate',
+      'client-approach',
+      'craftsmanship',
+      'silicon-valley-loves',
+      'why-choose-us',
+      'reviews',
+      'contact',
+      'service-areas',
+    ],
+    // Kitchen Remodeling (WP page 327): estimate → video → offerings →
+    // process → Silicon Valley Loves → service areas → quote → FAQ → gallery
+    // → reviews → contact → areas-we-service (the shared "Areas we service"
+    // strip, same as the previous page).
+    'kitchen-remodeling': [
+      'estimate',
+      'video',
+      'offerings',
+      'process',
+      'silicon-valley-loves',
+      'service-areas',
+      'quote',
+      'faq',
+      'gallery',
+      'reviews',
+      'contact',
+      'areas-we-service',
+    ],
+    // Bathroom Remodeling (WP page 337): estimate → process → offerings →
+    // gallery → craftsmanship ("Let's build your dream bathroom") →
+    // Silicon Valley Loves → Prime Difference → FAQ → service areas →
+    // reviews → contact → areas-we-service.
+    'bathroom-remodeling': [
+      'estimate',
+      'process',
+      'offerings',
+      'gallery',
+      'silicon-valley-loves',
+      'prime-difference',
+      'faq',
+      'service-areas',
+      'reviews',
+      'contact',
+      'areas-we-service',
     ],
   }
 

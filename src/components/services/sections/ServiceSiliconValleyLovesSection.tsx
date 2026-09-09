@@ -10,14 +10,28 @@ export const siliconValleyLovesContent = {
   eyebrow: 'Over 350+ Projects in Silicon Valley',
 }
 
-const stats = [
+export type SiliconValleyLovesProps = {
+  eyebrow?: string
+  heading?: string
+  body?: string
+  image?: string
+  stats?: Array<{ value?: string; label?: string; detail?: string }>
+}
+
+const defaultStats = [
   { value: '4.9', label: 'Google rating', detail: '56 reviews' },
   { value: '4.9', label: 'Yelp rating', detail: '64 reviews' },
   { value: '350+', label: 'Projects completed', detail: 'Across Silicon Valley' },
 ]
 
-export function ServiceSiliconValleyLovesSection() {
-  const { heading, body, eyebrow } = siliconValleyLovesContent
+export function ServiceSiliconValleyLovesSection({ content }: { content?: SiliconValleyLovesProps }) {
+  const heading = content?.heading || siliconValleyLovesContent.heading
+  const body = content?.body || siliconValleyLovesContent.body
+  const eyebrow = content?.eyebrow || siliconValleyLovesContent.eyebrow
+  const image = content?.image || '/services/kitchen-remodeling.jpeg'
+  const stats = content?.stats?.length
+    ? content.stats.filter((s) => s.value || s.label || s.detail)
+    : defaultStats
 
   return (
     <Section className="">
@@ -37,7 +51,7 @@ export function ServiceSiliconValleyLovesSection() {
         <div className="relative">
           <div className="relative aspect-[4/3] overflow-hidden">
             <Image
-              src="/services/kitchen-remodeling.jpeg"
+              src={image}
               alt="A recently completed Prime Design & Build kitchen remodel"
               fill
               className="object-cover"

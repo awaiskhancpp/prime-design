@@ -33,6 +33,31 @@ export type ServiceDetail = Service & {
     benefits?: RichTextValue
     process?: RichTextValue
   }
+  /** CMS-authored rich text for the "Craftsmanship That Transforms" section. */
+  craftsmanship?: RichTextValue
+  /** CMS-authored rich text for the "A Client-Centered Approach" section. */
+  clientApproach?: RichTextValue
+  /** Side image for the "A Client-Centered Approach" section. */
+  clientApproachImage?: string
+  /** Structured process section content (header + steps). */
+  process?: {
+    eyebrow?: string
+    title?: string
+    description?: string
+    steps?: Array<{ title?: string; description?: string; image?: string }>
+  }
+  /** Structured quote section content. */
+  quote?: { heading?: string; quote?: string; attribution?: string; image?: string }
+  /** Structured "Silicon Valley Loves" section content. */
+  siliconValleyLoves?: {
+    eyebrow?: string
+    heading?: string
+    body?: string
+    image?: string
+    stats?: Array<{ value?: string; label?: string; detail?: string }>
+  }
+  /** Structured "Areas we service" section content. */
+  areasWeService?: { heading?: string }
   seo?: {
     metaTitle?: string | null
     metaDescription?: string | null
@@ -426,7 +451,7 @@ export const serviceDetails: Record<string, ServiceDetail> = {
     ...services[2],
     eyebrow: 'Complete Renovation',
     lead: 'Our experienced team of architects, designers, and builders is dedicated to creating custom-built homes that reflect your unique style and lifestyle.',
-    introHeading: 'A Client-Centered Approach to Home Remodeling',
+    introHeading: 'Home Additions — Enhancing Your Living Space',
     keyFeatures: [
       'Comprehensive planning from concept through completion',
       'Design decisions grounded in your lifestyle and needs',
@@ -516,7 +541,7 @@ export function getServiceDetailForPath(slug: string): ServiceDetail | undefined
   return getServiceDetail(servicePathAliases[slug] || slug)
 }
 
-type PayloadMedia = { url?: string | null }
+type PayloadMedia = { url?: string | null; source_url?: string | null }
 type PayloadServiceRecord = {
   title: string
   slug: string
@@ -528,6 +553,32 @@ type PayloadServiceRecord = {
     benefits?: unknown
     process?: unknown
   } | null
+  /** Rich text for the "Craftsmanship That Transforms" section. */
+  craftsmanship?: unknown
+  /** Rich text for the "A Client-Centered Approach to Home Remodeling" section. */
+  clientApproach?: unknown
+  /** Side image for the "A Client-Centered Approach" section. */
+  clientApproachImage?: number | PayloadMedia | null
+  process?: {
+    eyebrow?: string | null
+    title?: string | null
+    description?: string | null
+    steps?: Array<{ title?: string; description?: string; image?: number | PayloadMedia | null }> | null
+  } | null
+  quote?: {
+    heading?: string | null
+    quote?: string | null
+    attribution?: string | null
+    image?: number | PayloadMedia | null
+  } | null
+  siliconValleyLoves?: {
+    eyebrow?: string | null
+    heading?: string | null
+    body?: string | null
+    image?: number | PayloadMedia | null
+    stats?: Array<{ value?: string; label?: string; detail?: string }> | null
+  } | null
+  areasWeService?: { heading?: string | null } | null
   hero?: {
     eyebrow?: string | null
     heading?: string | null
@@ -542,10 +593,13 @@ type PayloadServiceRecord = {
   showInConsultationForm?: boolean | null
 }
 
-const payloadImageUrl = (value: unknown) =>
-  typeof value === 'object' && value !== null && 'url' in value && typeof value.url === 'string'
-    ? value.url
-    : undefined
+const payloadImageUrl = (value: unknown) => {
+  if (typeof value !== 'object' || value === null) return undefined
+  const obj = value as { url?: string | null; source_url?: string | null }
+  // Prefer the original WordPress source URL so images hotlink from the live
+  // site; fall back to the Payload-served URL.
+  return obj.source_url || obj.url || undefined
+}
 
 export function normalizePayloadBlocks(
   value: PayloadServiceRecord['contentBlocks'],
@@ -741,6 +795,49 @@ export async function resolveServiceDetail(slug: string): Promise<ServiceDetail 
             ? (record.overview.process as RichTextValue)
             : undefined,
         }
+      : undefined,
+    craftsmanship: richTextHasContent(record.craftsmanship as RichTextValue)
+      ? (record.craftsmanship as RichTextValue)
+      : undefined,
+    clientApproach: richTextHasContent(record.clientApproach as RichTextValue)
+      ? (record.clientApproach as RichTextValue)
+      : undefined,
+    clientApproachImage: payloadImageUrl(record.clientApproachImage),
+    process: record.process
+      ? {
+          eyebrow: record.process.eyebrow ?? undefined,
+          title: record.process.title ?? undefined,
+          description: record.process.description ?? undefined,
+          steps: record.process.steps?.map((step) => ({
+            title: step.title,
+            description: step.description,
+            image: payloadImageUrl(step.image),
+          })),
+        }
+      : undefined,
+    quote: record.quote
+      ? {
+          heading: record.quote.heading ?? undefined,
+          quote: record.quote.quote ?? undefined,
+          attribution: record.quote.attribution ?? undefined,
+          image: payloadImageUrl(record.quote.image),
+        }
+      : undefined,
+    siliconValleyLoves: record.siliconValleyLoves
+      ? {
+          eyebrow: record.siliconValleyLoves.eyebrow ?? undefined,
+          heading: record.siliconValleyLoves.heading ?? undefined,
+          body: record.siliconValleyLoves.body ?? undefined,
+          image: payloadImageUrl(record.siliconValleyLoves.image),
+          stats: record.siliconValleyLoves.stats?.map((stat) => ({
+            value: stat.value,
+            label: stat.label,
+            detail: stat.detail,
+          })),
+        }
+      : undefined,
+    areasWeService: record.areasWeService
+      ? { heading: record.areasWeService.heading ?? undefined }
       : undefined,
     sections: record.sections?.filter(
       (block): block is { blockType: string; [key: string]: unknown } =>

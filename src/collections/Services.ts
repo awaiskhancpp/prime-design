@@ -340,6 +340,105 @@ export const Services: CollectionConfig = {
               ],
             },
             {
+              name: 'craftsmanship',
+              type: 'richText',
+              label: 'Craftsmanship Section',
+              admin: {
+                description:
+                  'Optional "Craftsmanship That Transforms" split-image section shown below the process section. Use an H2 heading followed by body paragraphs.',
+              },
+            },
+            {
+              name: 'clientApproach',
+              type: 'richText',
+              label: 'Client-Centered Approach Section',
+              admin: {
+                description:
+                  'Optional "A Client-Centered Approach to Home Remodeling" section shown below the estimate CTA. Use an H2 heading, a paragraph, and a numbered list of steps.',
+              },
+            },
+            {
+              name: 'clientApproachImage',
+              type: 'upload',
+              relationTo: 'media',
+              label: 'Client-Centered Approach Image',
+              admin: {
+                description:
+                  'Side image shown next to the "A Client-Centered Approach" section (phone mockup). Falls back to the built-in image when empty.',
+              },
+            },
+            {
+              name: 'process',
+              type: 'group',
+              label: 'Process Section',
+              admin: {
+                description:
+                  'Structured "We make it easy for you" process section (header + numbered steps with images).',
+              },
+              fields: [
+                { name: 'eyebrow', type: 'text' },
+                { name: 'title', type: 'text' },
+                { name: 'description', type: 'textarea' },
+                {
+                  name: 'steps',
+                  type: 'array',
+                  fields: [
+                    { name: 'title', type: 'text', required: true },
+                    { name: 'description', type: 'textarea', required: true },
+                    { name: 'image', type: 'upload', relationTo: 'media' },
+                  ],
+                },
+              ],
+            },
+            {
+              name: 'quote',
+              type: 'group',
+              label: 'Quote Section',
+              admin: {
+                description: 'Structured "Crafting Your Dream Home, Our Promise" pull-quote section.',
+              },
+              fields: [
+                { name: 'heading', type: 'text' },
+                { name: 'quote', type: 'textarea' },
+                { name: 'attribution', type: 'text' },
+                { name: 'image', type: 'upload', relationTo: 'media' },
+              ],
+            },
+            {
+              name: 'siliconValleyLoves',
+              type: 'group',
+              label: 'Silicon Valley Loves Section',
+              admin: {
+                description: 'Structured "Silicon Valley Loves Working With Us!" section.',
+              },
+              fields: [
+                { name: 'eyebrow', type: 'text' },
+                { name: 'heading', type: 'text' },
+                { name: 'body', type: 'textarea' },
+                { name: 'image', type: 'upload', relationTo: 'media' },
+                {
+                  name: 'stats',
+                  type: 'array',
+                  fields: [
+                    { name: 'value', type: 'text' },
+                    { name: 'label', type: 'text' },
+                    { name: 'detail', type: 'text' },
+                  ],
+                },
+              ],
+            },
+            {
+              name: 'areasWeService',
+              type: 'group',
+              label: 'Areas We Service Section',
+              admin: {
+                description: 'Structured "Areas we service" section (heading only; cities are linked from service-locations).',
+              },
+              fields: [
+                { name: 'heading', type: 'text' },
+              ],
+            },
+            {
               name: 'hero',
               type: 'group',
               label: 'Hero Banner Fallback',

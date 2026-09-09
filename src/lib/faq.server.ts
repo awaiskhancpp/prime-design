@@ -1,4 +1,5 @@
 import { faqCategories, type FaqItem } from './faq'
+import type { RichTextValue } from './richText'
 
 export const serviceFaqCategories: Record<string, { description: string; categoryTitle: string }> = {
   'kitchen-remodeling': {
@@ -75,9 +76,9 @@ export async function getFaqItems(categoryTitle: string): Promise<FaqItem[]> {
       depth: 0,
       limit: 200,
     })
-    const items = (faqs.docs as Array<{ question?: string; answer?: string }>)
+    const items = (faqs.docs as Array<{ question?: string; answer?: unknown }>)
       .filter((doc) => doc.question && doc.answer)
-      .map((doc) => ({ question: doc.question as string, answer: doc.answer as string }))
+      .map((doc) => ({ question: doc.question as string, answer: doc.answer as RichTextValue }))
     return items.length ? items : staticItems ?? []
   } catch {
     return staticItems ?? []

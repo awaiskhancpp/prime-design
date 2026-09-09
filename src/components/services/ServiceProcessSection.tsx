@@ -257,14 +257,17 @@ export function ServiceProcessSection({
   description,
   cta,
   steps,
-}: ServiceProcessContent) {
+  hideHeader = false,
+}: ServiceProcessContent & { hideHeader?: boolean }) {
   if (!steps.length) return null
 
   return (
     <Section className="bg-white">
-      <SectionHeader align="center" eyebrow={eyebrow} title={title} description={description} />
+      {!hideHeader ? (
+        <SectionHeader align="center" eyebrow={eyebrow} title={title} description={description} />
+      ) : null}
 
-      {cta ? (
+      {!hideHeader && cta ? (
         <div className="mt-8 flex justify-center">
           <Button
             href={cta.href}
@@ -276,7 +279,7 @@ export function ServiceProcessSection({
         </div>
       ) : null}
 
-      <ol className="mt-14 grid gap-16 md:gap-20">
+      <ol className={`${hideHeader ? '' : 'mt-14 '}grid gap-16 md:gap-20`}>
         {steps.map((step, index) => {
           const reversed = index % 2 === 1
 
