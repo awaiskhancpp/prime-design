@@ -105,6 +105,14 @@ export const landingPageBlocks: Block[] = [
       fields: [
         text('title', true),
         description(),
+        // Lead-in line above the bullet list (e.g. "Here's what gives your
+        // kitchen a European charm:"). Only some WordPress cards have one.
+        text('label'),
+        {
+          name: 'features',
+          type: 'array' as const,
+          fields: [{ name: 'text', type: 'text' as const }],
+        },
         ...mediaReferenceFields(),
         { name: 'link', type: 'group' as const, fields: linkFields() },
       ],

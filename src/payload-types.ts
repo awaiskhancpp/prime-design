@@ -718,6 +718,13 @@ export interface Service {
               | {
                   title: string;
                   description?: string | null;
+                  label?: string | null;
+                  features?:
+                    | {
+                        text?: string | null;
+                        id?: string | null;
+                      }[]
+                    | null;
                   media?: {
                     asset?: (number | null) | Media;
                     alt?: string | null;
@@ -1450,6 +1457,35 @@ export interface Service {
      * Optional uploaded background video. Use this instead of an external video URL when available.
      */
     video?: (number | null) | Media;
+    /**
+     * Hero call-to-action buttons. Empty falls back to the built-in pair.
+     */
+    buttons?:
+      | {
+          label: string;
+          url: string;
+          id?: string | null;
+        }[]
+      | null;
+  };
+  /**
+   * "Why Choose Prime Kitchens? / The Prime Difference" three-card section (European Kitchen page).
+   */
+  primeKitchens?: {
+    eyebrow?: string | null;
+    title?: string | null;
+    description?: string | null;
+    passionHeading?: string | null;
+    cards?:
+      | {
+          title: string;
+          /**
+           * Image path (files live in /public, e.g. "/craftsmanship-in-every-project.svg").
+           */
+          image?: string | null;
+          id?: string | null;
+        }[]
+      | null;
   };
   /**
    * Select FAQs relevant to this service
@@ -2218,6 +2254,13 @@ export interface LandingPage {
           | {
               title: string;
               description?: string | null;
+              label?: string | null;
+              features?:
+                | {
+                    text?: string | null;
+                    id?: string | null;
+                  }[]
+                | null;
               media?: {
                 asset?: (number | null) | Media;
                 alt?: string | null;
@@ -3392,6 +3435,13 @@ export interface ServicesSelect<T extends boolean = true> {
                 | {
                     title?: T;
                     description?: T;
+                    label?: T;
+                    features?:
+                      | T
+                      | {
+                          text?: T;
+                          id?: T;
+                        };
                     media?:
                       | T
                       | {
@@ -3871,6 +3921,28 @@ export interface ServicesSelect<T extends boolean = true> {
         lead?: T;
         image?: T;
         video?: T;
+        buttons?:
+          | T
+          | {
+              label?: T;
+              url?: T;
+              id?: T;
+            };
+      };
+  primeKitchens?:
+    | T
+    | {
+        eyebrow?: T;
+        title?: T;
+        description?: T;
+        passionHeading?: T;
+        cards?:
+          | T
+          | {
+              title?: T;
+              image?: T;
+              id?: T;
+            };
       };
   faqs?: T;
   relatedServices?: T;
@@ -4452,6 +4524,13 @@ export interface LandingPagesSelect<T extends boolean = true> {
                 | {
                     title?: T;
                     description?: T;
+                    label?: T;
+                    features?:
+                      | T
+                      | {
+                          text?: T;
+                          id?: T;
+                        };
                     media?:
                       | T
                       | {

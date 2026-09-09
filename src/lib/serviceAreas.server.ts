@@ -29,13 +29,23 @@ export async function getServiceAreas(serviceSlug: string): Promise<ServiceLocat
   try {
     const payload = await getPayload({ config: configPromise })
 
-    const serviceResult = await payload.find({
-      collection: 'services',
-      where: { slug: { equals: serviceSlug } },
-      depth: 0,
-      limit: 1,
-    })
-    const serviceId = (serviceResult.docs[0] as { id?: number | string } | undefined)?.id
+    // Sub-service pages (e.g. european-kitchen-silicon-valley) are published
+    // under the unsuffixed slug in the CMS — same normalization as
+    // `resolveServiceDetail`.
+    const normalized = serviceSlug.replace(/-silicon-valley$/, '')
+    const candidates = normalized !== serviceSlug ? [serviceSlug, normalized] : [serviceSlug]
+
+    let serviceId: number | string | undefined
+    for (const candidate of candidates) {
+      const serviceResult = await payload.find({
+        collection: 'services',
+        where: { slug: { equals: candidate } },
+        depth: 0,
+        limit: 1,
+      })
+      serviceId = (serviceResult.docs[0] as { id?: number | string } | undefined)?.id
+      if (serviceId) break
+    }
     if (!serviceId) return fallback
 
     const slResult = await payload.find({

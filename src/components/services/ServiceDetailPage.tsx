@@ -25,6 +25,7 @@ import {
   ServiceRealHomesStoriesSection,
 } from './sections/ServiceRealHomesStoriesSection'
 import { ServiceSiliconValleyLovesSection } from './sections/ServiceSiliconValleyLovesSection'
+import { ServicePrimeKitchensSection } from './sections/ServicePrimeKitchensSection'
 import { ServiceClientApproachSection } from './sections/ServiceClientApproachSection'
 import { ServiceEstimateCta } from './ServiceEstimateCta'
 import { ServiceFaqLoader } from './ServiceFaqLoader'
@@ -265,6 +266,15 @@ export function ServiceTemplate({ service }: { service: ServiceDetail }) {
       node: cmsSlotNodes.get('prime-difference') ?? null,
     },
     {
+      // "Why Choose Prime Kitchens? / The Prime Difference" — the European
+      // Kitchen page's bespoke three-card section (Payload `primeKitchens`
+      // group on the service record).
+      key: 'prime-kitchens',
+      node: service.primeKitchens?.cards?.length ? (
+        <ServicePrimeKitchensSection content={service.primeKitchens} />
+      ) : null,
+    },
+    {
       key: 'why-choose-us',
       node:
         service.slug === 'additions' || service.slug === 'complete-renovation' ? (
@@ -384,11 +394,12 @@ export function ServiceTemplate({ service }: { service: ServiceDetail }) {
     },
     {
       key: 'service-areas',
-      // The comprehensive home repair page keeps only the city-pill strip
-      // (LandingServiceAreasSection, rendered by the `areas-we-service` slot
-      // below Why Choose Us) — no "Service areas" cards section.
+      // The comprehensive home repair and European Kitchen pages keep only
+      // the city-pill strip (LandingServiceAreasSection, rendered by the
+      // `areas-we-service` slot) — no "Service areas" cards section.
       node:
-        service.slug === 'comprehensive-home-repair-installation-services-in-silicon-valley' ? null : service.slug === 'additions' ||
+        service.slug === 'comprehensive-home-repair-installation-services-in-silicon-valley' ||
+        service.slug === 'european-kitchen-silicon-valley' ? null : service.slug === 'additions' ||
           service.slug === 'complete-renovation' ? (
           <LandscapingServiceAreas serviceSlug={service.slug} />
         ) : (
@@ -401,7 +412,8 @@ export function ServiceTemplate({ service }: { service: ServiceDetail }) {
         service.slug === 'kitchen-remodeling' ||
         service.slug === 'bathroom-remodeling' ||
         service.slug === 'home-remodeling' ||
-        service.slug === 'comprehensive-home-repair-installation-services-in-silicon-valley' ? (
+        service.slug === 'comprehensive-home-repair-installation-services-in-silicon-valley' ||
+        service.slug === 'european-kitchen-silicon-valley' ? (
           <ServiceAreasStrip serviceSlug={service.slug} heading={service.areasWeService?.heading} />
         ) : null,
     },
@@ -571,6 +583,19 @@ export function ServiceTemplate({ service }: { service: ServiceDetail }) {
     'comprehensive-home-repair-installation-services-in-silicon-valley': [
       'home-repair-categories',
       'why-choose-us',
+      'areas-we-service',
+    ],
+    // European Kitchen (WP page european-kitchen-silicon-valley): estimate →
+    // video (moved out of the hero) → "Why Choose Prime Kitchens? / The Prime
+    // Difference" → feature cards (with the section header) → reviews →
+    // contact → the shared "Areas we service" strip.
+    'european-kitchen-silicon-valley': [
+      'estimate',
+      'video',
+      'prime-kitchens',
+      'home-repair-categories',
+      'reviews',
+      'contact',
       'areas-we-service',
     ],
   }

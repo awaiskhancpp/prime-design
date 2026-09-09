@@ -132,9 +132,11 @@ export function ServiceVideoSection({
             {eyebrow}
           </p>
         ) : null}
-        <h2 className="font-display text-3xl font-medium leading-tight text-ink-2 md:text-4xl">
-          {title}
-        </h2>
+        {title ? (
+          <h2 className="font-display text-3xl font-medium leading-tight text-ink-2 md:text-4xl">
+            {title}
+          </h2>
+        ) : null}
         {description ? (
           <p className="mx-auto max-w-xl text-base leading-[1.7] text-ink-2/70">{description}</p>
         ) : null}

@@ -59,17 +59,33 @@ export function ServiceHero({ service }: { service: ServiceDetail }) {
             {service.lead}
           </p>
           <div className="mt-9 flex flex-wrap gap-3">
-            <Button href="/contact" variant="primary" size="lg">
-              Start your renovation <ArrowRight className="h-4 w-4" aria-hidden />
-            </Button>
-            <Button
-              href="/our-projects"
-              variant="primary"
-              size="lg"
-              className="border-brass bg-brass text-ink hover:border-brass-deep hover:bg-brass-deep hover:text-white"
-            >
-              Explore our portfolio <ArrowRight className="h-4 w-4" aria-hidden />
-            </Button>
+            {service.heroButtons?.length ? (
+              service.heroButtons.map((button) => (
+                <Button
+                  key={`${button.label}-${button.href}`}
+                  href={button.href}
+                  variant="primary"
+                  size="lg"
+                  className="border-brass bg-brass text-ink hover:border-brass-deep hover:bg-brass-deep hover:text-white"
+                >
+                  {button.label} <ArrowRight className="h-4 w-4" aria-hidden />
+                </Button>
+              ))
+            ) : (
+              <>
+                <Button href="/contact" variant="primary" size="lg">
+                  Start your renovation <ArrowRight className="h-4 w-4" aria-hidden />
+                </Button>
+                <Button
+                  href="/our-projects"
+                  variant="primary"
+                  size="lg"
+                  className="border-brass bg-brass text-ink hover:border-brass-deep hover:bg-brass-deep hover:text-white"
+                >
+                  Explore our portfolio <ArrowRight className="h-4 w-4" aria-hidden />
+                </Button>
+              </>
+            )}
           </div>
         </div>
       </Container>

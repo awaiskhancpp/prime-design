@@ -58,6 +58,16 @@ export type ServiceDetail = Service & {
   }
   /** Structured "Areas we service" section content. */
   areasWeService?: { heading?: string }
+  /** Hero call-to-action buttons (Payload-authored; built-in pair when empty). */
+  heroButtons?: Array<{ label: string; href: string }>
+  /** "Why Choose Prime Kitchens? / The Prime Difference" three-card section. */
+  primeKitchens?: {
+    eyebrow?: string
+    title?: string
+    description?: string
+    passionHeading?: string
+    cards?: Array<{ title: string; image?: string }>
+  }
   seo?: {
     metaTitle?: string | null
     metaDescription?: string | null
@@ -580,12 +590,20 @@ type PayloadServiceRecord = {
     stats?: Array<{ value?: string; label?: string; detail?: string }> | null
   } | null
   areasWeService?: { heading?: string | null } | null
+  primeKitchens?: {
+    eyebrow?: string | null
+    title?: string | null
+    description?: string | null
+    passionHeading?: string | null
+    cards?: Array<{ title?: string; image?: string | null }> | null
+  } | null
   hero?: {
     eyebrow?: string | null
     heading?: string | null
     lead?: string | null
     image?: number | PayloadMedia | null
     video?: number | PayloadMedia | null
+    buttons?: Array<{ label?: string; url?: string }> | null
   } | null
   contentBlocks?: Array<Record<string, unknown>> | null
   sections?: Array<Record<string, unknown>> | null
@@ -845,6 +863,24 @@ export async function resolveServiceDetail(slug: string): Promise<ServiceDetail 
       : undefined,
     areasWeService: record.areasWeService
       ? { heading: record.areasWeService.heading ?? undefined }
+      : undefined,
+    heroButtons: record.hero?.buttons?.length
+      ? record.hero.buttons.map((button) => ({
+          label: button.label || '',
+          href: button.url || '#contact',
+        }))
+      : undefined,
+    primeKitchens: record.primeKitchens
+      ? {
+          eyebrow: record.primeKitchens.eyebrow ?? undefined,
+          title: record.primeKitchens.title ?? undefined,
+          description: record.primeKitchens.description ?? undefined,
+          passionHeading: record.primeKitchens.passionHeading ?? undefined,
+          cards: record.primeKitchens.cards?.map((card) => ({
+            title: card.title || '',
+            image: card.image || undefined,
+          })),
+        }
       : undefined,
     sections: record.sections?.filter(
       (block): block is { blockType: string; [key: string]: unknown } =>

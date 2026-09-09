@@ -208,15 +208,19 @@ const SERVICE_PAGE_LAYOUTS: Record<string, ServicePageSections> = {
   // Kitchen style pages (European / Shaker / Custom) all share one layout:
   // video-first hero, visual process, gallery-variant contact form. Their
   // `-silicon-valley` location twins resolve to these entries.
+  //
+  // The European Kitchen page is the exception: its WordPress page puts the
+  // free-estimate CTA right after the hero, then the video section (the hero
+  // video moved down), then "Why Choose Prime Kitchens? / The Prime
+  // Difference", then the feature cards — so it is not video-first and has
+  // no "why choose us" grid.
   'european-kitchen': {
     ...DEFAULT_SERVICE_PAGE_SECTIONS,
     video: true,
-    videoFirst: true,
-    whyChooseUs: true,
+    videoFirst: false,
     estimate: true,
     reviews: true,
     contact: true,
-    visualProcess: true,
     contactVariant: 'gallery',
   },
   'shaker-kitchen': {

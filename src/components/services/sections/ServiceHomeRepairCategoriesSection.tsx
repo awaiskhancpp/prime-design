@@ -3,6 +3,7 @@ import Image from 'next/image'
 import { RichTextContent } from '@/components/rich-text/RichTextContent'
 import type { RichTextValue } from '@/lib/richText'
 import { Section } from '@/components/ui/Section'
+import { SectionHeader } from '@/components/ui/SectionHeader'
 
 export type HomeRepairCategory = {
   title: string
@@ -31,11 +32,31 @@ export type HomeRepairCategory = {
  */
 export function ServiceHomeRepairCategoriesSection({
   categories = homeRepairCategoriesContent,
+  eyebrow,
+  heading,
+  description,
 }: {
   categories?: HomeRepairCategory[]
+  /**
+   * Optional centered header shown above the cards. Only pages whose source
+   * section carries a heading (e.g. the European Kitchen page's "What are
+   * features of a European Kitchen?") pass it — pages without one (Home
+   * Repair) render the cards alone, exactly as before.
+   */
+  eyebrow?: string
+  heading?: string
+  description?: string
 }) {
   return (
     <Section className="grid gap-20">
+      {heading ? (
+        <SectionHeader
+          align="center"
+          eyebrow={eyebrow}
+          title={heading}
+          description={description}
+        />
+      ) : null}
       {categories.map((category, index) => {
         const [firstWord, ...rest] = category.title.split(' ')
         const imageOnRight = index % 2 === 1
@@ -68,15 +89,19 @@ export function ServiceHomeRepairCategoriesSection({
                   <RichTextContent data={category.body} />
                 </div>
               )}
-              <h4 className="mt-6 font-semibold text-ink-2">{category.label}</h4>
-              <ul className="mt-3 grid gap-2 text-sm leading-6 text-ink-2/75">
-                {category.items.map((item) => (
-                  <li key={item} className="flex gap-3">
-                    <span className="mt-2 h-1.5 w-1.5 shrink-0 bg-brass" />
-                    {item}
-                  </li>
-                ))}
-              </ul>
+              {category.label ? (
+                <h4 className="mt-6 font-semibold text-ink-2">{category.label}</h4>
+              ) : null}
+              {category.items.length ? (
+                <ul className="mt-3 grid gap-2 text-sm leading-6 text-ink-2/75">
+                  {category.items.map((item) => (
+                    <li key={item} className="flex gap-3">
+                      <span className="mt-2 h-1.5 w-1.5 shrink-0 bg-brass" />
+                      {item}
+                    </li>
+                  ))}
+                </ul>
+              ) : null}
               {category.closingBody ? (
                 typeof category.closingBody === 'string' ? (
                   <p className="mt-5 text-base leading-7 text-ink-2/75">{category.closingBody}</p>

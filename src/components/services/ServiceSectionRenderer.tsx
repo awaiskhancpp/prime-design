@@ -181,12 +181,42 @@ function renderOfferings(
       return {
         title: str(item.title),
         description: str(item.description),
+        label: str(item.label),
+        features: blocks(item.features)
+          .map((feature) => str(feature.text))
+          .filter((text): text is string => Boolean(text)),
         image: mediaUrl(item.media) || service.image,
         href: str(link?.url) || '/contact',
       }
     })
     .filter((card) => card.title)
   if (!cards.length) return null
+
+  // The European Kitchen page renders its three feature cards through the
+  // home-repair categories design (alternating image/text rows) with the
+  // section header the WordPress page authored above them. Each card keeps
+  // its WordPress bullet list and, where present, its italic lead-in label.
+  if (service.slug === 'european-kitchen-silicon-valley') {
+    const categories = cards.map((card) => ({
+      title: card.title,
+      label: card.label,
+      image: card.image,
+      body: card.description,
+      items: card.features,
+    }))
+    return {
+      key: 'repair-services',
+      node: (
+        <ServiceHomeRepairCategoriesSection
+          eyebrow={str(block.eyebrow) || undefined}
+          heading={headingText || undefined}
+          description={str(block.description) || undefined}
+          categories={categories}
+        />
+      ),
+    }
+  }
+
   return {
     key: 'sub-services',
     node: (
@@ -273,7 +303,7 @@ function renderVideo(block: RawBlock, headingText: string): RenderedSection | nu
     node: (
       <ServiceVideoSection
         eyebrow={str(block.eyebrow)}
-        title={headingText || 'See the difference'}
+        title={headingText || undefined}
         description={str(block.description)}
         videoUrl={videoUrl}
         poster={mediaUrl(block.poster)}
@@ -309,6 +339,16 @@ export function renderSection(
   const headingLower = headingText.toLowerCase()
 
   const isImageText = blockType === 'image-text'
+
+  // The European Kitchen page replaces the standard Prime Difference design
+  // with the bespoke "Why Choose Prime Kitchens?" three-card section (from
+  // the service's `primeKitchens` group), so its legacy block renders nothing.
+  if (
+    blockType === 'prime-difference' &&
+    service.slug === 'european-kitchen-silicon-valley'
+  ) {
+    return null
+  }
 
   if (blockType === 'prime-difference') return renderPrimeDifference(block, headingText)
 

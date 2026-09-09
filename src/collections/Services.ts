@@ -469,6 +469,47 @@ export const Services: CollectionConfig = {
                       'Optional uploaded background video. Use this instead of an external video URL when available.',
                   },
                 },
+                {
+                  name: 'buttons',
+                  type: 'array',
+                  admin: {
+                    description:
+                      'Hero call-to-action buttons. Empty falls back to the built-in pair.',
+                  },
+                  fields: [
+                    { name: 'label', type: 'text', required: true },
+                    { name: 'url', type: 'text', required: true },
+                  ],
+                },
+              ],
+            },
+            {
+              name: 'primeKitchens',
+              type: 'group',
+              label: 'Prime Kitchens Difference Section',
+              admin: {
+                description:
+                  '"Why Choose Prime Kitchens? / The Prime Difference" three-card section (European Kitchen page).',
+              },
+              fields: [
+                { name: 'eyebrow', type: 'text' },
+                { name: 'title', type: 'text' },
+                { name: 'description', type: 'textarea' },
+                { name: 'passionHeading', type: 'text' },
+                {
+                  name: 'cards',
+                  type: 'array',
+                  fields: [
+                    { name: 'title', type: 'text', required: true },
+                    {
+                      name: 'image',
+                      type: 'text',
+                      admin: {
+                        description: 'Image path (files live in /public, e.g. "/craftsmanship-in-every-project.svg").',
+                      },
+                    },
+                  ],
+                },
               ],
             },
           ],
