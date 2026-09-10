@@ -67,7 +67,15 @@ export async function resolveConsultations(): Promise<ConsultationType[]> {
   const payload = await getPayload({ config: configPromise })
   const result = await payload.find({
     collection: 'services',
-    where: { showInConsultationForm: { equals: true } },
+    // Only checkbox-true services that are NOT child categories (they have
+    // no parentService) appear in the consultation list — so future child
+    // categories are excluded automatically, no per-service upkeep needed.
+    where: {
+      and: [
+        { showInConsultationForm: { equals: true } },
+        { parentService: { exists: false } },
+      ],
+    },
     sort: 'sortOrder',
     depth: 2,
     limit: 50,
