@@ -26,6 +26,10 @@ import {
 } from './sections/ServiceRealHomesStoriesSection'
 import { ServiceSiliconValleyLovesSection } from './sections/ServiceSiliconValleyLovesSection'
 import { ServicePrimeKitchensSection } from './sections/ServicePrimeKitchensSection'
+import { ServiceIconChecklistGallerySection } from './ServiceIconCheckListGallerySection'
+import { ServiceImageChecklistSection } from './ServiceImageCheckListSection'
+import { MaterialsShowcaseSection } from './MaterialsShowcaseSection'
+import { ServiceTestimonialCardsSection } from './sections/ServiceTestimonialCardsSection'
 import { ServiceClientApproachSection } from './sections/ServiceClientApproachSection'
 import { ServiceEstimateCta } from './ServiceEstimateCta'
 import { ServiceFaqLoader } from './ServiceFaqLoader'
@@ -222,8 +226,12 @@ export function ServiceTemplate({ service }: { service: ServiceDetail }) {
   const sectionNodes: Array<{ key: string; node: ReactNode }> = [
     {
       key: 'intro',
+      // The Custom Kitchen and Shaker Kitchen pages have no overview/intro
+      // section on WordPress — their content is the CMS sections, so the
+      // static Key Features / Benefits overview never renders for them.
       node:
-        !sections.homeRepairCategories && hasOverviewRich ? (
+        service.slug === 'custom-kitchen-silicon-valley' ||
+        service.slug === 'shaker-kitchen-silicon-valley' ? null : !sections.homeRepairCategories && hasOverviewRich ? (
           // Rich-text overview lists (Key Features / Benefits / Process) from
           // Payload take priority over both the legacy checklist blocks and
           // the built-in static arrays.
@@ -272,6 +280,76 @@ export function ServiceTemplate({ service }: { service: ServiceDetail }) {
       key: 'prime-kitchens',
       node: service.primeKitchens?.cards?.length ? (
         <ServicePrimeKitchensSection content={service.primeKitchens} />
+      ) : null,
+    },
+    {
+      // "Discover Your Signature Style" — icon cards + photo gallery
+      // (Payload `iconChecklistGallery` group).
+      key: 'icon-checklist-gallery',
+      node: service.iconChecklistGallery?.items?.length ? (
+        <ServiceIconChecklistGallerySection
+          eyebrow={service.iconChecklistGallery.eyebrow}
+          heading={service.iconChecklistGallery.heading || ''}
+          items={service.iconChecklistGallery.items.map((item) => ({
+            icon: item.icon || '',
+            title: item.title,
+            description: item.description || '',
+          }))}
+          images={service.iconChecklistGallery.images ?? []}
+          imageAlt={service.iconChecklistGallery.heading || ''}
+        />
+      ) : null,
+    },
+    {
+      // "The Power of Customization" — side image + checklist
+      // (Payload `imageChecklist` group).
+      key: 'image-checklist',
+      node: service.imageChecklist?.items?.length ? (
+        <ServiceImageChecklistSection
+          eyebrow={service.imageChecklist.eyebrow}
+          heading={service.imageChecklist.heading || ''}
+          description={service.imageChecklist.description}
+          image={service.imageChecklist.image || ''}
+          imageAlt={service.imageChecklist.heading || ''}
+          items={service.imageChecklist.items.map((item) => ({
+            title: item.title,
+            description: item.description || '',
+          }))}
+        />
+      ) : null,
+    },
+    {
+      // "Materials Crafted to Perfection" — four-card materials grid
+      // (Payload `materialsShowcase` group).
+      key: 'materials-showcase',
+      node: service.materialsShowcase?.items?.length ? (
+        <MaterialsShowcaseSection
+          eyebrow={service.materialsShowcase.eyebrow}
+          heading={service.materialsShowcase.heading || ''}
+          description={service.materialsShowcase.description}
+          // The WordPress description emphasizes these exact terms in bold.
+          boldTerms={['premium materials', 'custom kitchen']}
+          items={service.materialsShowcase.items.map((item) => ({
+            image: item.image || '',
+            title: item.title,
+            description: item.description,
+          }))}
+        />
+      ) : null,
+    },
+    {
+      // Three review cards (Isabel E. / Christian F. / James G.) — the
+      // Shaker Kitchen page's testimonial grid (Payload `testimonialCards`
+      // group).
+      key: 'testimonial-cards',
+      node: service.testimonialCards?.items?.length ? (
+        <ServiceTestimonialCardsSection
+          items={service.testimonialCards.items.map((item) => ({
+            name: item.name,
+            quote: item.quote || '',
+            avatar: item.avatar,
+          }))}
+        />
       ) : null,
     },
     {
@@ -399,7 +477,9 @@ export function ServiceTemplate({ service }: { service: ServiceDetail }) {
       // `areas-we-service` slot) — no "Service areas" cards section.
       node:
         service.slug === 'comprehensive-home-repair-installation-services-in-silicon-valley' ||
-        service.slug === 'european-kitchen-silicon-valley' ? null : service.slug === 'additions' ||
+        service.slug === 'european-kitchen-silicon-valley' ||
+        service.slug === 'custom-kitchen-silicon-valley' ||
+        service.slug === 'shaker-kitchen-silicon-valley' ? null : service.slug === 'additions' ||
           service.slug === 'complete-renovation' ? (
           <LandscapingServiceAreas serviceSlug={service.slug} />
         ) : (
@@ -413,7 +493,9 @@ export function ServiceTemplate({ service }: { service: ServiceDetail }) {
         service.slug === 'bathroom-remodeling' ||
         service.slug === 'home-remodeling' ||
         service.slug === 'comprehensive-home-repair-installation-services-in-silicon-valley' ||
-        service.slug === 'european-kitchen-silicon-valley' ? (
+        service.slug === 'european-kitchen-silicon-valley' ||
+        service.slug === 'custom-kitchen-silicon-valley' ||
+        service.slug === 'shaker-kitchen-silicon-valley' ? (
           <ServiceAreasStrip serviceSlug={service.slug} heading={service.areasWeService?.heading} />
         ) : null,
     },
@@ -595,6 +677,35 @@ export function ServiceTemplate({ service }: { service: ServiceDetail }) {
       'prime-kitchens',
       'home-repair-categories',
       'reviews',
+      'contact',
+      'areas-we-service',
+    ],
+    // Custom Kitchen (WP page custom-kitchen-silicon-valley): estimate →
+    // video (moved out of the hero) → icon checklist gallery → image
+    // checklist → materials showcase → "Why Choose Prime Kitchens? / The
+    // Prime Difference" → reviews → contact → the shared "Areas we service"
+    // strip.
+    'custom-kitchen-silicon-valley': [
+      'estimate',
+      'video',
+      'icon-checklist-gallery',
+      'image-checklist',
+      'materials-showcase',
+      'prime-kitchens',
+      'reviews',
+      'contact',
+      'areas-we-service',
+    ],
+    // Shaker Kitchen (WP page shaker-kitchen-silicon-valley): estimate →
+    // video (moved out of the hero) → feature cards (with the section
+    // header) → Prime Difference → testimonial cards → contact → the shared
+    // "Areas we service" strip.
+    'shaker-kitchen-silicon-valley': [
+      'estimate',
+      'video',
+      'home-repair-categories',
+      'prime-difference',
+      'testimonial-cards',
       'contact',
       'areas-we-service',
     ],

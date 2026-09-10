@@ -1,10 +1,22 @@
 import Image from 'next/image'
-import type { LucideIcon } from 'lucide-react'
+import { Clock, Heart, KeyRound, Ruler, Sparkles, type LucideIcon } from 'lucide-react'
 
 type ChecklistItem = {
-  icon: LucideIcon
+  /** Icon name from the WordPress source (themify), mapped to a Lucide icon. */
+  icon: string
   title: string
   description: string
+}
+
+/**
+ * WordPress themify icon names → Lucide equivalents. Unknown names fall
+ * back to a neutral sparkle so a migrated icon never blanks the card.
+ */
+const iconMap: Record<string, LucideIcon> = {
+  'ti-ruler-pencil': Ruler,
+  'ti-heart': Heart,
+  'ti-key': KeyRound,
+  'ti-time': Clock,
 }
 
 /**
@@ -84,45 +96,41 @@ function ImageGrid({ images, alt }: { images: string[]; alt: string }) {
 
 export function ServiceIconChecklistGallerySection({
   eyebrow,
-  eyebrowAccent,
   heading,
   items,
   images,
   imageAlt,
 }: {
   eyebrow?: string
-  eyebrowAccent?: string
   heading: string
   items: ChecklistItem[]
   images: string[]
   imageAlt: string
 }) {
   return (
-    <section className="bg-paper py-16 md:py-24">
+    <section className=" py-16 md:py-24">
       <div className="mx-auto grid max-w-6xl gap-14 px-6 md:grid-cols-2 md:items-center md:gap-16">
         <div>
-          {eyebrow ? (
-            <p className="font-display text-lg italic text-ink-2/80">
-              {eyebrow}{' '}
-              {eyebrowAccent ? <span className="text-brass-deep">{eyebrowAccent}</span> : null}
-            </p>
-          ) : null}
+          {eyebrow ? <p className="font-display text-lg italic text-ink-2/80">{eyebrow}</p> : null}
           <h2 className="mt-3 font-display text-3xl font-medium leading-tight tracking-tight text-ink md:text-4xl">
             {heading}
           </h2>
 
           <ul className="mt-9 grid gap-7">
-            {items.map(({ icon: Icon, title, description }) => (
-              <li key={title} className="flex gap-4">
-                <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full border border-brass/40 text-brass-deep">
-                  <Icon className="h-5 w-5" strokeWidth={1.5} aria-hidden />
-                </span>
-                <div>
-                  <p className="font-display text-lg font-medium text-ink">{title}</p>
-                  <p className="mt-1 text-sm leading-6 text-ink-2/70">{description}</p>
-                </div>
-              </li>
-            ))}
+            {items.map(({ icon, title, description }) => {
+              const Icon = iconMap[icon] ?? Sparkles
+              return (
+                <li key={title} className="flex gap-4">
+                  <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full border border-brass/40 text-brass-deep">
+                    <Icon className="h-5 w-5" strokeWidth={1.5} aria-hidden />
+                  </span>
+                  <div>
+                    <p className="font-display text-lg font-medium text-ink">{title}</p>
+                    <p className="mt-1 text-sm leading-6 text-ink-2/70">{description}</p>
+                  </div>
+                </li>
+              )
+            })}
           </ul>
         </div>
 

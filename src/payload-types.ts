@@ -272,6 +272,10 @@ export interface Service {
    */
   showInConsultationForm?: boolean | null;
   /**
+   * Appointment name shown in the Contact consultation list — pre-filled with "{Service} Consultation". Empty falls back to that automatically.
+   */
+  consultationLabel?: string | null;
+  /**
    * Display order in navigation and menus (lower numbers first)
    */
   sortOrder?: number | null;
@@ -718,6 +722,7 @@ export interface Service {
               | {
                   title: string;
                   description?: string | null;
+                  body?: string | null;
                   label?: string | null;
                   features?:
                     | {
@@ -782,6 +787,25 @@ export interface Service {
                     url?: string | null;
                     openInNewTab?: boolean | null;
                   };
+                  id?: string | null;
+                }[]
+              | null;
+            /**
+             * Checklist shown in the left column (e.g. the WordPress "Why Choose" list). Do not invent items.
+             */
+            checklist?:
+              | {
+                  text?: string | null;
+                  id?: string | null;
+                }[]
+              | null;
+            /**
+             * Optional review badges (Google / Yelp / Houzz) shown under the checklist. Only pages whose WordPress section has them should add any.
+             */
+            socials?:
+              | {
+                  image?: string | null;
+                  url?: string | null;
                   id?: string | null;
                 }[]
               | null;
@@ -1469,7 +1493,7 @@ export interface Service {
       | null;
   };
   /**
-   * "Why Choose Prime Kitchens? / The Prime Difference" three-card section (European Kitchen page).
+   * "Why Choose Prime Kitchens? / The Prime Difference" three-card section (European & Custom Kitchen pages).
    */
   primeKitchens?: {
     eyebrow?: string | null;
@@ -1483,6 +1507,78 @@ export interface Service {
            * Image path (files live in /public, e.g. "/craftsmanship-in-every-project.svg").
            */
           image?: string | null;
+          id?: string | null;
+        }[]
+      | null;
+  };
+  /**
+   * "Discover Your Signature Style" — icon cards with a photo gallery (Custom Kitchen page).
+   */
+  iconChecklistGallery?: {
+    eyebrow?: string | null;
+    heading?: string | null;
+    items?:
+      | {
+          /**
+           * WordPress themify icon name (e.g. "ti-heart").
+           */
+          icon?: string | null;
+          title: string;
+          description?: string | null;
+          id?: string | null;
+        }[]
+      | null;
+    images?:
+      | {
+          /**
+           * Image URL (original WordPress URL or a /public path).
+           */
+          url?: string | null;
+          id?: string | null;
+        }[]
+      | null;
+  };
+  /**
+   * "The Power of Customization" — side image with a checklist (Custom Kitchen page).
+   */
+  imageChecklist?: {
+    eyebrow?: string | null;
+    heading?: string | null;
+    description?: string | null;
+    image?: string | null;
+    items?:
+      | {
+          title: string;
+          description?: string | null;
+          id?: string | null;
+        }[]
+      | null;
+  };
+  /**
+   * Three review cards (name + quote + avatar) — the Shaker Kitchen page testimonial grid.
+   */
+  testimonialCards?: {
+    items?:
+      | {
+          name: string;
+          quote?: string | null;
+          avatar?: string | null;
+          id?: string | null;
+        }[]
+      | null;
+  };
+  /**
+   * "Materials Crafted to Perfection" — four-card materials grid (Custom Kitchen page).
+   */
+  materialsShowcase?: {
+    eyebrow?: string | null;
+    heading?: string | null;
+    description?: string | null;
+    items?:
+      | {
+          image?: string | null;
+          title: string;
+          description?: string | null;
           id?: string | null;
         }[]
       | null;
@@ -2254,6 +2350,7 @@ export interface LandingPage {
           | {
               title: string;
               description?: string | null;
+              body?: string | null;
               label?: string | null;
               features?:
                 | {
@@ -2318,6 +2415,25 @@ export interface LandingPage {
                 url?: string | null;
                 openInNewTab?: boolean | null;
               };
+              id?: string | null;
+            }[]
+          | null;
+        /**
+         * Checklist shown in the left column (e.g. the WordPress "Why Choose" list). Do not invent items.
+         */
+        checklist?:
+          | {
+              text?: string | null;
+              id?: string | null;
+            }[]
+          | null;
+        /**
+         * Optional review badges (Google / Yelp / Houzz) shown under the checklist. Only pages whose WordPress section has them should add any.
+         */
+        socials?:
+          | {
+              image?: string | null;
+              url?: string | null;
               id?: string | null;
             }[]
           | null;
@@ -3047,6 +3163,7 @@ export interface ServicesSelect<T extends boolean = true> {
   parentService?: T;
   featured?: T;
   showInConsultationForm?: T;
+  consultationLabel?: T;
   sortOrder?: T;
   sectionOrder?:
     | T
@@ -3435,6 +3552,7 @@ export interface ServicesSelect<T extends boolean = true> {
                 | {
                     title?: T;
                     description?: T;
+                    body?: T;
                     label?: T;
                     features?:
                       | T
@@ -3502,6 +3620,19 @@ export interface ServicesSelect<T extends boolean = true> {
                           url?: T;
                           openInNewTab?: T;
                         };
+                    id?: T;
+                  };
+              checklist?:
+                | T
+                | {
+                    text?: T;
+                    id?: T;
+                  };
+              socials?:
+                | T
+                | {
+                    image?: T;
+                    url?: T;
                     id?: T;
                   };
               videos?:
@@ -3941,6 +4072,68 @@ export interface ServicesSelect<T extends boolean = true> {
           | {
               title?: T;
               image?: T;
+              id?: T;
+            };
+      };
+  iconChecklistGallery?:
+    | T
+    | {
+        eyebrow?: T;
+        heading?: T;
+        items?:
+          | T
+          | {
+              icon?: T;
+              title?: T;
+              description?: T;
+              id?: T;
+            };
+        images?:
+          | T
+          | {
+              url?: T;
+              id?: T;
+            };
+      };
+  imageChecklist?:
+    | T
+    | {
+        eyebrow?: T;
+        heading?: T;
+        description?: T;
+        image?: T;
+        items?:
+          | T
+          | {
+              title?: T;
+              description?: T;
+              id?: T;
+            };
+      };
+  testimonialCards?:
+    | T
+    | {
+        items?:
+          | T
+          | {
+              name?: T;
+              quote?: T;
+              avatar?: T;
+              id?: T;
+            };
+      };
+  materialsShowcase?:
+    | T
+    | {
+        eyebrow?: T;
+        heading?: T;
+        description?: T;
+        items?:
+          | T
+          | {
+              image?: T;
+              title?: T;
+              description?: T;
               id?: T;
             };
       };
@@ -4524,6 +4717,7 @@ export interface LandingPagesSelect<T extends boolean = true> {
                 | {
                     title?: T;
                     description?: T;
+                    body?: T;
                     label?: T;
                     features?:
                       | T
@@ -4591,6 +4785,19 @@ export interface LandingPagesSelect<T extends boolean = true> {
                           url?: T;
                           openInNewTab?: T;
                         };
+                    id?: T;
+                  };
+              checklist?:
+                | T
+                | {
+                    text?: T;
+                    id?: T;
+                  };
+              socials?:
+                | T
+                | {
+                    image?: T;
+                    url?: T;
                     id?: T;
                   };
               videos?:

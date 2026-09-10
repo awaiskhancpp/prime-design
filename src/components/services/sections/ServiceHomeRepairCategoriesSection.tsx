@@ -6,6 +6,12 @@ import { Section } from '@/components/ui/Section'
 import { SectionHeader } from '@/components/ui/SectionHeader'
 
 export type HomeRepairCategory = {
+  /**
+   * Eyebrow line rendered above the heading — the WordPress card's accent
+   * heading (e.g. "Inspiration starts all around you"). Cards without one
+   * keep the section's split-title design (gradient first word + heading).
+   */
+  eyebrow?: string
   title: string
   label: string
   image: string
@@ -78,17 +84,32 @@ export function ServiceHomeRepairCategoriesSection({
               />
             </div>
             <div>
-              <p className="bg-gradient-to-r from-ink-2 to-brass bg-clip-text font-display text-2xl font-medium text-transparent">
-                {firstWord}
-              </p>
-              <h3 className="font-display text-3xl font-semibold text-ink">{rest.join(' ')}</h3>
-              {typeof category.body === 'string' ? (
-                <p className="mt-4 text-base leading-7 text-ink-2/75">{category.body}</p>
+              {category.eyebrow ? (
+                <>
+                  <p className="bg-gradient-to-r from-ink-2 to-brass bg-clip-text font-display text-2xl font-medium text-transparent">
+                    {category.eyebrow}
+                  </p>
+                  <h3 className="font-display text-3xl font-semibold text-ink">{category.title}</h3>
+                </>
               ) : (
-                <div className="mt-4 text-base leading-7 text-ink-2/75 [&_p]:mt-0 [&_p]:text-ink-2/75">
-                  <RichTextContent data={category.body} />
-                </div>
+                <>
+                  <p className="bg-gradient-to-r from-ink-2 to-brass bg-clip-text font-display text-2xl font-medium text-transparent">
+                    {firstWord}
+                  </p>
+                  <h3 className="font-display text-3xl font-semibold text-ink">
+                    {rest.join(' ')}
+                  </h3>
+                </>
               )}
+              {category.body ? (
+                typeof category.body === 'string' ? (
+                  <p className="mt-4 text-base leading-7 text-ink-2/75">{category.body}</p>
+                ) : (
+                  <div className="mt-4 text-base leading-7 text-ink-2/75 [&_p]:mt-0 [&_p]:text-ink-2/75">
+                    <RichTextContent data={category.body} />
+                  </div>
+                )
+              ) : null}
               {category.label ? (
                 <h4 className="mt-6 font-semibold text-ink-2">{category.label}</h4>
               ) : null}

@@ -5,7 +5,6 @@ type ChecklistItem = { title: string; description: string }
 
 export function ServiceImageChecklistSection({
   eyebrow,
-  eyebrowAccent,
   heading,
   description,
   image,
@@ -13,7 +12,6 @@ export function ServiceImageChecklistSection({
   items,
 }: {
   eyebrow?: string
-  eyebrowAccent?: string
   heading: string
   description?: string
   image: string
@@ -24,10 +22,7 @@ export function ServiceImageChecklistSection({
     <section className="bg-white py-16 md:py-24">
       <div className="mx-auto max-w-3xl px-6 text-center">
         {eyebrow ? (
-          <p className="font-display text-lg italic text-ink-2/80">
-            {eyebrow}{' '}
-            {eyebrowAccent ? <span className="text-brass-deep">{eyebrowAccent}</span> : null}
-          </p>
+          <p className="font-display text-lg italic text-ink-2/80">{eyebrow}</p>
         ) : null}
         <h2 className="mt-3 font-display text-3xl font-medium leading-tight tracking-tight text-ink md:text-4xl">
           {heading}

@@ -211,6 +211,16 @@ export const Services: CollectionConfig = {
       },
     },
     {
+      name: 'consultationLabel',
+      type: 'text',
+      label: 'Consultation Label',
+      admin: {
+        position: 'sidebar',
+        description:
+          'Appointment name shown in the Contact consultation list — pre-filled with "{Service} Consultation". Empty falls back to that automatically.',
+      },
+    },
+    {
       name: 'sortOrder',
       type: 'number',
       defaultValue: 0,
@@ -489,7 +499,7 @@ export const Services: CollectionConfig = {
               label: 'Prime Kitchens Difference Section',
               admin: {
                 description:
-                  '"Why Choose Prime Kitchens? / The Prime Difference" three-card section (European Kitchen page).',
+                  '"Why Choose Prime Kitchens? / The Prime Difference" three-card section (European & Custom Kitchen pages).',
               },
               fields: [
                 { name: 'eyebrow', type: 'text' },
@@ -508,6 +518,113 @@ export const Services: CollectionConfig = {
                         description: 'Image path (files live in /public, e.g. "/craftsmanship-in-every-project.svg").',
                       },
                     },
+                  ],
+                },
+              ],
+            },
+            {
+              name: 'iconChecklistGallery',
+              type: 'group',
+              label: 'Icon Checklist Gallery Section',
+              admin: {
+                description:
+                  '"Discover Your Signature Style" — icon cards with a photo gallery (Custom Kitchen page).',
+              },
+              fields: [
+                { name: 'eyebrow', type: 'text' },
+                { name: 'heading', type: 'text' },
+                {
+                  name: 'items',
+                  type: 'array',
+                  fields: [
+                    {
+                      name: 'icon',
+                      type: 'text',
+                      admin: {
+                        description: 'WordPress themify icon name (e.g. "ti-heart").',
+                      },
+                    },
+                    { name: 'title', type: 'text', required: true },
+                    { name: 'description', type: 'textarea' },
+                  ],
+                },
+                {
+                  name: 'images',
+                  type: 'array',
+                  fields: [
+                    {
+                      name: 'url',
+                      type: 'text',
+                      admin: {
+                        description: 'Image URL (original WordPress URL or a /public path).',
+                      },
+                    },
+                  ],
+                },
+              ],
+            },
+            {
+              name: 'imageChecklist',
+              type: 'group',
+              label: 'Image Checklist Section',
+              admin: {
+                description:
+                  '"The Power of Customization" — side image with a checklist (Custom Kitchen page).',
+              },
+              fields: [
+                { name: 'eyebrow', type: 'text' },
+                { name: 'heading', type: 'text' },
+                { name: 'description', type: 'textarea' },
+                { name: 'image', type: 'text' },
+                {
+                  name: 'items',
+                  type: 'array',
+                  fields: [
+                    { name: 'title', type: 'text', required: true },
+                    { name: 'description', type: 'textarea' },
+                  ],
+                },
+              ],
+            },
+            {
+              name: 'testimonialCards',
+              type: 'group',
+              label: 'Testimonial Cards Section',
+              admin: {
+                description:
+                  'Three review cards (name + quote + avatar) — the Shaker Kitchen page testimonial grid.',
+              },
+              fields: [
+                {
+                  name: 'items',
+                  type: 'array',
+                  fields: [
+                    { name: 'name', type: 'text', required: true },
+                    { name: 'quote', type: 'textarea' },
+                    { name: 'avatar', type: 'text' },
+                  ],
+                },
+              ],
+            },
+            {
+              name: 'materialsShowcase',
+              type: 'group',
+              label: 'Materials Showcase Section',
+              admin: {
+                description:
+                  '"Materials Crafted to Perfection" — four-card materials grid (Custom Kitchen page).',
+              },
+              fields: [
+                { name: 'eyebrow', type: 'text' },
+                { name: 'heading', type: 'text' },
+                { name: 'description', type: 'textarea' },
+                {
+                  name: 'items',
+                  type: 'array',
+                  fields: [
+                    { name: 'image', type: 'text' },
+                    { name: 'title', type: 'text', required: true },
+                    { name: 'description', type: 'textarea' },
                   ],
                 },
               ],

@@ -59,6 +59,7 @@ const fallbackConsultations: ConsultationType[] = [
 type PayloadMedia = { url?: string | null }
 type PayloadConsultation = Pick<ConsultationType, 'title' | 'slug'> & {
   hero?: { image?: number | PayloadMedia | null } | null
+  consultationLabel?: string | null
 }
 
 export async function resolveConsultations(): Promise<ConsultationType[]> {
@@ -76,7 +77,9 @@ export async function resolveConsultations(): Promise<ConsultationType[]> {
 
   return (result.docs as unknown as Array<PayloadConsultation & { showInConsultationForm?: boolean }>).map(
     (item, index) => ({
-      title: item.title,
+      // The appointment name: the CMS label ("Kitchen Remodeling
+      // Consultation") or the automatic "{Service} Consultation" fallback.
+      title: item.consultationLabel || `${item.title} Consultation`,
       slug: item.slug,
       duration: '~1 Hour',
       image:

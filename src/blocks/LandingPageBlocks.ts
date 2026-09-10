@@ -105,6 +105,9 @@ export const landingPageBlocks: Block[] = [
       fields: [
         text('title', true),
         description(),
+        // Body copy for cards whose WordPress content is paragraphs rather
+        // than a bullet list (e.g. the Shaker Kitchen feature cards).
+        { name: 'body', type: 'textarea' as const },
         // Lead-in line above the bullet list (e.g. "Here's what gives your
         // kitchen a European charm:"). Only some WordPress cards have one.
         text('label'),
@@ -123,6 +126,27 @@ export const landingPageBlocks: Block[] = [
     text('heading', true),
     description(),
     { name: 'features', type: 'array' as const, fields: featureCardFields() },
+    {
+      name: 'checklist',
+      type: 'array' as const,
+      admin: {
+        description:
+          'Checklist shown in the left column (e.g. the WordPress "Why Choose" list). Do not invent items.',
+      },
+      fields: [{ name: 'text', type: 'text' as const }],
+    },
+    {
+      name: 'socials',
+      type: 'array' as const,
+      admin: {
+        description:
+          'Optional review badges (Google / Yelp / Houzz) shown under the checklist. Only pages whose WordPress section has them should add any.',
+      },
+      fields: [
+        { name: 'image', type: 'text' as const },
+        { name: 'url', type: 'text' as const },
+      ],
+    },
     {
       name: 'videos',
       type: 'array' as const,

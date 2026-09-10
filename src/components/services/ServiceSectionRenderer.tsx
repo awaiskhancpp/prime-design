@@ -49,13 +49,24 @@ function renderPrimeDifference(block: RawBlock, headingText: string): RenderedSe
   const features = blocks(block.features).map((feature) => ({
     title: str(feature.title),
     description: str(feature.description),
+    // WordPress icon (SVG) preserved on the block — falls back to the
+    // built-in per-position icons when the source had none.
+    icon: str((feature.icon as RawBlock | undefined)?.sourceSvgUrl) || undefined,
   }))
+  const checklist = blocks(block.checklist)
+    .map((item) => str(item.text))
+    .filter((item): item is string => Boolean(item))
+  const socials = blocks(block.socials)
+    .map((social) => ({ image: str(social.image), href: str(social.url) }))
+    .filter((social) => social.image)
   const content = getWordPressDifferenceContent({
     eyebrow: str(block.eyebrow),
     heading: headingText || 'The Prime Difference',
     description: str(block.description),
     features,
+    checklist,
   })
+  content.socials = socials.length ? socials : undefined
   const videos: CarouselVideo[] = blocks(block.videos)
     .map((video) => ({
       url: str(video.externalUrl) || mediaUrl(video.video) || '',
@@ -181,6 +192,7 @@ function renderOfferings(
       return {
         title: str(item.title),
         description: str(item.description),
+        body: str(item.body),
         label: str(item.label),
         features: blocks(item.features)
           .map((feature) => str(feature.text))
@@ -192,16 +204,22 @@ function renderOfferings(
     .filter((card) => card.title)
   if (!cards.length) return null
 
-  // The European Kitchen page renders its three feature cards through the
-  // home-repair categories design (alternating image/text rows) with the
-  // section header the WordPress page authored above them. Each card keeps
-  // its WordPress bullet list and, where present, its italic lead-in label.
-  if (service.slug === 'european-kitchen-silicon-valley') {
+  // The European and Shaker Kitchen pages render their feature cards through
+  // the home-repair categories design (alternating image/text rows) with the
+  // section header the WordPress page authored above them. Each card's
+  // WordPress accent heading renders as the card's eyebrow above its heading.
+  // The European cards keep their bullet lists (plus italic lead-in labels);
+  // the Shaker cards carry paragraph bodies instead.
+  if (
+    service.slug === 'european-kitchen-silicon-valley' ||
+    service.slug === 'shaker-kitchen-silicon-valley'
+  ) {
     const categories = cards.map((card) => ({
+      eyebrow: card.description,
       title: card.title,
       label: card.label,
       image: card.image,
-      body: card.description,
+      body: card.body || '',
       items: card.features,
     }))
     return {

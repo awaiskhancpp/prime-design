@@ -68,6 +68,32 @@ export type ServiceDetail = Service & {
     passionHeading?: string
     cards?: Array<{ title: string; image?: string }>
   }
+  /** "Discover Your Signature Style" — icon cards with a photo gallery. */
+  iconChecklistGallery?: {
+    eyebrow?: string
+    heading?: string
+    items?: Array<{ icon?: string; title: string; description?: string }>
+    images?: string[]
+  }
+  /** "The Power of Customization" — side image with a checklist. */
+  imageChecklist?: {
+    eyebrow?: string
+    heading?: string
+    description?: string
+    image?: string
+    items?: Array<{ title: string; description?: string }>
+  }
+  /** "Materials Crafted to Perfection" — four-card materials grid. */
+  materialsShowcase?: {
+    eyebrow?: string
+    heading?: string
+    description?: string
+    items?: Array<{ image?: string; title: string; description?: string }>
+  }
+  /** Three review cards (name + quote + avatar) — Shaker Kitchen page. */
+  testimonialCards?: {
+    items?: Array<{ name: string; quote?: string; avatar?: string }>
+  }
   seo?: {
     metaTitle?: string | null
     metaDescription?: string | null
@@ -597,6 +623,28 @@ type PayloadServiceRecord = {
     passionHeading?: string | null
     cards?: Array<{ title?: string; image?: string | null }> | null
   } | null
+  iconChecklistGallery?: {
+    eyebrow?: string | null
+    heading?: string | null
+    items?: Array<{ icon?: string | null; title?: string; description?: string | null }> | null
+    images?: Array<{ url?: string | null }> | null
+  } | null
+  imageChecklist?: {
+    eyebrow?: string | null
+    heading?: string | null
+    description?: string | null
+    image?: string | null
+    items?: Array<{ title?: string; description?: string | null }> | null
+  } | null
+  materialsShowcase?: {
+    eyebrow?: string | null
+    heading?: string | null
+    description?: string | null
+    items?: Array<{ image?: string | null; title?: string; description?: string | null }> | null
+  } | null
+  testimonialCards?: {
+    items?: Array<{ name?: string; quote?: string | null; avatar?: string | null }> | null
+  } | null
   hero?: {
     eyebrow?: string | null
     heading?: string | null
@@ -879,6 +927,53 @@ export async function resolveServiceDetail(slug: string): Promise<ServiceDetail 
           cards: record.primeKitchens.cards?.map((card) => ({
             title: card.title || '',
             image: card.image || undefined,
+          })),
+        }
+      : undefined,
+    iconChecklistGallery: record.iconChecklistGallery
+      ? {
+          eyebrow: record.iconChecklistGallery.eyebrow ?? undefined,
+          heading: record.iconChecklistGallery.heading ?? undefined,
+          items: record.iconChecklistGallery.items?.map((item) => ({
+            icon: item.icon ?? undefined,
+            title: item.title || '',
+            description: item.description ?? undefined,
+          })),
+          images: record.iconChecklistGallery.images
+            ?.map((image) => image.url)
+            .filter((url): url is string => Boolean(url)),
+        }
+      : undefined,
+    imageChecklist: record.imageChecklist
+      ? {
+          eyebrow: record.imageChecklist.eyebrow ?? undefined,
+          heading: record.imageChecklist.heading ?? undefined,
+          description: record.imageChecklist.description ?? undefined,
+          image: record.imageChecklist.image ?? undefined,
+          items: record.imageChecklist.items?.map((item) => ({
+            title: item.title || '',
+            description: item.description ?? undefined,
+          })),
+        }
+      : undefined,
+    materialsShowcase: record.materialsShowcase
+      ? {
+          eyebrow: record.materialsShowcase.eyebrow ?? undefined,
+          heading: record.materialsShowcase.heading ?? undefined,
+          description: record.materialsShowcase.description ?? undefined,
+          items: record.materialsShowcase.items?.map((item) => ({
+            image: item.image ?? undefined,
+            title: item.title || '',
+            description: item.description ?? undefined,
+          })),
+        }
+      : undefined,
+    testimonialCards: record.testimonialCards
+      ? {
+          items: record.testimonialCards.items?.map((item) => ({
+            name: item.name || '',
+            quote: item.quote ?? undefined,
+            avatar: item.avatar ?? undefined,
           })),
         }
       : undefined,

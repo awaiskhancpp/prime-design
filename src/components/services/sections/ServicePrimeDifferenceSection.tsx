@@ -11,6 +11,13 @@ export type PrimeDifferenceContent = {
   body?: string
   checklist?: string[]
   reasons?: { icon?: string; title: string; body?: string }[]
+  /**
+   * Social review badges (Google / Yelp / Houzz) shown under the checklist.
+   * Only pages whose WordPress section carries them (the Shaker Kitchen
+   * "Why Choose" template) pass this — every other page using this section
+   * renders without them.
+   */
+  socials?: Array<{ image: string; href?: string }>
   videos?: CarouselVideo[]
 }
 
@@ -31,18 +38,21 @@ export function getWordPressDifferenceContent({
   heading,
   description,
   features,
+  checklist,
 }: {
   eyebrow?: string
   heading: string
   description?: string
-  features: WordPressDifferenceFeature[]
+  features: Array<WordPressDifferenceFeature & { icon?: string }>
+  checklist?: string[]
 }): PrimeDifferenceContent {
   return {
     eyebrow,
     heading,
     body: description,
+    checklist,
     reasons: features.map((feature, index) => ({
-      icon: presentationIcons[index],
+      icon: feature.icon || presentationIcons[index],
       title: feature.title,
       body: feature.description,
     })),
@@ -109,6 +119,7 @@ export function ServicePrimeDifferenceSection({
   body,
   checklist,
   reasons,
+  socials,
   videos,
 }: PrimeDifferenceContent) {
   return (
@@ -146,6 +157,35 @@ export function ServicePrimeDifferenceSection({
                 </li>
               ))}
             </ul>
+          ) : null}
+
+          {socials?.length ? (
+            <div className="mt-8 flex flex-wrap items-center gap-5">
+              {socials.map((social, index) => {
+                const image = (
+                  <Image
+                    src={social.image}
+                    alt=""
+                    aria-hidden="true"
+                    width={44}
+                    height={44}
+                    className="h-10 w-auto object-contain"
+                  />
+                )
+                return social.href ? (
+                  <a
+                    key={`${social.href}-${index}`}
+                    href={social.href}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    {image}
+                  </a>
+                ) : (
+                  <span key={`${social.image}-${index}`}>{image}</span>
+                )
+              })}
+            </div>
           ) : null}
         </div>
 

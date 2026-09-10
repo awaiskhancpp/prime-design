@@ -223,26 +223,28 @@ const SERVICE_PAGE_LAYOUTS: Record<string, ServicePageSections> = {
     contact: true,
     contactVariant: 'gallery',
   },
-  'shaker-kitchen': {
-    ...DEFAULT_SERVICE_PAGE_SECTIONS,
-    video: true,
-    videoFirst: true,
-    whyChooseUs: true,
-    estimate: true,
-    reviews: true,
-    contact: true,
-    visualProcess: true,
-    contactVariant: 'gallery',
-  },
+  // The Custom Kitchen page mirrors the European Kitchen structure: the
+  // free-estimate CTA right after the hero, then the video section, then
+  // the Custom-Kitchen sections (icon gallery, image checklist, materials,
+  // Prime Difference), reviews, contact.
   'custom-kitchen': {
     ...DEFAULT_SERVICE_PAGE_SECTIONS,
     video: true,
-    videoFirst: true,
-    whyChooseUs: true,
+    videoFirst: false,
     estimate: true,
     reviews: true,
     contact: true,
-    visualProcess: true,
+    contactVariant: 'gallery',
+  },
+  // The Shaker Kitchen page mirrors the European/Custom Kitchen structure:
+  // free-estimate CTA right after the hero, then the video section, feature
+  // cards, Prime Difference, testimonial cards, contact. No reviews carousel.
+  'shaker-kitchen': {
+    ...DEFAULT_SERVICE_PAGE_SECTIONS,
+    video: true,
+    videoFirst: false,
+    estimate: true,
+    contact: true,
     contactVariant: 'gallery',
   },
 }
