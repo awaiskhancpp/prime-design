@@ -261,6 +261,7 @@ export const serviceDetails: Record<string, ServiceDetail> = {
     ...services[0],
     eyebrow: 'ADU & Garage Conversions',
     lead: 'Transform your existing garage or open space into an ADU that expands what is possible for your property.',
+    introHeading: 'Accessory Dwelling Units (ADUs) - Expanding Your Living Space',
     keyFeatures: [
       'Customized ADU designs tailored to your unique needs and preferences',
       'High-quality construction materials and techniques for long-lasting durability',

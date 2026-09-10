@@ -355,9 +355,11 @@ export function ServiceTemplate({ service }: { service: ServiceDetail }) {
     {
       key: 'why-choose-us',
       node:
-        service.slug === 'additions' || service.slug === 'complete-renovation' ? (
-          // Additions + Complete Renovation show the "Experience the Prime
-          // Difference" design.
+        service.slug === 'additions' ||
+        service.slug === 'complete-renovation' ||
+        service.slug === 'adu' ? (
+          // Additions, Complete Renovation and ADU show the "Experience the
+          // Prime Difference" design (gallery WhyChooseUs).
           <WhyChooseUs />
         ) : (
           (cmsSlotNodes.get('why-choose-us') ??
@@ -479,7 +481,9 @@ export function ServiceTemplate({ service }: { service: ServiceDetail }) {
         service.slug === 'comprehensive-home-repair-installation-services-in-silicon-valley' ||
         service.slug === 'european-kitchen-silicon-valley' ||
         service.slug === 'custom-kitchen-silicon-valley' ||
-        service.slug === 'shaker-kitchen-silicon-valley' ? null : service.slug === 'additions' ||
+        service.slug === 'shaker-kitchen-silicon-valley' ||
+        service.slug === 'adu' ||
+        service.slug === 'finance' ? null : service.slug === 'additions' ||
           service.slug === 'complete-renovation' ? (
           <LandscapingServiceAreas serviceSlug={service.slug} />
         ) : (
@@ -495,7 +499,9 @@ export function ServiceTemplate({ service }: { service: ServiceDetail }) {
         service.slug === 'comprehensive-home-repair-installation-services-in-silicon-valley' ||
         service.slug === 'european-kitchen-silicon-valley' ||
         service.slug === 'custom-kitchen-silicon-valley' ||
-        service.slug === 'shaker-kitchen-silicon-valley' ? (
+        service.slug === 'shaker-kitchen-silicon-valley' ||
+        service.slug === 'adu' ||
+        service.slug === 'finance' ? (
           <ServiceAreasStrip serviceSlug={service.slug} heading={service.areasWeService?.heading} />
         ) : null,
     },
@@ -709,6 +715,19 @@ export function ServiceTemplate({ service }: { service: ServiceDetail }) {
       'contact',
       'areas-we-service',
     ],
+    // ADU (WP page adu): intro → estimate → craftsmanship → why choose →
+    // reviews → contact → the shared "Areas we service" strip.
+    adu: [
+      'intro',
+      'estimate',
+      'craftsmanship',
+      'why-choose-us',
+      'reviews',
+      'contact',
+      'areas-we-service',
+    ],
+    // Finance: why choose → FAQ → estimate → contact → areas strip.
+    finance: ['why-choose-us', 'faq', 'estimate', 'contact', 'areas-we-service'],
   }
 
   const order: string[] = service.sectionOrder?.length

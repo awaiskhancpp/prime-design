@@ -33,6 +33,21 @@ const presentationIcons = [
   '/customer-satisfaction.svg',
 ]
 
+/**
+ * The Google / Yelp / Houzz review badges shown under the checklist. Every
+ * page that renders this section has them in the WordPress source except
+ * Home Remodeling and Bathroom Remodeling — those two pages use the gallery
+ * "Why Choose Us" section instead, so they never reach this component.
+ */
+const defaultSocials = [
+  { image: '/social/Yelp.png', href: 'https://www.yelp.com/biz/prime-kitchens-santa-clara' },
+  { image: '/social/Google.png', href: 'https://maps.google.com/?cid=11837063325613881352' },
+  {
+    image: '/social/houzz.png',
+    href: 'https://www.houzz.com/professionals/kitchen-and-bath-remodelers/prime-kitchens-pfvwus-pf~508047204',
+  },
+]
+
 export function getWordPressDifferenceContent({
   eyebrow,
   heading,
@@ -109,6 +124,7 @@ export function getPrimeDifferenceContent(service: ServiceDetail): PrimeDifferen
     body: `At Prime Design & Build, we understand that your ${spaceWord} is the heart of your home, and when it comes to ${service.title.toLowerCase()}, we are the unrivaled experts.`,
     checklist,
     reasons,
+    socials: defaultSocials,
   }
 }
 
@@ -122,6 +138,7 @@ export function ServicePrimeDifferenceSection({
   socials,
   videos,
 }: PrimeDifferenceContent) {
+  const socialList = socials === undefined ? defaultSocials : socials
   return (
     <Section className="bg-white">
       <div className="grid gap-14 lg:grid-cols-[0.9fr_1.1fr] lg:gap-16 lg:items-center">
@@ -159,9 +176,9 @@ export function ServicePrimeDifferenceSection({
             </ul>
           ) : null}
 
-          {socials?.length ? (
+          {socialList?.length ? (
             <div className="mt-8 flex flex-wrap items-center gap-5">
-              {socials.map((social, index) => {
+              {socialList.map((social, index) => {
                 const image = (
                   <Image
                     src={social.image}
