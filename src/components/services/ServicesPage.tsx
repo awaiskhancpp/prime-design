@@ -62,7 +62,7 @@ export async function ServicesPage() {
                       <a href={href}>{service.title}</a>
                     </h2>
                     <p className="mt-1 line-clamp-2 text-base leading-7 text-ink-2/70">
-                      {service.description}
+                      {service.shortDescription || service.description}
                     </p>
                     <div className="mt-auto pt-4">
                       <Link

@@ -7,6 +7,8 @@ export type Service = {
   slug: string
   title: string
   description: string
+  /** Card summary for the services listing (WordPress index-page copy). */
+  shortDescription?: string
   image: string
   showInConsultationForm?: boolean
   sectionOrder?: string[]
@@ -1064,6 +1066,8 @@ export async function resolveServices(): Promise<Service[]> {
       slug: record.slug,
       title: record.title,
       description: record.description || record.shortDescription || fallback?.description || '',
+      // Card summary for the services listing — WordPress index-page copy.
+      shortDescription: record.shortDescription || fallback?.description || '',
       image:
         payloadImageUrl(record.hero?.image) || fallback?.image || '/services/home-remodeling.jpeg',
       showInConsultationForm: record.showInConsultationForm ?? true,

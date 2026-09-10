@@ -228,6 +228,30 @@ IMPORTED / RENDERED / VERIFIED
 
 ---
 
+# Services listing cards — shortDescription from WordPress
+
+The `/services` index cards were rendering the long overview `description`
+(the hero lead), not the card copy. The WordPress services index page
+(slug `services`) carries a card per service with its own summary — that is
+the listing content.
+
+- `src/lib/services.ts`: `Service` type gains `shortDescription` (optional);
+  `resolveServices` maps it (`record.shortDescription || fallback`).
+- `src/components/services/ServicesPage.tsx`: cards render
+  `service.shortDescription || service.description`.
+- `scripts/seed-service-short-descriptions.mjs`: populates
+  `services.short_description` for the 10 services with the WordPress index
+  copy (deterministic). Comprehensive Home Repair has no card on the WP
+  index page — left untouched so its existing text stays.
+- Verified on `/services`: all 10 WP card texts render; the old hero-lead
+  texts are gone. Typecheck + ESLint clean.
+
+```text
+IMPORTED / RENDERED / VERIFIED
+```
+
+---
+
 # Service heroes — buttons aligned with WordPress
 
 ## What was wrong
