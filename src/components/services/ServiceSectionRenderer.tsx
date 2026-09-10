@@ -24,7 +24,11 @@ import {
   ServicePrimeDifferenceSection,
 } from './sections/ServicePrimeDifferenceSection'
 import { ServiceSiliconValleyLovesSection } from './sections/ServiceSiliconValleyLovesSection'
+import { ServiceLicensedInsuredSection } from './sections/ServiceLicensedInsuredSection'
+import { ServiceFinanceCtaSection } from './sections/ServiceFinanceCtaSection'
+import { ServiceFinanceProcessSection } from './sections/ServiceFinanceProcessSection'
 import { mediaUrl, sharedSectionRegistry, text } from '@/components/landing/LandingBlockRenderer'
+import type { RichTextValue } from '@/lib/richText'
 import type { CarouselVideo } from '@/components/landing/VideoCarousel'
 import type { ComponentType } from 'react'
 
@@ -331,6 +335,104 @@ function renderVideo(block: RawBlock, headingText: string): RenderedSection | nu
 }
 
 /**
+ * `cta` — the Finance "One-Stop Hub" section: heading + body + button at the
+ * end, with the WordPress image on the right (the Finance-Prime-Kitchens
+ * image). Rendered through the shared registry so it keeps its page position.
+ */
+function renderFinanceHub(block: RawBlock): RenderedSection {
+  const ctaButton = blocks(block.buttons).find(
+    (item) => Boolean(item && typeof item === 'object' && str((item as RawBlock).label)),
+  ) as RawBlock | undefined
+  return {
+    key: 'shared-registry',
+    node: (
+      <ServiceImageTextSection
+        heading={str(block.heading)}
+        description={str(block.description) || undefined}
+        image={mediaUrl(block.media)}
+        imageSide="right"
+        cta={
+          ctaButton
+            ? { label: str(ctaButton.label), href: str(ctaButton.url) || '/contact' }
+            : undefined
+        }
+      />
+    ),
+  }
+}
+
+/**
+ * `cta` — the Finance "Let's work together to finance your renovation"
+ * section: the WordPress centered-content design over the block's
+ * background image with the dark shade overlay.
+ */
+function renderFinanceCta(block: RawBlock): RenderedSection {
+  const ctaButton = blocks(block.buttons).find(
+    (item) => Boolean(item && typeof item === 'object' && str((item as RawBlock).label)),
+  ) as RawBlock | undefined
+  return {
+    key: 'shared-registry',
+    node: (
+      <ServiceFinanceCtaSection
+        heading={str(block.heading)}
+        description={str(block.description) || undefined}
+        image={mediaUrl(block.media)}
+        cta={
+          ctaButton
+            ? { label: str(ctaButton.label), href: str(ctaButton.url) || '/contact' }
+            : undefined
+        }
+      />
+    ),
+  }
+}
+
+/**
+ * `image-text` — the Finance "Renovation financing, simplified." process
+ * section: heading + phone image + rich-text body/ordered steps on the
+ * left, the phone image on the right (the WordPress two-column design).
+ */
+function renderFinanceProcess(block: RawBlock): RenderedSection {
+  const content = block.description
+  return {
+    key: 'shared-registry',
+    node: (
+      <ServiceFinanceProcessSection
+        heading={str(block.heading)}
+        content={
+          content && typeof content === 'object' ? (content as RichTextValue) : undefined
+        }
+        image={mediaUrl(block.media)}
+      />
+    ),
+  }
+}
+
+/**
+ * `experience-difference` on the Finance page — "Pick a company you can
+ * trust": Licensed / Bonded / Insured icon cards (SVGs from the block's
+ * feature icons, uploaded to /public).
+ */
+function renderLicensedInsured(block: RawBlock): RenderedSection {
+  const items = blocks(block.features)
+    .map((feature) => ({
+      title: str(feature.title),
+      icon: str((feature.icon as RawBlock | undefined)?.sourceSvgUrl) || undefined,
+    }))
+    .filter((item) => item.title)
+  return {
+    key: 'shared-registry',
+    node: (
+      <ServiceLicensedInsuredSection
+        heading={str(block.heading) || 'Pick a company you can trust'}
+        description={str(block.description) || undefined}
+        items={items}
+      />
+    ),
+  }
+}
+
+/**
  * Resolve one CMS section block to its Service-section design. Returns null
  * when nothing bespoke applies, so the caller can try the shared landing
  * registry.
@@ -370,6 +472,10 @@ export function renderSection(
 
   if (blockType === 'prime-difference') return renderPrimeDifference(block, headingText)
 
+  if (blockType === 'experience-difference' && service.slug === 'finance') {
+    return renderLicensedInsured(block)
+  }
+
   if (blockType === 'experience-difference') return renderWhyChooseUs(block, headingText)
 
   if (blockType === 'craftsmanship' || (isImageText && headingLower.includes('craftsmanship'))) {
@@ -396,6 +502,12 @@ export function renderSection(
       (headingLower.includes('our promise') || headingLower.includes('crafting your dream home')))
   ) {
     return renderQuote(block, headingText, service)
+  }
+
+  // The Finance process section ("Renovation financing, simplified.") has
+  // its own WordPress two-column design with rich-text steps.
+  if (isImageText && headingLower.includes('renovation financing')) {
+    return renderFinanceProcess(block)
   }
 
   // Generic image + text (e.g. the "Home Additions - Enhancing Your Living
@@ -436,6 +548,14 @@ export function renderSection(
 
   if (blockType === 'landing-testimonials' || blockType === 'testimonials') {
     return renderTestimonials(block, headingText, blockType)
+  }
+
+  if (blockType === 'cta' && headingLower.includes('one-stop hub')) {
+    return renderFinanceHub(block)
+  }
+
+  if (blockType === 'cta' && headingLower.includes("let's work together")) {
+    return renderFinanceCta(block)
   }
 
   if (

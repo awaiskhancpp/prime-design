@@ -22,6 +22,7 @@ function TestimonialCardItem({ testimonial }: { testimonial: TestimonialCard }) 
   const quoteRef = useRef<HTMLQuoteElement>(null)
   const [expanded, setExpanded] = useState(false)
   const [overflowing, setOverflowing] = useState(false)
+  const [avatarFailed, setAvatarFailed] = useState(false)
 
   useEffect(() => {
     const el = quoteRef.current
@@ -54,12 +55,13 @@ function TestimonialCardItem({ testimonial }: { testimonial: TestimonialCard }) 
         </button>
       )}
       <figcaption className="mt-auto flex items-center gap-3 pt-7">
-        {testimonial.avatar ? (
+        {testimonial.avatar && !avatarFailed ? (
           <Image
             src={testimonial.avatar}
             alt={testimonial.name}
             width={40}
             height={40}
+            onError={() => setAvatarFailed(true)}
             className="h-10 w-10 rounded-full object-cover"
           />
         ) : (

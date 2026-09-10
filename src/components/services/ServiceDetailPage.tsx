@@ -172,6 +172,7 @@ export function ServiceTemplate({ service }: { service: ServiceDetail }) {
   const cmsSlotNodes = new Map<string, ReactNode>()
   const residualCmsSections: NonNullable<ServiceDetail['sections']> = []
   const slotSingletons = new Set<string>()
+  let sharedRegistryIndex = 0
   for (const rawSection of cmsContentSections) {
     const result: RenderedSection | null = renderSection(
       rawSection,
@@ -182,8 +183,10 @@ export function ServiceTemplate({ service }: { service: ServiceDetail }) {
     if (!result || result.key === 'shared-registry') {
       // Either nothing resolved, or it resolved via the generic shared
       // registry with no specific ordered slot — both go in the residual
-      // clump, positioned near the intro as before.
-      if (result) cmsSlotNodes.set(`shared-registry-${residualCmsSections.length}`, result.node)
+      // clump, positioned near the intro as before. Each shared-registry
+      // section gets its own key so consecutive ones don't overwrite each
+      // other.
+      if (result) cmsSlotNodes.set(`shared-registry-${sharedRegistryIndex++}`, result.node)
       else residualCmsSections.push(rawSection)
       continue
     }
@@ -726,8 +729,12 @@ export function ServiceTemplate({ service }: { service: ServiceDetail }) {
       'contact',
       'areas-we-service',
     ],
-    // Finance: why choose → FAQ → estimate → contact → areas strip.
-    finance: ['why-choose-us', 'faq', 'estimate', 'contact', 'areas-we-service'],
+    // Finance (WP page `finance`): hero → "One-Stop Hub" image-text → "Let's
+    // work together" craftsmanship → "Renovation financing, simplified"
+    // process → "Pick a company you can trust" (Licensed/Bonded/Insured) →
+    // FAQ → the shared areas strip. The first four are CMS sections that
+    // render through the residual clump (`cms-body`) in block order.
+    finance: ['cms-body', 'faq', 'areas-we-service'],
   }
 
   const order: string[] = service.sectionOrder?.length

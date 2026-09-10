@@ -1,7 +1,11 @@
 import { getPayload } from 'payload'
 import configPromise from '@payload-config'
 import { shouldUseLocalFallback } from './runtime'
-import { serviceLocations, type ServiceLocation } from './serviceLocations'
+import {
+  serviceLocationCities,
+  serviceLocations,
+  type ServiceLocation,
+} from './serviceLocations'
 
 // Static fallback order (matches the original section).
 const cityOrder = [
@@ -10,9 +14,27 @@ const cityOrder = [
   'Mountain View', 'Palo Alto', 'San Jose', 'Silicon Valley',
 ]
 
+const slugify = (value: string) =>
+  value
+    .toLowerCase()
+    .replace(/\s+/g, '-')
+    .replace(/[^a-z0-9-]/g, '')
+
+/**
+ * Static city list for a service. Only Kitchen, Bathroom and Home
+ * Remodeling have real location pages; every other service falls back to
+ * the same canonical Silicon Valley city list so the strip always renders.
+ */
 function staticAreas(serviceSlug: string): ServiceLocation[] {
-  return serviceLocations
-    .filter((entry) => entry.serviceSlug === serviceSlug)
+  const own = serviceLocations.filter((entry) => entry.serviceSlug === serviceSlug)
+  const entries = own.length
+    ? own
+    : serviceLocationCities.map((name) => ({
+        serviceSlug,
+        location: { name, slug: slugify(name) },
+        slug: `${serviceSlug}-in-${slugify(name)}`,
+      }))
+  return entries
     .slice()
     .sort((a, b) => cityOrder.indexOf(a.location.name) - cityOrder.indexOf(b.location.name))
 }

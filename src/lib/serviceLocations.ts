@@ -1,6 +1,6 @@
 import { getPayload } from 'payload'
 import configPromise from '@payload-config'
-import { getServiceDetail, type ServiceDetail } from './services'
+import { getServiceDetail, resolveServiceDetail, type ServiceDetail } from './services'
 import type {
   Location as PayloadLocation,
   Service as PayloadService,
@@ -19,6 +19,46 @@ export type ServiceLocation = {
   intro?: string
   featuredImage?: string
   sectionOverrides?: ServiceLocationSectionOverride[]
+  /** Location-page section overrides — empty = inherit from the parent service. */
+  locationVideo?: {
+    eyebrow?: string
+    title?: string
+    description?: string
+    tagline?: string
+    videoUrl?: string
+    poster?: string
+  }
+  dontSettle?: {
+    eyebrow?: string
+    heading?: string
+    headingAccent?: string
+    body?: string
+    ctaLabel?: string
+  }
+  primeDifference?: {
+    eyebrow?: string
+    heading?: string
+    body?: string
+    checklist?: string[]
+    /** Mapped to the section's icon/title/body card shape. */
+    reasons?: Array<{ icon?: string; title: string; body?: string }>
+  }
+  quote?: {
+    heading?: string
+    quote?: string
+    attribution?: string
+    image?: string
+  }
+  siliconValleyLoves?: {
+    eyebrow?: string
+    heading?: string
+    body?: string
+    image?: string
+    stats?: Array<{ value?: string; label?: string; detail?: string }>
+  }
+  testimonialCards?: {
+    items?: Array<{ name: string; quote?: string; avatar?: string }>
+  }
 }
 
 export type ServiceLocationSectionOverride = {
@@ -109,7 +149,10 @@ export async function getServiceLocation(serviceSlug: string, locationSlugValue:
   const relatedLocation =
     typeof doc?.location === 'object' ? (doc.location as PayloadLocation) : null
   if (doc && relatedService?.slug === serviceSlug && relatedLocation) {
-    const baseService = getServiceDetail(relatedService.slug)
+    // Payload-resolved service detail so the location page's shared
+    // sections (quote, Silicon Valley Loves, testimonial cards) come from
+    // the CMS, not the static fallback.
+    const baseService = await resolveServiceDetail(relatedService.slug)
     if (!baseService) return undefined
 
     const city = relatedLocation.name || doc.city || 'San Jose'
@@ -118,6 +161,76 @@ export async function getServiceLocation(serviceSlug: string, locationSlugValue:
       typeof value === 'object' && value !== null && 'url' in value && typeof value.url === 'string'
         ? value.url
         : undefined
+
+    // Map the "Location Page Sections" override groups (empty groups come
+    // back as null/undefined from Payload and are left undefined so the
+    // page falls back to the parent service, then the built-in template).
+    const textOr = (value: string | null | undefined) =>
+      typeof value === 'string' && value.trim() ? value : undefined
+    const compact = <T extends object>(value: T) =>
+      Object.values(value).some((entry) =>
+        Array.isArray(entry) ? entry.length > 0 : entry !== undefined,
+      )
+        ? value
+        : undefined
+    const locationVideo = compact({
+      eyebrow: textOr(doc.locationVideo?.eyebrow),
+      title: textOr(doc.locationVideo?.title),
+      description: textOr(doc.locationVideo?.description),
+      tagline: textOr(doc.locationVideo?.tagline),
+      videoUrl: textOr(doc.locationVideo?.videoUrl),
+      poster: textOr(doc.locationVideo?.poster),
+    })
+    const dontSettle = compact({
+      eyebrow: textOr(doc.dontSettle?.eyebrow),
+      heading: textOr(doc.dontSettle?.heading),
+      headingAccent: textOr(doc.dontSettle?.headingAccent),
+      body: textOr(doc.dontSettle?.body),
+      ctaLabel: textOr(doc.dontSettle?.ctaLabel),
+    })
+    const primeDifference = compact({
+      eyebrow: textOr(doc.primeDifference?.eyebrow),
+      heading: textOr(doc.primeDifference?.heading),
+      body: textOr(doc.primeDifference?.body),
+      checklist: (doc.primeDifference?.checklist ?? [])
+        .map((item) => textOr(item.text))
+        .filter((item): item is string => Boolean(item)),
+      reasons: (doc.primeDifference?.reasons ?? [])
+        .filter((reason) => Boolean(reason.title))
+        .map((reason) => ({
+          icon: reason.image ?? undefined,
+          title: reason.title,
+          body: textOr(reason.description),
+        })),
+    })
+    const quote = compact({
+      heading: textOr(doc.quote?.heading),
+      quote: textOr(doc.quote?.quote),
+      attribution: textOr(doc.quote?.attribution),
+      image: textOr(doc.quote?.image),
+    })
+    const siliconValleyLoves = compact({
+      eyebrow: textOr(doc.siliconValleyLoves?.eyebrow),
+      heading: textOr(doc.siliconValleyLoves?.heading),
+      body: textOr(doc.siliconValleyLoves?.body),
+      image: textOr(doc.siliconValleyLoves?.image),
+      stats: (doc.siliconValleyLoves?.stats ?? [])
+        .map((stat) => ({
+          value: textOr(stat.value),
+          label: textOr(stat.label),
+          detail: textOr(stat.detail),
+        }))
+        .filter((stat) => Boolean(stat.value || stat.label || stat.detail)),
+    })
+    const testimonialCards = compact({
+      items: (doc.testimonialCards?.items ?? [])
+        .filter((item) => Boolean(item.name))
+        .map((item) => ({
+          name: item.name,
+          quote: textOr(item.quote),
+          avatar: textOr(item.avatar),
+        })),
+    })
     const sectionOverrides = Array.isArray((doc as unknown as { sectionOverrides?: unknown }).sectionOverrides)
       ? ((doc as unknown as { sectionOverrides: Array<Record<string, unknown>> }).sectionOverrides)
           .map((override) => ({
@@ -146,6 +259,12 @@ export async function getServiceLocation(serviceSlug: string, locationSlugValue:
       intro: doc.intro || undefined,
       featuredImage: mediaUrl(doc.featuredImage),
       sectionOverrides,
+      locationVideo,
+      dontSettle,
+      primeDifference,
+      quote,
+      siliconValleyLoves,
+      testimonialCards,
       service: {
         ...serviceDetail,
         title: doc.heroHeading || serviceDetail.title,

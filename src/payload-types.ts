@@ -1691,6 +1691,79 @@ export interface ServiceLocation {
     ogDescription?: string | null;
     ogImage?: (number | null) | Media;
   };
+  /**
+   * Video shown on the location page. Use {City} for the city name and {ServiceTitle} for the service name.
+   */
+  locationVideo?: {
+    eyebrow?: string | null;
+    title?: string | null;
+    description?: string | null;
+    tagline?: string | null;
+    videoUrl?: string | null;
+    poster?: string | null;
+  };
+  /**
+   * "Don't Settle for a Mediocre…" intro section. Use {City} and {ServiceTitle} placeholders.
+   */
+  dontSettle?: {
+    eyebrow?: string | null;
+    heading?: string | null;
+    headingAccent?: string | null;
+    body?: string | null;
+    ctaLabel?: string | null;
+  };
+  /**
+   * "The Prime Difference" section (heading + checklist + reason cards + review logos).
+   */
+  primeDifference?: {
+    eyebrow?: string | null;
+    heading?: string | null;
+    body?: string | null;
+    checklist?:
+      | {
+          text?: string | null;
+          id?: string | null;
+        }[]
+      | null;
+    reasons?:
+      | {
+          title: string;
+          description?: string | null;
+          image?: string | null;
+          id?: string | null;
+        }[]
+      | null;
+  };
+  quote?: {
+    heading?: string | null;
+    quote?: string | null;
+    attribution?: string | null;
+    image?: string | null;
+  };
+  siliconValleyLoves?: {
+    eyebrow?: string | null;
+    heading?: string | null;
+    body?: string | null;
+    image?: string | null;
+    stats?:
+      | {
+          value?: string | null;
+          label?: string | null;
+          detail?: string | null;
+          id?: string | null;
+        }[]
+      | null;
+  };
+  testimonialCards?: {
+    items?:
+      | {
+          name: string;
+          quote?: string | null;
+          avatar?: string | null;
+          id?: string | null;
+        }[]
+      | null;
+  };
   updatedAt: string;
   createdAt: string;
 }
@@ -4212,6 +4285,82 @@ export interface ServiceLocationsSelect<T extends boolean = true> {
         ogTitle?: T;
         ogDescription?: T;
         ogImage?: T;
+      };
+  locationVideo?:
+    | T
+    | {
+        eyebrow?: T;
+        title?: T;
+        description?: T;
+        tagline?: T;
+        videoUrl?: T;
+        poster?: T;
+      };
+  dontSettle?:
+    | T
+    | {
+        eyebrow?: T;
+        heading?: T;
+        headingAccent?: T;
+        body?: T;
+        ctaLabel?: T;
+      };
+  primeDifference?:
+    | T
+    | {
+        eyebrow?: T;
+        heading?: T;
+        body?: T;
+        checklist?:
+          | T
+          | {
+              text?: T;
+              id?: T;
+            };
+        reasons?:
+          | T
+          | {
+              title?: T;
+              description?: T;
+              image?: T;
+              id?: T;
+            };
+      };
+  quote?:
+    | T
+    | {
+        heading?: T;
+        quote?: T;
+        attribution?: T;
+        image?: T;
+      };
+  siliconValleyLoves?:
+    | T
+    | {
+        eyebrow?: T;
+        heading?: T;
+        body?: T;
+        image?: T;
+        stats?:
+          | T
+          | {
+              value?: T;
+              label?: T;
+              detail?: T;
+              id?: T;
+            };
+      };
+  testimonialCards?:
+    | T
+    | {
+        items?:
+          | T
+          | {
+              name?: T;
+              quote?: T;
+              avatar?: T;
+              id?: T;
+            };
       };
   updatedAt?: T;
   createdAt?: T;

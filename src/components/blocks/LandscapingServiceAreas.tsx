@@ -14,10 +14,18 @@ const citySlug = (city: string) =>
     .replace(/[^a-z0-9-]/g, '')
 
 /**
- * "Areas we service" strip. When a `serviceSlug` is passed, the city links come
- * from Payload's `service-locations` records (each links a service to a real
- * location page). Otherwise it falls back to the site settings / website.json
- * city list.
+ * Only these three services have their own location pages; every other
+ * page's city links go to the kitchen-remodeling location pages.
+ */
+const LOCATION_SERVICES = ['kitchen-remodeling', 'bathroom-remodeling', 'home-remodeling']
+
+const locationPrefix = (serviceSlug?: string) =>
+  serviceSlug && LOCATION_SERVICES.includes(serviceSlug) ? serviceSlug : 'kitchen-remodeling'
+
+/**
+ * "Areas we service" strip. City links always point at real location pages:
+ * Kitchen / Bathroom / Home Remodeling keep their own prefix, every other
+ * page uses the kitchen-remodeling prefix. Only the city name changes.
  */
 export async function LandscapingServiceAreas({
   serviceSlug,
@@ -26,25 +34,20 @@ export async function LandscapingServiceAreas({
   const { heading, cities, trailingLabel, trailingHref } = website.serviceAreas
   const configuredAreas = await resolveSiteAreas()
 
-  // Resolve the city list + link builder.
-  let areaNames: string[] = []
-  let hrefFor: (city: string) => string
+  const prefix = locationPrefix(serviceSlug)
+  const hrefFor = (city: string) => `/${prefix}/${prefix}-in-${citySlug(city)}`
 
+  // Resolve the city list.
+  let areaNames: string[] = []
   if (serviceSlug) {
     const areas = await getServiceAreas(serviceSlug)
     if (areas.length) {
       areaNames = areas.map((area) => area.location.name)
-      hrefFor = (city) => {
-        const area = areas.find((entry) => entry.location.name === city)
-        return area ? `/${area.serviceSlug}/${area.slug}` : '/contact'
-      }
     } else {
       areaNames = configuredAreas.length ? configuredAreas.map((area) => area.name) : cities
-      hrefFor = (city) => `/kitchen-remodeling/kitchen-remodeling-in-${citySlug(city)}`
     }
   } else {
     areaNames = configuredAreas.length ? configuredAreas.map((area) => area.name) : cities
-    hrefFor = (city) => `/kitchen-remodeling/kitchen-remodeling-in-${citySlug(city)}`
   }
 
   const headingText = headingProp || heading

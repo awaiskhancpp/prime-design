@@ -67,7 +67,13 @@ function RichTextLines({ text }: { text: string }) {
   })
   flushBullets(lines.length)
 
-  return <>{blocks.map((block, i) => <Fragment key={`f-${i}`}>{block}</Fragment>)}</>
+  return (
+    <>
+      {blocks.map((block, i) => (
+        <Fragment key={`f-${i}`}>{block}</Fragment>
+      ))}
+    </>
+  )
 }
 
 export type ServiceImageTextContent = {
@@ -93,9 +99,7 @@ export function ServiceImageTextSection({
       <div className="grid gap-10 md:grid-cols-2 md:items-center">
         <div className={imageSide === 'right' ? 'md:order-2' : undefined}>
           {eyebrow ? (
-            <p className="text-xs font-semibold uppercase tracking-[0.2em] text-brass">
-              {eyebrow}
-            </p>
+            <p className="text-xs font-semibold uppercase tracking-[0.2em] text-brass">{eyebrow}</p>
           ) : null}
           <h2 className="mt-3 font-display text-3xl font-medium text-ink md:text-5xl">{heading}</h2>
           {description ? <RichTextLines text={description} /> : null}
@@ -106,7 +110,7 @@ export function ServiceImageTextSection({
           ) : null}
         </div>
         {image ? (
-          <div className="relative aspect-[4/3] overflow-hidden bg-paper-2">
+          <div className="relative aspect-[4/3] overflow-hidden ">
             <Image
               src={image}
               alt={heading}

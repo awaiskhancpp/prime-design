@@ -196,13 +196,13 @@ const SERVICE_PAGE_LAYOUTS: Record<string, ServicePageSections> = {
     homeRepairWhyChooseUs: true,
   },
 
-  // Financing — informational page, no gallery/video.
+  // Financing — the sections all come from the CMS blocks (One-Stop Hub,
+  // craftsmanship, process, Licensed/Bonded/Insured) plus the FAQ and the
+  // shared areas strip. No static section flags — the WordPress page has no
+  // free-estimate CTA or contact section.
   finance: {
     ...DEFAULT_SERVICE_PAGE_SECTIONS,
-    process: true,
-    whyChooseUs: true,
     faq: true,
-    estimate: true,
   },
 
   // Kitchen style pages (European / Shaker / Custom) all share one layout:
