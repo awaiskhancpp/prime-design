@@ -1,6 +1,7 @@
 import type { CollectionConfig } from 'payload'
 import { revalidateCollection } from '@/lib/revalidate'
 import { pacificToUtcIso, parseDateParts, validateScheduledDate } from '@/lib/pacificTime'
+import { richTextToPlainText } from '@/lib/richText'
 import { HeadingFeature, lexicalEditor } from '@payloadcms/richtext-lexical'
 
 // Utility to format slugs
@@ -211,8 +212,17 @@ export const Blog: CollectionConfig = {
           fields: [
             {
               name: 'intro',
-              type: 'textarea',
-              admin: { description: 'Larger intro paragraph shown right under the title.' },
+              type: 'richText',
+              admin: {
+                description:
+                  'Larger intro shown right under the title. Heading sizes are limited to H2/H3 to match the site type scale.',
+              },
+              editor: lexicalEditor({
+                features: ({ defaultFeatures }) => [
+                  ...defaultFeatures,
+                  HeadingFeature({ enabledHeadingSizes: ['h2', 'h3'] }),
+                ],
+              }),
             },
             {
               name: 'sections',
@@ -423,8 +433,9 @@ export const Blog: CollectionConfig = {
         const sectionsText = Array.isArray(data.sections)
           ? data.sections.map((s: any) => `${s.heading || ''} ${s.body || ''}`).join(' ')
           : ''
+        const introText = data.intro ? richTextToPlainText(data.intro) : ''
         const richTextRaw = data.content ? JSON.stringify(data.content) : ''
-        const words = `${data.intro || ''} ${sectionsText} ${richTextRaw}`
+        const words = `${introText} ${sectionsText} ${richTextRaw}`
           .trim()
           .split(/\s+/)
           .filter(Boolean).length

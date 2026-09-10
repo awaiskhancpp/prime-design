@@ -13,9 +13,15 @@ export async function BlogPage() {
   return (
     <div className="min-h-screen bg-white">
       <PageHero
-        eyebrow="Our blog"
         title="See our blog"
-        description="This is where we share our knowledge and insights about everything related to remodeling — advice on a remodeling project, options for your home, and updates on the latest trends in the industry."
+        description={
+          <>
+            This is where we share our knowledge and insights about everything related to
+            remodeling. Whether you're looking for <strong>advice</strong> on a remodeling
+            project, <em>exploring options for your home</em>, or <strong>seeking updates</strong>{' '}
+            on the latest trends in the industry, you've come to the right place!
+          </>
+        }
         image="/services/kitchen-remodeling.jpeg"
         imageAlt="Kitchen remodeling project"
         cta={{ label: "Let's discuss your project", href: '/contact' }}

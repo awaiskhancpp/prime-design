@@ -2033,9 +2033,23 @@ export interface Blog {
    */
   featuredImage: number | Media;
   /**
-   * Larger intro paragraph shown right under the title.
+   * Larger intro shown right under the title. Heading sizes are limited to H2/H3 to match the site type scale.
    */
-  intro?: string | null;
+  intro?: {
+    root: {
+      type: string;
+      children: {
+        type: any;
+        version: number;
+        [k: string]: unknown;
+      }[];
+      direction: ('ltr' | 'rtl') | null;
+      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+      indent: number;
+      version: number;
+    };
+    [k: string]: unknown;
+  } | null;
   sections?:
     | {
         eyebrow?: string | null;

@@ -6,9 +6,10 @@ import { Button } from '@/components/ui/Button'
 import { Container } from '@/components/ui/Container'
 
 type PageHeroProps = {
-  eyebrow: string
+  eyebrow?: string
   title: string
-  description?: string
+  /** Plain text or inline elements (migrated WordPress copy keeps <strong>/<em>). */
+  description?: ReactNode
   image?: string
   backgroundVideo?: string
   imageAlt: string
@@ -65,7 +66,9 @@ export function PageHero({
 
       <Container className="relative z-10 w-full max-w-none">
         <div className="">
-          <p className="text-xs font-semibold uppercase tracking-[0.24em] text-brass">{eyebrow}</p>
+          {eyebrow ? (
+            <p className="text-xs font-semibold uppercase tracking-[0.24em] text-brass">{eyebrow}</p>
+          ) : null}
           <h1 className=" max-w-4xl font-display text-5xl font-medium leading-tight tracking-tight md:text-7xl">
             {title}
           </h1>

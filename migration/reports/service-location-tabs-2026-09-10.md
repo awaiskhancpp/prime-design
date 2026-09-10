@@ -252,6 +252,46 @@ IMPORTED / RENDERED / VERIFIED
 
 ---
 
+# Blog migration — fixed and imported
+
+## Why it put nothing in before
+1. `payload.create` for blog-categories carried `draft: true`, and the blog
+   `tags` hasMany field had no `blog_tags` table — both made the run fail
+   before/at the first write.
+2. The hand-rolled HTML→Lexical builder produced nodes Payload's rich-text
+   validation rejected ("Cannot use 'in' operator…"), and WordPress 403s
+   the thumbnail downloads, which crashed the featured-image step.
+
+## Fixes
+- `scripts/add-blog-tags-table.mjs` — created the missing `blog_tags` table.
+- `scripts/migrate-blog.ts`:
+  - removed the invalid draft flag; restored it only where the generated
+    types require it,
+  - replaced the hand-rolled Lexical builder with Payload's official
+    `convertHTMLToLexical` (+ jsdom; loose wpautop text wrapped in `<p>`,
+    empty jump anchors and inline `<img>` stripped),
+  - thumbnail resolution: media by filename (case-insensitive) → local
+    uploads dir → download with browser headers → real site image as a
+    flagged placeholder (so every post imports despite the 403s).
+- Frontend already resolved from Payload; `BlogDetailPage` now also renders
+  the free-form `content` rich text (migrated posts) with the sections
+  layout as the fallback.
+
+## Result
+All 5 WordPress posts imported (blog + blog-categories + media):
+Eco-Friendly Kitchen Remodeling, Winterization Checklist, Design First,
+Designing with Intent (real WP thumbnail), Cabinetry Done Right.
+`/blog` renders the 5 posts from Payload; every detail page renders the
+migrated WP rich-text body (headings/lists/links). 4 posts use a flagged
+placeholder thumbnail (their WP thumbnails 403 — replace in the admin or
+supply the files). Typecheck clean.
+
+```text
+IMPORTED / RENDERED / VERIFIED
+```
+
+---
+
 # Service heroes — buttons aligned with WordPress
 
 ## What was wrong

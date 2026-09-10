@@ -1,6 +1,7 @@
 import { getPayload } from 'payload'
 
 import configPromise from '@payload-config'
+import type { RichTextValue } from './richText'
 import { shouldUseLocalFallback } from './runtime'
 
 export type BlogPost = {
@@ -11,8 +12,11 @@ export type BlogPost = {
   author: string
   date: string
   heroImage: string
-  intro?: string
+  /** Rich text intro (migrated WordPress posts) or a plain string (static fallbacks). */
+  intro?: RichTextValue | string
   sections?: BlogSection[]
+  /** Free-form rich text body (migrated WordPress posts). */
+  content?: RichTextValue
   seo?: {
     metaTitle?: string | null
     metaDescription?: string | null
@@ -263,7 +267,8 @@ type PayloadBlogPost = {
   author?: number | { name?: string | null } | null
   publishedDate?: string | null
   featuredImage?: number | PayloadMedia | null
-  intro?: string | null
+  intro?: RichTextValue | string | null
+  content?: RichTextValue | null
   sections?: Array<{
     eyebrow?: string | null
     heading?: string | null
@@ -308,7 +313,11 @@ function normalizePost(post: PayloadBlogPost): BlogPost {
       payloadMediaUrl(post.featuredImage) ||
       fallback?.heroImage ||
       '/services/kitchen-remodeling.jpeg',
-    intro: post.intro || fallback?.intro,
+    // `undefined` means the payload record has no intro field at all (legacy
+    // rows) — only then use the static fallback. `null` is a real "no intro"
+    // from WordPress and must not be replaced with the static copy.
+    intro: post.intro !== undefined ? post.intro : fallback?.intro,
+    content: post.content ?? fallback?.content,
     sections:
       post.sections?.map((section) => ({
         eyebrow: section.eyebrow || undefined,
