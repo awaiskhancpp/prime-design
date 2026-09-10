@@ -438,6 +438,58 @@ export const Services: CollectionConfig = {
               ],
             },
             {
+              name: 'whyChooseUs',
+              type: 'group',
+              label: 'Why Choose Us Section',
+              admin: {
+                description:
+                  'Structured "Why Choose Prime Design & Build?" section (heading + items). Empty falls back to the built-in content.',
+              },
+              fields: [
+                { name: 'eyebrow', type: 'text' },
+                { name: 'heading', type: 'text' },
+                {
+                  name: 'items',
+                  type: 'array',
+                  fields: [
+                    { name: 'title', type: 'text', required: true },
+                    { name: 'description', type: 'textarea' },
+                  ],
+                },
+              ],
+            },
+            {
+              name: 'realHomes',
+              type: 'group',
+              label: 'Real Homes Stories Section',
+              admin: {
+                description:
+                  'Structured "Real Homes, Real Stories" section (heading + testimonial cards + CTA). Empty falls back to the built-in content.',
+              },
+              fields: [
+                { name: 'eyebrow', type: 'text' },
+                { name: 'heading', type: 'text' },
+                { name: 'headingAccent', type: 'text' },
+                { name: 'description', type: 'textarea' },
+                {
+                  name: 'testimonials',
+                  type: 'array',
+                  fields: [
+                    { name: 'quote', type: 'textarea', required: true },
+                    { name: 'attribution', type: 'text', required: true },
+                  ],
+                },
+                {
+                  name: 'cta',
+                  type: 'group',
+                  fields: [
+                    { name: 'label', type: 'text' },
+                    { name: 'href', type: 'text' },
+                  ],
+                },
+              ],
+            },
+            {
               name: 'areasWeService',
               type: 'group',
               label: 'Areas We Service Section',

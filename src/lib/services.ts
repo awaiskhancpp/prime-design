@@ -56,6 +56,21 @@ export type ServiceDetail = Service & {
     image?: string
     stats?: Array<{ value?: string; label?: string; detail?: string }>
   }
+  /** Structured "Why Choose" section (heading + items). */
+  whyChooseUs?: {
+    eyebrow?: string
+    heading?: string
+    items?: Array<{ title: string; description?: string }>
+  }
+  /** Structured "Real Homes, Real Stories" section. */
+  realHomes?: {
+    eyebrow?: string
+    heading?: string
+    headingAccent?: string
+    description?: string
+    testimonials?: Array<{ quote: string; attribution: string }>
+    cta?: { label?: string; href?: string }
+  }
   /** Structured "Areas we service" section content. */
   areasWeService?: { heading?: string }
   /** Hero call-to-action buttons (Payload-authored; built-in pair when empty). */
@@ -616,6 +631,19 @@ type PayloadServiceRecord = {
     image?: number | PayloadMedia | null
     stats?: Array<{ value?: string; label?: string; detail?: string }> | null
   } | null
+  whyChooseUs?: {
+    eyebrow?: string | null
+    heading?: string | null
+    items?: Array<{ title?: string; description?: string | null }> | null
+  } | null
+  realHomes?: {
+    eyebrow?: string | null
+    heading?: string | null
+    headingAccent?: string | null
+    description?: string | null
+    testimonials?: Array<{ quote?: string; attribution?: string }> | null
+    cta?: { label?: string | null; href?: string | null } | null
+  } | null
   areasWeService?: { heading?: string | null } | null
   primeKitchens?: {
     eyebrow?: string | null
@@ -664,9 +692,9 @@ type PayloadServiceRecord = {
 const payloadImageUrl = (value: unknown) => {
   if (typeof value !== 'object' || value === null) return undefined
   const obj = value as { url?: string | null; source_url?: string | null }
-  // Prefer the original WordPress source URL so images hotlink from the live
-  // site; fall back to the Payload-served URL.
-  return obj.source_url || obj.url || undefined
+  // Prefer the file's own URL (Vercel Blob or local upload); fall back to
+  // the original WordPress source URL for media that was never uploaded.
+  return obj.url || obj.source_url || undefined
 }
 
 export function normalizePayloadBlocks(
@@ -908,6 +936,35 @@ export async function resolveServiceDetail(slug: string): Promise<ServiceDetail 
             label: stat.label,
             detail: stat.detail,
           })),
+        }
+      : undefined,
+    whyChooseUs: record.whyChooseUs
+      ? {
+          eyebrow: record.whyChooseUs.eyebrow ?? undefined,
+          heading: record.whyChooseUs.heading ?? undefined,
+          items: record.whyChooseUs.items?.map((item) => ({
+            title: item.title || '',
+            description: item.description ?? undefined,
+          })),
+        }
+      : undefined,
+    realHomes: record.realHomes
+      ? {
+          eyebrow: record.realHomes.eyebrow ?? undefined,
+          heading: record.realHomes.heading ?? undefined,
+          headingAccent: record.realHomes.headingAccent ?? undefined,
+          description: record.realHomes.description ?? undefined,
+          testimonials: record.realHomes.testimonials?.map((item) => ({
+            quote: item.quote || '',
+            attribution: item.attribution || '',
+          })),
+          cta:
+            record.realHomes.cta?.label || record.realHomes.cta?.href
+              ? {
+                  label: record.realHomes.cta.label ?? undefined,
+                  href: record.realHomes.cta.href ?? undefined,
+                }
+              : undefined,
         }
       : undefined,
     areasWeService: record.areasWeService

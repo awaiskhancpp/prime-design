@@ -367,7 +367,20 @@ export function ServiceTemplate({ service }: { service: ServiceDetail }) {
         ) : (
           (cmsSlotNodes.get('why-choose-us') ??
           (sections.homeRepairWhyChooseUs || sections.whyChooseUs ? (
-            <ServiceWhyChooseUsSection />
+            service.whyChooseUs?.items?.length ? (
+              // Payload "Why Choose Us" group — falls back to the built-in
+              // content when the field is empty (same pattern as the
+              // Silicon Valley Loves section).
+              <ServiceWhyChooseUsSection
+                heading={service.whyChooseUs.heading}
+                items={service.whyChooseUs.items.map((item) => ({
+                  title: item.title,
+                  description: item.description,
+                }))}
+              />
+            ) : (
+              <ServiceWhyChooseUsSection />
+            )
           ) : null))
         ),
     },

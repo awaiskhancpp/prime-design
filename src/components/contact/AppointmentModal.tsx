@@ -22,6 +22,8 @@ import { Textarea } from '@/components/ui/Textarea'
 type AppointmentModalProps = {
   consultation: string | null
   onClose: () => void
+  phone?: string
+  phoneClean?: string
 }
 
 const WEEKDAY_LABELS = ['S', 'M', 'T', 'W', 'T', 'F', 'S']
@@ -284,9 +286,13 @@ function AppointmentCalendar({
 export function AppointmentScheduler({
   consultation,
   onDone,
+  phone = '(650) 220-9600',
+  phoneClean = '6502209600',
 }: {
   consultation: string
   onDone?: () => void
+  phone?: string
+  phoneClean?: string
 }) {
   const [step, setStep] = useState(1)
   const [selectedDate, setSelectedDate] = useState<Date | null>(null)
@@ -378,8 +384,8 @@ export function AppointmentScheduler({
                 Please select date and time for your appointment
               </p>
               <p className="mt-12 text-sm font-semibold text-ink">Questions?</p>
-              <a className="mt-2 block text-sm text-brass-deep" href="tel:6504608650">
-                Call (650) 460-8650
+              <a className="mt-2 block text-sm text-brass-deep" href={`tel:${phoneClean}`}>
+                Call {phone}
               </a>
             </aside>
             <div className="px-8 py-6 md:px-10 pt-20">
@@ -449,8 +455,8 @@ export function AppointmentScheduler({
                 Please enter your contact information
               </p>
               <p className="mt-20 text-sm font-semibold text-ink">Questions?</p>
-              <a className="mt-2 block text-base text-brass-deep" href="tel:6504608650">
-                Call (650) 460-8650
+              <a className="mt-2 block text-base text-brass-deep" href={`tel:${phoneClean}`}>
+                Call {phone}
               </a>
             </aside>
             <div className="px-8 py-12 md:px-12">
@@ -706,7 +712,7 @@ export function AppointmentScheduler({
   )
 }
 
-export function AppointmentModal({ consultation, onClose }: AppointmentModalProps) {
+export function AppointmentModal({ consultation, onClose, phone, phoneClean }: AppointmentModalProps) {
   if (!consultation) return null
 
   return (
@@ -725,7 +731,12 @@ export function AppointmentModal({ consultation, onClose }: AppointmentModalProp
         >
           <X className="h-6 w-6" strokeWidth={2.25} aria-hidden />
         </button>
-        <AppointmentScheduler consultation={consultation} onDone={onClose} />
+        <AppointmentScheduler
+          consultation={consultation}
+          onDone={onClose}
+          phone={phone}
+          phoneClean={phoneClean}
+        />
       </div>
     </div>
   )

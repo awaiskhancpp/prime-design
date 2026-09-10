@@ -102,15 +102,27 @@ export async function SiteHeader({
           </nav>
         ) : null}
         <div className="flex items-center gap-5">
-          <a
-            href={`tel:${siteSettings.phoneClean}`}
-            className={cn(
-              'hidden text-sm font-semibold tracking-wide transition-colors hover:text-brass xl:block',
-              isLight ? 'text-ink-2' : 'text-white',
-            )}
-          >
-            {siteSettings.phone}
-          </a>
+          <div className="hidden text-right xl:block">
+            {siteSettings.hours ? (
+              <p
+                className={cn(
+                  'text-[11px] leading-4 tracking-wide',
+                  isLight ? 'text-ink-2/70' : 'text-white/70',
+                )}
+              >
+                {siteSettings.hours}
+              </p>
+            ) : null}
+            <a
+              href={`tel:${siteSettings.phoneClean}`}
+              className={cn(
+                'text-sm font-semibold tracking-wide transition-colors hover:text-brass',
+                isLight ? 'text-ink-2' : 'text-white',
+              )}
+            >
+              {siteSettings.phone}
+            </a>
+          </div>
           <Button
             href={isMinimal ? '#contact' : '/contact'}
             size="lg"

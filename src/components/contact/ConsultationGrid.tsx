@@ -6,7 +6,15 @@ import { useState } from 'react'
 import type { ConsultationType } from '@/lib/consultations'
 import { AppointmentModal } from './AppointmentModal'
 
-export function ConsultationGrid({ consultations }: { consultations: ConsultationType[] }) {
+export function ConsultationGrid({
+  consultations,
+  phone,
+  phoneClean,
+}: {
+  consultations: ConsultationType[]
+  phone?: string
+  phoneClean?: string
+}) {
   const [selected, setSelected] = useState<string | null>(null)
 
   return (
@@ -48,6 +56,8 @@ export function ConsultationGrid({ consultations }: { consultations: Consultatio
           key={selected}
           consultation={selected}
           onClose={() => setSelected(null)}
+          phone={phone}
+          phoneClean={phoneClean}
         />
       ) : null}
     </>

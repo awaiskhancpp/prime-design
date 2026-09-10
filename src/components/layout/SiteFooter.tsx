@@ -54,14 +54,17 @@ export async function SiteFooter() {
           </p>
           <address className="grid gap-3 text-sm not-italic leading-6 text-white/70">
             <a href={`tel:${siteSettings.phoneClean}`}>{siteSettings.phone}</a>
-            <a href={`mailto:${siteSettings.email}`}>{siteSettings.email}</a>
-            <a href="https://www.google.com/maps/place/Prime+kitchens+remodeling+San+Jose/@37.3684697,-121.9172543,17z/data=!3m1!4b1!4m6!3m5!1s0x808fcb92f07b591b:0xa445b2611304f808!8m2!3d37.3684697!4d-121.9146794!16s%2Fg%2F11s6b2qvct?shorturl=1">
-              416 East Campbell Ave, Campbell CA 95008
-            </a>
-            <p>3 E 3rd Ave Suite 200, San Mateo, CA 94401</p>
-            {siteSettings.addresses.map((address) => (
-              <span key={address}>{address}</span>
-            ))}
+            <a href={siteSettings.emailLink}>{siteSettings.email}</a>
+            {siteSettings.hours ? <p className="text-white/50">{siteSettings.hours}</p> : null}
+            {siteSettings.addresses.map((item) =>
+              item.link ? (
+                <a key={item.address} href={item.link} className="hover:text-white">
+                  {item.address}
+                </a>
+              ) : (
+                <p key={item.address}>{item.address}</p>
+              ),
+            )}
           </address>
         </div>
       </Container>

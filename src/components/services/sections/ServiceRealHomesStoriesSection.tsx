@@ -32,6 +32,19 @@ const defaultTestimonials = [
 ]
 
 export function getRealHomesContent(service: ServiceDetail): ServiceRealHomesContent {
+  const content = service.realHomes
+  if (content?.testimonials?.length) {
+    return {
+      eyebrow: content.eyebrow || '#1 Home Remodeling Company in Silicon Valley',
+      heading: content.heading || 'Real Homes,',
+      headingAccent: content.headingAccent || 'Real Stories',
+      description:
+        content.description ||
+        'Explore the success stories of homeowners who entrusted Prime Design & Build to create their dream living spaces.',
+      testimonials: content.testimonials,
+      cta: content.cta?.label ? { label: content.cta.label, href: content.cta.href || '/contact' } : { label: 'Contact us now', href: '/contact' },
+    }
+  }
   return {
     eyebrow: '#1 Home Remodeling Company in Silicon Valley',
     heading: 'Real Homes,',

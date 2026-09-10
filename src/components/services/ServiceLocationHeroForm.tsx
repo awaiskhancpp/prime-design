@@ -7,7 +7,7 @@ import { Input } from '@/components/ui/Input'
 import { Textarea } from '@/components/ui/Textarea'
 import type { ServiceDetail } from '@/lib/services'
 import type { Location } from '@/lib/serviceLocations'
-import website from '../../../website.json'
+import { resolveSiteSettings } from '@/lib/siteSettings'
 
 type LocationFeature = { image: string; blurb: string }
 
@@ -24,7 +24,7 @@ function getLocationFeatures(service: ServiceDetail): LocationFeature[] {
   }))
 }
 
-export function ServiceLocationHeroForm({
+export async function ServiceLocationHeroForm({
   service,
   location,
 }: {
@@ -32,8 +32,9 @@ export function ServiceLocationHeroForm({
   location: Location
 }) {
   const features = getLocationFeatures(service)
-  const phone = website.footer.phone
-  const phoneHref = `tel:${phone.replace(/[^\d+]/g, '')}`
+  const settings = await resolveSiteSettings()
+  const phone = settings.phone
+  const phoneHref = `tel:${settings.phoneClean}`
   const tickerItem = `${service.title.toUpperCase()} · ${location.name.toUpperCase()} · CALL NOW`
 
   return (

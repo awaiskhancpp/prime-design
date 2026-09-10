@@ -9,7 +9,7 @@ import { cn } from '@/lib/utils'
 import { Section } from '@/components/ui/Section'
 import { SectionHeader } from '@/components/ui/SectionHeader'
 
-export function AboutFaq() {
+export function AboutFaq({ phone = '(650) 220-9600' }: { phone?: string }) {
   // Initialize with 0 instead of null to keep the first item open
   const [openIndex, setOpenIndex] = useState<number | null>(0)
   const { faq } = website.about
@@ -20,12 +20,12 @@ export function AboutFaq() {
         <div>
           <SectionHeader title={faq.heading} description={faq.description} />
           <Button
-            href={`tel:${website.header.phoneOffice.replace(/[^\d+]/g, '')}`}
+            href={`tel:${phone.replace(/[^\d+]/g, '')}`}
             variant="outline"
             size="md"
             className="mt-7"
           >
-            Give us a ring at {website.header.phoneOffice}
+            Give us a ring at {phone}
           </Button>
         </div>
         <div className="border-t border-line">

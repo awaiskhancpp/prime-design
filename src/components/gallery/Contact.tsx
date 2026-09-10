@@ -16,9 +16,9 @@ const featuredVideo = website.projectVideos.find((video) => video.title === 'Cli
 export async function Contact() {
   const settings = await resolveSiteSettings()
   const contactDetails = [
-    { icon: Mail, label: settings.email, href: `mailto:${settings.email}` },
+    { icon: Mail, label: settings.email, href: settings.emailLink },
     { icon: Phone, label: settings.phone, href: `tel:${settings.phoneClean}` },
-    { icon: MapPin, label: settings.addresses[0], href: undefined },
+    ...settings.addresses.map((item) => ({ icon: MapPin, label: item.address, href: item.link })),
   ]
 
   return (

@@ -162,6 +162,72 @@ IMPORTED / RENDERED / VERIFIED
 
 ---
 
+# Site Settings — filled from WordPress and used site-wide
+
+## Fields filled (scripts/seed-site-settings.mjs, idempotent)
+- company: name "Prime Design & Build", email office@primedesignandbuild.com,
+  emailLink mailto:…, phone "(650) 220-9600" (clean 6502209600),
+  phoneCta "(650) 235-4863", license "LIC #1087809",
+  hours "Open: 8am - 6pm (Mon - Fri)".
+- addresses (WordPress contact template): 416 East Campbell Ave (linked to the
+  Google Business profile maps.google.com/?cid=11837063325613881352) + plain
+  3 E 3rd Ave Suite 200, San Mateo (no link) — schema now has an optional
+  `link` per address.
+- socialLinks: googleBusiness, yelp, houzz (BBB URL not present in the WP
+  export — left empty rather than invented).
+- serviceAreas: all 15 cities linked to the locations collection.
+- defaultOgImage: the brand logo media; SEO: site title + tagline.
+- New schema fields: company.hours, company.phoneCta, address.link
+  (+ DB columns).
+
+## Consumers switched to resolveSiteSettings (no more hardcoded values)
+- SiteHeader: phone + hours.
+- SiteFooter: phone, email (settings emailLink), hours, both addresses
+  (linked/plain), license; removed the hardcoded Google Maps URL and the
+  duplicate address block.
+- Gallery Contact + Home Contact sections: email/phone/addresses with links.
+- About FAQ phone, ServiceLocationHeroForm phone, ConsultationGrid →
+  AppointmentModal / LandingBookingSection → AppointmentScheduler (also
+  fixed a wrong hardcoded number, 650-460-8650 → 650-220-9600).
+
+Verified on rendered pages: hours, email, addresses (linked + plain), license
+and phones come from the seeded global; typecheck + ESLint clean.
+
+```text
+IMPORTED / RENDERED / VERIFIED
+```
+
+---
+
+# Content-sourcing fixes (approved) — scripts/fix-real-content.mjs
+
+- **Comprehensive Home Repair "Why Choose"**: the CMS block now carries the
+  WordPress content exactly — heading "The Prime Difference", the icon-box
+  "Over 350+ Projects in Silicon Valley" and the three WP list items
+  (Experts on-site for interior design / Certified General Contractor, Fully
+  Licensed. / Family-Owned and Operated Business). The two extra items
+  (Competitive pricing, Quick response) are gone.
+- **Real Homes blocks (home-remodeling + additions)**: the three fabricated
+  quotes were replaced with three REAL WordPress Google reviews each:
+  - home-remodeling: Krishna Kumar, Ariel Diaz, Rachel Lansing;
+  - additions: Jim Mitchell, Sam Gerardo, Carmen Hertz.
+  The fabricated quotes were also embedded in the blocks' description field
+  (scripts/clean-real-homes-descriptions.mjs) — cleaned to the WP sentence.
+- New schema fields added and wired (fallback = current content): Services
+  `whyChooseUs` group (heading + items) and `realHomes` group
+  (heading/testimonials/cta); getRealHomesContent now reads service.realHomes
+  (the ignored parameter is fixed); the why-choose slot uses the group when
+  filled, falling back to the built-in content.
+
+Verified on the rendered pages: WP why-choose items + real review names
+present, all fabricated strings gone; no section added/removed/reordered.
+
+```text
+IMPORTED / RENDERED / VERIFIED
+```
+
+---
+
 # Service heroes — buttons aligned with WordPress
 
 ## What was wrong

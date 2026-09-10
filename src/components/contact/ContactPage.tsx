@@ -5,10 +5,12 @@ import { PageHero } from '@/components/layout/PageHero'
 import { SiteFooter } from '@/components/layout/SiteFooter'
 import { Section } from '@/components/ui/Section'
 import { resolveConsultations } from '@/lib/consultations'
+import { resolveSiteSettings } from '@/lib/siteSettings'
 import { ConsultationGrid } from './ConsultationGrid'
 
 export async function ContactPage() {
   const consultations = await resolveConsultations()
+  const settings = await resolveSiteSettings()
   return (
     <div className="min-h-screen bg-white">
       <PageHero
@@ -20,7 +22,11 @@ export async function ContactPage() {
       />
       <main>
         <Section className="bg-white">
-          <ConsultationGrid consultations={consultations} />
+          <ConsultationGrid
+            consultations={consultations}
+            phone={settings.phone}
+            phoneClean={settings.phoneClean}
+          />
         </Section>
         <HomeContact />
       </main>

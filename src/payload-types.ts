@@ -1460,6 +1460,40 @@ export interface Service {
       | null;
   };
   /**
+   * Structured "Why Choose Prime Design & Build?" section (heading + items). Empty falls back to the built-in content.
+   */
+  whyChooseUs?: {
+    eyebrow?: string | null;
+    heading?: string | null;
+    items?:
+      | {
+          title: string;
+          description?: string | null;
+          id?: string | null;
+        }[]
+      | null;
+  };
+  /**
+   * Structured "Real Homes, Real Stories" section (heading + testimonial cards + CTA). Empty falls back to the built-in content.
+   */
+  realHomes?: {
+    eyebrow?: string | null;
+    heading?: string | null;
+    headingAccent?: string | null;
+    description?: string | null;
+    testimonials?:
+      | {
+          quote: string;
+          attribution: string;
+          id?: string | null;
+        }[]
+      | null;
+    cta?: {
+      label?: string | null;
+      href?: string | null;
+    };
+  };
+  /**
    * Structured "Areas we service" section (heading only; cities are linked from service-locations).
    */
   areasWeService?: {
@@ -4111,6 +4145,40 @@ export interface ServicesSelect<T extends boolean = true> {
               id?: T;
             };
       };
+  whyChooseUs?:
+    | T
+    | {
+        eyebrow?: T;
+        heading?: T;
+        items?:
+          | T
+          | {
+              title?: T;
+              description?: T;
+              id?: T;
+            };
+      };
+  realHomes?:
+    | T
+    | {
+        eyebrow?: T;
+        heading?: T;
+        headingAccent?: T;
+        description?: T;
+        testimonials?:
+          | T
+          | {
+              quote?: T;
+              attribution?: T;
+              id?: T;
+            };
+        cta?:
+          | T
+          | {
+              label?: T;
+              href?: T;
+            };
+      };
   areasWeService?:
     | T
     | {
@@ -5378,10 +5446,19 @@ export interface SiteSetting {
     emailLink?: string | null;
     phone?: string | null;
     phoneClean?: string | null;
+    phoneCta?: string | null;
     license?: string | null;
+    /**
+     * Working hours line, e.g. "Open: 8am - 6pm (Mon - Fri)".
+     */
+    hours?: string | null;
     addresses?:
       | {
           address?: string | null;
+          /**
+           * Optional link for this address (e.g. the Google Business profile). Leave empty for a plain-text address.
+           */
+          link?: string | null;
           id?: string | null;
         }[]
       | null;
@@ -5424,11 +5501,14 @@ export interface SiteSettingsSelect<T extends boolean = true> {
         emailLink?: T;
         phone?: T;
         phoneClean?: T;
+        phoneCta?: T;
         license?: T;
+        hours?: T;
         addresses?:
           | T
           | {
               address?: T;
+              link?: T;
               id?: T;
             };
       };

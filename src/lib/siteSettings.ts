@@ -3,22 +3,52 @@ import { getPayload } from 'payload'
 import configPromise from '@payload-config'
 import website from '../../website.json'
 
+export type SiteAddress = { address: string; link?: string }
+
 export type SiteSettingsValue = {
+  name: string
   phone: string
   phoneClean: string
+  phoneCta: string
   email: string
+  emailLink: string
   license: string
-  addresses: string[]
+  hours: string
+  addresses: SiteAddress[]
+  socialLinks: {
+    googleBusiness?: string
+    yelp?: string
+    houzz?: string
+    bbb?: string
+  }
 }
 
 export type SiteArea = { name: string; slug: string }
 
+// Canonical fallback values (harvested from the live WordPress site; the
+// ACF option values WordPress did not export).
+const GOOGLE_BUSINESS = 'https://maps.google.com/?cid=11837063325613881352'
+
 const localSettings: SiteSettingsValue = {
+  name: website.meta.siteName,
   phone: website.footer.phone,
   phoneClean: website.footer.phone.replace(/[^\d+]/g, ''),
+  phoneCta: website.header.phoneCta,
   email: website.footer.email,
+  emailLink: `mailto:${website.footer.email}`,
   license: website.meta.license,
-  addresses: website.footer.addresses,
+  hours: website.header.hours,
+  // WordPress contact template: address 1 links to the Google Business
+  // profile, address 2 is plain text.
+  addresses: [
+    { address: website.footer.addresses[0], link: GOOGLE_BUSINESS },
+    { address: website.footer.addresses[1] },
+  ],
+  socialLinks: {
+    googleBusiness: GOOGLE_BUSINESS,
+    yelp: website.reviewSummary.yelp.url,
+    houzz: 'https://www.houzz.com/professionals/kitchen-and-bath-remodelers/prime-kitchens-pfvwus-pf~508047204',
+  },
 }
 
 const localAreas: SiteArea[] = website.serviceAreas.cities.map((name) => ({
@@ -31,12 +61,24 @@ type PayloadSiteSettings = {
     name?: string | null
     phone?: string | null
     phoneClean?: string | null
+    phoneCta?: string | null
     email?: string | null
+    emailLink?: string | null
     license?: string | null
-    addresses?: Array<{ address?: string | null }> | null
+    hours?: string | null
+    addresses?: Array<{ address?: string | null; link?: string | null }> | null
+  } | null
+  socialLinks?: {
+    googleBusiness?: string | null
+    yelp?: string | null
+    houzz?: string | null
+    bbb?: string | null
   } | null
   serviceAreas?: Array<{ location?: { name?: string | null; slug?: string | null } } | number> | null
 }
+
+const textOr = (value: string | null | undefined) =>
+  typeof value === 'string' && value.trim() ? value : undefined
 
 export async function resolveSiteAreas(): Promise<SiteArea[]> {
   if (!process.env.DATABASE_URL) return localAreas
@@ -62,14 +104,31 @@ export async function resolveSiteSettings(): Promise<SiteSettingsValue> {
   const payload = await getPayload({ config: configPromise })
   const settings = (await payload.findGlobal({ slug: 'site-settings', depth: 1 })) as PayloadSiteSettings
   const company = settings.company
+  const social = settings.socialLinks
 
   return {
-    phone: company?.phone || localSettings.phone,
+    name: textOr(company?.name) || localSettings.name,
+    phone: textOr(company?.phone) || localSettings.phone,
     phoneClean:
-      company?.phoneClean || company?.phone?.replace(/[^\d+]/g, '') || localSettings.phoneClean,
-    email: company?.email || localSettings.email,
-    license: company?.license || localSettings.license,
+      textOr(company?.phoneClean) ||
+      company?.phone?.replace(/[^\d+]/g, '') ||
+      localSettings.phoneClean,
+    phoneCta: textOr(company?.phoneCta) || localSettings.phoneCta,
+    email: textOr(company?.email) || localSettings.email,
+    emailLink: textOr(company?.emailLink) || `mailto:${textOr(company?.email) || localSettings.email}`,
+    license: textOr(company?.license) || localSettings.license,
+    hours: textOr(company?.hours) || localSettings.hours,
     addresses:
-      company?.addresses?.map((item) => item.address || '').filter(Boolean) || localSettings.addresses,
+      company?.addresses?.flatMap((item): SiteAddress[] => {
+        const address = textOr(item.address)
+        if (!address) return []
+        return [{ address, link: textOr(item.link) }]
+      }) ?? localSettings.addresses,
+    socialLinks: {
+      googleBusiness: textOr(social?.googleBusiness) || localSettings.socialLinks.googleBusiness,
+      yelp: textOr(social?.yelp) || localSettings.socialLinks.yelp,
+      houzz: textOr(social?.houzz) || localSettings.socialLinks.houzz,
+      bbb: textOr(social?.bbb) || localSettings.socialLinks.bbb,
+    },
   }
 }

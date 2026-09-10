@@ -14,8 +14,28 @@ export const SiteSettings: GlobalConfig = {
         { name: 'emailLink', type: 'text' },
         { name: 'phone', type: 'text' },
         { name: 'phoneClean', type: 'text' },
+        { name: 'phoneCta', type: 'text' },
         { name: 'license', type: 'text' },
-        { name: 'addresses', type: 'array', fields: [{ name: 'address', type: 'text' }] },
+        {
+          name: 'hours',
+          type: 'text',
+          admin: { description: 'Working hours line, e.g. "Open: 8am - 6pm (Mon - Fri)".' },
+        },
+        {
+          name: 'addresses',
+          type: 'array',
+          fields: [
+            { name: 'address', type: 'text' },
+            {
+              name: 'link',
+              type: 'text',
+              admin: {
+                description:
+                  'Optional link for this address (e.g. the Google Business profile). Leave empty for a plain-text address.',
+              },
+            },
+          ],
+        },
       ],
     },
     {

@@ -80,7 +80,6 @@ export async function ServicesPage() {
         </Section>
       </main>
 
-      <ProjectsReviews />
       <LandscapingServiceAreas />
       <LandscapingCta />
       <SiteFooter />
