@@ -22,6 +22,12 @@ const nextConfig: NextConfig = {
         hostname: 'primedesignandbuild.com',
         pathname: '/wp-content/uploads/**',
       },
+      {
+        // Vercel Blob media storage (media.url column holds these hosts).
+        protocol: 'https',
+        hostname: '7ipptu8y7yyecrzp.public.blob.vercel-storage.com',
+        pathname: '/**',
+      },
     ],
   },
   webpack: (webpackConfig) => {

@@ -1,5 +1,8 @@
 import Image from 'next/image'
 
+import { getPayload } from 'payload'
+
+import configPromise from '@payload-config'
 import { BrandMark } from '@/components/layout/BrandMark'
 import { Button } from '@/components/ui/Button'
 import { Container } from '@/components/ui/Container'
@@ -11,17 +14,82 @@ import { resolveSiteSettings } from '@/lib/siteSettings'
 
 type LocationFeature = { image: string; blurb: string }
 
+/**
+ * WordPress location-template hero copy, per service (templates 1495/1584/
+ * 1639). `{City}` and `{Company}` are substituted per page.
+ */
+const HERO_COPY: Record<
+  string,
+  { lede: string; body: string; formSubject: string; blurbs: string[] }
+> = {
+  'kitchen-remodeling': {
+    lede: 'The recipe for a Dream Kitchen, Your Masterpiece.',
+    body: 'Serving {City} with tailored kitchen remodeling solutions. At {Company}, we turn your vision into reality.',
+    formSubject: 'kitchen',
+    blurbs: [
+      'Experience the joy of timeless elegance with a modern twist.',
+      'Design your perfect kitchen with unmatched quality & service.',
+      'Find out why people keep raving about "The Prime Difference".',
+    ],
+  },
+  'bathroom-remodeling': {
+    lede: 'From Vision to Reality: Your Dream Bathroom Awaits',
+    body: "Transforming {City}'s bathrooms into dream havens, {Company} delivers tailored bathroom remodeling solutions that bring your vision to life.",
+    formSubject: 'bathroom',
+    blurbs: [
+      'Indulge in the timeless elegance of modern bathroom transformations.',
+      'Build your bathroom oasis with cutting edge technology & material.',
+      'Find out why people keep raving about "The Prime Difference".',
+    ],
+  },
+  'home-remodeling': {
+    lede: "Dream, Design, Deliver: {Company}'s Home Remodeling Marvels",
+    body: 'Transforming {City} Homes into Personalized Masterpieces. Your Vision, Our Craftsmanship',
+    formSubject: 'home',
+    blurbs: [
+      'Seamless remodeling experience from start to finish',
+      'Precision installation and meticulous finishes for lasting beauty',
+      'Find out why people keep raving about "The Prime Difference".',
+    ],
+  },
+}
+
 function getLocationFeatures(service: ServiceDetail): LocationFeature[] {
   const gallery = [...new Set([...service.gallery, service.image])].filter(Boolean)
-  const blurbs = [
-    'Experience the joy of timeless elegance with a modern twist.',
-    `Design your perfect ${service.title.toLowerCase()} with unmatched quality & service.`,
-    'Find out why people keep raving about "The Prime Difference".',
-  ]
-  return blurbs.map((blurb, index) => ({
+  const copy = HERO_COPY[service.slug] ?? HERO_COPY['kitchen-remodeling']
+  return copy.blurbs.map((blurb, index) => ({
     image: gallery[index] ?? gallery[0] ?? service.image,
     blurb,
   }))
+}
+
+/**
+ * The WordPress location hero section sits on a background image
+ * ("Kitchen-And-Bathroom-Images-1920-×-1080-px-1.png", WP attachment 827 —
+ * the same image on all three service templates) with a white overlay in
+ * the original. Per the client: keep the background image at minimum
+ * opacity and put NO color over it.
+ */
+async function resolveHeroBackground(): Promise<string | undefined> {
+  if (!process.env.DATABASE_URL) return undefined
+  try {
+    const payload = await getPayload({ config: configPromise })
+    const result = await payload.find({
+      collection: 'media',
+      where: { filename: { like: 'Kitchen-And-Bathroom-Images-1920-%1080-px-1.png' } },
+      limit: 1,
+    })
+    const media = result.docs[0] as
+      | { url?: string | null; sourceUrl?: string | null }
+      | undefined
+    // Media #424 (the WordPress hero background) has no blob file yet, so
+    // prefer the WordPress source URL — rendered unoptimized, the visitor's
+    // browser loads it directly. Once the file is uploaded to that media
+    // record, this same lookup serves it from blob.
+    return media?.sourceUrl || media?.url || undefined
+  } catch {
+    return undefined
+  }
 }
 
 export async function ServiceLocationHeroForm({
@@ -33,12 +101,29 @@ export async function ServiceLocationHeroForm({
 }) {
   const features = getLocationFeatures(service)
   const settings = await resolveSiteSettings()
+  const heroBackground = await resolveHeroBackground()
+  const heroCopy = HERO_COPY[service.slug] ?? HERO_COPY['kitchen-remodeling']
+  const fill = (text: string) =>
+    text.replaceAll('{City}', location.name).replaceAll('{Company}', 'Prime Design & Build')
   const phone = settings.phone
   const phoneHref = `tel:${settings.phoneClean}`
   const tickerItem = `${service.title.toUpperCase()} · ${location.name.toUpperCase()} · CALL NOW`
 
   return (
-    <section className=" pb-0 pt-10">
+    <section className="relative isolate overflow-hidden pb-0 pt-10">
+      {heroBackground ? (
+        <div className="pointer-events-none absolute inset-0 -z-10">
+          <Image
+            src={heroBackground}
+            alt=""
+            fill
+            unoptimized
+            priority
+            className="object-cover opacity-[0.08]"
+            sizes="100vw"
+          />
+        </div>
+      ) : null}
       <Container>
         <div className="mt-8 flex flex-col items-start justify-between gap-6  px-6 py-6 sm:flex-row sm:items-center sm:px-8">
           <BrandMark />
@@ -59,14 +144,13 @@ export async function ServiceLocationHeroForm({
         <div className="grid gap-10 pb-16 pt-10 lg:grid-cols-[1.05fr_0.95fr] lg:gap-16">
           <div>
             <p className="text-xs font-semibold uppercase tracking-[0.2em] text-brass-deep">
-              The recipe for a dream {service.title.toLowerCase()}, your masterpiece
+              {fill(heroCopy.lede)}
             </p>
             <h1 className="mt-4 font-display text-4xl font-medium leading-tight tracking-tight text-ink md:text-5xl">
               {service.title} in {location.name}
             </h1>
             <p className="mt-5 max-w-xl text-base leading-7 text-ink-2/70">
-              Serving {location.name} with tailored {service.title.toLowerCase()} solutions. At
-              Prime Design &amp; Build, we turn your vision into reality.
+              {fill(heroCopy.body)}
             </p>
 
             <div className="mt-8 grid grid-cols-1 gap-4 sm:grid-cols-3">
@@ -100,7 +184,7 @@ export async function ServiceLocationHeroForm({
 
           <div className="border border-line bg-white p-6 shadow-xl shadow-ink/5 sm:p-8">
             <h2 className="font-display text-2xl font-medium leading-tight text-ink md:text-3xl">
-              Let&apos;s talk about your dream {service.title.toLowerCase()}.
+              Let&apos;s talk about your dream {heroCopy.formSubject}.
             </h2>
             <p className="mt-3 text-sm leading-6 text-ink-2/70">
               Fill out the form below and one of our team members will contact you to help get

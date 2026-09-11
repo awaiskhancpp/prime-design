@@ -87,7 +87,13 @@ export function ServiceOverview({
 
           <div>
             <h3 className="font-display text-xl font-medium text-ink-2">
-              Benefits of {service.title}:
+              Benefits of{' '}
+              {service.slug === 'adu'
+                ? 'an ADU'
+                : service.slug === 'additions' || service.slug === 'complete-renovation'
+                  ? 'Home Additions'
+                  : service.title}
+              :
             </h3>
             {rich?.benefits ? (
               <RichTextContent data={rich.benefits} />

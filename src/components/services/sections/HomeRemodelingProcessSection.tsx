@@ -5,59 +5,23 @@ import { SectionHeader } from '@/components/ui/SectionHeader'
 import type { ServiceContentStep } from '@/lib/services'
 import { cn } from '@/lib/utils'
 
-// This content used to live inside the shared ServiceProcessSection.tsx as
-// `homeProcess`, registered under both the 'complete-renovation' and
-// 'home-remodeling' slugs in that file's `processBySlug` map. Editing it
-// there meant any change also risked touching Kitchen, Bathroom, ADU, and
-// Additions, since they all render through the same shared component and
-// lookup table. Pulling it out here means this page's process section is
-// now fully independent — edit it freely without affecting any other
-// service page.
-
-const defaultTitle = 'A Client-Centered Approach to Home Remodeling'
-const defaultDescription =
-  'No matter the type of project we take on, the entire process, from start to finish.'
-const defaultSideImage = '/prime-design-phone.webp'
-
-const defaultSteps: ServiceContentStep[] = [
-  {
-    title: 'Free Consultation',
-    description:
-      'We begin by understanding your vision, lifestyle, and goals for your home. Our experienced team listens attentively to your ideas, providing valuable insights and expert advice.',
-  },
-  {
-    title: 'Customized Design',
-    description:
-      'Our talented designers translate your vision into a personalized design plan that captures your unique style and preferences.',
-  },
-  {
-    title: 'Skilled Project Management',
-    description:
-      'Our dedicated project managers oversee every aspect of the renovation process, ensuring seamless coordination of contractors, timelines, and resources. We keep you informed at every stage, providing peace of mind.',
-  },
-  {
-    title: 'Quality Craftsmanship',
-    description:
-      'Our skilled craftsmen bring precision and artistry to every detail of your project.',
-  },
-]
-
 export function HomeRemodelingProcessSection({
-  title = defaultTitle,
-  description = defaultDescription,
-  steps = defaultSteps,
-  sideImage = defaultSideImage,
+  title = '',
+  description = '',
+  steps = [],
+  sideImage = '',
 }: {
   title?: string
   description?: string
   steps?: ServiceContentStep[]
   sideImage?: string
 } = {}) {
+  // Content comes from Payload only — render nothing without steps.
   if (!steps.length) return null
 
   return (
     <Section className="bg-white">
-      <SectionHeader align="center" title={title} description={description} />
+      {title ? <SectionHeader align="center" title={title} description={description} /> : null}
 
       <div className="mt-14 grid gap-12 lg:grid-cols-[1fr_0.7fr] lg:items-start lg:gap-16">
         <ol className="grid gap-10 md:gap-10">

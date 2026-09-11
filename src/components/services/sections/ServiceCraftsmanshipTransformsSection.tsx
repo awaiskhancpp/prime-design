@@ -16,24 +16,6 @@ export type ServiceCraftsmanshipContent = {
   cta: { label: string; href: string }
 }
 
-const defaultBody = [
-  'At Prime Design & Build, we take pride in our unwavering commitment to professionalism. Our team of experts is dedicated to providing a seamless remodeling experience, from initial consultation to project completion.',
-  'We believe that exceptional craftsmanship can truly transform a space. Our skilled artisans bring years of experience and attention to detail to every project, creating spaces that reflect your vision and enhance the beauty of your home.',
-]
-
-export function getCraftsmanshipContent(service: ServiceDetail): ServiceCraftsmanshipContent {
-  const gallery = [...new Set([...service.gallery, service.image])].filter(Boolean)
-
-  return {
-    eyebrow: 'We make it easy',
-    heading: 'Craftsmanship That',
-    headingAccent: 'Transforms',
-    body: defaultBody,
-    images: [gallery[0] ?? service.image, gallery[1] ?? gallery[0] ?? service.image],
-    cta: { label: 'Free on-site estimate', href: '/contact' },
-  }
-}
-
 export function ServiceCraftsmanshipTransformsSection({
   eyebrow,
   heading,

@@ -11,9 +11,9 @@ import { Section } from '@/components/ui/Section'
 import type { ServiceDetail } from '@/lib/services'
 
 // Section components + their curated per-slug content helpers.
-import { getServiceOfferings, ServiceOfferingsSection } from './ServiceOfferingsSection'
-import { getServiceProcess, ServiceProcessSection } from './ServiceProcessSection'
-import { getServiceVideo, ServiceVideoSection } from './ServiceVideoSection'
+import { ServiceOfferingsSection } from './ServiceOfferingsSection'
+import { ServiceProcessSection } from './ServiceProcessSection'
+import { ServiceVideoSection } from './ServiceVideoSection'
 import { HomeRemodelingProcessSection } from './sections/HomeRemodelingProcessSection'
 import {
   ServiceHomeRepairCategoriesSection,
@@ -36,11 +36,8 @@ import { ServiceFaqLoader } from './ServiceFaqLoader'
 import { ReviewsSection } from './ReviewsSection'
 import { ServiceGallery } from './ServiceGallery'
 import { ServiceHero } from './ServiceHero'
-import { getServiceQuote, ServiceQuoteSection } from './ServiceQuoteSection'
-import {
-  getCraftsmanshipContent,
-  ServiceCraftsmanshipTransformsSection,
-} from './sections/ServiceCraftsmanshipTransformsSection'
+import { ServiceQuoteSection } from './ServiceQuoteSection'
+import { ServiceCraftsmanshipTransformsSection } from './sections/ServiceCraftsmanshipTransformsSection'
 
 // Extracted building blocks (see each file for details).
 import { getServicePageSections } from './servicePageLayout'
@@ -121,15 +118,11 @@ export function ServiceTemplate({ service }: { service: ServiceDetail }) {
 
   const sections = getServicePageSections(service.slug)
   // Every service page uses the gallery/Contact design (the default
-  // `contactVariant` is 'gallery'). This same component must be used for BOTH
-  // the CMS-authored contact block and the static fallback below — otherwise
-  // a CMS `contact-form` block silently renders a different variant.
+  // `contactVariant` is 'gallery').
   const ContactSection = sections.contactVariant === 'gallery' ? GalleryContact : HomeContact
 
-  const offerings = getServiceOfferings(service.slug)
-  const process = getServiceProcess(service)
-  const fallbackQuote = getServiceQuote(service.slug)
-  const fallbackVideo = sections.video ? getServiceVideo(service.slug) : undefined
+  // Content comes from Payload only — no static per-service copy.
+  const process = service.process
 
   // ---- 2. Collect the CMS-authored content ------------------------------
 
@@ -151,7 +144,6 @@ export function ServiceTemplate({ service }: { service: ServiceDetail }) {
     ) {
       return false
     }
-    if (offerings && block.blockType === 'sub-services') return false
     return true
   })
 
@@ -206,21 +198,18 @@ export function ServiceTemplate({ service }: { service: ServiceDetail }) {
     if (key.startsWith('shared-registry-')) cmsSlotNodes.delete(key)
   }
 
-  // Video section: a CMS 'video' block (resolved above) wins, then legacy
-  // `contentBlocks` video entries, then the curated per-slug video.
+  // Video section: only CMS 'video' blocks (Payload).
   const legacyVideoSection = cmsVideos.length ? (
     cmsVideos.map((block, index) =>
       block.blockType === 'video' ? (
         <ServiceVideoSection
           key={`video-${index}`}
-          title={block.heading || 'See the difference'}
+          title={block.heading || ''}
           videoUrl={block.videoUrl}
           poster={block.poster}
         />
       ) : null,
     )
-  ) : fallbackVideo ? (
-    <ServiceVideoSection {...fallbackVideo} />
   ) : null
   const videoSection = cmsSlotNodes.get('video') ?? legacyVideoSection
 
@@ -368,9 +357,7 @@ export function ServiceTemplate({ service }: { service: ServiceDetail }) {
           (cmsSlotNodes.get('why-choose-us') ??
           (sections.homeRepairWhyChooseUs || sections.whyChooseUs ? (
             service.whyChooseUs?.items?.length ? (
-              // Payload "Why Choose Us" group — falls back to the built-in
-              // content when the field is empty (same pattern as the
-              // Silicon Valley Loves section).
+              // Payload "Why Choose Us" group — renders only CMS content.
               <ServiceWhyChooseUsSection
                 heading={service.whyChooseUs.heading}
                 items={service.whyChooseUs.items.map((item) => ({
@@ -378,9 +365,7 @@ export function ServiceTemplate({ service }: { service: ServiceDetail }) {
                   description: item.description,
                 }))}
               />
-            ) : (
-              <ServiceWhyChooseUsSection />
-            )
+            ) : null
           ) : null))
         ),
     },
@@ -388,9 +373,9 @@ export function ServiceTemplate({ service }: { service: ServiceDetail }) {
       key: 'real-homes',
       node:
         cmsSlotNodes.get('real-homes') ??
-        (sections.realHomes ? (
-          <ServiceRealHomesStoriesSection {...getRealHomesContent(service)} />
-        ) : null),
+        (sections.realHomes && service.realHomes?.testimonials?.length
+          ? <ServiceRealHomesStoriesSection {...getRealHomesContent(service)!} />
+          : null),
     },
     {
       key: 'video',
@@ -398,9 +383,8 @@ export function ServiceTemplate({ service }: { service: ServiceDetail }) {
     },
     {
       key: 'offerings',
-      node:
-        cmsSlotNodes.get('offerings') ??
-        (sections.offerings && offerings ? <ServiceOfferingsSection {...offerings} /> : null),
+      // Offerings come from Payload sub-services blocks only.
+      node: cmsSlotNodes.get('offerings') ?? null,
     },
     {
       key: 'process',
@@ -408,19 +392,17 @@ export function ServiceTemplate({ service }: { service: ServiceDetail }) {
         cmsSlotNodes.get('process') ??
         (() => {
           if (!sections.process) return null
-          if (sections.homeProcess) return <HomeRemodelingProcessSection />
           const payloadProcess = service.process
           if (payloadProcess?.steps?.length) {
-            const fallbackSteps = process?.steps ?? []
             const steps = payloadProcess.steps.map((step, index) => ({
               title: step.title || `Step ${index + 1}`,
               description: step.description || '',
-              image: step.image || fallbackSteps[index]?.image,
+              image: step.image,
             }))
             // Home Remodeling keeps the bespoke "A Client-Centered Approach"
             // design (side image + steps), now fed from Payload. Bathroom shows
             // only the steps (its header lives in the craftsmanship slot).
-            if (service.slug === 'home-remodeling') {
+            if (sections.homeProcess || service.slug === 'home-remodeling') {
               return (
                 <HomeRemodelingProcessSection
                   title={payloadProcess.title}
@@ -432,43 +414,38 @@ export function ServiceTemplate({ service }: { service: ServiceDetail }) {
             if (service.slug === 'bathroom-remodeling') {
               return (
                 <ServiceProcessSection
-                  eyebrow={payloadProcess.eyebrow || 'Our process'}
-                  title={payloadProcess.title || 'A Client-Centered Approach to Home Remodeling'}
-                  description=""
+                  eyebrow={payloadProcess.eyebrow}
+                  title={payloadProcess.title || ''}
+                  description={payloadProcess.description || ''}
                   steps={steps}
                   hideHeader
                 />
               )
             }
-            const craftContent = getCraftsmanshipContent(service)
             return (
               <>
                 {/* "Our Process / We make it easy for you" — craftsmanship design
                     (2 images + button + heading + text), separate from steps. */}
                 <ServiceCraftsmanshipTransformsSection
-                  eyebrow={payloadProcess.eyebrow || 'Our Process'}
+                  eyebrow={payloadProcess.eyebrow || ''}
                   heading="We make it easy for"
                   headingAccent="you"
-                  body={
-                    payloadProcess.description
-                      ? [payloadProcess.description]
-                      : craftContent.body
-                  }
-                  images={craftContent.images}
-                  cta={craftContent.cta}
+                  body={payloadProcess.description ? [payloadProcess.description] : []}
+                  images={[service.image, service.image]}
+                  cta={{ label: 'Free on-site estimate', href: '/contact' }}
                 />
                 {/* Steps — separate section, no repeated header. */}
                 <ServiceProcessSection
-                  eyebrow={payloadProcess.eyebrow || 'Our process'}
+                  eyebrow={payloadProcess.eyebrow}
                   title={payloadProcess.title || 'We make it easy for you'}
-                  description=""
+                  description={payloadProcess.description || ''}
                   steps={steps}
                   hideHeader
                 />
               </>
             )
           }
-          return process ? <ServiceProcessSection {...process} /> : null
+          return null
         })(),
     },
     {
@@ -481,9 +458,14 @@ export function ServiceTemplate({ service }: { service: ServiceDetail }) {
       key: 'craftsmanship',
       node:
         cmsSlotNodes.get('craftsmanship') ??
-        (sections.craftsmanship ? (
+        (sections.craftsmanship && service.craftsmanship ? (
           <ServiceCraftsmanshipTransformsSection
-            {...getCraftsmanshipContent(service)}
+            eyebrow=""
+            heading=""
+            headingAccent=""
+            body={[]}
+            images={[service.image, service.image]}
+            cta={{ label: '', href: '/contact' }}
             content={service.craftsmanship}
           />
         ) : null),
@@ -527,10 +509,10 @@ export function ServiceTemplate({ service }: { service: ServiceDetail }) {
         cmsSlotNodes.get('quote') ??
         (service.quote?.quote ? (
           <ServiceQuoteSection
-            heading={service.quote.heading || fallbackQuote?.heading || 'Crafting your dream home, our promise'}
+            heading={service.quote.heading || ''}
             quote={service.quote.quote}
-            attribution={service.quote.attribution || 'Prime Design & Build'}
-            image={service.quote.image || fallbackQuote?.image || service.image}
+            attribution={service.quote.attribution || ''}
+            image={service.quote.image || service.image}
           />
         ) : sections.quote && cmsQuote && cmsQuote.blockType === 'quote' ? (
           <ServiceQuoteSection
@@ -539,8 +521,6 @@ export function ServiceTemplate({ service }: { service: ServiceDetail }) {
             attribution={cmsQuote.attribution || 'Prime Design & Build'}
             image={service.image}
           />
-        ) : sections.quote && fallbackQuote ? (
-          <ServiceQuoteSection {...fallbackQuote} />
         ) : null),
     },
     {
@@ -566,7 +546,8 @@ export function ServiceTemplate({ service }: { service: ServiceDetail }) {
       key: 'silicon-valley-loves',
       node:
         cmsSlotNodes.get('silicon-valley-loves') ??
-        (sections.siliconValleyLoves ? (
+        (sections.siliconValleyLoves &&
+        (service.siliconValleyLoves?.heading || service.siliconValleyLoves?.body) ? (
           <ServiceSiliconValleyLovesSection content={service.siliconValleyLoves} />
         ) : null),
     },

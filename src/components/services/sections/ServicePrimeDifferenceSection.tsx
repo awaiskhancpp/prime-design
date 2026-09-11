@@ -114,20 +114,6 @@ const checklist = [
   'Quick response for customer satisfaction',
 ]
 
-export function getPrimeDifferenceContent(service: ServiceDetail): PrimeDifferenceContent {
-  const spaceWord = spaceWordBySlug[service.slug] ?? 'home'
-
-  return {
-    eyebrow: 'Why Choose Prime Design & Build?',
-    heading: 'The',
-    headingAccent: 'Prime Difference',
-    body: `At Prime Design & Build, we understand that your ${spaceWord} is the heart of your home, and when it comes to ${service.title.toLowerCase()}, we are the unrivaled experts.`,
-    checklist,
-    reasons,
-    socials: defaultSocials,
-  }
-}
-
 export function ServicePrimeDifferenceSection({
   eyebrow,
   heading,

@@ -8,5 +8,5 @@ export async function ServiceFaqLoader({ slug }: { slug: string }) {
   if (!entry) return null
   const items = await getFaqItems(entry.categoryTitle)
   if (!items.length) return null
-  return <ServiceFaq slug={slug} description={entry.description} items={items} />
+  return <ServiceFaq items={items} />
 }

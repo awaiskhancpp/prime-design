@@ -36,6 +36,7 @@ function initials(name: string) {
 
 export function ProjectsReviews({
   testimonials,
+  city,
 }: {
   testimonials?: Array<{
     author: string
@@ -44,6 +45,8 @@ export function ProjectsReviews({
     summary: string
     timeAgo?: string
   }>
+  /** City name for the WordPress "{acf_city}" heading on location pages. */
+  city?: string
 }) {
   const { reviewSummary } = website
   const list = testimonials ?? website.testimonialsFeatured
@@ -61,8 +64,8 @@ export function ProjectsReviews({
       <div className="mx-auto grid  gap-10 lg:grid-cols-12 lg:items-start lg:gap-8">
         <div className="lg:col-span-5">
           <h2 className="font-display text-4xl font-medium leading-tight tracking-tight text-ink md:text-5xl">
-            See what people in <span className="text-brass">Silicon Valley</span> are saying about
-            us
+            See what people in <span className="text-brass">{city || 'Silicon Valley'}</span> are
+            saying about us
           </h2>
           <div className="mt-8 flex flex-wrap items-center gap-12">
             {reviewBadges.map((badge) => (

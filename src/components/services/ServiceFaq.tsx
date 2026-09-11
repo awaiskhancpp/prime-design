@@ -7,87 +7,18 @@ import { RichTextContent } from '@/components/rich-text/RichTextContent'
 import { Button } from '@/components/ui/Button'
 import { Section } from '@/components/ui/Section'
 import { SectionHeader } from '@/components/ui/SectionHeader'
-import { faqCategories, type FaqItem } from '@/lib/faq'
+import type { FaqItem } from '@/lib/faq'
 import { cn } from '@/lib/utils'
 
-type ServiceFaqContent = {
-  description: string
-  items: FaqItem[]
-}
-
-function itemsFrom(title: string) {
-  return faqCategories.find((category) => category.title === title)?.items ?? []
-}
-
-const faqsBySlug: Record<string, ServiceFaqContent> = {
-  'kitchen-remodeling': {
-    description:
-      'Do you have a kitchen project? Whether it’s a detailed vision or just some vague ideas, your design starts with an appointment in our store or at your house with our project manager who can assist you throughout your project.',
-    items: itemsFrom('Kitchen Remodel Questions'),
-  },
-  'custom-kitchen-silicon-valley': {
-    description:
-      'Planning a custom kitchen? Bring a clear idea or a rough sketch—we’ll sit down with you at the studio or at your house and map the project from there.',
-    items: itemsFrom('Custom Kitchen Questions'),
-  },
-  'european-kitchen-silicon-valley': {
-    description:
-      'Curious about a European kitchen? Start with a conversation. We’ll walk through how the style can work in your home and what the remodel involves.',
-    items: itemsFrom('European Kitchen Questions'),
-  },
-  'shaker-kitchen-silicon-valley': {
-    description:
-      'Considering a Shaker kitchen? We’ll help you decide how traditional or contemporary the look should be, then plan the remodel around that choice.',
-    items: itemsFrom('Shaker Kitchen Questions'),
-  },
-  'bathroom-remodeling': {
-    description:
-      'Do you have a bathroom project? Whether it’s a detailed vision or just some vague ideas, your design starts with an appointment in our store or at your house with our project manager who can assist you throughout your project.',
-    items: itemsFrom('Bathroom Remodel Questions'),
-  },
-  'home-remodeling': {
-    description:
-      'Do you have a home remodeling project? Whether it’s a detailed vision or just some vague ideas, your design starts with an appointment in our store or at your house with our project manager who can assist you throughout your project.',
-    items: itemsFrom('Home Remodel Questions'),
-  },
-  'complete-renovation': {
-    description:
-      'Thinking about a complete renovation? We’ll start with a conversation about how you live now and what you want the house to become.',
-    items: itemsFrom('Complete Renovations Questions'),
-  },
-  adu: {
-    description:
-      'Considering an ADU? We’ll review your property, local rules, and how you want to use the new space before any design work begins.',
-    items: itemsFrom('ADU Questions'),
-  },
-  additions: {
-    description:
-      'Planning a room addition? We’ll look at how the new space should connect to your home, then help you think through layout, budget, and next steps.',
-    items: itemsFrom('Room Additions Questions'),
-  },
-  finance: {
-    description:
-      'Need help funding a remodel? Here are the questions homeowners ask most often about paying for the work.',
-    items: itemsFrom('Finance Questions'),
-  },
-}
-
-export function getServiceFaq(slug: string) {
-  return faqsBySlug[slug]
-}
-
 export function ServiceFaq({
-  slug,
   items,
   description,
 }: {
-  slug: string
   items?: FaqItem[]
   description?: string
 }) {
-  const faq = getServiceFaq(slug)
-  const shownItems = items ?? faq?.items ?? []
-  const desc = description ?? faq?.description
+  const shownItems = items ?? []
+  const desc = description ?? ''
   const [openIndex, setOpenIndex] = useState<number | null>(null)
 
   if (!shownItems.length) return null

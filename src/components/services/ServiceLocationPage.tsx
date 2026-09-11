@@ -1,18 +1,15 @@
 import { ReviewsSection } from './ReviewsSection'
 import { Section } from '@/components/ui/Section'
-import { getServiceQuote, ServiceQuoteSection } from './ServiceQuoteSection'
-import { getServiceOfferings, ServiceOfferingsSection } from './ServiceOfferingsSection'
-import { getLocationVideoContent, ServiceVideoSection } from './ServiceVideoSection'
+import { ServiceQuoteSection } from './ServiceQuoteSection'
+import { ServiceOfferingsSection } from './ServiceOfferingsSection'
+import { ServiceVideoSection } from './ServiceVideoSection'
 import { ServiceLocationHeroForm } from './ServiceLocationHeroForm'
-import { getDontSettleContent, ServiceDontSettleSection } from './sections/ServiceDontSettleSection'
+import { ServiceDontSettleSection } from './sections/ServiceDontSettleSection'
 import { ServiceSiliconValleyLovesSection } from './sections/ServiceSiliconValleyLovesSection'
 import { ServiceTestimonialCardsSection } from './sections/ServiceTestimonialCardsSection'
 import type { ServiceLocation } from '@/lib/serviceLocations'
 import type { ServiceDetail } from '@/lib/services'
-import {
-  getPrimeDifferenceContent,
-  ServicePrimeDifferenceSection,
-} from './sections/ServicePrimeDifferenceSection'
+import { ServicePrimeDifferenceSection } from './sections/ServicePrimeDifferenceSection'
 import { Contact as GalleryContact } from '../gallery/Contact'
 import { ServiceLocationFooter } from './ServiceLocationFooter'
 
@@ -63,7 +60,7 @@ export function ServiceLocationPage({
   const city = entry.location.name
 
   // Video — service-location tab content (pre-filled from the WordPress
-  // source), else the built-in per-city template.
+  // source). No static fallback — the section only renders Payload content.
   const locVideo = entry.locationVideo
   const video = locVideo?.videoUrl
     ? {
@@ -74,15 +71,15 @@ export function ServiceLocationPage({
         videoUrl: locVideo.videoUrl,
         poster: locVideo.poster,
       }
-    : getLocationVideoContent(entry.serviceSlug, entry.location)
+    : undefined
 
-  // "Don't Settle" — service-location tab content, else the template.
+  // "Don't Settle" — service-location tab content only.
   const locDontSettle = entry.dontSettle
   const dontSettle = locDontSettle?.body
     ? {
         eyebrow:
           fill(locDontSettle.eyebrow, serviceTitle, city) || `${service.title} in ${city}`,
-        heading: locDontSettle.heading || "Don't Settle for a Mediocre",
+        heading: fill(locDontSettle.heading, serviceTitle, city) || "Don't Settle for a Mediocre",
         headingAccent: fill(locDontSettle.headingAccent, serviceTitle, city) || city,
         body: fill(locDontSettle.body, serviceTitle, city) || '',
         image: overrides.get('intro')?.image ?? service.image,
@@ -91,17 +88,39 @@ export function ServiceLocationPage({
           href: '#contact',
         },
       }
-    : {
-        ...getDontSettleContent(service, entry.location),
-        ...(overrides.get('intro')?.heading ? { heading: overrides.get('intro')?.heading } : {}),
-        ...(overrides.get('intro')?.body ? { body: overrides.get('intro')?.body } : {}),
-        ...(overrides.get('intro')?.image ? { image: overrides.get('intro')?.image } : {}),
+    : undefined
+
+  // Offerings — only categories with sub-category pages, from the parent
+  // service's Payload sub-services block (never static copy).
+  const subServicesBlock = service.sections?.find(
+    (section) => section && section.blockType === 'sub-services',
+  )
+  const offerings = subServicesBlock
+    ? {
+        eyebrow: String((subServicesBlock as { eyebrow?: string }).eyebrow || ''),
+        title: String((subServicesBlock as { heading?: string }).heading || ''),
+        description: String((subServicesBlock as { description?: string }).description || ''),
+        cards: (Array.isArray((subServicesBlock as { items?: unknown[] }).items)
+          ? ((subServicesBlock as unknown as { items: unknown[] }).items as Record<string, unknown>[])
+          : []
+        )
+          .map((item) => ({
+            title: String(item.title || ''),
+            description: String(item.description || ''),
+            image:
+              typeof (item.media as { url?: string } | undefined)?.url === 'string'
+                ? ((item.media as { url: string }).url)
+                : service.image,
+            href:
+              typeof (item.link as { url?: string } | undefined)?.url === 'string'
+                ? ((item.link as { url: string }).url)
+                : '#contact',
+          }))
+          .filter((card) => card.title),
       }
+    : undefined
 
-  // Offerings — only categories with sub-category pages.
-  const offerings = getServiceOfferings(entry.serviceSlug)
-
-  // Quote — service-location override → service defaults → per-service template.
+  // Quote — service-location override → service defaults (Payload only).
   const locQuote = entry.quote
   const svcQuote = service.quote
   const quotePayload = {
@@ -110,7 +129,7 @@ export function ServiceLocationPage({
     attribution: locQuote?.attribution ?? svcQuote?.attribution,
     image: locQuote?.image ?? svcQuote?.image,
   }
-  const quote = quotePayload.quote ? quotePayload : getServiceQuote(entry.serviceSlug)
+  const quote = quotePayload.quote ? quotePayload : undefined
 
   // Prime Difference — service-location tab content (pre-filled from the
   // WordPress source), else the built-in per-service content (both include
@@ -137,15 +156,15 @@ export function ServiceLocationPage({
         reasons: primePayload.reasons,
         socials: undefined,
       }
-    : getPrimeDifferenceContent(service)
+    : undefined
 
   // Testimonial cards — service-location override → service defaults.
   const testimonialItems = entry.testimonialCards?.items?.length
     ? entry.testimonialCards.items
     : service.testimonialCards?.items
 
-  // Silicon Valley Loves — service-location override → service defaults;
-  // the section has its own built-in copy/stats as the final template layer.
+  // Silicon Valley Loves — service-location override → service defaults
+  // (Payload only; the section renders nothing without them).
   const locLoves = entry.siliconValleyLoves
   const svcLoves = service.siliconValleyLoves
   const siliconValleyLoves = {
@@ -166,32 +185,62 @@ export function ServiceLocationPage({
           </Section>
         ) : null}
 
-        {enabled('intro') ? <ServiceDontSettleSection {...dontSettle} /> : null}
+        {enabled('intro') && dontSettle ? <ServiceDontSettleSection {...dontSettle} /> : null}
 
-        {enabled('offerings') && offerings ? <ServiceOfferingsSection {...offerings} /> : null}
-
-        {enabled('quote') && quote ? (
-          <ServiceQuoteSection
-            heading={quote.heading || 'Crafting your dream home, our promise'}
-            quote={quote.quote || ''}
-            attribution={quote.attribution || 'Prime Design & Build'}
-            image={quote.image || service.image}
-          />
+        {enabled('offerings') && offerings ? (
+          <ServiceOfferingsSection {...offerings} city={city} />
         ) : null}
 
-        {enabled('reviews') ? <ReviewsSection /> : null}
+        {/* WordPress section order differs per service: home pages put the
+            Prime Difference BEFORE the Noah quote (WP template order 1525 →
+            1160); kitchen/bathroom render quote first. */}
+        {entry.serviceSlug === 'home-remodeling' ? (
+          <>
+            {enabled('prime-difference') && prime ? (
+              <ServicePrimeDifferenceSection
+                eyebrow={prime.eyebrow}
+                heading={prime.heading}
+                headingAccent={prime.headingAccent}
+                body={prime.body}
+                checklist={prime.checklist}
+                reasons={prime.reasons}
+                socials={undefined}
+              />
+            ) : null}
+            {enabled('quote') && quote ? (
+              <ServiceQuoteSection
+                heading={quote.heading || 'Crafting your dream home, our promise'}
+                quote={quote.quote || ''}
+                attribution={quote.attribution || 'Prime Design & Build'}
+                image={quote.image || service.image}
+              />
+            ) : null}
+          </>
+        ) : (
+          <>
+            {enabled('quote') && quote ? (
+              <ServiceQuoteSection
+                heading={quote.heading || 'Crafting your dream home, our promise'}
+                quote={quote.quote || ''}
+                attribution={quote.attribution || 'Prime Design & Build'}
+                image={quote.image || service.image}
+              />
+            ) : null}
+            {enabled('prime-difference') && prime ? (
+              <ServicePrimeDifferenceSection
+                eyebrow={prime.eyebrow}
+                heading={prime.heading}
+                headingAccent={prime.headingAccent}
+                body={prime.body}
+                checklist={prime.checklist}
+                reasons={prime.reasons}
+                socials={undefined}
+              />
+            ) : null}
+          </>
+        )}
 
-        {enabled('prime-difference') ? (
-          <ServicePrimeDifferenceSection
-            eyebrow={prime.eyebrow}
-            heading={prime.heading}
-            headingAccent={prime.headingAccent}
-            body={prime.body}
-            checklist={prime.checklist}
-            reasons={prime.reasons}
-            socials={undefined}
-          />
-        ) : null}
+        {enabled('reviews') ? <ReviewsSection city={city} /> : null}
 
         {enabled('testimonial-cards') && testimonialItems?.length ? (
           <ServiceTestimonialCardsSection
@@ -207,7 +256,7 @@ export function ServiceLocationPage({
           <ServiceSiliconValleyLovesSection content={siliconValleyLoves} />
         ) : null}
 
-        {enabled('contact') ? <GalleryContact /> : null}
+        {enabled('contact') ? <GalleryContact city={city} poster={service.image} /> : null}
 
         <ServiceLocationFooter />
       </main>

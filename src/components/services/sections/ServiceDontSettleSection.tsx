@@ -21,24 +21,6 @@ const spaceWordBySlug: Record<string, string> = {
   'home-remodeling': 'home',
 }
 
-export function getDontSettleContent(
-  service: ServiceDetail,
-  location: Location,
-): ServiceDontSettleContent {
-  const spaceWord = spaceWordBySlug[service.slug] ?? 'space'
-  const spaceWordCap = spaceWord[0].toUpperCase() + spaceWord.slice(1)
-  const gallery = [...new Set([...service.gallery, service.image])].filter(Boolean)
-
-  return {
-    eyebrow: `${service.title} in ${location.name}`,
-    heading: "Don't Settle for a Mediocre",
-    headingAccent: `${spaceWordCap} in ${location.name}`,
-    body: `As a homeowner in ${location.name}, you understand the significance of creating a ${spaceWord} that stands out and makes a statement. At Prime Design & Build, we specialize in ${service.title} in ${location.name}, bringing your vision to life with our high-quality craftsmanship and attention to detail. Whether you're looking for a modern, sleek design or a timeless, classic style, our team of experts will transform your ${spaceWord} into a space that reflects your unique taste and enhances your home. With our custom ${service.title.toLowerCase()} services, we ensure that every detail is tailored to your needs, providing you with a ${spaceWord} that surpasses your expectations.`,
-    image: gallery[gallery.length - 2] ?? service.image,
-    cta: { label: 'Talk to an expert', href: '#contact' },
-  }
-}
-
 export function ServiceDontSettleSection({
   eyebrow,
   heading,

@@ -1,24 +1,16 @@
 import type { Metadata } from 'next'
 import { notFound, permanentRedirect } from 'next/navigation'
 import { ServiceTemplate } from '@/components/services/ServiceTemplate'
-import { resolveServiceDetail, servicePathAliases, services } from '@/lib/services'
+import { resolveServiceDetail, servicePathAliases } from '@/lib/services'
 import { serviceMetadata } from '@/lib/seo'
 
 // Service pages are CMS-driven: render on each request so Payload edits
 // (sections, copy, SEO) appear without a rebuild.
 export const dynamic = 'force-dynamic'
 
-/** Pre-render the known service slugs; anything else resolves at request time. */
-export function generateStaticParams() {
-  return services.map((service) => ({ serviceSlug: service.slug }))
-}
-
 // Old internal service slugs (e.g. `/services/financing`, `/services/
 // home-repair-installation-services`) now redirect to their WordPress slugs.
-const targetOf = (slug: string) => {
-  const alias = servicePathAliases[slug]
-  return alias && services.some((service) => service.slug === alias) ? alias : slug
-}
+const targetOf = (slug: string) => servicePathAliases[slug] || slug
 
 export async function generateMetadata({
   params,

@@ -53,39 +53,23 @@ export function ServiceHero({ service }: { service: ServiceDetail }) {
             </p>
           ) : null}
           <h1 className="max-w-2xl font-display text-5xl font-medium leading-tight tracking-tight md:text-7xl">
-            {service.title}
+            {service.heroHeading || service.title}
           </h1>
           <p className="mt-7 max-w-xl text-base leading-7 text-white/75 md:text-lg">
             {service.lead}
           </p>
           <div className="mt-9 flex flex-wrap gap-3">
-            {service.heroButtons?.length ? (
-              service.heroButtons.map((button) => (
-                <Button
-                  key={`${button.label}-${button.href}`}
-                  href={button.href}
-                  variant="primary"
-                  size="lg"
-                  className="border-brass bg-brass text-ink hover:border-brass-deep hover:bg-brass-deep hover:text-white"
-                >
-                  {button.label} <ArrowRight className="h-4 w-4" aria-hidden />
-                </Button>
-              ))
-            ) : (
-              <>
-                <Button href="/contact" variant="primary" size="lg">
-                  Start your renovation <ArrowRight className="h-4 w-4" aria-hidden />
-                </Button>
-                <Button
-                  href="/our-projects"
-                  variant="primary"
-                  size="lg"
-                  className="border-brass bg-brass text-ink hover:border-brass-deep hover:bg-brass-deep hover:text-white"
-                >
-                  Explore our portfolio <ArrowRight className="h-4 w-4" aria-hidden />
-                </Button>
-              </>
-            )}
+            {service.heroButtons?.map((button) => (
+              <Button
+                key={`${button.label}-${button.href}`}
+                href={button.href}
+                variant="primary"
+                size="lg"
+                className="border-brass bg-brass text-ink hover:border-brass-deep hover:bg-brass-deep hover:text-white"
+              >
+                {button.label} <ArrowRight className="h-4 w-4" aria-hidden />
+              </Button>
+            ))}
           </div>
         </div>
       </Container>

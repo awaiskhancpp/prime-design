@@ -1,53 +1,23 @@
 import { getPayload } from 'payload'
 import configPromise from '@payload-config'
-import { shouldUseLocalFallback } from './runtime'
-import {
-  serviceLocationCities,
-  serviceLocations,
-  type ServiceLocation,
-} from './serviceLocations'
+import type { ServiceLocation } from './serviceLocations'
 
-// Static fallback order (matches the original section).
+// The WordPress 3261 "Areas we service" city list, in its exact order.
+// San Jose is intentionally absent — WordPress doesn't list it in this
+// section (its location page still exists and stays reachable).
 const cityOrder = [
-  'Campbell', 'Saratoga', 'Los Gatos', 'Los Altos', 'Milpitas', 'Fremont',
-  'Redwood City', 'Menlo Park', 'Cupertino', 'Santa Clara', 'Sunnyvale',
-  'Mountain View', 'Palo Alto', 'San Jose', 'Silicon Valley',
+  'Palo Alto', 'Los Gatos', 'Los Altos', 'Saratoga', 'Fremont', 'Santa Clara',
+  'Menlo Park', 'Milpitas', 'Mountain View', 'Silicon Valley', 'Sunnyvale',
+  'Campbell', 'Redwood City', 'Cupertino',
 ]
-
-const slugify = (value: string) =>
-  value
-    .toLowerCase()
-    .replace(/\s+/g, '-')
-    .replace(/[^a-z0-9-]/g, '')
-
-/**
- * Static city list for a service. Only Kitchen, Bathroom and Home
- * Remodeling have real location pages; every other service falls back to
- * the same canonical Silicon Valley city list so the strip always renders.
- */
-function staticAreas(serviceSlug: string): ServiceLocation[] {
-  const own = serviceLocations.filter((entry) => entry.serviceSlug === serviceSlug)
-  const entries = own.length
-    ? own
-    : serviceLocationCities.map((name) => ({
-        serviceSlug,
-        location: { name, slug: slugify(name) },
-        slug: `${serviceSlug}-in-${slugify(name)}`,
-      }))
-  return entries
-    .slice()
-    .sort((a, b) => cityOrder.indexOf(a.location.name) - cityOrder.indexOf(b.location.name))
-}
 
 /**
  * Server-side fetch of a service's city pages from Payload. The cities are
  * real `service-locations` records that link a `service` to a `location`, so
- * each card links to its own location page. Falls back to the static list
- * when Payload is unavailable or has no records for the service.
+ * each card links to its own location page. Content comes from Payload only.
  */
 export async function getServiceAreas(serviceSlug: string): Promise<ServiceLocation[]> {
-  const fallback = staticAreas(serviceSlug)
-  if (!process.env.DATABASE_URL) return shouldUseLocalFallback() ? fallback : []
+  if (!process.env.DATABASE_URL) return []
   try {
     const payload = await getPayload({ config: configPromise })
 
@@ -68,7 +38,7 @@ export async function getServiceAreas(serviceSlug: string): Promise<ServiceLocat
       serviceId = (serviceResult.docs[0] as { id?: number | string } | undefined)?.id
       if (serviceId) break
     }
-    if (!serviceId) return fallback
+    if (!serviceId) return []
 
     const slResult = await payload.find({
       collection: 'service-locations',
@@ -77,7 +47,7 @@ export async function getServiceAreas(serviceSlug: string): Promise<ServiceLocat
       limit: 100,
     })
 
-    const areas = slResult.docs
+    return slResult.docs
       .map((doc) => {
         const raw = doc as {
           slug?: string
@@ -94,9 +64,10 @@ export async function getServiceAreas(serviceSlug: string): Promise<ServiceLocat
         } as ServiceLocation
       })
       .filter((area) => Boolean(area.location.name && area.slug))
-
-    return areas.length ? areas : fallback
+      // Only the cities WordPress lists in this section, in WP order.
+      .filter((area) => cityOrder.includes(area.location.name))
+      .sort((a, b) => cityOrder.indexOf(a.location.name) - cityOrder.indexOf(b.location.name))
   } catch {
-    return fallback
+    return []
   }
 }

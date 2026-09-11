@@ -405,3 +405,75 @@ per-project errors and prints a per-project report.
 ```text
 IMPORTED / RENDERED / VERIFIED
 ```
+
+---
+
+# Service pages — location hero background + fixes (in progress)
+
+## Location hero form background
+WordPress source: the location-page hero section (Bricks templates 1495 /
+1584 / 1639 — Kitchen / Bathroom / Home landing templates, all three) uses
+section background image attachment 827:
+`Kitchen-And-Bathroom-Images-1920-×-1080-px-1.png`, with a 91%-white gradient
+overlay. Per the client: keep the image at **minimum opacity and put NO
+color** over it.
+- `ServiceLocationHeroForm` now renders the WP background image layer
+  (`opacity-[0.08]`, no color scrim) resolved from the media collection
+  (media #424; blob file missing, so the WordPress source URL is used until
+  the file is re-uploaded to that media record).
+
+## Service title bug
+`src/lib/services.ts` was overriding `ServiceDetail.title` with the WP hero
+heading ("Kitchen Remodeling never looked so good"), which corrupted every
+consumer of the plain name — the location hero read
+"…never looked so good in Campbell **in Campbell**". Split:
+- `title` = plain collection title again,
+- new `heroHeading` (WP hero heading) used only by `ServiceHero`.
+
+## Pre-project migration images → Vercel Blob
+`scripts/fix-location-images-to-blob.mjs` + `fix-blob-urls-to-media-path.mjs`:
+- `service_locations.quote_image` (15 rows) and `silicon_valley_loves_image`
+  (30 rows) were WP hotlink URLs → now `/api/media/file/<filename>` (blob);
+  `services.image_checklist_image` (custom kitchen) skipped — its file was
+  never in the media export.
+- The raw public blob URLs are NOT used as img src (hostname not in
+  next.config images) — the payload `/api/media/file/…` form is.
+
+## Service page + location page audit vs XML
+Two read-only audit passes (service pages; 45 city pages) are in flight;
+findings to be applied here.
+
+---
+
+# Services content — Payload as the single source
+
+Per the client, static content fallbacks were removed so services and
+service-location content can only come from Payload:
+
+- `lib/services.ts`: deleted the static `services` list, `serviceDetails`,
+  `getServiceDetail`/`getServiceDetailForPath` — `resolveServiceDetail` /
+  `resolveServices` build exclusively from Payload records (empty when a
+  field is missing). `servicePathAliases` (routing) kept.
+- `lib/serviceLocations.ts`: deleted the static city/service-location
+  fallbacks; `getServiceLocation` returns undefined without a Payload record.
+- `lib/serviceAreas.server.ts` / sitemap: Payload-only (WP 3261 city order
+  kept as ordering metadata).
+- Section components (`ServiceQuoteSection`, `ServiceProcessSection`,
+  `ServiceVideoSection`, `ServiceOfferingsSection`, `ServiceDontSettleSection`,
+  `ServicePrimeDifferenceSection`, `ServiceCraftsmanshipTransformsSection`,
+  `ServiceRealHomesStoriesSection`, `ServiceSiliconValleyLovesSection`,
+  `ServiceWhyChooseUsSection`, `HomeRemodelingProcessSection`, `ServiceHero`,
+  `ServiceGallery`, `ServiceFaq`/`ServiceFaqLoader`): removed all built-in
+  copy, default steps/quotes/stats/buttons/FAQ ledes — sections render only
+  Payload data and hide when it's missing.
+- `ServiceDetailPage` / `ServiceLocationPage`: static per-slug providers
+  replaced by Payload (`sub-services` blocks, quote, process, videos, FAQ).
+- Content that existed only in code was seeded into Payload instead of being
+  deleted: Real Homes testimonials (WP trio) for home-remodeling and
+  additions; the comprehensive page's 6 "Why choose" items (WP 3463).
+- Routes/sitemap updated for the removed statics (dynamic rendering).
+- Kept (template-level copy with no Payload field, WP-authored): the location
+  hero form lede/body/blurbs (templates 1495/1584/1639), the free-estimate
+  band text (tpl 1174), the Prime Difference review-platform links.
+- Verified: all 11 service pages + sampled city pages return 200 and render
+  Payload content; typecheck clean.

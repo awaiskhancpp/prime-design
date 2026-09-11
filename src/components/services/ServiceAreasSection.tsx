@@ -29,9 +29,8 @@ export async function ServiceAreasSection({ service }: { service: ServiceDetail 
     <Section className="bg-white">
       <SectionHeader
         align="center"
-        eyebrow="Service areas"
-        title={`We offer ${serviceLabel.toLowerCase()} in the following areas`}
-        description="Prime Design & Build works across Silicon Valley. Choose your city to see how we approach this work in your neighborhood."
+        // WordPress 3261: "We offer top {post_title} in the following areas".
+        title={`We offer top ${service.title} in the following areas`}
       />
 
       <div className=" mt-12 grid  gap-x-8 gap-y-10 sm:grid-cols-2 lg:grid-cols-4">
@@ -70,19 +69,12 @@ export async function ServiceAreasSection({ service }: { service: ServiceDetail 
           )
         })}
 
-        {/* "And all the surrounding cities" card — no image. */}
+        {/* "And all surrounding cities!" card — matches the WordPress pill. */}
         <article className="group flex h-full flex-col">
           <div className="flex flex-1 flex-col border border-line bg-paper p-6">
-            <p className="text-xs font-semibold uppercase tracking-[0.2em] text-brass">
-              Everywhere else
-            </p>
             <h3 className="mt-3 font-display text-2xl font-medium leading-tight text-ink-2 md:text-3xl">
-              And all the surrounding cities
+              And all surrounding cities!
             </h3>
-            <p className="mt-3 text-base leading-7 text-ink-2/70">
-              We work across the whole Silicon Valley region. If your city isn&rsquo;t listed, get in
-              touch and we&rsquo;ll confirm we can help.
-            </p>
             <div className="mt-auto pt-5">
               <Link
                 href="/contact"

@@ -1,12 +1,11 @@
 import { getPayload } from 'payload'
 import configPromise from '@payload-config'
-import { getServiceDetail, resolveServiceDetail, type ServiceDetail } from './services'
+import { resolveServiceDetail, type ServiceDetail } from './services'
 import type {
   Location as PayloadLocation,
   Service as PayloadService,
   ServiceLocation as PayloadServiceLocation,
 } from '@/payload-types'
-import { shouldUseLocalFallback } from './runtime'
 
 export type Location = { name: string; slug: string }
 export type ServiceLocation = {
@@ -70,66 +69,8 @@ export type ServiceLocationSectionOverride = {
   videoUrl?: string
 }
 
-export const serviceLocationCities = [
-  'Campbell',
-  'Cupertino',
-  'Fremont',
-  'Los Altos',
-  'Los Gatos',
-  'Menlo Park',
-  'Milpitas',
-  'Mountain View',
-  'Palo Alto',
-  'Redwood City',
-  'San Jose',
-  'Santa Clara',
-  'Saratoga',
-  'Silicon Valley',
-  'Sunnyvale',
-]
-
-const slugify = (value: string) =>
-  value
-    .toLowerCase()
-    .replace(/\s+/g, '-')
-    .replace(/[^a-z0-9-]/g, '')
-const locationSlug = (serviceSlug: string, city: string) => `${serviceSlug}-in-${slugify(city)}`
-
-export const serviceLocations: ServiceLocation[] = [
-  'kitchen-remodeling',
-  'bathroom-remodeling',
-  'home-remodeling',
-  'adu',
-  'additions',
-  'complete-renovation',
-  'european-kitchen',
-  'custom-kitchen',
-  'shaker-kitchen',
-].flatMap((serviceSlug) =>
-  serviceLocationCities.map((name) => ({
-    serviceSlug,
-    location: { name, slug: slugify(name) },
-    slug: locationSlug(serviceSlug, name),
-    seoDescription: `${serviceSlug.replaceAll('-', ' ')} in ${name} by Prime Design & Build.`,
-  })),
-)
-
-export function getFallbackServiceLocation(serviceSlug: string, locationSlugValue: string) {
-  const entry = serviceLocations.find(
-    (item) => item.serviceSlug === serviceSlug && item.slug === locationSlugValue,
-  )
-  if (!entry) return undefined
-  const service = getServiceDetail(serviceSlug)
-  if (!service) return undefined
-  return { ...entry, service: getServiceLocationDetail(service, entry.location.name) }
-}
-
 export async function getServiceLocation(serviceSlug: string, locationSlugValue: string) {
-  if (!process.env.DATABASE_URL) {
-    return shouldUseLocalFallback()
-      ? getFallbackServiceLocation(serviceSlug, locationSlugValue)
-      : undefined
-  }
+  if (!process.env.DATABASE_URL) return undefined
 
   const payload = await getPayload({ config: configPromise })
 
@@ -279,17 +220,17 @@ export async function getServiceLocation(serviceSlug: string, locationSlugValue:
     }
   }
 
-  // A valid Payload connection with no matching record is the only fallback case.
-  return shouldUseLocalFallback()
-    ? getFallbackServiceLocation(serviceSlug, locationSlugValue)
-    : undefined
+  // No matching Payload record — the location page does not exist.
+  return undefined
 }
 
 export function getServiceLocationDetail(service: ServiceDetail, city: string): ServiceDetail {
   return {
     ...service,
-    title: `${service.title} in ${city}`,
+    // Keep the plain service title — consumers that need "… in {City}"
+    // (hero H1, metadata) add the city themselves; appending it here made
+    // every downstream use read "… in Campbell in Campbell".
     eyebrow: `${service.title} in ${city}`,
-    lead: `Create a more functional, beautiful ${service.title.toLowerCase()} in ${city} with Prime Design & Build. Our team combines thoughtful design, quality craftsmanship, and clear communication from start to finish.`,
+    // Lead copy comes from Payload — no generated fallback text.
   }
 }

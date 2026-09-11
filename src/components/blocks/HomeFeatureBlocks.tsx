@@ -19,7 +19,7 @@ export function HomeFeatureBlocks() {
       />
 
       {/* Container for all feature blocks */}
-      <div className="mt-12 flex flex-col gap-16 lg:gap-24">
+      <div className="mt-12 flex flex-col gap-10">
         {website.featureBlocks.map((block, index) => {
           const reversed = index % 2 === 1
 

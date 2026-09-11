@@ -66,53 +66,6 @@ const videosBySlug: Record<string, ServiceVideoContent> = {
   },
 }
 
-export function getServiceVideo(slug: string) {
-  const normalizedSlug = slug.replace(/-silicon-valley$/, '')
-  return videosBySlug[slug] || videosBySlug[normalizedSlug] || videosBySlug[`${normalizedSlug}-silicon-valley`]
-}
-
-// Location pages carry a fuller marketing block above the video than the
-// generic service pages do (eyebrow + headline + emphasized body copy +
-// a closing tagline), so this builds that richer version per service +
-// city instead of hardcoding one city's copy.
-const spaceWordBySlug: Record<string, string> = {
-  'kitchen-remodeling': 'kitchen',
-  'bathroom-remodeling': 'bathroom',
-  'home-remodeling': 'home',
-}
-
-export function getLocationVideoContent(
-  slug: string,
-  location: Location,
-): ServiceVideoContent | undefined {
-  const base = videosBySlug[slug]
-  if (!base) return undefined
-
-  const spaceWord = spaceWordBySlug[slug] ?? 'space'
-  const serviceTitle = slug
-    .split('-')
-    .map((part) => part[0]?.toUpperCase() + part.slice(1))
-    .join(' ')
-
-  return {
-    ...base,
-    eyebrow: `#1 ${serviceTitle} Company in ${location.name}`,
-    title: (
-      <>
-        Your Dream {serviceTitle} in {location.name} – A World of Possibilities!
-      </>
-    ),
-    description: (
-      <>
-        Imagine stepping into a freshly finished {spaceWord} that reflects{' '}
-        <em className="italic">your</em> <strong className="font-semibold">unique style</strong> and{' '}
-        <strong className="font-semibold">caters to your every need</strong>.
-      </>
-    ),
-    tagline: <em className="italic">With Prime Design &amp; Build, it&apos;s within reach.</em>,
-  }
-}
-
 export function ServiceVideoSection({
   eyebrow,
   title,

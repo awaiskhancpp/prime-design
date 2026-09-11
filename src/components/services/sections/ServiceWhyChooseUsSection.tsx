@@ -1,22 +1,12 @@
-export const homeRepairWhyChooseContent = {
-  heading: 'Why Choose Prime Design & Build?',
-  items: [
-    { title: 'Over 350+ Projects', description: 'in Silicon Valley' },
-    { title: 'Experts on-site', description: 'for interior design & planning' },
-    { title: 'Certified General Contractor', description: 'fully licensed' },
-    { title: 'Family-owned and operated', description: 'for personalized service' },
-    { title: 'Competitive pricing', description: 'without compromising quality' },
-    { title: 'Quick response', description: 'and customer satisfaction guaranteed' },
-  ],
-}
-
 export function ServiceWhyChooseUsSection({
-  heading = homeRepairWhyChooseContent.heading,
-  items = homeRepairWhyChooseContent.items,
+  heading = '',
+  items = [],
 }: {
   heading?: string
   items?: Array<{ title: string; description?: string }>
 }) {
+  // Content comes from Payload only — render nothing without items.
+  if (!items.length) return null
   return (
     <section className="py-16 text-ink md:py-20">
       <div className="mx-auto max-w-5xl px-6">

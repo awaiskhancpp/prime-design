@@ -2,7 +2,7 @@ import type { Metadata } from 'next'
 import { notFound, permanentRedirect } from 'next/navigation'
 import { ServiceLocationPage } from '@/components/services/ServiceLocationPage'
 import { resolveServiceDetail } from '@/lib/services'
-import { getServiceLocation, serviceLocations } from '@/lib/serviceLocations'
+import { getServiceLocation } from '@/lib/serviceLocations'
 import { resolveRedirect } from '@/lib/redirects'
 import { buildSeoMetadata, serviceMetadata } from '@/lib/seo'
 
@@ -28,15 +28,10 @@ const KITCHEN_DETAIL_SLUGS = [
 ]
 
 export function generateStaticParams() {
-  const locations = serviceLocations.map(({ serviceSlug, slug }) => ({
-    serviceSlug,
-    pageSlug: slug,
-  }))
-  const kitchenDetails = KITCHEN_DETAIL_SLUGS.map((pageSlug) => ({
+  return KITCHEN_DETAIL_SLUGS.map((pageSlug) => ({
     serviceSlug: 'kitchen-remodeling',
     pageSlug,
   }))
-  return [...locations, ...kitchenDetails]
 }
 
 export async function generateMetadata({

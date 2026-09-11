@@ -2,7 +2,7 @@ import { Fragment, type ReactNode } from 'react'
 import { Contact as GalleryContact } from '@/components/gallery/Contact'
 import { ProjectsReviews } from '@/components/projects/ProjectsReviews'
 import type { ServiceDetail } from '@/lib/services'
-import { getServiceProcess, ServiceProcessSection } from './ServiceProcessSection'
+import { ServiceProcessSection } from './ServiceProcessSection'
 import { ServiceOfferingsSection } from './ServiceOfferingsSection'
 import { ServiceVideoSection } from './ServiceVideoSection'
 import { HomeRemodelingProcessSection } from './sections/HomeRemodelingProcessSection'
@@ -11,11 +11,8 @@ import { ServiceEstimateCta } from './ServiceEstimateCta'
 import { ServiceFaqLoader } from './ServiceFaqLoader'
 import { ServiceGallery } from './ServiceGallery'
 import { ServiceImageTextSection } from './sections/ServiceImageTextSection'
-import { getServiceQuote, ServiceQuoteSection } from './ServiceQuoteSection'
-import {
-  getCraftsmanshipContent,
-  ServiceCraftsmanshipTransformsSection,
-} from './sections/ServiceCraftsmanshipTransformsSection'
+import { ServiceQuoteSection } from './ServiceQuoteSection'
+import { ServiceCraftsmanshipTransformsSection } from './sections/ServiceCraftsmanshipTransformsSection'
 import { ServiceHomeRepairCategoriesSection, type HomeRepairCategory } from './sections/ServiceHomeRepairCategoriesSection'
 import { ServiceWhyChooseUsSection } from './sections/ServiceWhyChooseUsSection'
 import { ServiceRealHomesStoriesSection } from './sections/ServiceRealHomesStoriesSection'
@@ -92,33 +89,29 @@ function renderWhyChooseUs(block: RawBlock, headingText: string): RenderedSectio
   return {
     key: 'why-choose-us',
     node: (
-      <ServiceWhyChooseUsSection
-        heading={headingText || 'Why Choose Prime Design & Build?'}
-        items={features.length ? features : undefined}
-      />
+      <ServiceWhyChooseUsSection heading={headingText || ''} items={features} />
     ),
   }
 }
 
 /** `craftsmanship` — "Craftsmanship That Transforms" split-image section. */
 function renderCraftsmanship(block: RawBlock, service: ServiceDetail): RenderedSection {
-  const defaultContent = getCraftsmanshipContent(service)
   const image = mediaUrl(block.media) || mediaUrl(block.image)
   const images: [string, string] = image
-    ? [image, defaultContent.images[1] || service.image]
-    : defaultContent.images
+    ? [image, service.image]
+    : [service.image, service.image]
   const bodyText = str(block.description) || str(block.body)
 
   return {
     key: 'craftsmanship',
     node: (
       <ServiceCraftsmanshipTransformsSection
-        eyebrow={str(block.eyebrow) || defaultContent.eyebrow}
+        eyebrow={str(block.eyebrow) || ''}
         heading="Craftsmanship That"
         headingAccent="Transforms"
-        body={bodyText ? [bodyText] : defaultContent.body}
+        body={bodyText ? [bodyText] : []}
         images={images}
-        cta={defaultContent.cta}
+        cta={{ label: 'Free on-site estimate', href: '/contact' }}
       />
     ),
   }
@@ -130,14 +123,29 @@ function renderProcess(
   headingText: string,
   headingLower: string,
   service: ServiceDetail,
-): RenderedSection {
+): RenderedSection | null {
   const useBespokeProcess =
     service.slug === 'home-remodeling' ||
     service.slug === 'complete-renovation' ||
     headingLower.includes('client-centered')
 
   if (useBespokeProcess) {
-    return { key: 'process', node: <HomeRemodelingProcessSection /> }
+    const steps = blocks(block.steps).map((step, stepIndex) => ({
+      title: str(step.title) || `Step ${stepIndex + 1}`,
+      description: str(step.description),
+      image: mediaUrl(step.image),
+    }))
+    if (!steps.length) return null
+    return {
+      key: 'process',
+      node: (
+        <HomeRemodelingProcessSection
+          title={headingText || ''}
+          description={str(block.description) || ''}
+          steps={steps}
+        />
+      ),
+    }
   }
 
   const steps = blocks(block.steps).map((step, stepIndex) => ({
@@ -145,16 +153,15 @@ function renderProcess(
     description: str(step.description),
     image: mediaUrl(step.image),
   }))
-  const fallbackProcess = getServiceProcess(service)
 
   return {
     key: 'process',
     node: (
       <ServiceProcessSection
-        eyebrow={str(block.eyebrow) || 'Our process'}
-        title={headingText || fallbackProcess?.title || 'We make it easy for you'}
-        description={str(block.description) || fallbackProcess?.description}
-        steps={steps.length ? steps : (fallbackProcess?.steps ?? [])}
+        eyebrow={str(block.eyebrow)}
+        title={headingText || ''}
+        description={str(block.description) || ''}
+        steps={steps}
       />
     ),
   }
@@ -166,18 +173,13 @@ function renderQuote(
   headingText: string,
   service: ServiceDetail,
 ): RenderedSection {
-  const fallbackQuote = getServiceQuote(service.slug)
   return {
     key: 'quote',
     node: (
       <ServiceQuoteSection
-        heading={headingText || fallbackQuote?.heading || 'Crafting your dream home, our promise'}
-        quote={str(block.quote) || str(block.description) || fallbackQuote?.quote || ''}
-        attribution={
-          str(block.attribution) ||
-          fallbackQuote?.attribution ||
-          'Noah, Co-founder of Prime Design & Build'
-        }
+        heading={headingText || ''}
+        quote={str(block.quote) || str(block.description) || ''}
+        attribution={str(block.attribution) || ''}
         image={mediaUrl(block.media) || mediaUrl(block.image) || service.image}
       />
     ),
@@ -493,7 +495,20 @@ export function renderSection(
     blockType === 'silicon-valley-loves' ||
     (isImageText && headingLower.includes('silicon valley loves'))
   ) {
-    return { key: 'silicon-valley-loves', node: <ServiceSiliconValleyLovesSection /> }
+    // Payload block content only — the section renders nothing without it.
+    return {
+      key: 'silicon-valley-loves',
+      node: (
+        <ServiceSiliconValleyLovesSection
+          content={{
+            eyebrow: str(block.eyebrow) || undefined,
+            heading: headingText || undefined,
+            body: str(block.description) || undefined,
+            image: mediaUrl(block.media) || mediaUrl(block.image) || undefined,
+          }}
+        />
+      ),
+    }
   }
 
   if (

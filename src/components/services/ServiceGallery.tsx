@@ -4,15 +4,14 @@ import { ArrowRight } from 'lucide-react'
 import { Button } from '@/components/ui/Button'
 import { Section } from '@/components/ui/Section'
 import { SectionHeader } from '@/components/ui/SectionHeader'
-import { galleryCategories } from '@/lib/gallery'
 import type { ServiceDetail } from '@/lib/services'
 
 function galleryImagesFor(service: ServiceDetail) {
   const cmsGallery = service.contentBlocks?.find((block) => block.blockType === 'gallery')
   const fromCms = cmsGallery && cmsGallery.blockType === 'gallery' ? cmsGallery.images : []
 
-  // New pipeline: service.sections[] gallery block(s) — flat items and/or
-  // grouped items (e.g. "Kitchens" / "Bathrooms" tabs from WordPress).
+  // Payload sections[] gallery block(s) — flat items and/or grouped items
+  // (e.g. "Kitchens" / "Bathrooms" tabs from WordPress).
   const sectionGalleries = (service.sections || []).filter(
     (section) => section && section.blockType === 'gallery',
   )
@@ -36,21 +35,8 @@ function galleryImagesFor(service: ServiceDetail) {
       .filter((url): url is string => typeof url === 'string')
   })
 
-  const category = service.slug.includes('kitchen')
-    ? galleryCategories.find((item) => item.slug === 'kitchens')
-    : service.slug.includes('bathroom')
-      ? galleryCategories.find((item) => item.slug === 'bathrooms')
-      : service.slug === 'adu' || service.slug === 'additions'
-        ? galleryCategories.find((item) => item.slug === 'adu-additions')
-        : undefined
-
-  const combined = [
-    ...fromSections,
-    ...fromCms,
-    ...service.gallery,
-    ...(category?.images ?? []),
-    service.image,
-  ]
+  // Gallery images come from Payload only — no static category fallback.
+  const combined = [...fromSections, ...fromCms, ...service.gallery, service.image]
   return [...new Set(combined.filter(Boolean))].slice(0, 6)
 }
 
@@ -62,9 +48,10 @@ export function ServiceGallery({ service }: { service: ServiceDetail }) {
     <Section className="bg-white">
       <SectionHeader
         align="center"
-        eyebrow="Our gallery"
-        title="Get inspired"
-        description="See the kind of work we do—from first concept through the finished space—and imagine what the same care would look like in your home."
+        eyebrow="Our Gallery"
+        title="Get Inspired"
+        // WordPress gallery section copy (obvious "rake on" typo corrected).
+        description="Client satisfaction is our #1 priority. No matter the type of project we take on, the entire process, from the consultation to the finishing touches, is handled with a high level of professionalism."
       />
 
       <div className=" mt-10 grid gap-5 sm:grid-cols-3">
@@ -86,7 +73,7 @@ export function ServiceGallery({ service }: { service: ServiceDetail }) {
 
       <div className="mt-10 flex justify-center">
         <Button href="/gallery" variant="outline">
-          View our gallery
+          Visit our gallery
           <ArrowRight className="h-4 w-4" aria-hidden />
         </Button>
       </div>

@@ -25,73 +25,6 @@ export type ServiceOfferingsContent = {
 const kitchenImage = '/services/kitchen-remodeling.jpeg'
 const bathroomImage = '/before-after/bathroom_remodeling_after.jpeg'
 
-const kitchenOfferings: ServiceOfferingsContent = {
-  eyebrow: 'Kitchen remodeling',
-  title: 'Choose a kitchen that reflects your unique style and vision',
-  description:
-    'Our experts never want you to feel limited when it comes to picking your dream kitchen. Explore our most popular designs, or work with us to create your own.',
-  primaryCta: { label: 'View our gallery', href: '/gallery' },
-  secondaryCta: { label: 'Talk to an expert', href: '/contact' },
-  cards: [
-    {
-      title: 'Custom Kitchen',
-      description: 'Create a kitchen that reflects your unique style and vision.',
-      image: kitchenImage,
-      href: '/services/kitchen-remodeling/custom-kitchen-silicon-valley',
-    },
-    {
-      title: 'European Kitchen',
-      description: 'Experience the perfect blend of sophistication and functionality.',
-      image: kitchenImage,
-      href: '/services/kitchen-remodeling/european-kitchen-silicon-valley',
-    },
-    {
-      title: 'Shaker Kitchen',
-      description: 'Discover the classic beauty and versatility of Shaker kitchens.',
-      image: kitchenImage,
-      href: '/services/kitchen-remodeling/shaker-kitchen-silicon-valley',
-    },
-  ],
-}
-
-const bathroomOfferings: ServiceOfferingsContent = {
-  eyebrow: 'Bathroom remodeling',
-  title: 'Witness the beauty of our bathroom transformations',
-  description:
-    'Browse our portfolio to see the results of our bathroom remodeling projects, and experience the Prime Design & Build difference.',
-  primaryCta: { label: 'View our gallery', href: '/gallery' },
-  secondaryCta: { label: 'Talk to an expert', href: '/contact' },
-  cards: [
-    {
-      title: 'Custom Bathtubs',
-      description: 'Create a bathroom that reflects your unique style and vision.',
-      image: bathroomImage,
-      href: '/gallery',
-    },
-    {
-      title: 'Custom Showers',
-      description: 'Experience the perfect blend of sophistication and functionality.',
-      image: bathroomImage,
-      href: '/gallery',
-    },
-    {
-      title: 'Custom Layouts',
-      description: 'See what we can do to transform your layout.',
-      image: bathroomImage,
-      href: '/gallery',
-    },
-  ],
-}
-
-const offeringsBySlug: Record<string, ServiceOfferingsContent> = {
-  'kitchen-remodeling': kitchenOfferings,
-  'bathroom-remodeling': bathroomOfferings,
-}
-
-export function getServiceOfferings(slug: string) {
-  return offeringsBySlug[slug]
-}
-
 export function ServiceOfferingsSection({
   eyebrow,
   title,
@@ -100,12 +33,29 @@ export function ServiceOfferingsSection({
   primaryCta,
   secondaryCta,
   embedded = false,
-}: ServiceOfferingsContent & { embedded?: boolean }) {
+  city,
+}: ServiceOfferingsContent & { embedded?: boolean; city?: string }) {
   if (!cards.length) return null
+
+  // WordPress location pages put the city in the section heading, the card
+  // headings and link the cards to #contact ("Custom Kitchen Remodeling in
+  // {City}" — WP template 1495 Feature Section Juliet). The kitchen heading
+  // is rebuilt with the city; the bathroom heading already matches WP.
+  const shownTitle =
+    city && /kitchen/i.test(title)
+      ? `Kitchen Remodeling in ${city} That Reflects Your Unique Style and Vision.`
+      : title
+  const shownCards = city
+    ? cards.map((card) => ({
+        ...card,
+        title: `${card.title} Remodeling in ${city}`,
+        href: '#contact',
+      }))
+    : cards
 
   const content = (
     <>
-      <SectionHeader align="center" eyebrow={eyebrow} title={title} description={description} />
+      <SectionHeader align="center" eyebrow={eyebrow} title={shownTitle} description={description} />
 
       {(primaryCta || secondaryCta) && (
         <div className="mt-8 flex flex-wrap items-center justify-center gap-3">
@@ -128,7 +78,7 @@ export function ServiceOfferingsSection({
       )}
 
       <div className=" mt-12 grid  gap-x-8 gap-y-10 sm:grid-cols-3">
-        {cards.map((card) => (
+        {shownCards.map((card) => (
           <article key={card.title} className="group flex h-full flex-col">
             <Link
               href={card.href}

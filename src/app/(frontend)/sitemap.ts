@@ -2,8 +2,6 @@ import type { MetadataRoute } from 'next'
 import { getPayload } from 'payload'
 
 import configPromise from '@payload-config'
-import { services } from '@/lib/services'
-import { serviceLocations } from '@/lib/serviceLocations'
 import { shouldUseLocalFallback } from '@/lib/runtime'
 import { blogPosts } from '@/lib/blog'
 import { projects } from '@/lib/projects'
@@ -37,7 +35,9 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     'contact',
   ].map((path) => entry(`${siteUrl}/${path}`, path === '' ? 1 : 0.7))
 
-  let servicePages = services.map((service) => entry(`${siteUrl}/services/${service.slug}`, 0.8))
+  // Services and locations come from Payload only.
+  let servicePages: MetadataRoute.Sitemap = []
+  let locationPages: MetadataRoute.Sitemap = []
 
   const kitchenPages = [
     'european-kitchen-silicon-valley',
@@ -45,9 +45,6 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     'custom-kitchen-silicon-valley',
   ].map((slug) => entry(`${siteUrl}/services/kitchen-remodeling/${slug}`, 0.75))
 
-  let locationPages = serviceLocations.map((location) =>
-    entry(`${siteUrl}/services/${location.serviceSlug}/${location.slug}`, 0.65),
-  )
   let landingPages = listLandingPageSlugs().map((slug) => entry(`${siteUrl}/${slug}`, 0.7))
 
   if (process.env.DATABASE_URL) {
@@ -71,8 +68,8 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
         ? [entry(`${siteUrl}/services/${service}/${record.slug}`, 0.65)]
         : []
     })
-    if (cmsServices.length || !shouldUseLocalFallback()) servicePages = cmsServices
-    if (cmsLocations.length || !shouldUseLocalFallback()) locationPages = cmsLocations
+    servicePages = cmsServices
+    locationPages = cmsLocations
 
     const cmsPages = (payloadPages.docs as unknown as SitemapRecord[])
       .filter((record) => record.seo?.noIndex !== true && record.slug)

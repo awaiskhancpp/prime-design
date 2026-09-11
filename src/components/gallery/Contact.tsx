@@ -7,13 +7,11 @@ import { Section } from '@/components/ui/Section'
 import { Textarea } from '@/components/ui/Textarea'
 import { resolveSiteSettings } from '@/lib/siteSettings'
 
-// Real project walkthrough footage already hosted for the site — using the
-// team-intro clip since it reads as a testimonial in this spot. Swap for a
-// different entry from website.json's `projectVideos` if a different one
-// fits better.
-const featuredVideo = website.projectVideos.find((video) => video.title === 'Client walkthrough')
+// WordPress contact-section walkthrough (template 1495/1584/1639).
+const CONTACT_VIDEO =
+  'https://tagmediaspace.b-cdn.net/Prime%20Kitchens/01.19.2023%20Prime%20Kitchens%201794%20San%20Luis%20Ave%20Mountain%20View.mp4'
 
-export async function Contact() {
+export async function Contact({ city, poster }: { city?: string; poster?: string }) {
   const settings = await resolveSiteSettings()
   const contactDetails = [
     { icon: Mail, label: settings.email, href: settings.emailLink },
@@ -31,7 +29,9 @@ export async function Contact() {
         {/* Left Column: Form & Details */}
         <div className="flex flex-col">
           <p className="mb-4 font-display text-lg italic text-brass-deep">
-            Start crafting your dream project today
+            {city
+              ? `Start Crafting Your Dream Project in ${city} Today`
+              : 'Start crafting your dream project today'}
           </p>
           <h2 className="font-display text-4xl font-medium leading-tight tracking-tight text-ink md:text-5xl">
             Ready to discuss{' '}
@@ -41,8 +41,18 @@ export async function Contact() {
           </h2>
 
           <p className="mt-3 max-w-md text-sm leading-6 text-ink-2/65">
-            To get in touch, simply fill out the form and we&rsquo;ll get back to you within
-            2&ndash;3 hours on business days.
+            Give us a call at{' '}
+            <a
+              href={`tel:${settings.phoneClean}`}
+              className="font-semibold text-brass-deep underline decoration-brass/40 underline-offset-4 hover:text-brass"
+            >
+              {settings.phoneClean}
+            </a>
+          </p>
+
+          <p className="mt-3 max-w-md text-sm leading-6 text-ink-2/65">
+            To get in touch, simply fill out the form on this page and we will get back to you
+            within 2-3 hours on business days.
           </p>
 
           <div className="grid gap-3 pt-6 sm:grid-cols-1">
@@ -119,20 +129,14 @@ export async function Contact() {
             {/* The implemented brass offset frame from your comments */}
 
             <div className="relative  w-full overflow-hidden  bg-ink z-10">
-              {featuredVideo ? (
-                <video
-                  className="h-full w-full object-cover"
-                  controls
-                  playsInline
-                  poster="/services/kitchen-remodeling.jpeg"
-                >
-                  <source src={featuredVideo.videoUrl} type="video/mp4" />
-                </video>
-              ) : (
-                <div className="flex h-full items-center justify-center text-sm text-white/60">
-                  Video coming soon
-                </div>
-              )}
+              <video
+                className="h-full w-full object-cover"
+                controls
+                playsInline
+                poster={poster || '/services/kitchen-remodeling.jpeg'}
+              >
+                <source src={CONTACT_VIDEO} type="video/mp4" />
+              </video>
             </div>
           </div>
         </div>

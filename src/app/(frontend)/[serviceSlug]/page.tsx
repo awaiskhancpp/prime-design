@@ -2,7 +2,7 @@ import type { Metadata } from 'next'
 import { notFound, permanentRedirect, redirect } from 'next/navigation'
 import { PayloadPage } from '@/components/pages/PayloadPage'
 import { LandingPageRenderer } from '@/components/landing/LandingPageRenderer'
-import { getServiceDetailForPath, resolveServiceDetail, servicePathAliases, services } from '@/lib/services'
+import { resolveServiceDetail, servicePathAliases } from '@/lib/services'
 import { listLandingPageSlugs, resolveLandingPage } from '@/lib/landingPages'
 import { resolvePageBySlug } from '@/lib/pages'
 import { resolveRedirect } from '@/lib/redirects'
@@ -26,7 +26,6 @@ export const dynamicParams = true
 
 export function generateStaticParams() {
   return [
-    ...services.map((service) => ({ serviceSlug: service.slug })),
     ...listLandingPageSlugs().map((serviceSlug) => ({ serviceSlug })),
     ...Object.keys(servicePathAliases).map((serviceSlug) => ({ serviceSlug })),
   ]
@@ -57,9 +56,7 @@ export async function generateMetadata({
   // the CMS first, exactly like their canonical `/services/…` twins, so the
   // imported hero/SEO from WordPress drives the metadata.
   const aliasTarget = servicePathAliases[serviceSlug]
-  const service = aliasTarget
-    ? await resolveServiceDetail(aliasTarget)
-    : await getServiceDetailForPath(serviceSlug)
+  const service = await resolveServiceDetail(aliasTarget || serviceSlug)
   if (service) {
     return buildSeoMetadata(service.seo, {
       title: service.title,
@@ -105,9 +102,9 @@ export default async function ServiceSlugRoute({
     permanentRedirect(canonical)
   }
 
-  const service = await getServiceDetailForPath(serviceSlug)
+  const service = await resolveServiceDetail(serviceSlug)
   // Canonical service slugs live under /services/... — redirect there.
-  if (service || services.some((item) => item.slug === serviceSlug)) {
+  if (service) {
     permanentRedirect(`/services/${serviceSlug}`)
   }
 

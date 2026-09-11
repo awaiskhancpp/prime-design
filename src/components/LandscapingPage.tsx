@@ -8,10 +8,12 @@ import { HomeFeatureBlocks } from './blocks/HomeFeatureBlocks'
 import { HomeContact } from './blocks/HomeContact'
 import { HomeProjects } from './blocks/HomeProjects'
 import { LandscapingDifference } from './blocks/LandscapingDifference'
+import { TopBanner } from './layout/TopBanner'
 
 export function LandscapingPage() {
   return (
     <div className="min-h-screen bg-white">
+      <TopBanner />
       <LandscapingHero />
       <LandscapingIntro />
       <LandscapingDifference />

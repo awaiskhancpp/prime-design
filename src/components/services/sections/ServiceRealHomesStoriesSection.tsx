@@ -13,46 +13,26 @@ export type ServiceRealHomesContent = {
   cta: { label: string; href: string }
 }
 
-const defaultTestimonials = [
-  {
-    quote:
-      'Prime Design & Build’s team of experts brought new life to our home. Their commitment to quality and design is unparalleled.',
-    attribution: 'Alex and Sophia',
-  },
-  {
-    quote:
-      'Choosing Prime Design & Build was the best decision we made for our home remodeling. Their expertise and professionalism made the entire process stress-free.',
-    attribution: 'Robert and Laura',
-  },
-  {
-    quote:
-      'Prime Design & Build captured our vision perfectly and delivered exceptional results. Our home now reflects our unique style and personality.',
-    attribution: 'Jonathan and Emma',
-  },
-]
-
-export function getRealHomesContent(service: ServiceDetail): ServiceRealHomesContent {
+export function getRealHomesContent(service: ServiceDetail): ServiceRealHomesContent | undefined {
   const content = service.realHomes
-  if (content?.testimonials?.length) {
-    return {
-      eyebrow: content.eyebrow || '#1 Home Remodeling Company in Silicon Valley',
-      heading: content.heading || 'Real Homes,',
-      headingAccent: content.headingAccent || 'Real Stories',
-      description:
-        content.description ||
-        'Explore the success stories of homeowners who entrusted Prime Design & Build to create their dream living spaces.',
-      testimonials: content.testimonials,
-      cta: content.cta?.label ? { label: content.cta.label, href: content.cta.href || '/contact' } : { label: 'Contact us now', href: '/contact' },
-    }
+  // Content comes from Payload only — render nothing without CMS data.
+  if (!content?.testimonials?.length) return undefined
+  const headingAccent = content.headingAccent || 'Real Stories'
+  // WordPress stores the gradient span flattened into the heading
+  // ("Real Homes, Real Stories"); render it as heading + accent once.
+  let heading = content.heading || 'Real Homes,'
+  if (heading.trim().endsWith(headingAccent)) {
+    heading = `${heading.slice(0, -headingAccent.length).replace(/[\s,]+$/, '')},`
   }
   return {
-    eyebrow: '#1 Home Remodeling Company in Silicon Valley',
-    heading: 'Real Homes,',
-    headingAccent: 'Real Stories',
-    description:
-      'Explore the success stories of homeowners who entrusted Prime Design & Build to create their dream living spaces.',
-    testimonials: defaultTestimonials,
-    cta: { label: 'Contact us now', href: '/contact' },
+    eyebrow: content.eyebrow || '',
+    heading,
+    headingAccent,
+    description: content.description || '',
+    testimonials: content.testimonials,
+    cta: content.cta?.label
+      ? { label: content.cta.label, href: content.cta.href || '/contact' }
+      : { label: '', href: '/contact' },
   }
 }
 
