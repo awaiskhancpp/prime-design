@@ -355,3 +355,53 @@ on WP page 3261 "Kitchen Remodeling Information")
 ```text
 IMPORTED / RENDERED / VERIFIED
 ```
+
+---
+
+# Projects migration — REST list + XML data + existing media
+
+## Source split (per the client)
+- REST `wp-json/wp/v2/project` (paginated, r.jina.ai reader proxy — the
+  domain blocks datacenter IPs): the project list — id, slug, title, date,
+  featured_media. Its `content`/`acf` come back empty.
+- XML export: everything the REST API is missing — `project_gallery`
+  (serialized attachment ids, 6–65 images per project), the serialized map
+  `address` (address/lat/lng/zoom/place_id), `video_url`, `_thumbnail_id`,
+  and the post content for the 6 projects that have one.
+- Images: not downloaded — all 324 attachment filenames were already in the
+  media collection (Vercel Blob, same filenames), so featured images and
+  galleries resolve by filename lookup (324/324 found).
+
+## Mapping (nothing invented)
+| Payload field | Source |
+|---|---|
+| title / slug | REST (XML fallback) |
+| location | WP `address.address` (e.g. "Morgan Hill, CA, USA") |
+| address | full serialized address as JSON (textarea) |
+| summary / description | WP post content only (6 projects have it) |
+| content (richText) | WP post content where present |
+| featuredImage / gallery | attachment URL → media by filename |
+| videoUrl | `video_url` meta |
+| category | left empty — the site's static per-project copy stays as render fallback |
+
+`scripts/migrate-projects.ts` — idempotent upsert by slug; continues past
+per-project errors and prints a per-project report.
+`src/lib/projects.ts` — payload video URLs keep the authored static caption
+(title + project manager) when the URLs match.
+
+## Result (verified against the running app)
+- 18 projects imported, 0 gallery images missing, no failures.
+- `/our-projects` renders from Payload: the grid shows WP map addresses
+  ("Morgan Hill, CA, USA", …) and media images; the hero (heading + lede)
+  is payload-driven from the `pages` record `our-projects` seeded from
+  WordPress page 339 ("Showcasing our latest remodeling projects in Silicon
+  Valley" / "Inspiring Home Makeovers that Reflect Your Style and Enhance
+  Your Lifestyle"); the invented eyebrow and hero copy are gone.
+- Detail pages verified: `/project/morgan-hill-full-home-remodel` shows the
+  WP address + 65-image gallery; `/project/atherton-kitchen-remodeling-projects`
+  shows its address + video walkthrough.
+- Typecheck clean.
+
+```text
+IMPORTED / RENDERED / VERIFIED
+```

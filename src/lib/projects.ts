@@ -281,7 +281,13 @@ function normalizeProject(project: PayloadProject): Project {
     description: project.description || fallback?.description || '',
     heroImage: payloadMediaUrl(project.featuredImage) || fallback?.heroImage || home,
     gallery: gallery?.length ? gallery : fallback?.gallery || [],
-    video: project.videoUrl ? { url: project.videoUrl, title: project.title } : fallback?.video,
+    // When the payload video URL matches the static entry, keep the richer
+    // static caption (title + project manager) that was authored for it.
+    video: project.videoUrl
+      ? fallback?.video?.url === project.videoUrl
+        ? fallback.video
+        : { url: project.videoUrl, title: project.title }
+      : fallback?.video,
   }
 }
 

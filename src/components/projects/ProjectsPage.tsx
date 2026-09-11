@@ -3,6 +3,7 @@ import { LandscapingCta } from '@/components/blocks/LandscapingCta'
 import { LandscapingServiceAreas } from '@/components/blocks/LandscapingServiceAreas'
 import { PageHero } from '@/components/layout/PageHero'
 import { SiteFooter } from '@/components/layout/SiteFooter'
+import { resolvePageBySlug } from '@/lib/pages'
 import { resolveProjects } from '@/lib/projects'
 import { ProjectCard } from './ProjectCard'
 import { ProjectsReviews } from './ProjectsReviews'
@@ -11,13 +12,21 @@ import { ProjectsTrustIntro } from './ProjectsTrustIntro'
 export async function ProjectsPage() {
   const projects = await resolveProjects()
 
+  // The hero comes from the pages collection record "our-projects" (seeded
+  // from WordPress page 339); the hardcoded values below are only a
+  // fallback for local runs without a database.
+  const page = await resolvePageBySlug('our-projects')
+  const hero = page?.hero
+
   return (
     <div className="min-h-screen ">
       <PageHero
-        eyebrow="Our projects"
-        title="Showcasing our latest remodeling projects in Silicon Valley"
-        description="Inspiring home makeovers that reflect your style and enhance your lifestyle."
-        image="/services/home-remodeling.jpeg"
+        title={hero?.heading || 'Showcasing our latest remodeling projects in Silicon Valley'}
+        description={
+          hero?.description ??
+          'Inspiring home makeovers that reflect your style and enhance your lifestyle.'
+        }
+        image={hero?.image || '/services/home-remodeling.jpeg'}
         imageAlt="Completed home remodeling project"
       />
 

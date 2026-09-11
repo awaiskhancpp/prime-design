@@ -51,16 +51,6 @@ export function ProjectCard({ project }: { project: Project }) {
           {project.summary}
         </p>
 
-        {isTruncated && !expanded && (
-          <button
-            type="button"
-            onClick={() => setExpanded(true)}
-            className="mt-1 self-start text-xs font-semibold uppercase tracking-[0.1em] text-brass-deep underline underline-offset-4 hover:text-brass"
-          >
-            See more
-          </button>
-        )}
-
         <Link
           href={`/project/${project.slug}`}
           className="mt-auto inline-flex items-center gap-2 self-start border border-brass px-4 py-2 text-xs font-semibold uppercase tracking-[0.12em] text-brass-deep transition-colors hover:bg-brass hover:text-white"
