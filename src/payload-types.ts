@@ -82,6 +82,7 @@ export interface Config {
     blog: Blog;
     'blog-categories': BlogCategory;
     'landing-pages': LandingPage;
+    'gallery-categories': GalleryCategory;
     'payload-kv': PayloadKv;
     'payload-locked-documents': PayloadLockedDocument;
     'payload-preferences': PayloadPreference;
@@ -104,6 +105,7 @@ export interface Config {
     blog: BlogSelect<false> | BlogSelect<true>;
     'blog-categories': BlogCategoriesSelect<false> | BlogCategoriesSelect<true>;
     'landing-pages': LandingPagesSelect<false> | LandingPagesSelect<true>;
+    'gallery-categories': GalleryCategoriesSelect<false> | GalleryCategoriesSelect<true>;
     'payload-kv': PayloadKvSelect<false> | PayloadKvSelect<true>;
     'payload-locked-documents': PayloadLockedDocumentsSelect<false> | PayloadLockedDocumentsSelect<true>;
     'payload-preferences': PayloadPreferencesSelect<false> | PayloadPreferencesSelect<true>;
@@ -3085,6 +3087,18 @@ export interface LandingPage {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "gallery-categories".
+ */
+export interface GalleryCategory {
+  id: number;
+  title: string;
+  slug: string;
+  images?: (number | Media)[] | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "payload-kv".
  */
 export interface PayloadKv {
@@ -3166,6 +3180,10 @@ export interface PayloadLockedDocument {
     | ({
         relationTo: 'landing-pages';
         value: number | LandingPage;
+      } | null)
+    | ({
+        relationTo: 'gallery-categories';
+        value: number | GalleryCategory;
       } | null);
   globalSlug?: string | null;
   user: {
@@ -5420,6 +5438,17 @@ export interface LandingPagesSelect<T extends boolean = true> {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "gallery-categories_select".
+ */
+export interface GalleryCategoriesSelect<T extends boolean = true> {
+  title?: T;
+  slug?: T;
+  images?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "payload-kv_select".
  */
 export interface PayloadKvSelect<T extends boolean = true> {
@@ -5464,6 +5493,12 @@ export interface PayloadMigrationsSelect<T extends boolean = true> {
  */
 export interface SiteSetting {
   id: number;
+  /**
+   * The thin bar above the header showing location, contact info, and hours.
+   */
+  topBanner?: {
+    enabled?: boolean | null;
+  };
   company?: {
     name?: string | null;
     email?: string | null;
@@ -5476,6 +5511,10 @@ export interface SiteSetting {
      * Working hours line, e.g. "Open: 8am - 6pm (Mon - Fri)".
      */
     hours?: string | null;
+    /**
+     * Where the location text in the top banner links to — your Google Business Profile / Maps listing URL.
+     */
+    mapsUrl?: string | null;
     addresses?:
       | {
           address?: string | null;
@@ -5517,6 +5556,11 @@ export interface SiteSetting {
  * via the `definition` "site-settings_select".
  */
 export interface SiteSettingsSelect<T extends boolean = true> {
+  topBanner?:
+    | T
+    | {
+        enabled?: T;
+      };
   company?:
     | T
     | {
@@ -5528,6 +5572,7 @@ export interface SiteSettingsSelect<T extends boolean = true> {
         phoneCta?: T;
         license?: T;
         hours?: T;
+        mapsUrl?: T;
         addresses?:
           | T
           | {

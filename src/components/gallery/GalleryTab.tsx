@@ -5,7 +5,7 @@ import Image from 'next/image'
 
 import { Section } from '@/components/ui/Section'
 import { cn } from '@/lib/utils'
-import type { GalleryCategory } from '@/lib/gallery'
+import type { GalleryCategory } from '@/lib/gallery.server'
 
 import { Lightbox } from './Lightbox'
 
@@ -120,3 +120,4 @@ export function GalleryTabs({ categories }: { categories: GalleryCategory[] }) {
     </Section>
   )
 }
+

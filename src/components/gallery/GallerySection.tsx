@@ -1,7 +1,7 @@
 import Image from 'next/image'
 
 import { Section } from '@/components/ui/Section'
-import type { GalleryCategory } from '@/lib/gallery'
+import type { GalleryCategory } from '@/lib/gallery.server'
 
 export function GallerySection({ category }: { category: GalleryCategory }) {
   return (
@@ -32,3 +32,4 @@ export function GallerySection({ category }: { category: GalleryCategory }) {
     </Section>
   )
 }
+

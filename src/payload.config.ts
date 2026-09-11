@@ -22,6 +22,7 @@ import { SiteSettings } from './globals/SiteSettings'
 import { Blog } from './collections/Blog'
 import { BlogCategories } from './collections/BlogCategories'
 import { LandingPages } from './collections/LandingPages'
+import { GalleryCategories } from './collections/GalleryCategories'
 
 const filename = fileURLToPath(import.meta.url)
 const dirname = path.dirname(filename)
@@ -49,6 +50,7 @@ export default buildConfig({
     Blog,
     BlogCategories,
     LandingPages,
+    GalleryCategories,
   ],
   globals: [SiteSettings],
   editor: lexicalEditor(),

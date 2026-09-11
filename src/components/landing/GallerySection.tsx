@@ -1,5 +1,5 @@
 import { Section } from '@/components/ui/Section'
-import type { GalleryCategory } from '@/lib/gallery'
+import type { GalleryCategory } from '@/lib/gallery.server'
 import { GalleryGrid } from '@/components/landing/GalleryGrid'
 
 export function GallerySection({ category }: { category: GalleryCategory }) {
@@ -15,3 +15,4 @@ export function GallerySection({ category }: { category: GalleryCategory }) {
     </Section>
   )
 }
+

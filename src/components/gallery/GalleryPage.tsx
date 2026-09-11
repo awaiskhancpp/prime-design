@@ -2,12 +2,15 @@ import { LandscapingCta } from '@/components/blocks/LandscapingCta'
 import { LandscapingServiceAreas } from '@/components/blocks/LandscapingServiceAreas'
 import { SiteFooter } from '@/components/layout/SiteFooter'
 import { PageHero } from '@/components/layout/PageHero'
-import { galleryCategories } from '@/lib/gallery'
+import { getGalleryCategories } from '@/lib/gallery.server'
 import { GalleryTabs } from './GalleryTab'
 import { Contact } from './Contact'
 import { WhyChooseUs } from './WhyChooseUs'
 
-export function GalleryPage() {
+export async function GalleryPage() {
+  // Images come from Payload gallery-categories (WordPress HappyFiles).
+  const categories = await getGalleryCategories()
+
   return (
     <div className="min-h-screen bg-white">
       <PageHero
@@ -19,7 +22,7 @@ export function GalleryPage() {
       />
 
       <main>
-        <GalleryTabs categories={galleryCategories} />
+        <GalleryTabs categories={categories} />
       </main>
       <WhyChooseUs />
       <Contact />

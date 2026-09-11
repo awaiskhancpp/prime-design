@@ -21,6 +21,19 @@ export type SiteSettingsValue = {
     houzz?: string
     bbb?: string
   }
+  topBanner?: { enabled?: boolean | null }
+  company?: {
+    name?: string | null
+    email?: string | null
+    emailLink?: string | null
+    phone?: string | null
+    phoneClean?: string | null
+    phoneCta?: string | null
+    license?: string | null
+    hours?: string | null
+    mapsUrl?: string | null
+    addresses?: Array<{ address?: string | null; link?: string | null }> | null
+  }
 }
 
 export type SiteArea = { name: string; slug: string }
@@ -57,6 +70,7 @@ const localAreas: SiteArea[] = website.serviceAreas.cities.map((name) => ({
 }))
 
 type PayloadSiteSettings = {
+  topBanner?: { enabled?: boolean | null } | null
   company?: {
     name?: string | null
     phone?: string | null
@@ -66,6 +80,7 @@ type PayloadSiteSettings = {
     emailLink?: string | null
     license?: string | null
     hours?: string | null
+    mapsUrl?: string | null
     addresses?: Array<{ address?: string | null; link?: string | null }> | null
   } | null
   socialLinks?: {
@@ -130,5 +145,7 @@ export async function resolveSiteSettings(): Promise<SiteSettingsValue> {
       houzz: textOr(social?.houzz) || localSettings.socialLinks.houzz,
       bbb: textOr(social?.bbb) || localSettings.socialLinks.bbb,
     },
+    topBanner: settings.topBanner ?? undefined,
+    company: settings.company ?? undefined,
   }
 }

@@ -6,6 +6,22 @@ export const SiteSettings: GlobalConfig = {
   label: 'Site Settings',
   fields: [
     {
+      name: 'topBanner',
+      type: 'group',
+      label: 'Top Banner',
+      admin: {
+        description: 'The thin bar above the header showing location, contact info, and hours.',
+      },
+      fields: [
+        {
+          name: 'enabled',
+          type: 'checkbox',
+          defaultValue: true,
+          label: 'Show top banner',
+        },
+      ],
+    },
+    {
       name: 'company',
       type: 'group',
       fields: [
@@ -20,6 +36,15 @@ export const SiteSettings: GlobalConfig = {
           name: 'hours',
           type: 'text',
           admin: { description: 'Working hours line, e.g. "Open: 8am - 6pm (Mon - Fri)".' },
+        },
+        {
+          name: 'mapsUrl',
+          type: 'text',
+          label: 'Google Maps link',
+          admin: {
+            description:
+              'Where the location text in the top banner links to — your Google Business Profile / Maps listing URL.',
+          },
         },
         {
           name: 'addresses',
