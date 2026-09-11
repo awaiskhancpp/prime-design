@@ -1817,6 +1817,10 @@ export interface Page {
     description?: string | null;
     image?: (number | null) | Media;
     video?: (number | null) | Media;
+    cta?: {
+      label?: string | null;
+      href?: string | null;
+    };
   };
   layout?:
     | (
@@ -4462,6 +4466,12 @@ export interface PagesSelect<T extends boolean = true> {
         description?: T;
         image?: T;
         video?: T;
+        cta?:
+          | T
+          | {
+              label?: T;
+              href?: T;
+            };
       };
   layout?:
     | T

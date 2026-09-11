@@ -103,16 +103,6 @@ export async function SiteHeader({
         ) : null}
         <div className="flex items-center gap-5">
           <div className="hidden text-right xl:block">
-            {siteSettings.hours ? (
-              <p
-                className={cn(
-                  'text-[11px] leading-4 tracking-wide',
-                  isLight ? 'text-ink-2/70' : 'text-white/70',
-                )}
-              >
-                {siteSettings.hours}
-              </p>
-            ) : null}
             <a
               href={`tel:${siteSettings.phoneClean}`}
               className={cn(

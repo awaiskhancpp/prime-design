@@ -252,39 +252,69 @@ IMPORTED / RENDERED / VERIFIED
 
 ---
 
-# Blog migration — fixed and imported
+# Blog migration — REST API source, rich-text intro, images kept
 
-## Why it put nothing in before
-1. `payload.create` for blog-categories carried `draft: true`, and the blog
-   `tags` hasMany field had no `blog_tags` table — both made the run fail
-   before/at the first write.
-2. The hand-rolled HTML→Lexical builder produced nodes Payload's rich-text
-   validation rejected ("Cannot use 'in' operator…"), and WordPress 403s
-   the thumbnail downloads, which crashed the featured-image step.
+## Source
+The client's live WordPress REST endpoints:
+`https://primedesignandbuild.com/wp-json/wp/v2/posts` (paginated — all pages pulled),
+`/wp/v2/categories`, with `_embed=1` for featured media. The domain blocks
+datacenter IPs at Cloudflare (403 for pages, media and REST alike), so the
+script fetches through the r.jina.ai reader proxy, which returns the JSON in
+`{ data: { content: "<json>" } }`. The XML export stays as an offline
+fallback. 5 published posts, 4 categories — all imported.
 
-## Fixes
-- `scripts/add-blog-tags-table.mjs` — created the missing `blog_tags` table.
-- `scripts/migrate-blog.ts`:
-  - removed the invalid draft flag; restored it only where the generated
-    types require it,
-  - replaced the hand-rolled Lexical builder with Payload's official
-    `convertHTMLToLexical` (+ jsdom; loose wpautop text wrapped in `<p>`,
-    empty jump anchors and inline `<img>` stripped),
-  - thumbnail resolution: media by filename (case-insensitive) → local
-    uploads dir → download with browser headers → real site image as a
-    flagged placeholder (so every post imports despite the 403s).
-- Frontend already resolved from Payload; `BlogDetailPage` now also renders
-  the free-form `content` rich text (migrated posts) with the sections
-  layout as the fallback.
+## Fixes along the way
+- `intro` is now `richText` (`src/collections/Blog.ts` +
+  `scripts/alter-blog-intro-jsonb.mjs` — column `character varying → jsonb`,
+  legacy strings wrapped as Lexical). `BlogDetailPage` renders it as the
+  lead (`RichTextContent tone="lead"`), with plain-string fallback for the
+  static posts.
+- Excerpts come from the XML `rank_math_description` (the REST auto-excerpt
+  carries the `[…]` truncation marker and is never used); posts without one
+  get an excerpt cut from their own content at a word boundary.
+- **Authors come from the XML `<wp:author>` list** (the REST API only gives
+  a numeric author id). Each WP author becomes a payload user (matched by
+  email, created with the WP display name): "Prime Design & Build" and
+  "Tahor R Graves" (Designing with Intent). `blog.author` points at those
+  users, so the hero byline is payload-driven.
+- **Blog index hero is payload-driven**: the pages collection got a
+  `hero.cta` group (`hero_cta_label`/`hero_cta_href` columns added) and a
+  `pages` record slug `blog` seeded from WordPress page 1670 — heading
+  "See our blog", the exact WP lede text, and the "Let's discuss your
+  project" button. `BlogPage` resolves it via `resolvePageBySlug('blog')`
+  and falls back to the previous hardcoded copy only when no database is
+  available.
+- WordPress images are **kept**. Each `<img>` is resolved (media by
+  source_url → filename → local uploads dir → live download → Wayback) and
+  rewritten with `data-lexical-upload-relation-to="media"` +
+  `data-lexical-upload-id="<id>"`, which the official converter turns into a
+  real upload node; node values are normalized to numeric IDs for postgres
+  validation. Handles both `>` and ` />` tag endings (the earlier regex
+  silently skipped `title="">` tags, leaving invalid pending nodes).
+- Unobtainable images (Cloudflare 403 on all wp-content files, expired
+  Google Docs keys, no Wayback copies) keep their place via dedicated
+  `_pending_<slug>-<file>` media records that carry the original filename,
+  alt and source_url and currently serve a real site image — replacing the
+  file in the Payload admin restores the exact WordPress image in place.
+- Featured images: Prime20 real (Designing with Intent); the other 4 are
+  flagged placeholder thumbnails (their files are Cloudflare-blocked).
 
-## Result
-All 5 WordPress posts imported (blog + blog-categories + media):
-Eco-Friendly Kitchen Remodeling, Winterization Checklist, Design First,
-Designing with Intent (real WP thumbnail), Cabinetry Done Right.
-`/blog` renders the 5 posts from Payload; every detail page renders the
-migrated WP rich-text body (headings/lists/links). 4 posts use a flagged
-placeholder thumbnail (their WP thumbnails 403 — replace in the admin or
-supply the files). Typecheck clean.
+## Frontend
+- Hero extracted to `src/components/blog/BlogPostHero.tsx` (payload-driven —
+  categories/title/author/date/featured image all from the resolved post);
+  `BlogDetailPage` imports it.
+- Blog index (`BlogPage.tsx`) now matches WordPress exactly: h1
+  "See our blog", the full WP lede (with its `<strong>`/`<em>` inline
+  formatting — `PageHero.description` now accepts rich text), button
+  "Let's discuss your project". The invented eyebrow/description are gone.
+
+## Result (verified against the running app, HTTP 200)
+- `/blog` — WP hero copy + button, 5 cards, no `[…]` markers.
+- All 5 detail pages render the live WordPress content: Cabinetry (incl.
+  "Noah Brief" seminar copy, 9 images), Designing with Intent (YouTube
+  video link, Palomar Park copy, 3 images), Winterization (checklist lists +
+  image), Design First, Eco-Friendly Kitchen.
+- Media endpoints serve 200; typecheck clean.
 
 ```text
 IMPORTED / RENDERED / VERIFIED

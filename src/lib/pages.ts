@@ -25,6 +25,7 @@ export type Page = {
     heading?: string
     description?: string
     image?: string
+    cta?: { label?: string; href?: string }
   }
   layout: PageBlock[]
   isGoogleAdsPage: boolean
@@ -47,6 +48,7 @@ type PayloadPage = {
     heading?: string | null
     description?: string | null
     image?: number | PayloadMedia | null
+    cta?: { label?: string | null; href?: string | null } | null
   } | null
   layout?: Array<Record<string, unknown>> | null
   isGoogleAdsPage?: boolean | null
@@ -154,6 +156,12 @@ export async function resolvePageBySlug(slug: string): Promise<Page | undefined>
           heading: record.hero.heading || undefined,
           description: record.hero.description || undefined,
           image: mediaUrl(record.hero.image),
+          cta: record.hero.cta?.label
+            ? {
+                label: record.hero.cta.label,
+                href: record.hero.cta.href || undefined,
+              }
+            : undefined,
         }
       : undefined,
     layout: normalizeBlocks(record.layout),

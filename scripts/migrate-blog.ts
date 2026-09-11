@@ -57,11 +57,32 @@ type WordPressBlogPost = {
   date: string
   content: string
   categories: string[]
+  /** WordPress author id — resolved to a payload user via the XML author list. */
+  authorId?: number
   thumbnailId?: number
   /** Direct featured-image URL (REST source) — preferred over thumbnailId. */
   thumbnailUrl?: string
   excerptFromRankMath?: string
   sourceUrl?: string
+}
+
+type WordPressAuthor = { id: number; login: string; email: string; displayName: string }
+
+/** The XML export's <wp:author> list — the byline source for blog posts. */
+function parseXmlAuthors(xml: string): Map<number, WordPressAuthor> {
+  const authors = new Map<number, WordPressAuthor>()
+  for (const match of xml.matchAll(/<wp:author>([\s\S]*?)<\/wp:author>/g)) {
+    const block = match[1]
+    const id = Number(block.match(/<wp:author_id>([^<]*)<\/wp:author_id>/)?.[1])
+    const login = block.match(/<wp:author_login><!\[CDATA\[([^\]]*)\]\]><\/wp:author_login>/)?.[1] ?? ''
+    const email = block.match(/<wp:author_email><!\[CDATA\[([^\]]*)\]\]><\/wp:author_email>/)?.[1] ?? ''
+    const displayName =
+      htmlToText(
+        block.match(/<wp:author_display_name><!\[CDATA\[([^\]]*)\]\]><\/wp:author_display_name>/)?.[1] ?? '',
+      ) || login
+    if (id) authors.set(id, { id, login, email, displayName })
+  }
+  return authors
 }
 
 function parseBlogPosts(xml: string): WordPressBlogPost[] {
@@ -112,6 +133,20 @@ const htmlToText = (html: string) => {
   }
 }
 
+/**
+ * Excerpt fallback for posts whose WordPress excerpt carries the "[…]"
+ * truncation marker (the REST API's auto-excerpt) and that have no
+ * rank_math_description in the XML export. Cut the post's own text at a
+ * word boundary instead of inventing copy.
+ */
+const contentExcerpt = (content: string, length = 200) => {
+  const text = htmlToText(content)
+  if (text.length <= length) return text
+  const cut = text.slice(0, length)
+  const lastSpace = cut.lastIndexOf(' ')
+  return `${cut.slice(0, lastSpace > 60 ? lastSpace : length).trim()}…`
+}
+
 async function wpRestJson<T>(path: string): Promise<T | undefined> {
   for (let attempt = 0; attempt <= 2; attempt++) {
     try {
@@ -139,7 +174,7 @@ type RestPost = {
   date: string
   title: { rendered: string }
   content: { rendered: string }
-  excerpt: { rendered: string }
+  author: number
   categories: number[]
   _embedded?: {
     'wp:featuredmedia'?: Array<{ source_url?: string }>
@@ -156,7 +191,6 @@ async function fetchRestPosts(): Promise<WordPressBlogPost[] | undefined> {
     if (!pagePosts?.length) break
     for (const post of pagePosts) {
       const title = htmlToText(post.title.rendered)
-      const excerpt = htmlToText(post.excerpt.rendered)
       if (!post.id || !title || !post.content?.rendered) continue
       posts.push({
         id: post.id,
@@ -170,7 +204,10 @@ async function fetchRestPosts(): Promise<WordPressBlogPost[] | undefined> {
           .map((id) => categoryNames.get(id))
           .filter((name): name is string => Boolean(name) && name !== 'Uncategorized'),
         thumbnailUrl: post._embedded?.['wp:featuredmedia']?.[0]?.source_url,
-        excerptFromRankMath: excerpt || undefined,
+        // The byline comes from the XML author list (resolved by this id);
+        // the excerpt comes from the XML export (rank_math_description) — the
+        // REST auto-excerpt is truncated with "[…]", so it's never used.
+        authorId: post.author || undefined,
         sourceUrl: post.link,
       })
     }
@@ -587,6 +624,41 @@ async function main() {
       ? `  got ${restPosts.length} post(s) from ${WP_REST_BASE}/posts (all pages)`
       : '  REST API unreachable — falling back to the XML export',
   )
+
+  // Excerpts come from the XML export's rank_math_description (the REST
+  // auto-excerpt is truncated with "[…]"). Posts without one get an excerpt
+  // cut from their own content.
+  const rankMathByPostId = new Map<number, string>()
+  for (const match of xml.matchAll(/<item>([\s\S]*?)<\/item>/g)) {
+    const item = match[1]
+    if (field(item, 'wp:post_type') !== 'post') continue
+    const id = Number(field(item, 'wp:post_id'))
+    const description = metaValue(item, 'rank_math_description')
+    if (id && description) rankMathByPostId.set(id, description)
+  }
+  for (const post of posts) {
+    post.excerptFromRankMath = rankMathByPostId.get(post.id) ?? contentExcerpt(post.content)
+  }
+
+  // Authors come from the XML export's <wp:author> list. The REST API only
+  // gives a numeric author id; the display name, email and login all live in
+  // the XML. XML-fallback posts are matched by their dc:creator login.
+  const xmlAuthors = parseXmlAuthors(xml)
+  const creatorByPostId = new Map<number, string>()
+  for (const match of xml.matchAll(/<item>([\s\S]*?)<\/item>/g)) {
+    const item = match[1]
+    if (field(item, 'wp:post_type') !== 'post') continue
+    const id = Number(field(item, 'wp:post_id'))
+    const creator = item.match(/<dc:creator><!\[CDATA\[([^\]]*)\]\]><\/dc:creator>/)?.[1]
+    if (id && creator) creatorByPostId.set(id, creator)
+  }
+  const authorByLogin = new Map([...xmlAuthors.values()].map((author) => [author.login, author]))
+  for (const post of posts) {
+    if (post.authorId != null) continue
+    const login = creatorByPostId.get(post.id)
+    post.authorId = login ? authorByLogin.get(login)?.id : undefined
+  }
+
   const localFiles = await fileIndex(uploadsPath)
 
   const attachments = new Map<number, { title: string; url: string }>()
@@ -637,6 +709,49 @@ async function main() {
         categoryIds.set(name, Number(record.id))
       }
       categoryRelIds.push(categoryIds.get(name)!)
+    }
+
+    // Author byline — resolved from the XML <wp:author> list to a payload
+    // user (found by email, created with the WP display name when missing).
+    let authorUserId: number | undefined
+    const wpAuthor = post.authorId ? xmlAuthors.get(post.authorId) : undefined
+    if (wpAuthor?.email) {
+      const existingUser = await payload.find({
+        collection: 'users',
+        where: { email: { equals: wpAuthor.email } },
+        limit: 1,
+        overrideAccess: true,
+      })
+      if (existingUser.docs[0]) {
+        authorUserId = Number(existingUser.docs[0].id)
+        if (!(existingUser.docs[0] as { name?: string }).name && wpAuthor.displayName) {
+          await payload.update({
+            collection: 'users',
+            id: existingUser.docs[0].id,
+            data: { name: wpAuthor.displayName },
+            overrideAccess: true,
+          })
+        }
+      } else {
+        const created = await payload
+          .create({
+            collection: 'users',
+            data: {
+              email: wpAuthor.email,
+              password: crypto.randomUUID(),
+              name: wpAuthor.displayName,
+            },
+            overrideAccess: true,
+          })
+          .catch((error: unknown) => {
+            console.error(
+              `   ! user create failed for ${wpAuthor.email}:`,
+              error instanceof Error ? error.message : error,
+            )
+            return undefined
+          })
+        if (created) authorUserId = Number(created.id)
+      }
     }
 
     // Featured image — required by the schema. Resolution order: an
@@ -741,6 +856,7 @@ async function main() {
       excerpt: post.excerptFromRankMath?.slice(0, 300),
       featuredImage: featuredImageId,
       categories: categoryRelIds,
+      author: authorUserId,
       intro: safeIntro,
       content: safeContent,
       seo: post.excerptFromRankMath ? { metaDescription: post.excerptFromRankMath } : undefined,
@@ -768,6 +884,46 @@ async function main() {
       console.error(JSON.stringify(details ?? (error as Error).message, null, 2).slice(0, 6000))
       report.push({ title: post.title, slug: post.slug, status: 'FAILED — see error above' })
     }
+  }
+
+  // The blog index hero — WordPress page 1670 "Blog" (Bricks: h1
+  // "See our blog", lede text-basic, button "Let's discuss your project").
+  // Stored on the pages collection so BlogPage renders it from Payload.
+  const WP_BLOG_LEDE =
+    "This is where we share our knowledge and insights about everything related to remodeling. Whether you're looking for advice on a remodeling project, exploring options for your home, or seeking updates on the latest trends in the industry, you've come to the right place!"
+  const blogPage = await payload.find({
+    collection: 'pages',
+    where: { slug: { equals: 'blog' } },
+    limit: 1,
+  })
+  const blogPageData = {
+    title: 'Blog',
+    hero: {
+      heading: 'See our blog',
+      description: WP_BLOG_LEDE,
+      cta: { label: "Let's discuss your project", href: '/contact' },
+    },
+  }
+  try {
+    if (blogPage.docs[0]) {
+      await payload.update({
+        collection: 'pages',
+        id: blogPage.docs[0].id,
+        data: blogPageData as never,
+      })
+      console.log('↳ updated pages record "blog" (hero)')
+    } else {
+      await payload.create({
+        collection: 'pages',
+        data: { ...blogPageData, slug: 'blog', isGoogleAdsPage: false } as never,
+      })
+      console.log('↳ created pages record "blog" (hero)')
+    }
+  } catch (error) {
+    console.error(
+      '   ✗ pages record "blog" failed:',
+      error instanceof Error ? error.message : error,
+    )
   }
 
   console.table(report)

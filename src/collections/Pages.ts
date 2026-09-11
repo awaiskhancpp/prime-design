@@ -21,6 +21,14 @@ export const Pages: CollectionConfig = {
         { name: 'description', type: 'textarea' },
         { name: 'image', type: 'upload', relationTo: 'media' },
         { name: 'video', type: 'upload', relationTo: 'media' },
+        {
+          name: 'cta',
+          type: 'group',
+          fields: [
+            { name: 'label', type: 'text' },
+            { name: 'href', type: 'text' },
+          ],
+        },
       ],
     },
     { name: 'layout', type: 'blocks', blocks: PageBlocks },

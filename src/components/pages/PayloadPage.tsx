@@ -17,6 +17,11 @@ export function PayloadPage({ page }: { page: Page }) {
         description={page.hero?.description}
         image={page.hero?.image || '/services/home-remodeling.jpeg'}
         imageAlt={page.title}
+        cta={
+          page.hero?.cta?.label
+            ? { label: page.hero.cta.label, href: page.hero.cta.href || '/contact' }
+            : undefined
+        }
       />
       <main>
         {page.layout.map((block, index) => {

@@ -5,26 +5,41 @@ import { SiteFooter } from '@/components/layout/SiteFooter'
 import { PageHero } from '@/components/layout/PageHero'
 import { Section } from '@/components/ui/Section'
 import { resolveBlogPosts } from '@/lib/blog'
+import { resolvePageBySlug } from '@/lib/pages'
 import { BlogCard } from './BlogCard'
+import { ServiceEstimateCta } from '../services/ServiceEstimateCta'
 
 export async function BlogPage() {
   const blogPosts = await resolveBlogPosts()
 
+  // The hero comes from the pages collection record "blog" (seeded from
+  // WordPress page 1670); the hardcoded values below are only a fallback
+  // for local runs without a database.
+  const page = await resolvePageBySlug('blog')
+  const hero = page?.hero
+
   return (
     <div className="min-h-screen bg-white">
       <PageHero
-        title="See our blog"
+        title={hero?.heading || 'See our blog'}
         description={
-          <>
-            This is where we share our knowledge and insights about everything related to
-            remodeling. Whether you're looking for <strong>advice</strong> on a remodeling
-            project, <em>exploring options for your home</em>, or <strong>seeking updates</strong>{' '}
-            on the latest trends in the industry, you've come to the right place!
-          </>
+          hero?.description ?? (
+            <>
+              This is where we share our knowledge and insights about everything related to
+              remodeling. Whether you&apos;re looking for <strong>advice</strong> on a remodeling
+              project, <em>exploring options for your home</em>, or{' '}
+              <strong>seeking updates</strong> on the latest trends in the industry, you&apos;ve
+              come to the right place!
+            </>
+          )
         }
-        image="/services/kitchen-remodeling.jpeg"
+        image={hero?.image || '/services/kitchen-remodeling.jpeg'}
         imageAlt="Kitchen remodeling project"
-        cta={{ label: "Let's discuss your project", href: '/contact' }}
+        cta={
+          hero?.cta?.label
+            ? { label: hero.cta.label, href: hero.cta.href || '/contact' }
+            : { label: "Let's discuss your project", href: '/contact' }
+        }
       />
 
       <Section className="bg-white pt-0">
@@ -34,7 +49,7 @@ export async function BlogPage() {
           ))}
         </div>
       </Section>
-
+      <ServiceEstimateCta />
       <ProjectsReviews />
       <LandscapingServiceAreas />
       <LandscapingCta />
