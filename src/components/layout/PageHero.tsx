@@ -99,7 +99,7 @@ export function PageHero({
             </p>
           ) : null}
           <h1
-            className={`font-display text-5xl font-medium leading-tight tracking-tight md:text-7xl ${isCentered ? 'mx-auto max-w-5xl' : 'max-w-5xl'}`}
+            className={`font-display text-5xl font-medium leading-tight tracking-tight md:text-7xl ${isCentered ? 'mx-auto max-w-5xl' : 'max-w-4xl'}`}
           >
             {title}
           </h1>
