@@ -4,9 +4,6 @@ import { LandscapingServiceAreas } from '@/components/blocks/LandscapingServiceA
 import { ServiceAreasStrip } from './ServiceAreasStrip'
 import { WhyChooseUs } from '@/components/gallery/WhyChooseUs'
 import { Contact as GalleryContact } from '@/components/gallery/Contact'
-import { LandscapingCta } from '@/components/blocks/LandscapingCta'
-import { SiteFooter } from '@/components/layout/SiteFooter'
-import { SiteHeader } from '@/components/layout/SiteHeader'
 import { Section } from '@/components/ui/Section'
 import type { ServiceDetail } from '@/lib/services'
 
@@ -753,7 +750,6 @@ export function ServiceTemplate({ service }: { service: ServiceDetail }) {
 
   return (
     <div className="min-h-screen bg-white">
-      <SiteHeader />
       <main>
         <ServiceHero service={service} />
         {sections.videoFirst ? <div>{videoSection}</div> : null}
@@ -761,8 +757,6 @@ export function ServiceTemplate({ service }: { service: ServiceDetail }) {
           <div key={key}>{node}</div>
         ))}
       </main>
-      <LandscapingCta />
-      <SiteFooter />
     </div>
   )
 }

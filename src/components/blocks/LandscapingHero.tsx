@@ -1,43 +1,41 @@
+import { CalendarDays, ArrowRight } from 'lucide-react'
+
+import { PageHero } from '@/components/layout/PageHero'
 import { Button } from '@/components/ui/Button'
-import { Container } from '@/components/ui/Container'
+import { HighlightedText } from '@/components/ui/HighlightedText'
+import type { HomepageHero } from '@/lib/homepage'
+import { localHeroVideo } from '@/lib/homepage'
 
-import { SiteHeader } from '@/components/layout/SiteHeader'
-import { ArrowRight, CalendarDays } from 'lucide-react'
+/**
+ * The site's one centered hero — reserved for this primary/homepage
+ * placement. Every other page hero uses PageHero's left-aligned layout.
+ * Content comes from the Homepage global; the WordPress hero video stays
+ * the fallback until a video is uploaded in the CMS.
+ */
+export function LandscapingHero({ hero }: { hero?: HomepageHero }) {
+  const video = hero?.video || localHeroVideo
+  const image = hero?.image
+  const cta = hero?.cta
+  const heading = hero?.heading || 'Top-rated design and build firm in the Bay Area'
 
-export function LandscapingHero() {
   return (
-    <section className="relative isolate flex min-h-screen items-end overflow-hidden bg-ink pb-16 pt-36 text-white  lg:pb-24">
-      <video
-        className="absolute inset-0 z-0 h-full w-full object-cover"
-        autoPlay
-        muted
-        loop
-        playsInline
-        preload="metadata"
-        poster="/services/home-remodeling.jpeg"
-        aria-hidden="true"
-      >
-        <source
-          src="/Prime%20Design%20Build%20Silicon%20Valleys%20Premier%20Home%20Remodeling%20Exper.mp4"
-          type="video/mp4"
-        />
-      </video>
-      <div className="pointer-events-none absolute inset-0 z-[1] bg-[linear-gradient(90deg,rgba(20,33,61,0.9)_0%,rgba(20,33,61,0.68)_45%,rgba(20,33,61,0.38)_100%),linear-gradient(0deg,rgba(20,33,61,0.76)_0%,transparent_65%)]" />
-      {/* <div className="pointer-events-none absolute inset-0 z-[1] opacity-20 [background-image:linear-gradient(135deg,transparent_0%,rgba(255,255,255,0.35)_45%,transparent_46%),linear-gradient(45deg,transparent_0%,rgba(255,255,255,0.18)_50%,transparent_51%)] [background-size:4rem_4rem]" /> */}
-      <SiteHeader />
-      <Container className="relative z-10 w-full">
-        <div className="max-w-3xl">
-          <h1 className="max-w-2xl font-display text-5xl font-medium leading-tight tracking-tight md:text-7xl">
-            Top-rated design and build firm in the Bay Area
-          </h1>
-
-          <div className="mt-6 flex flex-wrap gap-2">
-            <Button href="/contact" variant="primary">
-              <CalendarDays /> Schedule a Consultation <ArrowRight />
-            </Button>
-          </div>
+    <PageHero
+      align="center"
+      eyebrow={hero?.eyebrow}
+      title={<HighlightedText text={heading} highlight={hero?.headingHighlight} />}
+      description={hero?.description}
+      backgroundVideo={video}
+      videoPoster={image}
+      image={image}
+      imageAlt="Prime Design & Build home remodeling project"
+    >
+      {cta?.label ? (
+        <div className="mt-6 flex flex-wrap justify-center gap-2">
+          <Button href={cta.href || '/contact'} variant="primary">
+            <CalendarDays /> {cta.label} <ArrowRight />
+          </Button>
         </div>
-      </Container>
-    </section>
+      ) : null}
+    </PageHero>
   )
 }

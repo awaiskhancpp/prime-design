@@ -20,6 +20,17 @@ export const Projects: CollectionConfig = {
     { name: 'gallery', type: 'upload', relationTo: 'media', hasMany: true },
     { name: 'address', type: 'textarea' },
     { name: 'videoUrl', type: 'text' },
+    {
+      name: 'featured',
+      type: 'checkbox',
+      defaultValue: false,
+      label: 'Featured on homepage',
+      admin: {
+        description:
+          'Checked projects are shown on the homepage "Our Latest Remodeling Projects" grid. When none are checked, the six most recent projects are shown instead.',
+        position: 'sidebar',
+      },
+    },
     ...SEOFields,
   ],
 }

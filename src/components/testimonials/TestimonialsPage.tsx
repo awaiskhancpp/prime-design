@@ -1,9 +1,6 @@
 import Image from 'next/image'
 
-import { LandscapingCta } from '@/components/blocks/LandscapingCta'
 import { LandscapingServiceAreas } from '@/components/blocks/LandscapingServiceAreas'
-import { SiteFooter } from '@/components/layout/SiteFooter'
-import { SiteHeader } from '@/components/layout/SiteHeader'
 import { Section } from '@/components/ui/Section'
 import website from '../../../website.json'
 import type { Testimonial } from '@/lib/testimonials'
@@ -73,7 +70,6 @@ export function TestimonialsPage() {
 
   return (
     <div className="min-h-screen bg-paper">
-      <SiteHeader tone="dark" />
       <PageHero
         eyebrow="Testimonials"
         title="Hear from our satisfied customers"
@@ -167,8 +163,6 @@ export function TestimonialsPage() {
       <TestimonialsSpotlight />
 
       <LandscapingServiceAreas />
-      <LandscapingCta />
-      <SiteFooter />
     </div>
   )
 }

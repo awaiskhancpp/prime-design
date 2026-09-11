@@ -1,6 +1,4 @@
-import { LandscapingCta } from '@/components/blocks/LandscapingCta'
 import { LandscapingServiceAreas } from '@/components/blocks/LandscapingServiceAreas'
-import { SiteFooter } from '@/components/layout/SiteFooter'
 import { PageHero } from '@/components/layout/PageHero'
 import { getGalleryCategories } from '@/lib/gallery.server'
 import { GalleryTabs } from './GalleryTab'
@@ -28,8 +26,6 @@ export async function GalleryPage() {
       <Contact />
 
       <LandscapingServiceAreas />
-      <LandscapingCta />
-      <SiteFooter />
     </div>
   )
 }

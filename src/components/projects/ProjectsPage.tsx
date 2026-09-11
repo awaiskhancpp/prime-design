@@ -1,8 +1,6 @@
 import { Section } from '@/components/ui/Section'
-import { LandscapingCta } from '@/components/blocks/LandscapingCta'
 import { LandscapingServiceAreas } from '@/components/blocks/LandscapingServiceAreas'
 import { PageHero } from '@/components/layout/PageHero'
-import { SiteFooter } from '@/components/layout/SiteFooter'
 import { resolvePageBySlug } from '@/lib/pages'
 import { resolveProjects } from '@/lib/projects'
 import { ProjectCard } from './ProjectCard'
@@ -41,8 +39,6 @@ export async function ProjectsPage() {
       <ProjectsTrustIntro />
       <ProjectsReviews />
       <LandscapingServiceAreas />
-      <LandscapingCta />
-      <SiteFooter />
     </div>
   )
 }

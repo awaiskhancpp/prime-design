@@ -117,9 +117,11 @@ export interface Config {
   fallbackLocale: null;
   globals: {
     'site-settings': SiteSetting;
+    homepage: Homepage;
   };
   globalsSelect: {
     'site-settings': SiteSettingsSelect<false> | SiteSettingsSelect<true>;
+    homepage: HomepageSelect<false> | HomepageSelect<true>;
   };
   locale: null;
   widgets: {
@@ -1908,6 +1910,10 @@ export interface Project {
   gallery?: (number | Media)[] | null;
   address?: string | null;
   videoUrl?: string | null;
+  /**
+   * Checked projects are shown on the homepage "Our Latest Remodeling Projects" grid. When none are checked, the six most recent projects are shown instead.
+   */
+  featured?: boolean | null;
   seo?: {
     metaTitle?: string | null;
     metaDescription?: string | null;
@@ -4564,6 +4570,7 @@ export interface ProjectsSelect<T extends boolean = true> {
   gallery?: T;
   address?: T;
   videoUrl?: T;
+  featured?: T;
   seo?:
     | T
     | {
@@ -5553,6 +5560,171 @@ export interface SiteSetting {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "homepage".
+ */
+export interface Homepage {
+  id: number;
+  hero?: {
+    eyebrow?: string | null;
+    heading?: string | null;
+    /**
+     * Word(s) of the heading to render in the accent color, e.g. "design and build". Separate multiple phrases with |.
+     */
+    headingHighlight?: string | null;
+    description?: string | null;
+    image?: (number | null) | Media;
+    video?: (number | null) | Media;
+    cta?: {
+      label?: string | null;
+      href?: string | null;
+    };
+  };
+  intro?: {
+    eyebrow?: string | null;
+    heading?: string | null;
+    body?: {
+      root: {
+        type: string;
+        children: {
+          type: any;
+          version: number;
+          [k: string]: unknown;
+        }[];
+        direction: ('ltr' | 'rtl') | null;
+        format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+        indent: number;
+        version: number;
+      };
+      [k: string]: unknown;
+    } | null;
+    image?: (number | null) | Media;
+  };
+  difference?: {
+    eyebrow?: string | null;
+    heading?: string | null;
+    /**
+     * Word(s) of the heading to render in the accent color, e.g. "Difference". Separate multiple phrases with |.
+     */
+    headingHighlight?: string | null;
+    /**
+     * The "Why choose" checklist (lead renders bold, text renders after it). WordPress items only.
+     */
+    checklist?:
+      | {
+          lead?: string | null;
+          text?: string | null;
+          id?: string | null;
+        }[]
+      | null;
+  };
+  projectsIntro?: {
+    eyebrow?: string | null;
+    heading?: string | null;
+    body?: {
+      root: {
+        type: string;
+        children: {
+          type: any;
+          version: number;
+          [k: string]: unknown;
+        }[];
+        direction: ('ltr' | 'rtl') | null;
+        format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+        indent: number;
+        version: number;
+      };
+      [k: string]: unknown;
+    } | null;
+  };
+  servicesIntro?: {
+    eyebrow?: string | null;
+    heading?: string | null;
+    body?: {
+      root: {
+        type: string;
+        children: {
+          type: any;
+          version: number;
+          [k: string]: unknown;
+        }[];
+        direction: ('ltr' | 'rtl') | null;
+        format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+        indent: number;
+        version: number;
+      };
+      [k: string]: unknown;
+    } | null;
+  };
+  featureBlocks?: {
+    eyebrow?: string | null;
+    title?: string | null;
+    /**
+     * Word(s) of the title to render in the accent color, e.g. "We do it all". Separate multiple phrases with |.
+     */
+    titleHighlight?: string | null;
+    /**
+     * Before/after feature cards (WordPress: Bathroom Remodeling, Complete Home Renovation).
+     */
+    items?:
+      | {
+          title?: string | null;
+          body?: {
+            root: {
+              type: string;
+              children: {
+                type: any;
+                version: number;
+                [k: string]: unknown;
+              }[];
+              direction: ('ltr' | 'rtl') | null;
+              format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+              indent: number;
+              version: number;
+            };
+            [k: string]: unknown;
+          } | null;
+          ctaLabel?: string | null;
+          ctaHref?: string | null;
+          beforeImage?: (number | null) | Media;
+          afterImage?: (number | null) | Media;
+          id?: string | null;
+        }[]
+      | null;
+  };
+  contactIntro?: {
+    eyebrow?: string | null;
+    heading?: string | null;
+    /**
+     * Word(s) of the heading to render in the accent color, e.g. "today". Separate multiple phrases with |.
+     */
+    headingHighlight?: string | null;
+    body?: {
+      root: {
+        type: string;
+        children: {
+          type: any;
+          version: number;
+          [k: string]: unknown;
+        }[];
+        direction: ('ltr' | 'rtl') | null;
+        format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+        indent: number;
+        version: number;
+      };
+      [k: string]: unknown;
+    } | null;
+  };
+  serviceAreas?: {
+    /**
+     * Heading only — the city list is shared site-wide via Site Settings service areas.
+     */
+    heading?: string | null;
+  };
+  updatedAt?: string | null;
+  createdAt?: string | null;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "site-settings_select".
  */
 export interface SiteSettingsSelect<T extends boolean = true> {
@@ -5606,6 +5778,98 @@ export interface SiteSettingsSelect<T extends boolean = true> {
         ogTitle?: T;
         ogDescription?: T;
         ogImage?: T;
+      };
+  updatedAt?: T;
+  createdAt?: T;
+  globalType?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "homepage_select".
+ */
+export interface HomepageSelect<T extends boolean = true> {
+  hero?:
+    | T
+    | {
+        eyebrow?: T;
+        heading?: T;
+        headingHighlight?: T;
+        description?: T;
+        image?: T;
+        video?: T;
+        cta?:
+          | T
+          | {
+              label?: T;
+              href?: T;
+            };
+      };
+  intro?:
+    | T
+    | {
+        eyebrow?: T;
+        heading?: T;
+        body?: T;
+        image?: T;
+      };
+  difference?:
+    | T
+    | {
+        eyebrow?: T;
+        heading?: T;
+        headingHighlight?: T;
+        checklist?:
+          | T
+          | {
+              lead?: T;
+              text?: T;
+              id?: T;
+            };
+      };
+  projectsIntro?:
+    | T
+    | {
+        eyebrow?: T;
+        heading?: T;
+        body?: T;
+      };
+  servicesIntro?:
+    | T
+    | {
+        eyebrow?: T;
+        heading?: T;
+        body?: T;
+      };
+  featureBlocks?:
+    | T
+    | {
+        eyebrow?: T;
+        title?: T;
+        titleHighlight?: T;
+        items?:
+          | T
+          | {
+              title?: T;
+              body?: T;
+              ctaLabel?: T;
+              ctaHref?: T;
+              beforeImage?: T;
+              afterImage?: T;
+              id?: T;
+            };
+      };
+  contactIntro?:
+    | T
+    | {
+        eyebrow?: T;
+        heading?: T;
+        headingHighlight?: T;
+        body?: T;
+      };
+  serviceAreas?:
+    | T
+    | {
+        heading?: T;
       };
   updatedAt?: T;
   createdAt?: T;

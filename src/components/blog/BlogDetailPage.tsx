@@ -1,9 +1,6 @@
 import Image from 'next/image'
 
-import { LandscapingCta } from '@/components/blocks/LandscapingCta'
 import { LandscapingServiceAreas } from '@/components/blocks/LandscapingServiceAreas'
-import { SiteFooter } from '@/components/layout/SiteFooter'
-import { SiteHeader } from '@/components/layout/SiteHeader'
 import { Section } from '@/components/ui/Section'
 import { RichTextContent } from '@/components/rich-text/RichTextContent'
 import { BlogPostHero } from './BlogPostHero'
@@ -14,7 +11,6 @@ import { Contact } from '../gallery/Contact'
 export function BlogDetailPage({ post }: { post: BlogPost }) {
   return (
     <div className="min-h-screen bg-white">
-      <SiteHeader tone="dark" />
       <BlogPostHero post={post} />
       <main className="">
         <Section className=" py-14 md:py-20">
@@ -73,8 +69,6 @@ export function BlogDetailPage({ post }: { post: BlogPost }) {
       </main>
       <Contact />
       <LandscapingServiceAreas />
-      <LandscapingCta />
-      <SiteFooter />
     </div>
   )
 }

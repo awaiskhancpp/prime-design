@@ -73,7 +73,6 @@ function HeroBlock({ block }: { block: Block }) {
     return <UnsupportedLandingBlock block={block} />
   return (
     <PageHero
-      showHeader={false}
       eyebrow={text(block.eyebrow) || 'Prime Design & Build'}
       title={text(block.heading) || ''}
       description={text(block.description)}

@@ -1,7 +1,5 @@
 import Link from 'next/link'
 
-import { SiteFooter } from '@/components/layout/SiteFooter'
-import { SiteHeader } from '@/components/layout/SiteHeader'
 import { Container } from '@/components/ui/Container'
 import { SiteSearchForm } from '@/components/search/SiteSearchForm'
 import { searchSite, type SearchResult } from '@/lib/search'
@@ -11,8 +9,6 @@ export async function SearchResultsPage({ query }: { query: string }) {
 
   return (
     <div className="min-h-screen bg-white">
-      <SiteHeader tone="light" />
-
       <section className="bg-white py-16 md:py-24 lg:py-28">
         <Container>
           <p className="text-xs font-semibold uppercase tracking-[0.24em] text-brass-deep">
@@ -48,8 +44,6 @@ export async function SearchResultsPage({ query }: { query: string }) {
           </div>
         </Container>
       </section>
-
-      <SiteFooter />
     </div>
   )
 }

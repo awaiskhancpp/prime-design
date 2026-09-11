@@ -19,6 +19,8 @@ export type Project = {
   heroImage: string
   gallery: string[]
   video?: ProjectVideo
+  /** Payload "Featured on homepage" checkbox. */
+  featured?: boolean
 }
 
 const kitchen = '/services/kitchen-remodeling.jpeg'
@@ -261,6 +263,7 @@ type PayloadProject = {
   featuredImage?: number | PayloadMedia | null
   gallery?: Array<number | PayloadMedia> | null
   videoUrl?: string | null
+  featured?: boolean | null
 }
 
 const payloadMediaUrl = (value: unknown) =>
@@ -288,6 +291,7 @@ function normalizeProject(project: PayloadProject): Project {
         ? fallback.video
         : { url: project.videoUrl, title: project.title }
       : fallback?.video,
+    featured: Boolean(project.featured),
   }
 }
 

@@ -8,20 +8,27 @@ import type { Swiper as SwiperType } from 'swiper'
 import { Navigation } from 'swiper/modules'
 import { Swiper, SwiperSlide } from 'swiper/react'
 
-import website from '../../../website.json'
+import type { Service } from '@/lib/services'
 import { Section } from '@/components/ui/Section'
 import { SectionHeader } from '@/components/ui/SectionHeader'
 
 import 'swiper/css'
 import 'swiper/css/navigation'
 
-export function HomeServices() {
+export function HomeServices({
+  heading,
+  services = [],
+}: {
+  heading?: string
+  /** Payload services to show (already filtered/ordered by the caller). */
+  services?: Service[]
+}) {
   const swiperRef = useRef<SwiperType | null>(null)
 
   return (
     <Section className="">
       <div className="flex items-end justify-between gap-6">
-        <SectionHeader title="Our services" />
+        <SectionHeader title={heading || 'Our Services'} />
         <div className="hidden shrink-0 items-center gap-3 sm:flex">
           <button
             type="button"
@@ -56,9 +63,9 @@ export function HomeServices() {
         }}
         className="mt-10 [&_.swiper-slide]:h-auto"
       >
-        {website.services.map((service) => (
-          <SwiperSlide key={service.title}>
-            <Link href={service.href} className="group block">
+        {services.map((service) => (
+          <SwiperSlide key={service.slug}>
+            <Link href={`/services/${service.slug}`} className="group block">
               <div className="aspect-[4/3] overflow-hidden bg-line">
                 <Image
                   src={service.image}
@@ -72,7 +79,9 @@ export function HomeServices() {
                 <h3 className="font-display text-xl font-medium text-ink-2 transition-colors group-hover:text-brass-deep">
                   {service.title}
                 </h3>
-                <p className="mt-2 text-sm leading-7 text-ink-2/70">{service.description}</p>
+                <p className="mt-2 text-sm leading-7 text-ink-2/70">
+                  {service.shortDescription || service.description}
+                </p>
               </div>
             </Link>
           </SwiperSlide>

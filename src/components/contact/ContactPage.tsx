@@ -1,8 +1,6 @@
 import { HomeContact } from '@/components/blocks/HomeContact'
-import { LandscapingCta } from '@/components/blocks/LandscapingCta'
 import { LandscapingServiceAreas } from '@/components/blocks/LandscapingServiceAreas'
 import { PageHero } from '@/components/layout/PageHero'
-import { SiteFooter } from '@/components/layout/SiteFooter'
 import { Section } from '@/components/ui/Section'
 import { resolveConsultations } from '@/lib/consultations'
 import { resolveSiteSettings } from '@/lib/siteSettings'
@@ -31,8 +29,6 @@ export async function ContactPage() {
         <HomeContact />
       </main>
       <LandscapingServiceAreas />
-      <LandscapingCta />
-      <SiteFooter />
     </div>
   )
 }

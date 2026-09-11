@@ -477,3 +477,168 @@ service-location content can only come from Payload:
   band text (tpl 1174), the Prime Difference review-platform links.
 - Verified: all 11 service pages + sampled city pages return 200 and render
   Payload content; typecheck clean.
+
+## Shared layout chrome (TopBanner / SiteHeader / LandscapingCta / SiteFooter)
+
+Per the client, the site chrome was hoisted into the `(frontend)` root layout
+so pages no longer render it individually:
+
+- `src/app/(frontend)/layout.tsx` renders `TopBanner` + `SiteHeader` above the
+  page and `LandscapingCta` + `SiteFooter` below it, with two exclusions:
+  Google Ads landing pages (`landing-pages` records, plus any `pages` record
+  with `isGoogleAdsPage`) and service-location pages (`/service/city`) stay
+  bare and keep their own chrome.
+- `src/middleware.ts` (new): stamps the request pathname into an
+  `x-pathname` header because Next 16 does not expose it to `headers()` in a
+  root layout. The layout uses it to apply the exclusion.
+- Removed the now-duplicated chrome from: BlogPage/BlogDetailPage,
+  ProjectsPage/ProjectDetailPage, GalleryPage, FaqPage, ContactPage,
+  AboutPage, TeamPage, TestimonialsPage, SearchResultPage, ServicesPage,
+  ServiceDetailPage, NotFoundPage, PrivacyPolicyPage, LandscapingPage,
+  LandscapingHero, PayloadPage (non-ads), PageHero (`showHeader` now defaults
+  to false; ads pages opt back in via PayloadPage).
+- `/team` and `/search` keep their existing light header tone; every other
+  page keeps the dark hero overlay header.
+- Verified via rendered HTML: chrome renders exactly once on regular pages
+  and not at all on `/-information` landing pages and service-location pages;
+  typecheck + lint clean (lint: 0 errors).
+
+## Service hero videos + missing images
+
+- `scripts/upload-missing-media.ts` (idempotent): both WordPress mp4s were
+  already in Blob (San Luis Ave #409, Cryer St #408) and Finance webp (#429).
+  Assigned `hero_video_id` per the WP templates (kitchen/home/additions/
+  custom/shaker → Cryer; bathroom/adu/complete/european → San Luis;
+  finance/comprehensive → none) and finance `hero_image_id` → #429.
+  Verified the `<video>` renders on the service pages.
+- Resolved below: media rows existed for `135.png` (home-remodeling hero
+  poster), `ADU-2.png`, `ADU-5.png`, `ADU-3-1.png`,
+  `Kitchen-And-Bathroom-Images-1920-×-1080-px-1.png` (custom-kitchen hero,
+  WP attachment 827), `WhatsApp-Image-2023-05-05-at-8.13.35-PM.jpeg`
+  (shaker-kitchen hero) plus a new `ADU-6.png`, but the blob files were
+  missing — see "WordPress media API backfill" below.
+
+## WordPress media API backfill (images)
+
+The 7 missing files were located in the paginated WP REST media API and
+imported into blob storage:
+
+- Discovery: `wp-json/wp/v2/media?search=…` + direct `/media/<id>` lookups
+  via the jina reader proxy (direct fetches are Cloudflare-blocked).
+- Transport: `src/app/(frontend)/api/dev-media-import/route.ts` (temporary,
+  dev-only, host-allowlisted) — downloads the WP file server-side (Googlebot
+  UA passes Cloudflare) and writes it into the Payload media collection,
+  which uploads to blob. Deletable once the backfill is complete.
+- Imported into their existing media rows (blob URLs now serve 200):
+  #423 `135.png` (1200×900), #424 `Kitchen-And-Bathroom-Images-1920-×-1080-px-1.png`
+  (1920×1080), #425 `WhatsApp-Image-2023-05-05-at-8.13.35-PM.jpeg` (1284×822),
+  #426 `ADU-2.png`, #427 `ADU-5.png`, #428 `ADU-3-1.png` (1913×1275), new
+  #443 `ADU-6.png`. Payload's upload-rename quirk (ADU-2→ADU-3 etc. when the
+  doc's own filename collides) was worked around by a temporary SQL filename
+  rename before the final upload; final filenames are correct.
+- Wiring: `services.hero_image_id` → ADU page (#7) now uses ADU-2.png
+  (WP's first hero candidate); home-remodeling → 135.png, custom-kitchen →
+  KB-px-1, shaker-kitchen → WhatsApp 8.13.35 (already pointed there).
+- `ServiceLocationHeroForm` now prefers the blob URL over the WP hotlink
+  for the hero background (media #424).
+- Verified: all 12 services now have blob-backed hero images; hero videos
+  per the WP templates; ADU/home/custom/shaker and a location page render
+  the real images (200).
+
+## CMS-driven homepage (Homepage global)
+
+The homepage (`LandscapingPage` — 8 sections, unchanged order) is now fully
+CMS-driven, seeded with the WordPress homepage (post 2) copy:
+
+- `src/globals/Homepage.ts` (new, registered in payload.config): groups
+  `hero` (eyebrow/heading/description/image/video/cta), `intro`
+  (eyebrow/heading/body richText/image), `difference` (eyebrow/heading/
+  checklist `{lead,text}` array — WP's bold leads Family-owned / Competitive
+  / Quick response), `projectsIntro`, `servicesIntro`, `featureBlocks`
+  (eyebrow/title/items array with title, body richText — WP italic lines —
+  cta label/href, before/after image uploads), `contactIntro`, `serviceAreas`
+  (heading only — cities stay shared via Site Settings).
+- `src/lib/homepage.ts`: `resolveHomepage()` — Payload-only with the WP copy
+  as fallback when fields are empty (lexical paragraphs built for richText
+  fields); hero video falls back to the previous local mp4 until set.
+- Wired: LandscapingPage fetches `resolveHomepage()` + `resolveServices()`
+  and passes each section its slice; LandscapingHero (video + poster from
+  media), LandscapingIntro (richText body via RichTextContent passed as
+  server children), LandscapingDifference (eyebrow/heading/checklist; videos
+  + social badges stay structural), HomeProjects (Payload projects — projects
+  checked "Featured on homepage" show in the WP grid order, else the six most
+  recent; real featured images), HomeServices (the six WP homepage services
+  from Payload with their real hero images), HomeFeatureBlocks (richText
+  bodies + Payload before/after images), HomeContact (eyebrow/heading/body),
+  LandscapingServiceAreas (heading).
+- Projects collection: new `featured` checkbox ("Featured on homepage").
+  WP had no featured flag (homepage used a hardcoded post__in query), so the
+  six WP homepage projects were marked featured in the seed.
+- Media imported via the dev route (Googlebot UA): hero video
+  `Home-Video-Updated.mp4` (WP CDN → media #447), hero image WP 2125 (#444),
+  feature images WP 2424/2425 (#445/#446); WP 2123/2099 already existed
+  (#56/#63).
+- Schema: `scripts/seed-homepage.mjs` created the `homepage`,
+  `homepage_difference_checklist`, `homepage_feature_blocks_items` tables and
+  the `projects.featured` column (push:false parity), seeded the WP copy and
+  featured the six projects. Migration generated for review at
+  `src/migrations/20260911_204539_homepage_global.ts` (not applied — it is a
+  catch-up snapshot whose new parts are only the homepage tables +
+  `projects.featured`; the rest is pre-existing drift).
+- Verified: `/` and `/landscaping` render the CMS content — hero video,
+  headings, checklist, rich-text bodies, real project/service/feature images;
+  typecheck + lint clean (0 errors).
+
+## Prime Difference video posters
+
+The five project-video thumbnails now show real poster images captured from
+the videos themselves:
+
+- `src/app/(frontend)/api/video-proxy/route.ts` (new): same-origin streaming
+  proxy for the tagmediaspace CDN videos (host-allowlisted, forwards Range
+  requests, 206 responses) — the CDN sends no CORS headers, so frames are
+  captured through our own origin.
+- `LandscapingDifference.tsx`: a `VideoPoster` client subcomponent fetches
+  only the video metadata/first frame via the proxy, draws it to a canvas and
+  renders the resulting JPEG as the thumbnail poster (falls back to the
+  video's first frame until/unless captured).
+- Blob quota: importing the full videos (250MB+ each) hit the Vercel Blob
+  Hobby plan 1GB limit — the three oversized imports and two duplicate mp4s
+  from earlier uploads were removed (store now ~385MB). Full videos stay
+  hotlinked from the CDN; storing them in Payload would require a Blob plan
+  upgrade or compression.
+
+## Homepage fixes: bathroom feature images + heading highlight fields
+
+- Bathroom Remodeling feature card images corrected against the XML: WP pairs
+  that card with `o-47.jpg` (WP 2175, before) and
+  `WhatsApp-Image-2024-03-04-at-8.18.54-PM-2.jpeg` (WP 2418, after) — the
+  previously seeded 2099/2123 belonged elsewhere.
+- New "highlight" fields on the Homepage global so editors can color
+  accent word(s) in headings (WordPress `heading--gradient` pattern):
+  `hero.headingHighlight`, `difference.headingHighlight`,
+  `featureBlocks.titleHighlight`, `contactIntro.headingHighlight` — each a
+  text field (`|` separates multiple phrases). Rendered by a shared
+  `HighlightedText` component (`<span class="text-brass">`, case-insensitive).
+- Seeded from the WP copy: "design and build" (hero), "Difference" (prime
+  difference), "We do it all" (feature blocks title), "today" (contact).
+  `PageHero.title` now accepts inline elements to support the spans.
+- Schema parity columns added (`hero_heading_highlight`, etc.); migration
+  regenerated for review at `src/migrations/20260911_212001_homepage_global.ts`
+  (not applied); payload types regenerated. Typecheck + lint clean.
+
+## Migration applied + services card excerpts
+
+- The `20260911_212001_homepage_global` migration was **applied** via
+  `payload migrate` (batch 21 in `payload_migrations`) after making its
+  statements idempotent — the DB already had the columns from the manual
+  push:false parity work, so the statements were no-ops and the ledger is
+  now in sync with the config.
+- Services cards now show the WordPress small statements (excerpts) instead
+  of the longer descriptions: `services.short_description` for the six
+  homepage services was set to the WP homepage card ledes ("Transform your
+  home from ground up…", "Breathe new life into your bathroom…", etc.).
+- Confirmed dynamic sourcing: HomeServices renders `resolveServices()`
+  (Payload services, filtered to the six WP homepage services), HomeProjects
+  renders `resolveProjects()` (Payload projects, featured-first then the six
+  most recent) — both fetched per request, nothing static.

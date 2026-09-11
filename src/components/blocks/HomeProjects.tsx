@@ -1,39 +1,56 @@
 import Image from 'next/image'
 
-import website from '../../../website.json'
 import { Section } from '@/components/ui/Section'
 import { SectionHeader } from '@/components/ui/SectionHeader'
 import { Button } from '../ui/Button'
 import { ArrowRight } from 'lucide-react'
+import { resolveProjects } from '@/lib/projects'
 
-// Placeholder photos cycling across the six project cards — swap each
-// entry for the actual project photo once real project photography is
-// uploaded to Payload/Media for each `latestProjects` entry.
-const projectImages = [
-  '/services/kitchen-remodeling.jpeg',
-  '/before-after/complete_remodeling_after.jpeg',
-  '/services/home-remodeling.jpeg',
-  '/before-after/bathroom_remodeling_after.jpeg',
-  '/services/kitchen-remodeling.jpeg',
-  '/before-after/complete_remodeling_after.jpeg',
+// WordPress homepage grid order (post 2 query post__in) — used to order the
+// featured projects so the homepage matches the original site.
+const WP_HOMEPAGE_ORDER = [
+  'atherton-kitchen-remodeling-projects',
+  'full-home-remodeling-los-gatos',
+  'sunnyvale-complete-home-renovation',
+  'san-mateo-complete-home-remodel',
+  'full-home-remodeling-cupertino',
+  'san-jose-complete-home-remodel',
 ]
 
-export function HomeProjects() {
-  const { latestProjects } = website
+/**
+ * Payload-driven project grid. Projects checked "Featured on homepage" are
+ * shown (in the WordPress grid order); when none are checked, the six most
+ * recent projects are shown instead. Card images are each project's real
+ * featured image from Payload.
+ */
+export async function HomeProjects({ heading }: { heading?: string }) {
+  const projects = await resolveProjects()
+  const featured = projects.filter((project) => project.featured)
+  const shown = (featured.length ? featured : projects).slice(0, 6)
+
+  if (featured.length) {
+    shown.sort((a, b) => {
+      const ai = WP_HOMEPAGE_ORDER.indexOf(a.slug)
+      const bi = WP_HOMEPAGE_ORDER.indexOf(b.slug)
+      return (ai < 0 ? 99 : ai) - (bi < 0 ? 99 : bi)
+    })
+  }
+
+  const title = heading || 'Our Latest Remodeling Projects'
 
   return (
     <Section className="bg-white">
-      <SectionHeader align="center" title="Our latest remodeling projects" />
+      <SectionHeader align="center" title={title} />
 
       <div className="mt-10 grid grid-cols-1 gap-1 overflow-hidden  sm:grid-cols-2 lg:grid-cols-3">
-        {latestProjects.map((project, index) => (
+        {shown.map((project) => (
           <a
             key={project.slug}
             href={`/project/${project.slug}`}
             className="group relative aspect-[4/3] overflow-hidden bg-ink"
           >
             <Image
-              src={projectImages[index % projectImages.length]}
+              src={project.heroImage}
               alt={project.title}
               fill
               className="object-cover transition-transform duration-500 ease-out group-hover:scale-105"

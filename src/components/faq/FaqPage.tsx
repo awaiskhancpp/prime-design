@@ -1,8 +1,6 @@
 import { ChevronDown } from 'lucide-react'
 
-import { LandscapingCta } from '@/components/blocks/LandscapingCta'
 import { LandscapingServiceAreas } from '@/components/blocks/LandscapingServiceAreas'
-import { SiteFooter } from '@/components/layout/SiteFooter'
 import { PageHero } from '@/components/layout/PageHero'
 import { Section } from '@/components/ui/Section'
 import { RichTextContent } from '@/components/rich-text/RichTextContent'
@@ -60,8 +58,6 @@ export function FaqPage() {
       </main>
 
       <LandscapingServiceAreas />
-      <LandscapingCta />
-      <SiteFooter />
     </div>
   )
 }

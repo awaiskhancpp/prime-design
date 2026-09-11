@@ -147,7 +147,7 @@ for (const [serviceId, spec] of Object.entries(serviceImageMap)) {
   // Gallery — happyfiles category images, falling back to the page's own
   // image elements (blob-backed media only).
   if (spec.gallery) {
-    let ids = idsByCategory.get(spec.gallery) || []
+    const ids = idsByCategory.get(spec.gallery) || []
     let galleryIds = await mediaIdsForAttachmentIds(ids, 12)
     if (galleryIds.length < 3 && spec.page) {
       galleryIds = await mediaIdsForAttachmentIds(spec.page, 12)

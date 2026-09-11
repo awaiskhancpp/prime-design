@@ -1,9 +1,6 @@
 import Image from 'next/image'
 
-import { LandscapingCta } from '@/components/blocks/LandscapingCta'
 import { LandscapingServiceAreas } from '@/components/blocks/LandscapingServiceAreas'
-import { SiteHeader } from '@/components/layout/SiteHeader'
-import { SiteFooter } from '@/components/layout/SiteFooter'
 import { Container } from '@/components/ui/Container'
 import { Section } from '@/components/ui/Section'
 import type { Project } from '@/lib/projects'
@@ -21,7 +18,6 @@ export function ProjectDetailPage({ project }: { project: Project }) {
           sizes="100vw"
         />
         <div className="pointer-events-none absolute inset-0 z-[1] bg-[linear-gradient(90deg,rgba(20,33,61,0.9)_0%,rgba(20,33,61,0.68)_45%,rgba(20,33,61,0.38)_100%),linear-gradient(0deg,rgba(20,33,61,0.8)_0%,transparent_65%)]" />
-        <SiteHeader />
         <Container className="relative z-10 w-full">
           <div className="max-w-3xl">
             <p className=" text-xs font-semibold uppercase tracking-[0.2em] text-brass">
@@ -93,8 +89,6 @@ export function ProjectDetailPage({ project }: { project: Project }) {
       </Section>
 
       <LandscapingServiceAreas />
-      <LandscapingCta />
-      <SiteFooter />
     </div>
   )
 }

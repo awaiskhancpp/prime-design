@@ -2,10 +2,8 @@ import Image from 'next/image'
 import Link from 'next/link'
 import { ArrowRight } from 'lucide-react'
 
-import { LandscapingCta } from '@/components/blocks/LandscapingCta'
 import { LandscapingServiceAreas } from '@/components/blocks/LandscapingServiceAreas'
 import { ProjectsReviews } from '@/components/projects/ProjectsReviews'
-import { SiteFooter } from '@/components/layout/SiteFooter'
 import { PageHero } from '@/components/layout/PageHero'
 import { Section } from '@/components/ui/Section'
 import { resolveServices } from '@/lib/services'
@@ -81,8 +79,6 @@ export async function ServicesPage() {
       </main>
 
       <LandscapingServiceAreas />
-      <LandscapingCta />
-      <SiteFooter />
     </div>
   )
 }

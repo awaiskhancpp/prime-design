@@ -1,13 +1,80 @@
 'use client'
 
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 
 import { Section } from '@/components/ui/Section'
+import { HighlightedText } from '@/components/ui/HighlightedText'
+import type { HomepageDifference } from '@/lib/homepage'
 import { cn } from '@/lib/utils'
 import { Check } from 'lucide-react'
 import Image from 'next/image'
 
-const statLine = 'Over 350+ Projects in Silicon Valley'
+/**
+ * The CDN hosting the project videos sends no CORS headers, so the frames
+ * are captured through our own same-origin `/api/video-proxy` — the browser
+ * fetches only the metadata + first frame, then draws it onto a canvas and
+ * uses the resulting JPEG as the thumbnail poster.
+ */
+const posterSrc = (url: string) => `/api/video-proxy?url=${encodeURIComponent(url)}`
+
+function VideoPoster({ src, alt }: { src: string; alt: string }) {
+  const [poster, setPoster] = useState<string | null>(null)
+
+  useEffect(() => {
+    const video = document.createElement('video')
+    video.muted = true
+    video.playsInline = true
+    video.preload = 'metadata'
+    video.src = src
+
+    const cleanup = () => {
+      video.onloadeddata = null
+      video.onerror = null
+      video.removeAttribute('src')
+      video.load()
+    }
+
+    video.onloadeddata = () => {
+      try {
+        const canvas = document.createElement('canvas')
+        canvas.width = video.videoWidth || 640
+        canvas.height = video.videoHeight || 360
+        const context = canvas.getContext('2d')
+        if (context) {
+          context.drawImage(video, 0, 0, canvas.width, canvas.height)
+          setPoster(canvas.toDataURL('image/jpeg', 0.72))
+        }
+      } catch {
+        // Tainted canvas — keep the first-frame video fallback below.
+      }
+      cleanup()
+    }
+    video.onerror = cleanup
+
+    return cleanup
+  }, [src])
+
+  if (poster) {
+    return (
+      // eslint-disable-next-line @next/next/no-img-element
+      <img
+        src={poster}
+        alt={alt}
+        aria-hidden="true"
+        className="pointer-events-none absolute inset-0 h-full w-full object-cover"
+      />
+    )
+  }
+
+  // Until the frame is captured, show the video's own first frame.
+  return (
+    <span className="pointer-events-none absolute inset-0 bg-ink" aria-hidden="true">
+      <video className="h-full w-full object-cover" muted playsInline preload="metadata" tabIndex={-1}>
+        <source src={src} type="video/mp4" />
+      </video>
+    </span>
+  )
+}
 
 const bullets = [
   { lead: '', text: 'Experts on-site for interior design' },
@@ -27,32 +94,31 @@ const projectVideos = [
   {
     title: 'Noah, Co-Owner',
     url: 'https://tagmediaspace.b-cdn.net/Prime%20Design%20and%20Build/Prime%20Vid%20Noah.mp4',
-    poster: '/services/home-remodeling.jpeg',
   },
   {
     title: 'Rosewood Dr, Atherton',
     url: 'https://tagmediaspace.b-cdn.net/Prime%20Design%20and%20Build/03.09.2024%20Noam%20Prime%2041%20Rosewood%20Dr%20Atherton.mp4',
-    poster: '/services/home-remodeling.jpeg',
   },
   {
     title: 'Alice Ave, Mountain View',
     url: 'https://tagmediaspace.b-cdn.net/Prime%20Design%20and%20Build/09.04.2024%20Ilay%20Prime%20Kitchen%20700%20Alice%20Ave%20Mountain%20View.mp4',
-    poster: '/services/kitchen-remodeling.jpeg',
   },
   {
     title: 'Bluebonnet Ct, Morgan Hill',
     url: 'https://tagmediaspace.b-cdn.net/Prime%20Design%20and%20Build/07.18.2024%20Josef%20Prime%20Full%20House%201840%20Bluebonnet%20Ct%20Morgan%20Hill.mp4',
-    poster: '/services/home-remodeling.jpeg',
   },
   {
     title: 'First floor renovation',
     url: 'https://tagmediaspace.b-cdn.net/Prime%20Design%20and%20Build/First%20Floor.mp4',
-    poster: '/services/home-remodeling.jpeg',
   },
 ]
 
-export function LandscapingDifference() {
+export function LandscapingDifference({ difference }: { difference?: HomepageDifference }) {
   const [active, setActive] = useState(projectVideos[0])
+
+  const statLine = difference?.eyebrow || 'Over 350+ Projects in Silicon Valley'
+  const heading = difference?.heading || 'The Prime Difference'
+  const checklist = difference?.checklist?.length ? difference.checklist : bullets
 
   return (
     <Section className="">
@@ -70,7 +136,6 @@ export function LandscapingDifference() {
               controls
               playsInline
               preload="metadata"
-              poster={active.poster}
             >
               <source src={active.url} type="video/mp4" />
               Your browser does not support the video tag.
@@ -86,13 +151,14 @@ export function LandscapingDifference() {
                 aria-label={`Play video: ${video.title}`}
                 aria-pressed={active.url === video.url}
                 className={cn(
-                  'relative aspect-video overflow-hidden border-2 bg-cover bg-center transition-colors',
+                  'relative aspect-video overflow-hidden border-2 transition-colors',
                   active.url === video.url
                     ? 'border-brass'
                     : 'border-transparent hover:border-line',
                 )}
-                style={{ backgroundImage: `url(${video.poster})` }}
-              />
+              >
+                <VideoPoster src={posterSrc(video.url)} alt={video.title} />
+              </button>
             ))}
           </div>
         </div>
@@ -101,11 +167,11 @@ export function LandscapingDifference() {
             {statLine}
           </p>
           <h2 className="mt-4 font-display text-3xl font-medium leading-tight text-ink-2 md:text-4xl">
-            The Prime <span className="text-brass">Difference</span>
+            <HighlightedText text={heading} highlight={difference?.headingHighlight} />
           </h2>
 
           <ul className="mt-8 space-y-4">
-            {bullets.map((bullet) => (
+            {checklist.map((bullet) => (
               <li key={bullet.lead + bullet.text} className="flex items-start gap-3">
                 <span
                   aria-hidden

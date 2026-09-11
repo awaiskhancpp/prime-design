@@ -21,6 +21,7 @@ import * as migration_20260905_022429 from './20260905_022429';
 import * as migration_20260906_000000_landing_sub_services_heading_optional from './20260906_000000_landing_sub_services_heading_optional';
 import * as migration_20260906_010000_project_grid_eyebrow_icon from './20260906_010000_project_grid_eyebrow_icon';
 import * as migration_20260908_182415 from './20260908_182415';
+import * as migration_20260911_212001_homepage_global from './20260911_212001_homepage_global';
 
 export const migrations = [
   {
@@ -136,6 +137,11 @@ export const migrations = [
   {
     up: migration_20260908_182415.up,
     down: migration_20260908_182415.down,
-    name: '20260908_182415'
+    name: '20260908_182415',
+  },
+  {
+    up: migration_20260911_212001_homepage_global.up,
+    down: migration_20260911_212001_homepage_global.down,
+    name: '20260911_212001_homepage_global'
   },
 ];

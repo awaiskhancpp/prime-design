@@ -1,5 +1,3 @@
-import { SiteFooter } from '@/components/layout/SiteFooter'
-import { LandscapingCta } from '@/components/blocks/LandscapingCta'
 import { LandscapingServiceAreas } from '@/components/blocks/LandscapingServiceAreas'
 import { resolveSiteSettings } from '@/lib/siteSettings'
 import { AboutHero } from './AboutHero'
@@ -21,8 +19,6 @@ export async function AboutPage() {
       <ExpertsSection />
       <AboutFaq phone={settings.phone} />
       <LandscapingServiceAreas />
-      <LandscapingCta />
-      <SiteFooter />
     </div>
   )
 }

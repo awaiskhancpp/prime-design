@@ -1,5 +1,3 @@
-import { LandscapingCta } from '@/components/blocks/LandscapingCta'
-import { SiteFooter } from '@/components/layout/SiteFooter'
 import { PageHero } from '@/components/layout/PageHero'
 import { Section } from '@/components/ui/Section'
 import { LandscapingServiceAreas } from '../blocks/LandscapingServiceAreas'
@@ -175,8 +173,6 @@ export function PrivacyPolicyPage() {
         </Section>
       </main>
       <LandscapingServiceAreas />
-      <LandscapingCta />
-      <SiteFooter />
     </div>
   )
 }

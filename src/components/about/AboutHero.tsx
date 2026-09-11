@@ -5,7 +5,7 @@ import { ArrowUpRight } from 'lucide-react'
 export function AboutHero() {
   return (
     <PageHero
-      align="end"
+      align="left"
       eyebrow="About us and our story"
       title="The Go-To Choice for Homeowners In Silicon Valley"
       description="Our team of visionary leaders and dedicated professionals are committed to transforming your dreams into reality. With years of experience and a shared passion for excellence, we are here to deliver unparalleled service and create stunning spaces that exceed your expectations."

@@ -3,8 +3,8 @@
 import { useEffect, useRef, useState, type ReactNode } from 'react'
 import Image from 'next/image'
 
-import { Container } from '@/components/ui/Container'
 import { Section } from '@/components/ui/Section'
+import type { HomepageIntro } from '@/lib/homepage'
 import { cn } from '@/lib/utils'
 
 function RevealLine({ children, className }: { children: ReactNode; className?: string }) {
@@ -31,31 +31,48 @@ function RevealLine({ children, className }: { children: ReactNode; className?: 
   )
 }
 
-export function LandscapingIntro() {
+/**
+ * CMS-driven intro (Homepage global). The rich-text body is rendered by the
+ * server (RichTextContent) and passed in as `bodyContent` because this
+ * component stays client-side for the reveal animation.
+ */
+export function LandscapingIntro({
+  intro,
+  bodyContent,
+}: {
+  intro?: HomepageIntro
+  bodyContent?: ReactNode
+}) {
+  const heading =
+    intro?.heading ||
+    'Discover the Prime experience with a new home renovation, ADU, home addition or kitchen and bathroom remodel'
+  const image = intro?.image || '/services/home-remodeling.jpeg'
+
   return (
     <Section className="bg-white">
       <div className="grid items-center gap-12 lg:grid-cols-2 lg:gap-16">
         <div>
           <RevealLine>
             <h2 className="mt-4 font-display text-3xl font-medium leading-tight text-ink-2 md:text-4xl lg:text-[2.5rem] lg:leading-[3rem]">
-              Discover the Prime experience with a new home renovation, ADU, home addition or
-              kitchen and bathroom remodel
+              {heading}
             </h2>
           </RevealLine>
 
           <div className="mt-6 space-y-3 text-base leading-relaxed text-ink-2/70 md:text-lg">
-            <p>
-              Where we transform blueprints into reality with unwavering dedication and unmatched
-              expertise. Your vision is our foundation, and together, we construct a future of
-              enduring quality and innovation. Let&apos;s build something extraordinary.
-            </p>
+            {bodyContent ?? (
+              <p>
+                Where we transform blueprints into reality with unwavering dedication and unmatched
+                expertise. Your vision is our foundation, and together, we construct a future of
+                enduring quality and innovation. Let&apos;s build something extraordinary.
+              </p>
+            )}
           </div>
         </div>
 
         <RevealLine>
           <div className="relative aspect-[4/3] overflow-hidden">
             <Image
-              src="/services/home-remodeling.jpeg"
+              src={image}
               alt="A recently completed Prime Design & Build home renovation"
               fill
               className="object-cover"

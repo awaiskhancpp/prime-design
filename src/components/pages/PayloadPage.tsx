@@ -5,12 +5,19 @@ import { LandscapingCta } from '@/components/blocks/LandscapingCta'
 import { LandscapingServiceAreas } from '@/components/blocks/LandscapingServiceAreas'
 import { PageHero } from '@/components/layout/PageHero'
 import { SiteFooter } from '@/components/layout/SiteFooter'
+import { SiteHeader } from '@/components/layout/SiteHeader'
 import { Section } from '@/components/ui/Section'
 import type { Page } from '@/lib/pages'
 
 export function PayloadPage({ page }: { page: Page }) {
+  // Google Ads pages are excluded from the shared layout chrome, so they
+  // keep rendering their own header, CTA and footer here. Regular pages
+  // get all of that from the layout instead.
+  const isAdsPage = page.isGoogleAdsPage
+
   return (
     <div className="min-h-screen bg-white">
+      {isAdsPage ? <SiteHeader /> : null}
       <PageHero
         eyebrow={page.hero?.eyebrow || 'Prime Design & Build'}
         title={page.hero?.heading || page.title}
@@ -71,8 +78,12 @@ export function PayloadPage({ page }: { page: Page }) {
         })}
       </main>
       <LandscapingServiceAreas />
-      <LandscapingCta />
-      <SiteFooter />
+      {isAdsPage ? (
+        <>
+          <LandscapingCta />
+          <SiteFooter />
+        </>
+      ) : null}
     </div>
   )
 }

@@ -1,5 +1,4 @@
 import { PageHero } from '@/components/layout/PageHero'
-import { SiteFooter } from '@/components/layout/SiteFooter'
 import { Section } from '@/components/ui/Section'
 import { Button } from '@/components/ui/Button'
 import { SiteSearchForm } from '@/components/search/SiteSearchForm'
@@ -52,8 +51,6 @@ export function NotFoundPage() {
           ))}
         </div>
       </Section>
-
-      <SiteFooter />
     </>
   )
 }

@@ -1,7 +1,5 @@
 import { ProjectsReviews } from '@/components/projects/ProjectsReviews'
-import { LandscapingCta } from '@/components/blocks/LandscapingCta'
 import { LandscapingServiceAreas } from '@/components/blocks/LandscapingServiceAreas'
-import { SiteFooter } from '@/components/layout/SiteFooter'
 import { PageHero } from '@/components/layout/PageHero'
 import { Section } from '@/components/ui/Section'
 import { resolveBlogPosts } from '@/lib/blog'
@@ -52,8 +50,6 @@ export async function BlogPage() {
       <ServiceEstimateCta />
       <ProjectsReviews />
       <LandscapingServiceAreas />
-      <LandscapingCta />
-      <SiteFooter />
     </div>
   )
 }

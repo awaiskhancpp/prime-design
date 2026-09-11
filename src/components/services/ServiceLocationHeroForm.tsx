@@ -82,11 +82,10 @@ async function resolveHeroBackground(): Promise<string | undefined> {
     const media = result.docs[0] as
       | { url?: string | null; sourceUrl?: string | null }
       | undefined
-    // Media #424 (the WordPress hero background) has no blob file yet, so
-    // prefer the WordPress source URL — rendered unoptimized, the visitor's
-    // browser loads it directly. Once the file is uploaded to that media
-    // record, this same lookup serves it from blob.
-    return media?.sourceUrl || media?.url || undefined
+    // Media #424 (the WordPress hero background) now has its blob file, so
+    // prefer the local blob copy; the WordPress source URL remains the
+    // fallback.
+    return media?.url || media?.sourceUrl || undefined
   } catch {
     return undefined
   }
