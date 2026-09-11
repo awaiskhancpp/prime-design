@@ -2,11 +2,12 @@
 
 import { useMemo, useState } from 'react'
 import Image from 'next/image'
-import { ChevronLeft, ChevronRight } from 'lucide-react'
 
 import { Section } from '@/components/ui/Section'
 import { cn } from '@/lib/utils'
 import type { GalleryCategory } from '@/lib/gallery'
+
+import { Lightbox } from './Lightbox'
 
 const PAGE_SIZE = 12
 
@@ -20,15 +21,16 @@ export function GalleryTabs({ categories }: { categories: GalleryCategory[] }) {
   )
 
   const [activeSlug, setActiveSlug] = useState(tabs[0].slug)
-  const [page, setPage] = useState(1)
+  const [visibleCount, setVisibleCount] = useState(PAGE_SIZE)
+  const [lightboxIndex, setLightboxIndex] = useState<number | null>(null)
 
   const activeTab = tabs.find((tab) => tab.slug === activeSlug) ?? tabs[0]
-  const totalPages = Math.max(1, Math.ceil(activeTab.images.length / PAGE_SIZE))
-  const pageImages = activeTab.images.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE)
+  const visibleImages = activeTab.images.slice(0, visibleCount)
+  const hasMore = visibleCount < activeTab.images.length
 
   function selectTab(slug: string) {
     setActiveSlug(slug)
-    setPage(1)
+    setVisibleCount(PAGE_SIZE)
   }
 
   return (
@@ -66,70 +68,54 @@ export function GalleryTabs({ categories }: { categories: GalleryCategory[] }) {
       </div>
 
       {/* Image grid — identical treatment to GallerySection: sharp corners,
-          hairline gap, 4:3 crop, subtle hover zoom. */}
+          hairline gap, 4:3 crop, subtle hover zoom. Clicking a photo opens
+          the lightbox at that image's position in the FULL active-tab list
+          (not just the currently loaded subset), so once open you can
+          browse the whole category, not just what "Load More" has
+          revealed so far. */}
       <div
-        key={`${activeTab.slug}-${page}`}
+        key={activeTab.slug}
         className="mt-10 grid animate-fade-in grid-cols-2 gap-1 motion-reduce:animate-none md:grid-cols-3"
       >
-        {pageImages.map((image, index) => (
-          <div
-            key={`${activeTab.slug}-${(page - 1) * PAGE_SIZE + index}`}
-            className="relative aspect-[4/3] overflow-hidden bg-paper-2"
+        {visibleImages.map((image, index) => (
+          <button
+            key={`${activeTab.slug}-${index}`}
+            type="button"
+            onClick={() => setLightboxIndex(index)}
+            className="group relative aspect-[4/3] overflow-hidden bg-paper-2"
           >
             <Image
               src={image}
               alt={`${activeTab.title} project photo ${index + 1}`}
               fill
               loading="lazy"
-              className="object-cover transition-transform duration-500 ease-out hover:scale-105"
+              className="object-cover transition-transform duration-500 ease-out group-hover:scale-105"
               sizes="(min-width: 768px) 33vw, 50vw"
             />
-          </div>
+          </button>
         ))}
       </div>
 
-      {totalPages > 1 ? (
-        <nav
-          aria-label="Gallery pagination"
-          className="mt-10 flex items-center justify-center gap-2"
-        >
+      {hasMore ? (
+        <div className="mt-10 flex justify-center">
           <button
             type="button"
-            onClick={() => setPage((current) => Math.max(1, current - 1))}
-            disabled={page === 1}
-            aria-label="Previous page"
-            className="flex h-9 w-9 items-center justify-center border border-line text-ink-2 transition-colors hover:border-brass hover:text-brass-deep disabled:pointer-events-none disabled:opacity-30"
+            onClick={() => setVisibleCount((current) => current + PAGE_SIZE)}
+            className="border border-line px-8 py-3 text-xs font-semibold uppercase tracking-[0.16em] text-ink-2 transition-colors hover:border-brass hover:text-brass-deep"
           >
-            <ChevronLeft className="h-4 w-4" aria-hidden />
+            Load more
           </button>
+        </div>
+      ) : null}
 
-          {Array.from({ length: totalPages }, (_, i) => i + 1).map((num) => (
-            <button
-              key={num}
-              type="button"
-              onClick={() => setPage(num)}
-              aria-current={num === page ? 'page' : undefined}
-              className={cn(
-                'flex h-9 w-9 items-center justify-center border text-sm transition-colors',
-                num === page
-                  ? 'border-ink bg-ink text-white'
-                  : 'border-line text-ink-2 hover:border-brass hover:text-brass-deep',
-              )}
-            >
-              {num}
-            </button>
-          ))}
-
-          <button
-            type="button"
-            onClick={() => setPage((current) => Math.min(totalPages, current + 1))}
-            disabled={page === totalPages}
-            aria-label="Next page"
-            className="flex h-9 w-9 items-center justify-center border border-line text-ink-2 transition-colors hover:border-brass hover:text-brass-deep disabled:pointer-events-none disabled:opacity-30"
-          >
-            <ChevronRight className="h-4 w-4" aria-hidden />
-          </button>
-        </nav>
+      {lightboxIndex !== null ? (
+        <Lightbox
+          images={activeTab.images}
+          index={lightboxIndex}
+          alt={activeTab.title}
+          onClose={() => setLightboxIndex(null)}
+          onNavigate={setLightboxIndex}
+        />
       ) : null}
     </Section>
   )
