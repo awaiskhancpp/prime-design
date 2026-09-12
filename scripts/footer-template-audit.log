@@ -1,0 +1,70 @@
+﻿TEMPLATE: id=78 slug=footer title=Footer
+bricks elements: 64, roots: 5
+
+### order=0 type=service-areas sourceId=hbsrba
+  section           bg{color={"raw":"var(--action)"}}
+  container       
+  heading/h2       text="<b>Areas we service</b>"
+  block           
+  div/custom      
+  text-basic/custom text="{acf_city}"  link={"type":"meta"}  bg{color={"raw":"var(--fr-bg-light)"}}
+  div/custom      
+  text-basic/custom text="And surrounding cities!"  link={"type":"internal","url":"#","postId":"310"}  bg{color={"raw":"var(--fr-bg-light)"}}
+
+### order=1 type=luxury-cta sourceId=ffa2e5
+  section           bg{image={"id":3645,"filename":"973-rafi-rocks-hero.png","url":"https://primedesignandbuild.com/wp-content/uploads/2025/02/973-rafi-rocks-hero.png"}}
+  container       
+  div             
+  heading/h2       text="Silicon Valley's Luxury Home Contractor"
+  text-basic       text="At Prime Design &amp; Build, we stand proud as one of Silicon Valley's premium remodeling and construction authorities, specializing in a wi"
+  button           text="Let's get started"  link={"type":"internal","postId":"310"}
+  text-basic       text="Need a new kitchen, bathroom, or complete home renovation?"
+  container       
+  block           
+  logo            
+  text-basic       text="{acf_company_license}"
+  text-basic       text="<strong>Address </strong><a href="{acf_google_business_link}">{acf_company_address}</a><br><br>3 E 3rd Ave Suite 200, San Mateo, CA 94401<br"
+  block/custom    
+  block           
+  heading          text="Quick Links"
+  block/custom    
+  div/custom      
+  text-basic       text="Home"  link={"type":"external","url":"/"}
+  div/custom      
+  text-basic       text="About"  link={"type":"internal","url":"#","postId":"343"}
+  div/custom      
+  text-basic       text="Testimonials"  link={"type":"internal","url":"#","postId":"347"}
+  div/custom      
+  text-basic       text="Finance"  link={"type":"internal","url":"#","postId":"345"}
+  div/custom      
+  text-basic       text="FAQs"  link={"type":"internal","url":"#","postId":"351"}
+  block           
+  heading          text="Services"
+  block/custom    
+  div/custom      
+  text-basic       text="Home Remodel <span style="color:var(--action); font-size:12px">in Silicon Valley</span>"  link={"type":"internal","url":"#","postId":"1980"}
+  div/custom      
+  text-basic       text="Kitchen Remodeling <span style="color:var(--action); font-size:12px">in Silicon Valley</span>"  link={"type":"internal","url":"#","postId":"327"}
+  div/custom      
+  text-basic       text="Bathroom Remodel <span style="color:var(--action); font-size:12px">in Silicon Valley</span>"  link={"type":"internal","url":"#","postId":"337"}
+  div/custom      
+  text-basic       text="ADU <span style="color:var(--action); font-size:12px">in Silicon Valley</span>"  link={"type":"internal","url":"#","postId":"1976"}
+  div/custom      
+  text-basic       text="Garage Conversion <span style="color:var(--action); font-size:12px">in Silicon Valley</span>"  link={"type":"internal","url":"#","postId":"1976"}
+  div/custom      
+  text-basic       text="House Additions <span style="color:var(--action); font-size:12px">in Silicon Valley</span>"  link={"type":"internal","url":"#","postId":"1023"}
+  container       
+  text-basic       text="Copyright © {echo:date('Y')} • {site_title}"
+  div/custom      
+  div/custom      
+  div/custom      
+  text-basic       text="Privacy Policy"  link={"type":"internal","url":"#","postId":"3"}
+  div             
+  logo            
+
+### order=2 type=utility sourceId=jojvdj
+  section           bg{color={"raw":"var(--primary)"}}
+  container       
+  div             
+  text-basic       text="Call or Text <span class="custom-span"><strong>{acf_company_phone_clean}</strong></span> "  link={"type":"meta"}
+  xlottie         

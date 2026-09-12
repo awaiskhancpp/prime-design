@@ -17,12 +17,12 @@ export function ServiceEstimateCta({
             <h2 className="font-display text-3xl font-semibold text-white">{heading}</h2>
             {description ? <p className="mt-2 text-sm text-white/85 ">{description}</p> : null}
           </div>
-          {/* <Link
+          <Link
             href="/contact"
             className="bg-white px-5 py-3 text-sm font-semibold text-ink hover:bg-paper items-center flex gap-2"
           >
             Get started <ArrowRight />
-          </Link> */}
+          </Link>
         </div>
       </Container>
     </section>

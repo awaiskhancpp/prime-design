@@ -50,6 +50,8 @@ export type SiteArea = { name: string; slug: string }
 // Canonical fallback values (harvested from the live WordPress site; the
 // ACF option values WordPress did not export).
 const GOOGLE_BUSINESS = 'https://maps.google.com/?cid=11837063325613881352'
+const BBB_PROFILE =
+  'https://www.bbb.org/us/ca/campbell/profile/general-contractor/prime-design-and-build-1216-1000033829'
 
 const localSettings: SiteSettingsValue = {
   name: website.meta.siteName,
@@ -70,6 +72,7 @@ const localSettings: SiteSettingsValue = {
     googleBusiness: GOOGLE_BUSINESS,
     yelp: website.reviewSummary.yelp.url,
     houzz: 'https://www.houzz.com/professionals/kitchen-and-bath-remodelers/prime-kitchens-pfvwus-pf~508047204',
+    bbb: BBB_PROFILE,
   },
 }
 

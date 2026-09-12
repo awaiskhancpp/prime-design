@@ -1,4 +1,3 @@
-// components/ui/Button.tsx
 import type { AnchorHTMLAttributes, ButtonHTMLAttributes, ReactNode } from 'react'
 import Link from 'next/link'
 
@@ -13,10 +12,13 @@ const buttonVariants = cva(
       variant: {
         primary: 'border-ink bg-ink text-white hover:border-ink-2 hover:bg-ink-2 hover:text-white',
         secondary: 'border-ink bg-transparent text-ink hover:bg-ink hover:text-white',
-        outline:
-          'border border-line bg-transparent text-ink hover:border-brass hover:text-brass-deep',
+        // Was border-line (very pale grey) — nearly invisible against a
+        // page full of navy and brass. Same interaction as before (text
+        // and border shift to brass on hover, no fill), just a border
+        // that actually reads as a button at rest.
+        outline: 'border-ink/40 bg-transparent text-ink hover:border-brass hover:text-brass-deep',
         'outline-light':
-          'border border-white/50 bg-transparent text-white hover:border-brass hover:text-brass',
+          'border-white/60 bg-transparent text-white hover:border-brass hover:text-brass',
         ghost: 'border-transparent px-0 text-brass hover:text-brass-deep',
       },
       size: {

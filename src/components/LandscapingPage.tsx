@@ -9,6 +9,7 @@ import { HomeProjects } from './blocks/HomeProjects'
 import { LandscapingDifference } from './blocks/LandscapingDifference'
 import { resolveHomepage } from '@/lib/homepage'
 import { resolveServices } from '@/lib/services'
+import { resolveSiteSettings } from '@/lib/siteSettings'
 
 // WordPress homepage card order (the six main services; kitchen style
 // sub-pages, finance and comprehensive are not homepage cards).
@@ -23,6 +24,7 @@ const HOMEPAGE_SERVICE_SLUGS = [
 
 export async function LandscapingPage() {
   const homepage = await resolveHomepage()
+  const settings = await resolveSiteSettings()
   const services = (await resolveServices()).filter((service) =>
     HOMEPAGE_SERVICE_SLUGS.includes(service.slug),
   )
@@ -37,7 +39,10 @@ export async function LandscapingPage() {
         intro={homepage.intro}
         bodyContent={<RichTextContent data={homepage.intro.body} />}
       />
-      <LandscapingDifference difference={homepage.difference} />
+      <LandscapingDifference
+        difference={homepage.difference}
+        socialLinks={settings.socialLinks}
+      />
       <HomeProjects heading={homepage.projectsIntro.heading} />
       {/* <LandscapingServices /> */}
       <HomeServices heading={homepage.servicesIntro.heading} services={services} />
