@@ -127,7 +127,9 @@ function Portrait({
   return (
     <div className={`relative overflow-hidden bg-ink-2 ${aspectClasses}`}>
       {member.image ? (
-        <Image src={member.image} alt={member.image} fill className="object-cover object-top" />
+        // `alt` used to be the image URL, which is what showed up as text
+        // inside the frame whenever a portrait failed to load.
+        <Image src={member.image} alt={member.name} fill className="object-cover object-top" />
       ) : (
         <div className="flex h-full items-center justify-center bg-[radial-gradient(circle_at_50%_20%,#c19a5b_0%,#1f3358_46%,#14213d_100%)]">
           <span className="font-display text-7xl font-medium text-white/85">{member.initials}</span>

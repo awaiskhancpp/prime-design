@@ -21,6 +21,14 @@ type PageHeroProps = {
   /** Single background video. Takes priority over `image` and `images`. */
   backgroundVideo?: string
 
+  /**
+   * Responsive background video sources, in the order the browser should try
+   * them: the first entry whose `media` query matches wins, so put the
+   * largest file first and an entry without `media` last as the fallback.
+   * Takes priority over `backgroundVideo`.
+   */
+  videoSources?: Array<{ src: string; media?: string }>
+
   /** Poster frame shown before the video loads. */
   videoPoster?: string
 
@@ -56,6 +64,7 @@ export function PageHero({
   description,
   image,
   backgroundVideo,
+  videoSources,
   videoPoster,
   images,
   imageAlt,
@@ -66,6 +75,11 @@ export function PageHero({
   headerVariant = 'full',
 }: PageHeroProps) {
   const isCentered = align === 'center'
+  const videoSourceList = videoSources?.length
+    ? videoSources
+    : backgroundVideo
+      ? [{ src: backgroundVideo }]
+      : []
 
   return (
     <section
@@ -99,7 +113,7 @@ export function PageHero({
           BACKGROUND MEDIA
           ========================================================= */}
 
-      {backgroundVideo ? (
+      {videoSourceList.length ? (
         <video
           autoPlay
           muted
@@ -110,7 +124,14 @@ export function PageHero({
           aria-hidden="true"
           className="absolute inset-0 -z-10 h-full w-full object-cover opacity-70"
         >
-          <source src={backgroundVideo} type="video/mp4" />
+          {videoSourceList.map((source) => (
+            <source
+              key={`${source.src}-${source.media ?? 'all'}`}
+              src={source.src}
+              media={source.media}
+              type="video/mp4"
+            />
+          ))}
         </video>
       ) : images ? (
         <HeroImagePairSlider slides={images} />
