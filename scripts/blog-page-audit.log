@@ -1,0 +1,23 @@
+﻿PAGE: id=1670 slug=blog title=Blog
+bricks elements: 25, roots: 5
+
+### order=0 type=cta sourceId=1183a8
+kinds: section, container, block, heading, text-basic, button, code
+  [heading/h1] See our blog
+  [text-basic/p] This is where we share our knowledge and insights about everything related to remodeling. Whether you're looking for <strong>advice</strong> on a remodeling project, <em>exploring options for your home</em>, or <strong>seeking updates</strong> on the latest trends in the industry, you've come to the right place!
+  [button] Let's discuss your project
+  [code] <script> //Go to Bricks > Settings > Builder Access and allow Code Execution for Administrator //Execute this code below this field // You only need one Accesibility Code for each card type. If you imported more than one Article Section Foxtrot, remove extra accessibility code. // INSERT BELOWE THE ARTICLE CARDS LIST const deltaCards = document.querySelectorAll('.fr-article-card-foxtrot') deltaCar
+
+### order=1 type=image-text sourceId=8f4dac
+kinds: section, container, block, heading, text-basic, image, div
+  [heading/h3] {post_title} link={"type":"meta"}
+  [text-basic] {post_terms_category:plain}
+  [text-basic/p] {post_excerpt:20}
+  [text-basic/span] {author_name}
+  [text-basic/custom] November 3, 2023
+  <image> {"useDynamicData":"{featured_image}"}
+  <query> {"objectType":"post"}
+  <query> {"posts_per_page":"10"}
+
+### order=2 type=unsupported sourceId=dad7f3
+kinds: section

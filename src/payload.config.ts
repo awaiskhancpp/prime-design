@@ -20,6 +20,8 @@ import { Team } from './collections/Team'
 import { Testimonials } from './collections/Testimonials'
 import { SiteSettings } from './globals/SiteSettings'
 import { Homepage } from './globals/Homepage'
+import { About } from './globals/About'
+import { Gallery } from './globals/Gallery'
 import { Blog } from './collections/Blog'
 import { BlogCategories } from './collections/BlogCategories'
 import { LandingPages } from './collections/LandingPages'
@@ -53,7 +55,7 @@ export default buildConfig({
     LandingPages,
     GalleryCategories,
   ],
-  globals: [SiteSettings, Homepage],
+  globals: [SiteSettings, Homepage, About, Gallery],
   editor: lexicalEditor(),
   secret: process.env.PAYLOAD_SECRET || '',
   typescript: {

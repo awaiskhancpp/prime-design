@@ -1,10 +1,12 @@
 'use client'
 
 import Image from 'next/image'
-import { useState } from 'react'
+import { useState, type ReactNode } from 'react'
 
 import { Button } from '@/components/ui/Button'
 import { Container } from '@/components/ui/Container'
+import { HighlightedText } from '@/components/ui/HighlightedText'
+import type { AboutTeamIntro, AboutTeamMember } from '@/lib/about'
 import { X } from 'lucide-react'
 
 type TeamMember = {
@@ -139,26 +141,60 @@ function TeamCard({ member, onClick }: { member: TeamMember; onClick: () => void
   return (
     <article className="border border-line bg-white transition-colors hover:border-brass">
       <Portrait member={member} />
-      <div className="flex items-end justify-between gap-4 border-t border-line px-6 py-6">
-        <div>
-          <h3 className="font-display text-2xl font-medium text-ink-2">{member.name}</h3>
-          <p className="mt-1 text-xs font-semibold uppercase tracking-[0.1em] text-ink-2/60">
+
+      <div className="flex flex-col gap-2 lg:gap-5 border-t border-line px-3 py-5 sm:px-2 sm:py-3 md:flex-row md:items-center md:justify-between md:gap-4 lg:px-6 lg:py-6">
+        <div className="min-w-0 flex-1">
+          <h3 className="font-display text-2xl font-medium leading-tight text-ink-2">
+            {member.name}
+          </h3>
+
+          <p className="mt-2 text-xs font-semibold uppercase leading-5 tracking-[0.1em] text-ink-2/60">
             {member.role}
           </p>
         </div>
-        <Button type="button" variant="secondary" size="sm" onClick={onClick}>
-          Learn more
-        </Button>
+
+        <div className="shrink-0">
+          <Button type="button" variant="secondary" size="sm" onClick={onClick}>
+            Learn more
+          </Button>
+        </div>
       </div>
     </article>
   )
 }
 
-export function TeamSection() {
+export function TeamSection({
+  teamIntro,
+  bodyContent,
+  introBodyContent,
+  members,
+}: {
+  teamIntro?: AboutTeamIntro
+  /** Rich-text body rendered by the server (RichTextContent). */
+  bodyContent?: ReactNode
+  /** Rich-text intro body rendered by the server (RichTextContent). */
+  introBodyContent?: ReactNode
+  /** Team members from the Payload Team collection (falls back to the built-in list). */
+  members?: AboutTeamMember[]
+}) {
   const [selectedMember, setSelectedMember] = useState<TeamMember | null>(null)
 
+  const displayTeam: TeamMember[] = members?.length
+    ? members.map((member) => ({
+        name: member.name,
+        role: member.role,
+        description: member.description,
+        image: member.image,
+        initials: member.name
+          .split(' ')
+          .map((part) => part[0] || '')
+          .join('')
+          .slice(0, 2),
+      }))
+    : team
+
   // Separate the CEO (first item) from the rest of the team
-  const [ceo, ...restOfTeam] = team
+  const [ceo, ...restOfTeam] = displayTeam
 
   return (
     <section className="bg-white py-16 md:py-24 lg:py-32">
@@ -166,19 +202,26 @@ export function TeamSection() {
         {/* Main Header */}
         <div className="mx-auto max-w-3xl text-center">
           <p className="text-xs font-semibold uppercase tracking-[0.24em] text-brass-deep">
-            Driven by Passion, Guided by Expertise
+            {teamIntro?.eyebrow || 'Driven by Passion, Guided by Expertise'}
           </p>
           <h2 className="mt-4 font-display text-5xl font-medium leading-none tracking-tight text-ink-2 md:text-7xl">
-            Meet our exceptional Team
+            <HighlightedText
+              text={teamIntro?.heading || 'Meet our exceptional Team'}
+              highlight={teamIntro?.headingHighlight}
+            />
           </h2>
-          <p className="mx-auto mt-6 max-w-2xl text-base leading-7 text-ink-2/70">
-            Our team of visionary leaders and dedicated professionals is committed to transforming
-            your dreams into reality. With years of experience and a shared passion for excellence,
-            we are here to deliver unparalleled service and create stunning spaces that exceed your
-            expectations.
-          </p>
-          <Button variant="outline" href="#contact" className="mt-8">
-            Speak with Our Team
+          <div className="mx-auto mt-6 max-w-2xl text-base leading-7 text-ink-2/70">
+            {bodyContent ?? (
+              <p>
+                Our team of visionary leaders and dedicated professionals is committed to
+                transforming your dreams into reality. With years of experience and a shared passion
+                for excellence, we are here to deliver unparalleled service and create stunning
+                spaces that exceed your expectations.
+              </p>
+            )}
+          </div>
+          <Button variant="outline" href={teamIntro?.ctaHref || '#contact'} className="mt-8">
+            {teamIntro?.ctaLabel || 'Speak with Our Team'}
           </Button>
         </div>
 
@@ -193,20 +236,25 @@ export function TeamSection() {
         <div className="mt-20 grid gap-6 md:grid-cols-2 lg:grid-cols-3 lg:items-center">
           <div className="md:col-span-1 lg:col-span-2">
             <h2 className="font-display text-4xl font-medium leading-tight text-ink-2 md:text-5xl">
-              Meet the team
+              {teamIntro?.introHeading || 'Meet the team'}
             </h2>
             <p className="mt-2 text-2xl italic text-brass-deep/80">
-              The Faces Behind Prime Design and Build
+              {teamIntro?.introSubheading || 'The Faces Behind Prime Design and Build'}
             </p>
             <div className="mt-6 h-1 w-12 bg-brass" aria-hidden />
-            <p className="mt-6 max-w-xl text-base leading-7 text-ink-2/75">
-              Here, we showcase the talented individuals who bring their expertise, passion, and
-              creativity to Prime Design & Build. Each team member plays a vital role in shaping our
-              company&apos;s success and delivering outstanding results for our clients. Through
-              their dedication, skill, and commitment to craftsmanship, our team ensures that your
-              home remodeling journey is nothing short of exceptional. Explore below to get to know
-              the faces behind Prime Design & Build and discover the talent that sets us apart.
-            </p>
+            <div className="mt-6 max-w-xl text-base leading-7 text-ink-2/75">
+              {introBodyContent ?? (
+                <p>
+                  Here, we showcase the talented individuals who bring their expertise, passion, and
+                  creativity to Prime Design & Build. Each team member plays a vital role in shaping
+                  our company&apos;s success and delivering outstanding results for our clients.
+                  Through their dedication, skill, and commitment to craftsmanship, our team ensures
+                  that your home remodeling journey is nothing short of exceptional. Explore below
+                  to get to know the faces behind Prime Design & Build and discover the talent that
+                  sets us apart.
+                </p>
+              )}
+            </div>
           </div>
 
           <div className="md:col-span-1 lg:col-span-1">

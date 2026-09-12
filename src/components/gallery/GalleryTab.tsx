@@ -9,7 +9,7 @@ import type { GalleryCategory } from '@/lib/gallery.server'
 
 import { Lightbox } from './Lightbox'
 
-const PAGE_SIZE = 12
+const PAGE_SIZE = 18
 
 export function GalleryTabs({ categories }: { categories: GalleryCategory[] }) {
   const tabs = useMemo(
@@ -69,10 +69,7 @@ export function GalleryTabs({ categories }: { categories: GalleryCategory[] }) {
 
       {/* Image grid — identical treatment to GallerySection: sharp corners,
           hairline gap, 4:3 crop, subtle hover zoom. Clicking a photo opens
-          the lightbox at that image's position in the FULL active-tab list
-          (not just the currently loaded subset), so once open you can
-          browse the whole category, not just what "Load More" has
-          revealed so far. */}
+          the lightbox at that image's position in the full active-tab list. */}
       <div
         key={activeTab.slug}
         className="mt-10 grid animate-fade-in grid-cols-2 gap-1 motion-reduce:animate-none md:grid-cols-3"

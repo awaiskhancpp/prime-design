@@ -62,6 +62,21 @@ type PayloadConsultation = Pick<ConsultationType, 'title' | 'slug'> & {
   consultationLabel?: string | null
 }
 
+/**
+ * WordPress contact page (post 310) card order. The
+ * `showInConsultationForm` checkbox decides membership; this array only
+ * fixes the display order to match WordPress. Services not listed here
+ * (future additions) sort after the WordPress set.
+ */
+const WP_CONTACT_ORDER = [
+  'additions',
+  'complete-renovation',
+  'adu',
+  'new-construction',
+  'kitchen-remodeling',
+  'bathroom-remodeling',
+]
+
 export async function resolveConsultations(): Promise<ConsultationType[]> {
   if (!process.env.DATABASE_URL) return shouldUseLocalFallback() ? fallbackConsultations : []
   const payload = await getPayload({ config: configPromise })
@@ -83,7 +98,14 @@ export async function resolveConsultations(): Promise<ConsultationType[]> {
 
   if (!result.docs.length) return shouldUseLocalFallback() ? fallbackConsultations : []
 
-  return (result.docs as unknown as Array<PayloadConsultation & { showInConsultationForm?: boolean }>).map(
+  const docs = result.docs as unknown as Array<PayloadConsultation & { showInConsultationForm?: boolean }>
+  docs.sort((a, b) => {
+    const orderA = WP_CONTACT_ORDER.indexOf(a.slug)
+    const orderB = WP_CONTACT_ORDER.indexOf(b.slug)
+    return (orderA === -1 ? WP_CONTACT_ORDER.length : orderA) - (orderB === -1 ? WP_CONTACT_ORDER.length : orderB)
+  })
+
+  return docs.map(
     (item, index) => ({
       // The appointment name: the CMS label ("Kitchen Remodeling
       // Consultation") or the automatic "{Service} Consultation" fallback.

@@ -23,7 +23,7 @@ import type { RichTextValue } from '@/lib/richText'
  * used right under blog titles, `body` the regular article copy.
  */
 const siteConverters =
-  (tone: 'body' | 'lead'): JSXConvertersFunction =>
+  (tone: 'body' | 'lead' | 'light'): JSXConvertersFunction =>
   ({ defaultConverters }) => ({
     ...defaultConverters,
 
@@ -62,9 +62,11 @@ const siteConverters =
     paragraph: ({ node, nodesToJSX }) => (
       <p
         className={
-          tone === 'lead'
-            ? 'mt-4 text-lg leading-8 text-ink-2/80 first:mt-0 md:text-xl md:leading-9'
-            : 'mt-3 text-base leading-7 text-ink-2/70'
+          tone === 'light'
+            ? 'mt-3 text-base leading-7 text-white/85'
+            : tone === 'lead'
+              ? 'mt-4 text-lg leading-8 text-ink-2/80 first:mt-0 md:text-xl md:leading-9'
+              : 'mt-3 text-base leading-7 text-ink-2/70'
         }
       >
         {nodesToJSX({ nodes: node.children })}
@@ -107,8 +109,8 @@ export function RichTextContent({
   data: RichTextValue
   /** Optional class for the wrapping element (rarely needed). */
   className?: string
-  /** Paragraph styling: `lead` for larger intro copy, `body` for article text. */
-  tone?: 'body' | 'lead'
+  /** Paragraph styling: `lead` for larger intro copy, `body` for article text, `light` for dark backgrounds (white/85). */
+  tone?: 'body' | 'lead' | 'light'
 }) {
   // Cast through the component's own prop type — the precise Lexical types
   // are not importable here (see lib/richText.ts).

@@ -1,0 +1,82 @@
+﻿PAGE: id=2 slug=sample-page title=Home
+bricks elements: 119, roots: 8
+
+### order=0 type=hero sourceId=xxatvr
+kinds: section, container, block, heading, button
+  [heading/h1] Top-rated <font color="#fef0ad">design and build</font> firm in the Bay Area
+  [button] Schedule a Consultation link={"postId":"310","type":"internal"}
+
+### order=1 type=content sourceId=unmcxf
+kinds: section, container, block, heading, text-basic
+  [heading/h2] Discover the Prime experience with a new home renovation, ADU, home addition or kitchen and bathroom remodel
+  [text-basic] Where we transform blueprints into reality with unwavering dedication and unmatched expertise. Your vision is our foundation, and together, we construct a future of enduring quality and innovation. Let's build something extraordinary.
+
+### order=2 type=unsupported sourceId=phydkq
+kinds: section, container, block, image
+  <image> {"id":1792,"filename":"Social-Media-Links-2.png"}
+  <image> {"id":1791,"filename":"Social-Media-Links-1.png"}
+  <image> {"id":1790,"filename":"Social-Media-Links.png"}
+  <image> {"id":2553,"filename":"BB-ACCREDITED-1.jpeg"}
+
+### order=3 type=prime-difference sourceId=d868b8
+kinds: section, container, block, heading, text-basic, icon, video
+  [heading/h2] The Prime Difference
+  [text-basic] <span style="font-weight: normal;">Over</span> 350+ Projects <span style="font-weight: normal;">in Silicon Valley</span>
+  [text-basic/span] Experts on-site for interior design
+  [text-basic/span] Certified general contractor, fully licensed.
+  [text-basic/span] <strong>Family-owned</strong> and operated business
+  [text-basic/span] <strong>Competitive</strong> pricing for our services
+  [text-basic/span] <b>Quick response</b> for customer satisfaction
+  <video> {"fileUrl":"https://tagmediaspace.b-cdn.net/Prime%20Design%20and%20Build/03.09.2024%20Noam%20Prime%2041%20Rosewood%20Dr%20Atherton.mp4"}
+  <video> {"fileUrl":"https://tagmediaspace.b-cdn.net/Prime%20Design%20and%20Build/07.18.2024%20Josef%20Prime%20Full%20House%201840%20Bluebonnet%20Ct%20Morgan%20Hill.mp4"}
+  <video> {"fileUrl":"https://tagmediaspace.b-cdn.net/Prime%20Design%20and%20Build/09.04.2024%20Ilay%20Prime%20Kitchen%20700%20Alice%20Ave%20Mountain%20View.mp4"}
+  <video> {"fileUrl":"https://tagmediaspace.b-cdn.net/Prime%20Design%20and%20Build/Prime%20Vid%20Noah.mp4"}
+  <video> {"fileUrl":"https://tagmediaspace.b-cdn.net/Prime%20Design%20and%20Build/First%20Floor.mp4"}
+
+### order=4 type=cta sourceId=tryech
+kinds: section, container, heading, block, text-basic, button
+  [heading] Our Latest Remodeling Projects
+  [text-basic] {post_title}
+  [button] See More Projects link={"postId":"339","type":"internal"}
+  <query> {"objectType":"post","post_type":{"0":"project"}}
+
+### order=5 type=sub-services sourceId=scawum
+kinds: section, container, heading, slider-nested, block, text-basic, image
+  [heading] Our Services
+  [heading/h2] Home<br>Remodeling
+  [text-basic/p] Transform your home from ground up with our full home remodeling services.
+  [heading/h2] Kitchen<br>Remodeling
+  [text-basic/p] Experience the transformation of your home with our kitchen remodeling service.
+  [heading/h2] ADU & Garage Conversions
+  [text-basic/p] Our team specializes in creating versatile and functional ADU that provide homeowners with additional living space or rental opportunities.
+  [heading/h2] Home Additions
+  [text-basic/p] Our home addition services are tailored to help you expand and enhance your living space without the hassle of moving.
+  [heading/h2] New Construction / Complete Renovation
+  [text-basic/p] Our experienced team is dedicated to creating custom-built homes that reflect your unique style.
+  [heading/h2] Bathroom<br>Remodeling
+  [text-basic/p] Breathe new life into your bathroom with our Bathroom Remodeling service.
+  <image> {"id":2422,"filename":"WhatsApp-Image-2024-03-04-at-10.17.43-PM.jpeg"}
+  <image> {"id":2123,"filename":"WhatsApp-Image-2023-10-01-at-9.19.14-PM.jpeg"}
+  <image> {"id":2770,"filename":"ADU-PRIEM.jpg"}
+  <image> {"id":2099,"filename":"WhatsApp-Image-2023-07-10-at-10.01.42-PM.jpeg"}
+  <image> {"id":2122,"filename":"WhatsApp-Image-2023-10-01-at-9.17.46-PM.jpeg"}
+  <image> {"id":1938,"filename":"WhatsApp-Image-2023-05-31-at-11.47.52-PM.jpeg"}
+
+### order=6 type=sub-services sourceId=ykczam
+kinds: section, container, block, heading, text-basic, image, button
+  [heading] We don't just build Kitchens, <span class="heading--gradient">We do it all</span>.
+  [text-basic/p] Remodel Your Entire Home With {acf_company_name}
+  [heading/h2] Bathroom Remodeling
+  [text-basic] Let our expert team transform your bathroom into a space of beauty and functionality. Start your bathroom remodeling journey today!<br><br><i>Your dream bathroom becomes a reality as we work closely with you to bring your vision to life.</i>
+  [button] Learn more link={"postId":"337","type":"internal"}
+  [heading/h2] Complete Home Renovation
+  [text-basic] With a keen eye for detail and a commitment to craftsmanship, we employ innovative designs to create a home renovation that exceeds your expectations.<br><br><em>Whether it's a full-scale renovation or specific room transformations, we approach each project with the utmost care and professionalism.</em>
+  [button] Learn more link={"postId":"335","type":"internal"}
+  <image> {"id":2175,"filename":"o-47.jpg"}
+  <image> {"id":2418,"filename":"WhatsApp-Image-2024-03-04-at-8.18.54-PM-2.jpeg"}
+  <image> {"id":2424,"filename":"WhatsApp-Image-2024-03-04-at-8.36.47-PM.jpeg"}
+  <image> {"id":2425,"filename":"WhatsApp-Image-2024-03-04-at-8.37.03-PM.jpeg"}
+
+### order=7 type=contact-form sourceId=rqquxr
+kinds: section, container, heading, xfluentform
+  [heading/h2] Contact our team <span class="heading--gradient">today</span>!

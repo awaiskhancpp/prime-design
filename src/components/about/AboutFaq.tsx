@@ -8,8 +8,16 @@ import { Button } from '@/components/ui/Button'
 import { cn } from '@/lib/utils'
 import { Section } from '@/components/ui/Section'
 import { SectionHeader } from '@/components/ui/SectionHeader'
+import type { AboutFaqIntro } from '@/lib/about'
 
-export function AboutFaq({ phone = '(650) 220-9600' }: { phone?: string }) {
+export function AboutFaq({
+  phone = '(650) 220-9600',
+  faqIntro,
+}: {
+  phone?: string
+  /** Heading/description from the About global (CMS-driven). */
+  faqIntro?: AboutFaqIntro
+}) {
   // Initialize with 0 instead of null to keep the first item open
   const [openIndex, setOpenIndex] = useState<number | null>(0)
   const { faq } = website.about
@@ -18,7 +26,10 @@ export function AboutFaq({ phone = '(650) 220-9600' }: { phone?: string }) {
     <Section className="bg-white">
       <div className="grid gap-12 lg:grid-cols-[0.7fr_1.3fr] lg:gap-24">
         <div>
-          <SectionHeader title={faq.heading} description={faq.description} />
+          <SectionHeader
+            title={faqIntro?.heading || faq.heading}
+            description={faqIntro?.description || faq.description}
+          />
           <Button
             href={`tel:${phone.replace(/[^\d+]/g, '')}`}
             variant="outline"

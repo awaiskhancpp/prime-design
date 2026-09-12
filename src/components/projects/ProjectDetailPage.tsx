@@ -4,6 +4,7 @@ import { LandscapingServiceAreas } from '@/components/blocks/LandscapingServiceA
 import { Container } from '@/components/ui/Container'
 import { Section } from '@/components/ui/Section'
 import type { Project } from '@/lib/projects'
+import { ProjectGallery } from './ProjectGallery'
 
 export function ProjectDetailPage({ project }: { project: Project }) {
   return (
@@ -70,22 +71,7 @@ export function ProjectDetailPage({ project }: { project: Project }) {
       )}
 
       <Section className="bg-white pt-0">
-        <div className="grid gap-2 md:grid-cols-3">
-          {project.gallery.map((image, index) => (
-            <div
-              key={`${image}-${index}`}
-              className="relative aspect-[4/3] overflow-hidden bg-paper-2"
-            >
-              <Image
-                src={image}
-                alt={`${project.title} project image ${index + 1}`}
-                fill
-                className="object-cover"
-                sizes="(min-width: 768px) 50vw, 100vw"
-              />
-            </div>
-          ))}
-        </div>
+        <ProjectGallery images={project.gallery} title={project.title} />
       </Section>
 
       <LandscapingServiceAreas />

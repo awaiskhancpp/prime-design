@@ -1,7 +1,15 @@
-import { getPayload } from 'payload'
-
-import configPromise from '@payload-config'
 import website from '../../website.json'
+
+/**
+ * Payload is loaded lazily so this module stays safe to import from client
+ * components (SiteHeader renders the settings phone number): in the browser
+ * `process.env.DATABASE_URL` is unset and the local fallback is returned
+ * before the server-only Payload modules are ever touched.
+ */
+const payloadImports = () =>
+  Promise.all([import('payload'), import('@payload-config')]) as Promise<
+    [typeof import('payload'), typeof import('@payload-config')]
+  >
 
 export type SiteAddress = { address: string; link?: string }
 
@@ -32,6 +40,7 @@ export type SiteSettingsValue = {
     license?: string | null
     hours?: string | null
     mapsUrl?: string | null
+    serviceRegion?: string | null
     addresses?: Array<{ address?: string | null; link?: string | null }> | null
   }
 }
@@ -81,6 +90,7 @@ type PayloadSiteSettings = {
     license?: string | null
     hours?: string | null
     mapsUrl?: string | null
+    serviceRegion?: string | null
     addresses?: Array<{ address?: string | null; link?: string | null }> | null
   } | null
   socialLinks?: {
@@ -98,6 +108,7 @@ const textOr = (value: string | null | undefined) =>
 export async function resolveSiteAreas(): Promise<SiteArea[]> {
   if (!process.env.DATABASE_URL) return localAreas
 
+  const [{ getPayload }, { default: configPromise }] = await payloadImports()
   const payload = await getPayload({ config: configPromise })
   const settings = (await payload.findGlobal({ slug: 'site-settings', depth: 1 })) as PayloadSiteSettings
   const areas = settings.serviceAreas
@@ -116,6 +127,7 @@ export async function resolveSiteAreas(): Promise<SiteArea[]> {
 export async function resolveSiteSettings(): Promise<SiteSettingsValue> {
   if (!process.env.DATABASE_URL) return localSettings
 
+  const [{ getPayload }, { default: configPromise }] = await payloadImports()
   const payload = await getPayload({ config: configPromise })
   const settings = (await payload.findGlobal({ slug: 'site-settings', depth: 1 })) as PayloadSiteSettings
   const company = settings.company

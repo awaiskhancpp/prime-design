@@ -28,7 +28,7 @@ export async function ProjectsPage() {
         imageAlt="Completed home remodeling project"
       />
 
-      <Section className="bg-white pt-0">
+      <Section className="bg-white pt-10 ">
         <div className="grid max-w-[1440px]  gap-x-4 gap-y-6 sm:grid-cols-3">
           {projects.map((project) => (
             <ProjectCard key={project.slug} project={project} />

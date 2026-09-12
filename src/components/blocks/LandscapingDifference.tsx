@@ -69,7 +69,13 @@ function VideoPoster({ src, alt }: { src: string; alt: string }) {
   // Until the frame is captured, show the video's own first frame.
   return (
     <span className="pointer-events-none absolute inset-0 bg-ink" aria-hidden="true">
-      <video className="h-full w-full object-cover" muted playsInline preload="metadata" tabIndex={-1}>
+      <video
+        className="h-full w-full object-cover"
+        muted
+        playsInline
+        preload="metadata"
+        tabIndex={-1}
+      >
         <source src={src} type="video/mp4" />
       </video>
     </span>
@@ -122,13 +128,13 @@ export function LandscapingDifference({ difference }: { difference?: HomepageDif
 
   return (
     <Section className="">
-      <div className="mb-12 flex gap-5 justify-center">
+      <div className="mb-12 flex gap-5 flex-wrap justify-center">
         {socials.map((s, i) => (
           <Image src={s} alt="" key={i} width={180} height={90} />
         ))}
       </div>
       <div className="grid gap-12 lg:grid-cols-2 lg:items-center lg:gap-16">
-        <div>
+        <div className="order-2 lg:order-1">
           <div className="relative aspect-[4/3] overflow-hidden bg-ink">
             <video
               key={active.url}
@@ -142,7 +148,7 @@ export function LandscapingDifference({ difference }: { difference?: HomepageDif
             </video>
           </div>
 
-          <div className="mt-3 grid grid-cols-5 gap-2">
+          <div className="order-1 lg:order-2 mt-3 grid grid-cols-5 gap-2">
             {projectVideos.map((video) => (
               <button
                 key={video.url}

@@ -85,42 +85,74 @@ export async function POST(request: Request) {
   const body = (await request.json().catch(() => ({}))) as {
     mediaId?: number
     wpUrl?: string
+    wpId?: number
+    localPath?: string
     filename?: string
     alt?: string
   }
   const wpUrl = String(body.wpUrl || '')
+  const localPath = String(body.localPath || '')
   const filename = String(body.filename || '')
   const alt = String(body.alt || '')
+  const GOOGLEBOT =
+    'Mozilla/5.0 (compatible; Googlebot/2.1; +http://www.google.com/bot.html)'
 
   try {
-    const host = new URL(wpUrl).host
-    if (!ALLOWED_HOSTS.has(host)) throw new Error(`host not allowed: ${host}`)
-
-    const userAgents = [
-      'Mozilla/5.0 (compatible; Googlebot/2.1; +http://www.google.com/bot.html)',
-      'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/125.0 Safari/537.36',
-    ]
-    let res: Response | null = null
-    let lastStatus = ''
-    for (const ua of userAgents) {
-      const attempt = await fetch(wpUrl, {
-        headers: {
-          'User-Agent': ua,
-          Accept: 'image/avif,image/webp,image/png,image/jpeg,*/*;q=0.8',
-          'Accept-Language': 'en-US,en;q=0.9',
-        },
-      })
-      lastStatus = `${attempt.status} ${attempt.statusText}`
-      if (attempt.ok) {
-        res = attempt
-        break
+    let bytes: Buffer
+    let mimetype: string
+    if (localPath) {
+      const { readFile } = await import('node:fs/promises')
+      const path = await import('node:path')
+      const root = path.resolve(process.cwd())
+      const resolved = path.resolve(root, localPath)
+      if (!resolved.startsWith(root)) throw new Error('localPath escapes the workspace')
+      bytes = await readFile(resolved)
+      mimetype =
+        resolved.endsWith('.png')
+          ? 'image/png'
+          : resolved.endsWith('.webp')
+            ? 'image/webp'
+            : resolved.endsWith('.jpg') || resolved.endsWith('.jpeg')
+              ? 'image/jpeg'
+              : 'application/octet-stream'
+    } else {
+      let targetUrl = wpUrl
+      if (!targetUrl && body.wpId) {
+        const apiUrl = `https://primedesignandbuild.com/wp-json/wp/v2/media/${body.wpId}?_fields=source_url`
+        const apiRes = await fetch(apiUrl, { headers: { 'User-Agent': GOOGLEBOT } })
+        if (!apiRes.ok) throw new Error(`wp api failed: ${apiRes.status}`)
+        const apiJson = (await apiRes.json()) as { source_url?: string }
+        targetUrl = String(apiJson.source_url || '')
+        if (!targetUrl) throw new Error('wp api returned no source_url')
       }
-    }
-    if (!res) throw new Error(`wp fetch failed: ${lastStatus}`)
+      const host = new URL(targetUrl).host
+      if (!ALLOWED_HOSTS.has(host)) throw new Error(`host not allowed: ${host}`)
 
-    const bytes = Buffer.from(await res.arrayBuffer())
-    if (!bytes.length) throw new Error('empty response body')
-    const mimetype = res.headers.get('content-type') || 'application/octet-stream'
+      const userAgents = [
+        GOOGLEBOT,
+        'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/125.0 Safari/537.36',
+      ]
+      let res: Response | null = null
+      let lastStatus = ''
+      for (const ua of userAgents) {
+        const attempt = await fetch(targetUrl, {
+          headers: {
+            'User-Agent': ua,
+            Accept: 'image/avif,image/webp,image/png,image/jpeg,*/*;q=0.8',
+            'Accept-Language': 'en-US,en;q=0.9',
+          },
+        })
+        lastStatus = `${attempt.status} ${attempt.statusText}`
+        if (attempt.ok) {
+          res = attempt
+          break
+        }
+      }
+      if (!res) throw new Error(`wp fetch failed: ${lastStatus}`)
+      bytes = Buffer.from(await res.arrayBuffer())
+      if (!bytes.length) throw new Error('empty response body')
+      mimetype = res.headers.get('content-type') || 'application/octet-stream'
+    }
 
     const payload = await getPayload({ config: configPromise })
     const file = { data: bytes, mimetype, name: filename, size: bytes.length }
@@ -137,7 +169,11 @@ export async function POST(request: Request) {
 
     const doc = await payload.create({
       collection: 'media',
-      data: { alt, sourceUrl: wpUrl },
+      data: {
+        alt,
+        sourceUrl: wpUrl || undefined,
+        wordpressId: body.wpId || undefined,
+      },
       file,
     })
     return NextResponse.json({ ok: true, id: doc.id, url: doc.url })

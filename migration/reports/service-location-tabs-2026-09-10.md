@@ -642,3 +642,64 @@ the videos themselves:
   (Payload services, filtered to the six WP homepage services), HomeProjects
   renders `resolveProjects()` (Payload projects, featured-first then the six
   most recent) — both fetched per request, nothing static.
+
+## CMS-driven Gallery page (Gallery global) + full image backfill
+
+- Audited WP gallery page (post 349): hero eyebrow "Our Gallery", h1
+  "A reflection of our remodeling projects in Silicon Valley" (gradient on
+  "remodeling projects"), description "See our kitchen remodeling…", three
+  HappyFiles gallery tabs (Kitchens / Bathroom / ADU & Addition). No hero
+  image in WP.
+- `src/globals/Gallery.ts` (registered in payload.config): `hero`
+  (eyebrow/heading/headingHighlight/description richText/image optional) +
+  `whyChooseUs` (eyebrow/eyebrowAccent/heading/reasons array). Tabs stay on
+  the gallery-categories collection (already payload-driven).
+- `src/lib/gallery.ts`: `resolveGallery()` with the WP copy as fallback;
+  GalleryPage wired (hero via PageHero + HighlightedText + RichTextContent
+  tone "light", WhyChooseUs props). The dummy `/services/kitchen-remodeling.jpeg`
+  hero image is gone — the hero renders plain dark like WordPress.
+- Image backfill from the paginated WP media API (`happyfiles_category` 8/9/65,
+  `_fields` compact mode to avoid truncation): WP gallery = 50 kitchens +
+  37 bathrooms + 12 ADU & Addition = 99 images; 77 were missing from Payload
+  and were uploaded via the dev route (extended to resolve `source_url` by
+  media id through the WP REST API). All 99 attached to their
+  gallery-categories in the WordPress order (`scripts/attach-gallery-images.mjs`,
+  idempotent; `scripts/seed-gallery.mjs` seeds the global).
+- Migration `20260911_225142_gallery_global` generated, made idempotent and
+  applied (batch 23); types regenerated. Verified `/gallery` renders the WP
+  copy and the full image sets; typecheck + lint clean.
+- Concurrent site-wide fixes (user WIP in progress): `lib/revalidate.ts`
+  lazy-loads `next/cache` (payload hooks), `lib/siteSettings.ts` lazy-loads
+  Payload, and the new client `SiteHeader` uses the static phone so
+  `payload.config`/sharp stay out of the browser bundle.
+
+## CMS-driven About page (About global)
+
+Audited with the wordpress-migration tooling (xmlParser/bricksParser/
+normalizer/mediaResolver) against WP post 343 (`about`) and wired:
+
+- `src/globals/About.ts` (registered in payload.config): groups `hero`
+  (eyebrow/heading/headingHighlight/description richText/image/imageSecondary/
+  video/cta — video takes priority, two images render the pair slider),
+  `team` (eyebrow/heading/headingHighlight/body richText/cta + the "Meet the
+  team" intro block), `guidingPrinciple` (eyebrow/heading/headingHighlight/
+  body richText/image/imageSecondary/cta), `coreValues` (heading/description/
+  values array {icon,title,body richText optional}), `experts`
+  (eyebrow/heading/description richText/video/poster/badge/cta), `faq`
+  (heading/description). Heading highlights seeded from the WP gradient
+  spans: "Go-To Choice", "exceptional", "Reliability in Every Project We
+  Take On".
+- `src/lib/about.ts`: `resolveAbout()` with the WP copy as fallback.
+- Components wired (AboutHero pair-slider + video option, TeamSection intro,
+  GuidingPrinciple two WP images, CoreValues, ExpertsSection Cryer video +
+  company-of-year badge + CTA, AboutFaq intro). Team members list stays as
+  before (WP queries the team CPT; out of scope).
+- Media: imported WP 828 (`Kitchen-And-Bathroom-Images-1920-×-1080-px-2.png`
+  → #453, hero) and WP 880 (`company-of-year.png` → #454, experts badge);
+  reused existing media prime7-2.jpg (#359), prime13-1.jpg (#353), Cryer St
+  mp4 (#408). No section points at a generic image anymore.
+- `scripts/seed-about.mjs` created the `about` + `about_core_values_values`
+  tables (push:false parity) and seeded the WP copy. Migration generated and
+  reviewed at `src/migrations/20260911_215642_about_global.ts` (not applied —
+  matches the manual parity exactly). Types regenerated. Typecheck + lint
+  clean; `/about` renders all CMS content (verified).

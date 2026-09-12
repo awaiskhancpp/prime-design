@@ -3,7 +3,7 @@ import { LandscapingServiceAreas } from '@/components/blocks/LandscapingServiceA
 import { PageHero } from '@/components/layout/PageHero'
 import { Section } from '@/components/ui/Section'
 import { resolveBlogPosts } from '@/lib/blog'
-import { resolvePageBySlug } from '@/lib/pages'
+import { resolvePageBySlug, type PageBlock } from '@/lib/pages'
 import { BlogCard } from './BlogCard'
 import { ServiceEstimateCta } from '../services/ServiceEstimateCta'
 
@@ -12,9 +12,17 @@ export async function BlogPage() {
 
   // The hero comes from the pages collection record "blog" (seeded from
   // WordPress page 1670); the hardcoded values below are only a fallback
-  // for local runs without a database.
+  // for local runs without a database. The WordPress hero has no image,
+  // so no dummy image is substituted.
   const page = await resolvePageBySlug('blog')
   const hero = page?.hero
+
+  // The free-estimate band is a WordPress template (tpl 1174) inserted on
+  // page 1670. Its copy lives in Payload as a `cta` layout block on this
+  // page record; the hardcoded copy below is the WordPress fallback.
+  const estimateBlock = page?.layout.find(
+    (block): block is Extract<PageBlock, { blockType: 'cta' }> => block.blockType === 'cta',
+  )
 
   return (
     <div className="min-h-screen bg-white">
@@ -25,14 +33,13 @@ export async function BlogPage() {
             <>
               This is where we share our knowledge and insights about everything related to
               remodeling. Whether you&apos;re looking for <strong>advice</strong> on a remodeling
-              project, <em>exploring options for your home</em>, or{' '}
-              <strong>seeking updates</strong> on the latest trends in the industry, you&apos;ve
-              come to the right place!
+              project, <em>exploring options for your home</em>, or <strong>seeking updates</strong>{' '}
+              on the latest trends in the industry, you&apos;ve come to the right place!
             </>
           )
         }
-        image={hero?.image || '/services/kitchen-remodeling.jpeg'}
-        imageAlt="Kitchen remodeling project"
+        image={hero?.image}
+        imageAlt={page?.title || 'Blog'}
         cta={
           hero?.cta?.label
             ? { label: hero.cta.label, href: hero.cta.href || '/contact' }
@@ -40,14 +47,17 @@ export async function BlogPage() {
         }
       />
 
-      <Section className="bg-white pt-0">
+      <Section className="bg-white pt-10 ">
         <div className=" grid  gap-x-4 gap-y-8 sm:grid-cols-2 lg:grid-cols-3">
           {blogPosts.map((post) => (
             <BlogCard key={post.slug} post={post} />
           ))}
         </div>
       </Section>
-      <ServiceEstimateCta />
+      <ServiceEstimateCta
+        heading={estimateBlock?.heading || 'Ready to schedule your free estimate?'}
+        description={estimateBlock?.body || 'Contact us here or reach us at (650) 235-4863'}
+      />
       <ProjectsReviews />
       <LandscapingServiceAreas />
     </div>
