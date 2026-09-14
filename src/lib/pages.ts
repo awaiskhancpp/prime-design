@@ -1,21 +1,9 @@
 import { getPayload } from 'payload'
 
 import configPromise from '@payload-config'
+import { toPageSections, type PageSection } from './pageSections'
 import { getWordPressPage } from './wordpressPages'
 import { shouldUseLocalFallback } from './runtime'
-
-export type PageBlock =
-  | { blockType: 'content'; eyebrow?: string; heading: string; body: string }
-  | {
-      blockType: 'image-text'
-      eyebrow?: string
-      heading: string
-      body: string
-      image?: string
-      imageSide?: 'left' | 'right'
-    }
-  | { blockType: 'gallery'; heading?: string; images: string[] }
-  | { blockType: 'cta'; heading: string; body?: string; label?: string; href?: string }
 
 export type Page = {
   title: string
@@ -27,7 +15,7 @@ export type Page = {
     image?: string
     cta?: { label?: string; href?: string }
   }
-  layout: PageBlock[]
+  layout: PageSection[]
   isGoogleAdsPage: boolean
   seo?: {
     metaTitle?: string | null
@@ -59,62 +47,6 @@ const mediaUrl = (value: unknown) =>
   typeof value === 'object' && value !== null && 'url' in value && typeof value.url === 'string'
     ? value.url
     : undefined
-
-function normalizeBlocks(value: PayloadPage['layout']): PageBlock[] {
-  if (!value) return []
-
-  return value.flatMap((block): PageBlock[] => {
-    if (block.blockType === 'content') {
-      return [
-        {
-          blockType: 'content',
-          eyebrow: typeof block.eyebrow === 'string' ? block.eyebrow : undefined,
-          heading: String(block.heading || ''),
-          body: String(block.body || ''),
-        },
-      ]
-    }
-
-    if (block.blockType === 'image-text') {
-      return [
-        {
-          blockType: 'image-text',
-          eyebrow: typeof block.eyebrow === 'string' ? block.eyebrow : undefined,
-          heading: String(block.heading || ''),
-          body: String(block.body || ''),
-          image: mediaUrl(block.image),
-          imageSide: block.imageSide === 'left' ? 'left' : 'right',
-        },
-      ]
-    }
-
-    if (block.blockType === 'gallery') {
-      return [
-        {
-          blockType: 'gallery',
-          heading: typeof block.heading === 'string' ? block.heading : undefined,
-          images: Array.isArray(block.images)
-            ? block.images.map(mediaUrl).filter((image): image is string => Boolean(image))
-            : [],
-        },
-      ]
-    }
-
-    if (block.blockType === 'cta') {
-      return [
-        {
-          blockType: 'cta',
-          heading: String(block.heading || ''),
-          body: typeof block.body === 'string' ? block.body : undefined,
-          label: typeof block.label === 'string' ? block.label : undefined,
-          href: typeof block.href === 'string' ? block.href : undefined,
-        },
-      ]
-    }
-
-    return []
-  })
-}
 
 function fallbackPage(slug: string): Page | undefined {
   const page = getWordPressPage(slug)
@@ -164,7 +96,7 @@ export async function resolvePageBySlug(slug: string): Promise<Page | undefined>
             : undefined,
         }
       : undefined,
-    layout: normalizeBlocks(record.layout),
+    layout: toPageSections(record.layout),
     isGoogleAdsPage: Boolean(record.isGoogleAdsPage),
     seo: record.seo,
   }

@@ -11,7 +11,16 @@ import { Lightbox } from './Lightbox'
 
 const PAGE_SIZE = 18
 
-export function GalleryTabs({ categories }: { categories: GalleryCategory[] }) {
+export function GalleryTabs({
+  categories,
+  heading,
+  description,
+}: {
+  categories: GalleryCategory[]
+  /** Optional — the WordPress gallery has no heading above the tabs. */
+  heading?: string
+  description?: string
+}) {
   const tabs = useMemo(
     () => [
       { slug: 'all', title: 'All', images: categories.flatMap((category) => category.images) },
@@ -35,6 +44,19 @@ export function GalleryTabs({ categories }: { categories: GalleryCategory[] }) {
 
   return (
     <Section className="bg-white">
+      {heading || description ? (
+        <div className="mx-auto mb-10 max-w-3xl text-center">
+          {heading ? (
+            <h2 className="font-display text-3xl font-medium leading-tight tracking-tight text-ink-2 md:text-4xl">
+              {heading}
+            </h2>
+          ) : null}
+          {description ? (
+            <p className="mt-4 text-base leading-8 text-ink-2/70">{description}</p>
+          ) : null}
+        </div>
+      ) : null}
+
       {/* Category tabs — same uppercase/tracked-out eyebrow language and
           brass underline used across the rest of the site, not a new pill
           or rounded-tab pattern. */}

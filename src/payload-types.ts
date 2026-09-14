@@ -117,15 +117,9 @@ export interface Config {
   fallbackLocale: null;
   globals: {
     'site-settings': SiteSetting;
-    homepage: Homepage;
-    about: About;
-    gallery: Gallery;
   };
   globalsSelect: {
     'site-settings': SiteSettingsSelect<false> | SiteSettingsSelect<true>;
-    homepage: HomepageSelect<false> | HomepageSelect<true>;
-    about: AboutSelect<false> | AboutSelect<true>;
-    gallery: GallerySelect<false> | GallerySelect<true>;
   };
   locale: null;
   widgets: {
@@ -1832,6 +1826,465 @@ export interface Page {
   };
   layout?:
     | (
+        | {
+            eyebrow?: string | null;
+            heading?: string | null;
+            /**
+             * Word(s) of the heading to render in the accent color, e.g. "design and build". Separate multiple phrases with |.
+             */
+            headingHighlight?: string | null;
+            description?: {
+              root: {
+                type: string;
+                children: {
+                  type: any;
+                  version: number;
+                  [k: string]: unknown;
+                }[];
+                direction: ('ltr' | 'rtl') | null;
+                format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+                indent: number;
+                version: number;
+              };
+              [k: string]: unknown;
+            } | null;
+            /**
+             * Background image, or the first slide when a second image is set. Doubles as the video poster.
+             */
+            image?: (number | null) | Media;
+            /**
+             * Optional. When set together with the main image, the hero shows the two-image slider. A video replaces the image(s) when both are set.
+             */
+            imageSecondary?: (number | null) | Media;
+            /**
+             * Background video. Takes priority over the image(s).
+             */
+            video?: (number | null) | Media;
+            /**
+             * Optional external clip (hot-linked, e.g. the CDN) used from 768px up, for a lighter mobile cut in the upload above. WordPress serves the homepage hero this way.
+             */
+            videoUrl?: string | null;
+            cta?: {
+              label?: string | null;
+              href?: string | null;
+              style?: ('filled' | 'outlined') | null;
+              showCalendarIcon?: boolean | null;
+            };
+            /**
+             * Center is the full-width primary hero; left aligns the copy to the left edge like the inner pages.
+             */
+            align?: ('center' | 'left') | null;
+            id?: string | null;
+            blockName?: string | null;
+            blockType: 'hero';
+          }
+        | {
+            eyebrow?: string | null;
+            heading?: string | null;
+            body?: {
+              root: {
+                type: string;
+                children: {
+                  type: any;
+                  version: number;
+                  [k: string]: unknown;
+                }[];
+                direction: ('ltr' | 'rtl') | null;
+                format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+                indent: number;
+                version: number;
+              };
+              [k: string]: unknown;
+            } | null;
+            image?: (number | null) | Media;
+            id?: string | null;
+            blockName?: string | null;
+            blockType: 'intro';
+          }
+        | {
+            eyebrow?: string | null;
+            heading?: string | null;
+            /**
+             * Word(s) of the heading to render in the accent color, e.g. "Difference". Separate multiple phrases with |.
+             */
+            headingHighlight?: string | null;
+            /**
+             * The "Why choose" checklist (lead renders bold, text renders after it).
+             */
+            checklist?:
+              | {
+                  lead?: string | null;
+                  text?: string | null;
+                  id?: string | null;
+                }[]
+              | null;
+            /**
+             * The video tiles under the checklist (WordPress hot-links these from the CDN, so a URL is used rather than an upload).
+             */
+            videos?:
+              | {
+                  title: string;
+                  /**
+                   * Direct .mp4 URL.
+                   */
+                  url: string;
+                  id?: string | null;
+                }[]
+              | null;
+            id?: string | null;
+            blockName?: string | null;
+            blockType: 'difference';
+          }
+        | {
+            eyebrow?: string | null;
+            heading?: string | null;
+            /**
+             * Word(s) of the heading to render in the accent color, e.g. "projects". Separate multiple phrases with |.
+             */
+            headingHighlight?: string | null;
+            body?: {
+              root: {
+                type: string;
+                children: {
+                  type: any;
+                  version: number;
+                  [k: string]: unknown;
+                }[];
+                direction: ('ltr' | 'rtl') | null;
+                format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+                indent: number;
+                version: number;
+              };
+              [k: string]: unknown;
+            } | null;
+            id?: string | null;
+            blockName?: string | null;
+            blockType: 'projects';
+          }
+        | {
+            eyebrow?: string | null;
+            heading?: string | null;
+            /**
+             * Word(s) of the heading to render in the accent color, e.g. "services". Separate multiple phrases with |.
+             */
+            headingHighlight?: string | null;
+            body?: {
+              root: {
+                type: string;
+                children: {
+                  type: any;
+                  version: number;
+                  [k: string]: unknown;
+                }[];
+                direction: ('ltr' | 'rtl') | null;
+                format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+                indent: number;
+                version: number;
+              };
+              [k: string]: unknown;
+            } | null;
+            id?: string | null;
+            blockName?: string | null;
+            blockType: 'services';
+          }
+        | {
+            eyebrow?: string | null;
+            title?: string | null;
+            /**
+             * Word(s) of the title to render in the accent color, e.g. "We do it all". Separate multiple phrases with |.
+             */
+            titleHighlight?: string | null;
+            /**
+             * Before/after feature cards.
+             */
+            items?:
+              | {
+                  title?: string | null;
+                  body?: {
+                    root: {
+                      type: string;
+                      children: {
+                        type: any;
+                        version: number;
+                        [k: string]: unknown;
+                      }[];
+                      direction: ('ltr' | 'rtl') | null;
+                      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+                      indent: number;
+                      version: number;
+                    };
+                    [k: string]: unknown;
+                  } | null;
+                  ctaLabel?: string | null;
+                  ctaHref?: string | null;
+                  beforeImage?: (number | null) | Media;
+                  afterImage?: (number | null) | Media;
+                  id?: string | null;
+                }[]
+              | null;
+            id?: string | null;
+            blockName?: string | null;
+            blockType: 'feature-blocks';
+          }
+        | {
+            eyebrow?: string | null;
+            heading?: string | null;
+            /**
+             * Word(s) of the heading to render in the accent color, e.g. "today". Separate multiple phrases with |.
+             */
+            headingHighlight?: string | null;
+            body?: {
+              root: {
+                type: string;
+                children: {
+                  type: any;
+                  version: number;
+                  [k: string]: unknown;
+                }[];
+                direction: ('ltr' | 'rtl') | null;
+                format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+                indent: number;
+                version: number;
+              };
+              [k: string]: unknown;
+            } | null;
+            id?: string | null;
+            blockName?: string | null;
+            blockType: 'contact-intro';
+          }
+        | {
+            eyebrow?: string | null;
+            heading?: string | null;
+            /**
+             * Word(s) of the heading to render in the accent color, e.g. "exceptional". Separate multiple phrases with |.
+             */
+            headingHighlight?: string | null;
+            body?: {
+              root: {
+                type: string;
+                children: {
+                  type: any;
+                  version: number;
+                  [k: string]: unknown;
+                }[];
+                direction: ('ltr' | 'rtl') | null;
+                format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+                indent: number;
+                version: number;
+              };
+              [k: string]: unknown;
+            } | null;
+            ctaLabel?: string | null;
+            ctaHref?: string | null;
+            introHeading?: string | null;
+            introSubheading?: string | null;
+            introBody?: {
+              root: {
+                type: string;
+                children: {
+                  type: any;
+                  version: number;
+                  [k: string]: unknown;
+                }[];
+                direction: ('ltr' | 'rtl') | null;
+                format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+                indent: number;
+                version: number;
+              };
+              [k: string]: unknown;
+            } | null;
+            id?: string | null;
+            blockName?: string | null;
+            blockType: 'team';
+          }
+        | {
+            eyebrow?: string | null;
+            heading?: string | null;
+            /**
+             * Word(s) of the heading to render in the accent color, e.g. "Reliability in Every Project We Take On". Separate multiple phrases with |.
+             */
+            headingHighlight?: string | null;
+            body?: {
+              root: {
+                type: string;
+                children: {
+                  type: any;
+                  version: number;
+                  [k: string]: unknown;
+                }[];
+                direction: ('ltr' | 'rtl') | null;
+                format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+                indent: number;
+                version: number;
+              };
+              [k: string]: unknown;
+            } | null;
+            image?: (number | null) | Media;
+            imageSecondary?: (number | null) | Media;
+            ctaLabel?: string | null;
+            ctaHref?: string | null;
+            id?: string | null;
+            blockName?: string | null;
+            blockType: 'guiding-principle';
+          }
+        | {
+            heading?: string | null;
+            description?: string | null;
+            /**
+             * Icon + title; body is optional.
+             */
+            values?:
+              | {
+                  /**
+                   * Icon path (files live in /public, e.g. "/about/about-customer-focused.svg").
+                   */
+                  icon?: string | null;
+                  title?: string | null;
+                  body?: {
+                    root: {
+                      type: string;
+                      children: {
+                        type: any;
+                        version: number;
+                        [k: string]: unknown;
+                      }[];
+                      direction: ('ltr' | 'rtl') | null;
+                      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+                      indent: number;
+                      version: number;
+                    };
+                    [k: string]: unknown;
+                  } | null;
+                  id?: string | null;
+                }[]
+              | null;
+            id?: string | null;
+            blockName?: string | null;
+            blockType: 'core-values';
+          }
+        | {
+            eyebrow?: string | null;
+            heading?: string | null;
+            description?: {
+              root: {
+                type: string;
+                children: {
+                  type: any;
+                  version: number;
+                  [k: string]: unknown;
+                }[];
+                direction: ('ltr' | 'rtl') | null;
+                format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+                indent: number;
+                version: number;
+              };
+              [k: string]: unknown;
+            } | null;
+            video?: (number | null) | Media;
+            poster?: (number | null) | Media;
+            badge?: (number | null) | Media;
+            ctaLabel?: string | null;
+            ctaHref?: string | null;
+            id?: string | null;
+            blockName?: string | null;
+            blockType: 'experts';
+          }
+        | {
+            heading?: string | null;
+            description?: string | null;
+            id?: string | null;
+            blockName?: string | null;
+            blockType: 'faq';
+          }
+        | {
+            /**
+             * Optional heading above the category tabs. Leave empty for the bare layout.
+             */
+            heading?: string | null;
+            description?: string | null;
+            id?: string | null;
+            blockName?: string | null;
+            blockType: 'gallery-tabs';
+          }
+        | {
+            eyebrow?: string | null;
+            eyebrowAccent?: string | null;
+            heading?: string | null;
+            reasons?:
+              | {
+                  /**
+                   * Icon path (files live in /public).
+                   */
+                  icon?: string | null;
+                  title?: string | null;
+                  body?: string | null;
+                  id?: string | null;
+                }[]
+              | null;
+            id?: string | null;
+            blockName?: string | null;
+            blockType: 'why-choose-us';
+          }
+        | {
+            /**
+             * Optional city for the lead line ("Start Crafting Your Dream Project in {city} Today"). Empty uses the generic wording.
+             */
+            city?: string | null;
+            /**
+             * Optional poster frame for the contact walkthrough video.
+             */
+            poster?: (number | null) | Media;
+            id?: string | null;
+            blockName?: string | null;
+            blockType: 'contact';
+          }
+        | {
+            /**
+             * Heading only — the city list is shared site-wide via Site Settings service areas.
+             */
+            heading?: string | null;
+            id?: string | null;
+            blockName?: string | null;
+            blockType: 'service-areas';
+          }
+        | {
+            eyebrow?: string | null;
+            heading: string;
+            /**
+             * Word(s) of the heading to render in the accent color. Separate multiple phrases with |.
+             */
+            headingHighlight?: string | null;
+            body?: {
+              root: {
+                type: string;
+                children: {
+                  type: any;
+                  version: number;
+                  [k: string]: unknown;
+                }[];
+                direction: ('ltr' | 'rtl') | null;
+                format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+                indent: number;
+                version: number;
+              };
+              [k: string]: unknown;
+            } | null;
+            image?: (number | null) | Media;
+            imageSide?: ('right' | 'left') | null;
+            /**
+             * Optional. The first button renders filled, the second one outlined.
+             */
+            buttons?:
+              | {
+                  label: string;
+                  href: string;
+                  id?: string | null;
+                }[]
+              | null;
+            id?: string | null;
+            blockName?: string | null;
+            blockType: 'custom';
+          }
         | {
             eyebrow?: string | null;
             heading: string;
@@ -4504,6 +4957,238 @@ export interface PagesSelect<T extends boolean = true> {
   layout?:
     | T
     | {
+        hero?:
+          | T
+          | {
+              eyebrow?: T;
+              heading?: T;
+              headingHighlight?: T;
+              description?: T;
+              image?: T;
+              imageSecondary?: T;
+              video?: T;
+              videoUrl?: T;
+              cta?:
+                | T
+                | {
+                    label?: T;
+                    href?: T;
+                    style?: T;
+                    showCalendarIcon?: T;
+                  };
+              align?: T;
+              id?: T;
+              blockName?: T;
+            };
+        intro?:
+          | T
+          | {
+              eyebrow?: T;
+              heading?: T;
+              body?: T;
+              image?: T;
+              id?: T;
+              blockName?: T;
+            };
+        difference?:
+          | T
+          | {
+              eyebrow?: T;
+              heading?: T;
+              headingHighlight?: T;
+              checklist?:
+                | T
+                | {
+                    lead?: T;
+                    text?: T;
+                    id?: T;
+                  };
+              videos?:
+                | T
+                | {
+                    title?: T;
+                    url?: T;
+                    id?: T;
+                  };
+              id?: T;
+              blockName?: T;
+            };
+        projects?:
+          | T
+          | {
+              eyebrow?: T;
+              heading?: T;
+              headingHighlight?: T;
+              body?: T;
+              id?: T;
+              blockName?: T;
+            };
+        services?:
+          | T
+          | {
+              eyebrow?: T;
+              heading?: T;
+              headingHighlight?: T;
+              body?: T;
+              id?: T;
+              blockName?: T;
+            };
+        'feature-blocks'?:
+          | T
+          | {
+              eyebrow?: T;
+              title?: T;
+              titleHighlight?: T;
+              items?:
+                | T
+                | {
+                    title?: T;
+                    body?: T;
+                    ctaLabel?: T;
+                    ctaHref?: T;
+                    beforeImage?: T;
+                    afterImage?: T;
+                    id?: T;
+                  };
+              id?: T;
+              blockName?: T;
+            };
+        'contact-intro'?:
+          | T
+          | {
+              eyebrow?: T;
+              heading?: T;
+              headingHighlight?: T;
+              body?: T;
+              id?: T;
+              blockName?: T;
+            };
+        team?:
+          | T
+          | {
+              eyebrow?: T;
+              heading?: T;
+              headingHighlight?: T;
+              body?: T;
+              ctaLabel?: T;
+              ctaHref?: T;
+              introHeading?: T;
+              introSubheading?: T;
+              introBody?: T;
+              id?: T;
+              blockName?: T;
+            };
+        'guiding-principle'?:
+          | T
+          | {
+              eyebrow?: T;
+              heading?: T;
+              headingHighlight?: T;
+              body?: T;
+              image?: T;
+              imageSecondary?: T;
+              ctaLabel?: T;
+              ctaHref?: T;
+              id?: T;
+              blockName?: T;
+            };
+        'core-values'?:
+          | T
+          | {
+              heading?: T;
+              description?: T;
+              values?:
+                | T
+                | {
+                    icon?: T;
+                    title?: T;
+                    body?: T;
+                    id?: T;
+                  };
+              id?: T;
+              blockName?: T;
+            };
+        experts?:
+          | T
+          | {
+              eyebrow?: T;
+              heading?: T;
+              description?: T;
+              video?: T;
+              poster?: T;
+              badge?: T;
+              ctaLabel?: T;
+              ctaHref?: T;
+              id?: T;
+              blockName?: T;
+            };
+        faq?:
+          | T
+          | {
+              heading?: T;
+              description?: T;
+              id?: T;
+              blockName?: T;
+            };
+        'gallery-tabs'?:
+          | T
+          | {
+              heading?: T;
+              description?: T;
+              id?: T;
+              blockName?: T;
+            };
+        'why-choose-us'?:
+          | T
+          | {
+              eyebrow?: T;
+              eyebrowAccent?: T;
+              heading?: T;
+              reasons?:
+                | T
+                | {
+                    icon?: T;
+                    title?: T;
+                    body?: T;
+                    id?: T;
+                  };
+              id?: T;
+              blockName?: T;
+            };
+        contact?:
+          | T
+          | {
+              city?: T;
+              poster?: T;
+              id?: T;
+              blockName?: T;
+            };
+        'service-areas'?:
+          | T
+          | {
+              heading?: T;
+              id?: T;
+              blockName?: T;
+            };
+        custom?:
+          | T
+          | {
+              eyebrow?: T;
+              heading?: T;
+              headingHighlight?: T;
+              body?: T;
+              image?: T;
+              imageSide?: T;
+              buttons?:
+                | T
+                | {
+                    label?: T;
+                    href?: T;
+                    id?: T;
+                  };
+              id?: T;
+              blockName?: T;
+            };
         content?:
           | T
           | {
@@ -5564,391 +6249,6 @@ export interface SiteSetting {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "homepage".
- */
-export interface Homepage {
-  id: number;
-  hero?: {
-    eyebrow?: string | null;
-    heading?: string | null;
-    /**
-     * Word(s) of the heading to render in the accent color, e.g. "design and build". Separate multiple phrases with |.
-     */
-    headingHighlight?: string | null;
-    description?: string | null;
-    image?: (number | null) | Media;
-    video?: (number | null) | Media;
-    cta?: {
-      label?: string | null;
-      href?: string | null;
-    };
-  };
-  intro?: {
-    eyebrow?: string | null;
-    heading?: string | null;
-    body?: {
-      root: {
-        type: string;
-        children: {
-          type: any;
-          version: number;
-          [k: string]: unknown;
-        }[];
-        direction: ('ltr' | 'rtl') | null;
-        format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
-        indent: number;
-        version: number;
-      };
-      [k: string]: unknown;
-    } | null;
-    image?: (number | null) | Media;
-  };
-  difference?: {
-    eyebrow?: string | null;
-    heading?: string | null;
-    /**
-     * Word(s) of the heading to render in the accent color, e.g. "Difference". Separate multiple phrases with |.
-     */
-    headingHighlight?: string | null;
-    /**
-     * The "Why choose" checklist (lead renders bold, text renders after it). WordPress items only.
-     */
-    checklist?:
-      | {
-          lead?: string | null;
-          text?: string | null;
-          id?: string | null;
-        }[]
-      | null;
-  };
-  projectsIntro?: {
-    eyebrow?: string | null;
-    heading?: string | null;
-    body?: {
-      root: {
-        type: string;
-        children: {
-          type: any;
-          version: number;
-          [k: string]: unknown;
-        }[];
-        direction: ('ltr' | 'rtl') | null;
-        format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
-        indent: number;
-        version: number;
-      };
-      [k: string]: unknown;
-    } | null;
-  };
-  servicesIntro?: {
-    eyebrow?: string | null;
-    heading?: string | null;
-    body?: {
-      root: {
-        type: string;
-        children: {
-          type: any;
-          version: number;
-          [k: string]: unknown;
-        }[];
-        direction: ('ltr' | 'rtl') | null;
-        format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
-        indent: number;
-        version: number;
-      };
-      [k: string]: unknown;
-    } | null;
-  };
-  featureBlocks?: {
-    eyebrow?: string | null;
-    title?: string | null;
-    /**
-     * Word(s) of the title to render in the accent color, e.g. "We do it all". Separate multiple phrases with |.
-     */
-    titleHighlight?: string | null;
-    /**
-     * Before/after feature cards (WordPress: Bathroom Remodeling, Complete Home Renovation).
-     */
-    items?:
-      | {
-          title?: string | null;
-          body?: {
-            root: {
-              type: string;
-              children: {
-                type: any;
-                version: number;
-                [k: string]: unknown;
-              }[];
-              direction: ('ltr' | 'rtl') | null;
-              format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
-              indent: number;
-              version: number;
-            };
-            [k: string]: unknown;
-          } | null;
-          ctaLabel?: string | null;
-          ctaHref?: string | null;
-          beforeImage?: (number | null) | Media;
-          afterImage?: (number | null) | Media;
-          id?: string | null;
-        }[]
-      | null;
-  };
-  contactIntro?: {
-    eyebrow?: string | null;
-    heading?: string | null;
-    /**
-     * Word(s) of the heading to render in the accent color, e.g. "today". Separate multiple phrases with |.
-     */
-    headingHighlight?: string | null;
-    body?: {
-      root: {
-        type: string;
-        children: {
-          type: any;
-          version: number;
-          [k: string]: unknown;
-        }[];
-        direction: ('ltr' | 'rtl') | null;
-        format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
-        indent: number;
-        version: number;
-      };
-      [k: string]: unknown;
-    } | null;
-  };
-  serviceAreas?: {
-    /**
-     * Heading only — the city list is shared site-wide via Site Settings service areas.
-     */
-    heading?: string | null;
-  };
-  updatedAt?: string | null;
-  createdAt?: string | null;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "about".
- */
-export interface About {
-  id: number;
-  hero?: {
-    eyebrow?: string | null;
-    heading?: string | null;
-    /**
-     * Word(s) of the heading to render in the accent color, e.g. "Go-To Choice". Separate multiple phrases with |.
-     */
-    headingHighlight?: string | null;
-    description?: {
-      root: {
-        type: string;
-        children: {
-          type: any;
-          version: number;
-          [k: string]: unknown;
-        }[];
-        direction: ('ltr' | 'rtl') | null;
-        format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
-        indent: number;
-        version: number;
-      };
-      [k: string]: unknown;
-    } | null;
-    image?: (number | null) | Media;
-    /**
-     * Optional. When set together with the main image, the hero shows the two-image slider. A video replaces the image(s) when both are set.
-     */
-    imageSecondary?: (number | null) | Media;
-    video?: (number | null) | Media;
-    cta?: {
-      label?: string | null;
-      href?: string | null;
-    };
-  };
-  team?: {
-    eyebrow?: string | null;
-    heading?: string | null;
-    /**
-     * Word(s) of the heading to render in the accent color, e.g. "exceptional". Separate multiple phrases with |.
-     */
-    headingHighlight?: string | null;
-    body?: {
-      root: {
-        type: string;
-        children: {
-          type: any;
-          version: number;
-          [k: string]: unknown;
-        }[];
-        direction: ('ltr' | 'rtl') | null;
-        format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
-        indent: number;
-        version: number;
-      };
-      [k: string]: unknown;
-    } | null;
-    ctaLabel?: string | null;
-    ctaHref?: string | null;
-    introHeading?: string | null;
-    introSubheading?: string | null;
-    introBody?: {
-      root: {
-        type: string;
-        children: {
-          type: any;
-          version: number;
-          [k: string]: unknown;
-        }[];
-        direction: ('ltr' | 'rtl') | null;
-        format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
-        indent: number;
-        version: number;
-      };
-      [k: string]: unknown;
-    } | null;
-  };
-  guidingPrinciple?: {
-    eyebrow?: string | null;
-    heading?: string | null;
-    /**
-     * Word(s) of the heading to render in the accent color, e.g. "Reliability in Every Project We Take On". Separate multiple phrases with |.
-     */
-    headingHighlight?: string | null;
-    body?: {
-      root: {
-        type: string;
-        children: {
-          type: any;
-          version: number;
-          [k: string]: unknown;
-        }[];
-        direction: ('ltr' | 'rtl') | null;
-        format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
-        indent: number;
-        version: number;
-      };
-      [k: string]: unknown;
-    } | null;
-    image?: (number | null) | Media;
-    imageSecondary?: (number | null) | Media;
-    ctaLabel?: string | null;
-    ctaHref?: string | null;
-  };
-  coreValues?: {
-    heading?: string | null;
-    description?: string | null;
-    /**
-     * The six WordPress core values (icon + title; body is optional).
-     */
-    values?:
-      | {
-          /**
-           * Icon path (files live in /public, e.g. "/about/about-customer-focused.svg").
-           */
-          icon?: string | null;
-          title?: string | null;
-          body?: {
-            root: {
-              type: string;
-              children: {
-                type: any;
-                version: number;
-                [k: string]: unknown;
-              }[];
-              direction: ('ltr' | 'rtl') | null;
-              format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
-              indent: number;
-              version: number;
-            };
-            [k: string]: unknown;
-          } | null;
-          id?: string | null;
-        }[]
-      | null;
-  };
-  experts?: {
-    eyebrow?: string | null;
-    heading?: string | null;
-    description?: {
-      root: {
-        type: string;
-        children: {
-          type: any;
-          version: number;
-          [k: string]: unknown;
-        }[];
-        direction: ('ltr' | 'rtl') | null;
-        format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
-        indent: number;
-        version: number;
-      };
-      [k: string]: unknown;
-    } | null;
-    video?: (number | null) | Media;
-    poster?: (number | null) | Media;
-    badge?: (number | null) | Media;
-    ctaLabel?: string | null;
-    ctaHref?: string | null;
-  };
-  faq?: {
-    heading?: string | null;
-    description?: string | null;
-  };
-  updatedAt?: string | null;
-  createdAt?: string | null;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "gallery".
- */
-export interface Gallery {
-  id: number;
-  hero?: {
-    eyebrow?: string | null;
-    heading?: string | null;
-    /**
-     * Word(s) of the heading to render in the accent color, e.g. "remodeling projects". Separate multiple phrases with |.
-     */
-    headingHighlight?: string | null;
-    description?: {
-      root: {
-        type: string;
-        children: {
-          type: any;
-          version: number;
-          [k: string]: unknown;
-        }[];
-        direction: ('ltr' | 'rtl') | null;
-        format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
-        indent: number;
-        version: number;
-      };
-      [k: string]: unknown;
-    } | null;
-    /**
-     * Optional hero background (WordPress has none — the hero renders plain dark without one).
-     */
-    image?: (number | null) | Media;
-  };
-  whyChooseUs?: {
-    eyebrow?: string | null;
-    eyebrowAccent?: string | null;
-    heading?: string | null;
-    reasons?:
-      | {
-          icon?: string | null;
-          title?: string | null;
-          body?: string | null;
-          id?: string | null;
-        }[]
-      | null;
-  };
-  updatedAt?: string | null;
-  createdAt?: string | null;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "site-settings_select".
  */
 export interface SiteSettingsSelect<T extends boolean = true> {
@@ -6002,214 +6302,6 @@ export interface SiteSettingsSelect<T extends boolean = true> {
         ogTitle?: T;
         ogDescription?: T;
         ogImage?: T;
-      };
-  updatedAt?: T;
-  createdAt?: T;
-  globalType?: T;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "homepage_select".
- */
-export interface HomepageSelect<T extends boolean = true> {
-  hero?:
-    | T
-    | {
-        eyebrow?: T;
-        heading?: T;
-        headingHighlight?: T;
-        description?: T;
-        image?: T;
-        video?: T;
-        cta?:
-          | T
-          | {
-              label?: T;
-              href?: T;
-            };
-      };
-  intro?:
-    | T
-    | {
-        eyebrow?: T;
-        heading?: T;
-        body?: T;
-        image?: T;
-      };
-  difference?:
-    | T
-    | {
-        eyebrow?: T;
-        heading?: T;
-        headingHighlight?: T;
-        checklist?:
-          | T
-          | {
-              lead?: T;
-              text?: T;
-              id?: T;
-            };
-      };
-  projectsIntro?:
-    | T
-    | {
-        eyebrow?: T;
-        heading?: T;
-        body?: T;
-      };
-  servicesIntro?:
-    | T
-    | {
-        eyebrow?: T;
-        heading?: T;
-        body?: T;
-      };
-  featureBlocks?:
-    | T
-    | {
-        eyebrow?: T;
-        title?: T;
-        titleHighlight?: T;
-        items?:
-          | T
-          | {
-              title?: T;
-              body?: T;
-              ctaLabel?: T;
-              ctaHref?: T;
-              beforeImage?: T;
-              afterImage?: T;
-              id?: T;
-            };
-      };
-  contactIntro?:
-    | T
-    | {
-        eyebrow?: T;
-        heading?: T;
-        headingHighlight?: T;
-        body?: T;
-      };
-  serviceAreas?:
-    | T
-    | {
-        heading?: T;
-      };
-  updatedAt?: T;
-  createdAt?: T;
-  globalType?: T;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "about_select".
- */
-export interface AboutSelect<T extends boolean = true> {
-  hero?:
-    | T
-    | {
-        eyebrow?: T;
-        heading?: T;
-        headingHighlight?: T;
-        description?: T;
-        image?: T;
-        imageSecondary?: T;
-        video?: T;
-        cta?:
-          | T
-          | {
-              label?: T;
-              href?: T;
-            };
-      };
-  team?:
-    | T
-    | {
-        eyebrow?: T;
-        heading?: T;
-        headingHighlight?: T;
-        body?: T;
-        ctaLabel?: T;
-        ctaHref?: T;
-        introHeading?: T;
-        introSubheading?: T;
-        introBody?: T;
-      };
-  guidingPrinciple?:
-    | T
-    | {
-        eyebrow?: T;
-        heading?: T;
-        headingHighlight?: T;
-        body?: T;
-        image?: T;
-        imageSecondary?: T;
-        ctaLabel?: T;
-        ctaHref?: T;
-      };
-  coreValues?:
-    | T
-    | {
-        heading?: T;
-        description?: T;
-        values?:
-          | T
-          | {
-              icon?: T;
-              title?: T;
-              body?: T;
-              id?: T;
-            };
-      };
-  experts?:
-    | T
-    | {
-        eyebrow?: T;
-        heading?: T;
-        description?: T;
-        video?: T;
-        poster?: T;
-        badge?: T;
-        ctaLabel?: T;
-        ctaHref?: T;
-      };
-  faq?:
-    | T
-    | {
-        heading?: T;
-        description?: T;
-      };
-  updatedAt?: T;
-  createdAt?: T;
-  globalType?: T;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "gallery_select".
- */
-export interface GallerySelect<T extends boolean = true> {
-  hero?:
-    | T
-    | {
-        eyebrow?: T;
-        heading?: T;
-        headingHighlight?: T;
-        description?: T;
-        image?: T;
-      };
-  whyChooseUs?:
-    | T
-    | {
-        eyebrow?: T;
-        eyebrowAccent?: T;
-        heading?: T;
-        reasons?:
-          | T
-          | {
-              icon?: T;
-              title?: T;
-              body?: T;
-              id?: T;
-            };
       };
   updatedAt?: T;
   createdAt?: T;

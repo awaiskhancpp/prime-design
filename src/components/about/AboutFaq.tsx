@@ -8,7 +8,7 @@ import { Button } from '@/components/ui/Button'
 import { cn } from '@/lib/utils'
 import { Section } from '@/components/ui/Section'
 import { SectionHeader } from '@/components/ui/SectionHeader'
-import type { AboutFaqIntro } from '@/lib/about'
+import type { PageFaqIntroContent } from '@/lib/pageSections'
 
 export function AboutFaq({
   phone = '(650) 220-9600',
@@ -16,7 +16,7 @@ export function AboutFaq({
 }: {
   phone?: string
   /** Heading/description from the About global (CMS-driven). */
-  faqIntro?: AboutFaqIntro
+  faqIntro?: PageFaqIntroContent
 }) {
   // Initialize with 0 instead of null to keep the first item open
   const [openIndex, setOpenIndex] = useState<number | null>(0)

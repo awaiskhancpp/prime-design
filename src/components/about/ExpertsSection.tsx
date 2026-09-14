@@ -4,7 +4,7 @@ import { ArrowRight } from 'lucide-react'
 import { Section } from '@/components/ui/Section'
 import { Button } from '@/components/ui/Button'
 import { RichTextContent } from '@/components/rich-text/RichTextContent'
-import type { AboutExperts as AboutExpertsValue } from '@/lib/about'
+import type { PageExpertsContent as AboutExpertsValue } from '@/lib/pageSections'
 
 const reviewBadges = [
   { src: '/social/Google.png', alt: 'Google rating' },
@@ -18,8 +18,8 @@ const reviewBadges = [
  * review badges when uploaded.
  */
 export function ExpertsSection({ experts }: { experts?: AboutExpertsValue }) {
-  const eyebrow = experts?.eyebrow || 'Experts in Silicon Valley'
-  const heading = experts?.heading || 'This is why our customers love us!'
+  const eyebrow = experts?.eyebrow
+  const heading = experts?.heading ?? ''
   const videoUrl = experts?.video
   const badge = experts?.badge
   const ctaLabel = experts?.ctaLabel
@@ -37,15 +37,7 @@ export function ExpertsSection({ experts }: { experts?: AboutExpertsValue }) {
       <div className="mt-14 grid grid-cols-1 gap-12 lg:grid-cols-12 lg:gap-16">
         <div className="flex flex-col justify-center lg:col-span-5">
           <div className="max-w-xl text-lg leading-8 text-ink-2/75">
-            {experts?.description ? (
-              <RichTextContent data={experts.description} />
-            ) : (
-              <p>
-                At Prime Design & Build, we combine the latest advancements in home technology with
-                a relentless commitment to superior craftsmanship, ensuring every inch of your space
-                is thoughtfully utilized for both functionality and stunning design.
-              </p>
-            )}
+            {experts?.description ? <RichTextContent data={experts.description} /> : null}
           </div>
           <div className="mt-10 flex flex-wrap items-center gap-5 border-t border-line pt-8">
             {badge ? (

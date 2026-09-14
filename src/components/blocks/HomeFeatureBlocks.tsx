@@ -8,7 +8,7 @@ import BeforeAfterSlider from './BeforeAfterSlider'
 import { SectionHeader } from '../ui/SectionHeader'
 import { HighlightedText } from '@/components/ui/HighlightedText'
 import { RichTextContent } from '@/components/rich-text/RichTextContent'
-import type { HomepageFeatureBlocks as HomepageFeatureBlocksValue } from '@/lib/homepage'
+import type { PageFeatureBlocksContent as HomepageFeatureBlocksValue } from '@/lib/pageSections'
 
 export function HomeFeatureBlocks({
   featureBlocks,

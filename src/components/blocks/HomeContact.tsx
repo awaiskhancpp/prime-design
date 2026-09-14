@@ -7,11 +7,11 @@ import { Section } from '@/components/ui/Section'
 import { SectionHeader } from '@/components/ui/SectionHeader'
 import { Textarea } from '@/components/ui/Textarea'
 import { HighlightedText } from '@/components/ui/HighlightedText'
-import type { HomepageIntroBlock } from '@/lib/homepage'
+import type { PageHeadingContent } from '@/lib/pageSections'
 import { richTextToPlainText } from '@/lib/richText'
 import { resolveSiteSettings } from '@/lib/siteSettings'
 
-export async function HomeContact({ contactIntro }: { contactIntro?: HomepageIntroBlock }) {
+export async function HomeContact({ contactIntro }: { contactIntro?: PageHeadingContent }) {
   const settings = await resolveSiteSettings()
   const contactDetails = [
     { icon: Mail, label: settings.email, href: settings.emailLink },

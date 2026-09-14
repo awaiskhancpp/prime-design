@@ -2,14 +2,14 @@ import Image from 'next/image'
 
 import { Section } from '@/components/ui/Section'
 import { RichTextContent } from '@/components/rich-text/RichTextContent'
-import type { AboutCoreValues as AboutCoreValuesValue } from '@/lib/about'
+import type { PageCoreValuesContent as AboutCoreValuesValue } from '@/lib/pageSections'
 
 /**
  * CMS-driven Core Values grid. WordPress values have icon + title only;
  * the optional rich-text body renders when a value has one.
  */
 export function CoreValues({ coreValues }: { coreValues?: AboutCoreValuesValue }) {
-  const heading = coreValues?.heading || 'Our Core Values'
+  const heading = coreValues?.heading ?? ''
   const description = coreValues?.description
   const values = coreValues?.values ?? []
 
@@ -31,7 +31,7 @@ export function CoreValues({ coreValues }: { coreValues?: AboutCoreValuesValue }
           return (
             <article key={value.title} className="bg-white px-6 py-8 md:px-7 lg:px-8 ">
               {value.icon ? (
-                <Image src={value.icon} alt="" aria-hidden="true" width={120} height={120} />
+                <Image src={value.icon} alt="" aria-hidden="true" width={100} height={100} />
               ) : null}
               <h3 className="mt-6 font-display text-2xl font-medium text-ink-2">{value.title}</h3>
               {value.body ? (

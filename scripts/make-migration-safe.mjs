@@ -7,6 +7,10 @@ let sqlText = readFileSync(file, 'utf8')
 sqlText = sqlText.replace(/CREATE TABLE "([a-z0-9_]+)"/g, 'CREATE TABLE IF NOT EXISTS "$1"')
 sqlText = sqlText.replace(/CREATE INDEX "([a-z0-9_]+)"/g, 'CREATE INDEX IF NOT EXISTS "$1"')
 sqlText = sqlText.replace(
+  /ALTER TABLE "([a-z0-9_]+)" ADD COLUMN "([a-z0-9_]+)"/g,
+  'ALTER TABLE "$1" ADD COLUMN IF NOT EXISTS "$2"',
+)
+sqlText = sqlText.replace(
   /ALTER TABLE "([a-z0-9_]+)" ADD CONSTRAINT "([a-z0-9_]+)" (FOREIGN KEY[^;]*?);/g,
   (_m, table, name, rest) =>
     `DO $$ BEGIN IF NOT EXISTS (SELECT 1 FROM pg_constraint WHERE conname = '${name}') THEN ALTER TABLE "${table}" ADD CONSTRAINT "${name}" ${rest}; END IF; END $$;`,

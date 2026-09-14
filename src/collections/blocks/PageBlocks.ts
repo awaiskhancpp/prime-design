@@ -1,8 +1,17 @@
 import type { Block } from 'payload'
 
+import { sectionBlocks } from './sections'
+
 const mediaField = { name: 'image', type: 'upload' as const, relationTo: 'media' as const }
 
+/**
+ * Blocks available on a page in the Pages collection: the original generic
+ * blocks plus every page section (see `./sections`). The homepage, About and
+ * Gallery pages are ordinary records here, so any section can be placed on
+ * any page.
+ */
 export const PageBlocks: Block[] = [
+  ...sectionBlocks,
   {
     slug: 'content',
     labels: { singular: 'Content', plural: 'Content' },

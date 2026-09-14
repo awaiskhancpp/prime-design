@@ -36,7 +36,7 @@ export async function HomeProjects({ heading }: { heading?: string }) {
     })
   }
 
-  const title = heading || 'Our Latest Remodeling Projects'
+  const title = heading ?? ''
 
   return (
     <Section className="bg-white">

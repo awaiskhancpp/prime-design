@@ -28,7 +28,7 @@ export function HomeServices({
   return (
     <Section className="">
       <div className="flex items-end justify-between gap-6">
-        <SectionHeader title={heading || 'Our Services'} />
+        <SectionHeader title={heading ?? ''} />
         <div className="hidden shrink-0 items-center gap-3 sm:flex">
           <button
             type="button"

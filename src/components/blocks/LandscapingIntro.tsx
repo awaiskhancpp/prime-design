@@ -4,7 +4,7 @@ import { useEffect, useRef, useState, type ReactNode } from 'react'
 import Image from 'next/image'
 
 import { Section } from '@/components/ui/Section'
-import type { HomepageIntro } from '@/lib/homepage'
+import type { PageIntroContent } from '@/lib/pageSections'
 import { cn } from '@/lib/utils'
 
 function RevealLine({ children, className }: { children: ReactNode; className?: string }) {
@@ -40,13 +40,11 @@ export function LandscapingIntro({
   intro,
   bodyContent,
 }: {
-  intro?: HomepageIntro
+  intro?: PageIntroContent
   bodyContent?: ReactNode
 }) {
-  const heading =
-    intro?.heading ||
-    'Discover the Prime experience with a new home renovation, ADU, home addition or kitchen and bathroom remodel'
-  const image = intro?.image || '/services/home-remodeling.jpeg'
+  const heading = intro?.heading ?? ''
+  const image = intro?.image
 
   return (
     <Section className="bg-white">
@@ -59,27 +57,23 @@ export function LandscapingIntro({
           </RevealLine>
 
           <div className="mt-6 space-y-3 text-base leading-relaxed text-ink-2/70 md:text-lg">
-            {bodyContent ?? (
-              <p>
-                Where we transform blueprints into reality with unwavering dedication and unmatched
-                expertise. Your vision is our foundation, and together, we construct a future of
-                enduring quality and innovation. Let&apos;s build something extraordinary.
-              </p>
-            )}
+            {bodyContent}
           </div>
         </div>
 
-        <RevealLine>
-          <div className="relative aspect-[4/3] overflow-hidden">
-            <Image
-              src={image}
-              alt="A recently completed Prime Design & Build home renovation"
-              fill
-              className="object-cover"
-              sizes="(min-width: 1024px) 50vw, 100vw"
-            />
-          </div>
-        </RevealLine>
+        {image ? (
+          <RevealLine>
+            <div className="relative aspect-[4/3] overflow-hidden">
+              <Image
+                src={image}
+                alt={intro?.heading || 'Prime Design & Build project'}
+                fill
+                className="object-cover"
+                sizes="(min-width: 1024px) 50vw, 100vw"
+              />
+            </div>
+          </RevealLine>
+        ) : null}
       </div>
     </Section>
   )

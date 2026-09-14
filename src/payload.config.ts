@@ -19,9 +19,6 @@ import { Redirects } from './collections/Redirects'
 import { Team } from './collections/Team'
 import { Testimonials } from './collections/Testimonials'
 import { SiteSettings } from './globals/SiteSettings'
-import { Homepage } from './globals/Homepage'
-import { About } from './globals/About'
-import { Gallery } from './globals/Gallery'
 import { Blog } from './collections/Blog'
 import { BlogCategories } from './collections/BlogCategories'
 import { LandingPages } from './collections/LandingPages'
@@ -55,7 +52,17 @@ export default buildConfig({
     LandingPages,
     GalleryCategories,
   ],
-  globals: [SiteSettings, Homepage, About, Gallery],
+  // The homepage, About and Gallery pages are ordinary records in the Pages
+  // collection (slugs home / about / gallery), built from the same section
+  // blocks as every other page. Site Settings is the only global left.
+  //
+  // Legacy tables still kept in Postgres as a backup: the old homepage, about
+  // and gallery globals, plus the short-lived home_page / about_page /
+  // gallery_page collections. A future "payload migrate:create" will propose
+  // dropping them (or worse, renaming them into new tables) — review it before
+  // applying, and keep those drops out until the Pages records have been live
+  // for a while.
+  globals: [SiteSettings],
   editor: lexicalEditor(),
   secret: process.env.PAYLOAD_SECRET || '',
   typescript: {

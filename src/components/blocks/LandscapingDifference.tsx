@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react'
 
 import { Section } from '@/components/ui/Section'
 import { HighlightedText } from '@/components/ui/HighlightedText'
-import type { HomepageDifference } from '@/lib/homepage'
+import type { PageDifferenceContent } from '@/lib/pageSections'
 import type { SiteSettingsValue } from '@/lib/siteSettings'
 import { cn } from '@/lib/utils'
 import { Check } from 'lucide-react'
@@ -95,26 +95,12 @@ function VideoPoster({ src, alt }: { src: string; alt: string }) {
   // Until the frame is captured, show the video's own frame at the fallback time.
   return (
     <span className="pointer-events-none absolute inset-0 bg-ink" aria-hidden="true">
-      <video
-        className="h-full w-full object-cover"
-        muted
-        playsInline
-        preload="auto"
-        tabIndex={-1}
-      >
+      <video className="h-full w-full object-cover" muted playsInline preload="auto" tabIndex={-1}>
         <source src={`${src}#t=${POSTER_FALLBACK_SECONDS}`} type="video/mp4" />
       </video>
     </span>
   )
 }
-
-const bullets = [
-  { lead: '', text: 'Experts on-site for interior design' },
-  { lead: '', text: 'Certified general contractor, fully licensed' },
-  { lead: 'Family-owned', text: ' and operated business' },
-  { lead: 'Competitive', text: ' pricing for our services' },
-  { lead: 'Quick response', text: ' for customer satisfaction' },
-]
 
 /**
  * WordPress homepage review badges (Bricks image elements whose `link` is the
@@ -142,42 +128,21 @@ const socialBadges = [
   },
 ] as const
 
-const projectVideos = [
-  {
-    title: 'Noah, Co-Owner',
-    url: 'https://tagmediaspace.b-cdn.net/Prime%20Design%20and%20Build/Prime%20Vid%20Noah.mp4',
-  },
-  {
-    title: 'Rosewood Dr, Atherton',
-    url: 'https://tagmediaspace.b-cdn.net/Prime%20Design%20and%20Build/03.09.2024%20Noam%20Prime%2041%20Rosewood%20Dr%20Atherton.mp4',
-  },
-  {
-    title: 'Alice Ave, Mountain View',
-    url: 'https://tagmediaspace.b-cdn.net/Prime%20Design%20and%20Build/09.04.2024%20Ilay%20Prime%20Kitchen%20700%20Alice%20Ave%20Mountain%20View.mp4',
-  },
-  {
-    title: 'Bluebonnet Ct, Morgan Hill',
-    url: 'https://tagmediaspace.b-cdn.net/Prime%20Design%20and%20Build/07.18.2024%20Josef%20Prime%20Full%20House%201840%20Bluebonnet%20Ct%20Morgan%20Hill.mp4',
-  },
-  {
-    title: 'First floor renovation',
-    url: 'https://tagmediaspace.b-cdn.net/Prime%20Design%20and%20Build/First%20Floor.mp4',
-  },
-]
-
 export function LandscapingDifference({
   difference,
   socialLinks,
 }: {
-  difference?: HomepageDifference
+  difference?: PageDifferenceContent
   /** Review-profile URLs from Site Settings (Google / Yelp / Houzz / BBB). */
   socialLinks?: SiteSettingsValue['socialLinks']
 }) {
+  // The project videos come from the section's `videos` array in Payload.
+  const projectVideos = difference?.videos?.length ? difference.videos : []
   const [active, setActive] = useState(projectVideos[0])
 
-  const statLine = difference?.eyebrow || 'Over 350+ Projects in Silicon Valley'
-  const heading = difference?.heading || 'The Prime Difference'
-  const checklist = difference?.checklist?.length ? difference.checklist : bullets
+  const statLine = difference?.eyebrow
+  const heading = difference?.heading ?? ''
+  const checklist = difference?.checklist ?? []
 
   return (
     <Section className="">

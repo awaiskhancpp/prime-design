@@ -1,13 +1,5 @@
-import { LandscapingHero } from '@/components/blocks/LandscapingHero'
-import { LandscapingIntro } from '@/components/blocks/LandscapingIntro'
-import { LandscapingServiceAreas } from '@/components/blocks/LandscapingServiceAreas'
-import { RichTextContent } from '@/components/rich-text/RichTextContent'
-import { HomeServices } from './blocks/HomeServices'
-import { HomeFeatureBlocks } from './blocks/HomeFeatureBlocks'
-import { HomeContact } from './blocks/HomeContact'
-import { HomeProjects } from './blocks/HomeProjects'
-import { LandscapingDifference } from './blocks/LandscapingDifference'
-import { resolveHomepage } from '@/lib/homepage'
+import { PageSections, type PageSectionContext } from '@/components/pages/PageSections'
+import { resolvePageBySlug } from '@/lib/pages'
 import { resolveServices } from '@/lib/services'
 import { resolveSiteSettings } from '@/lib/siteSettings'
 
@@ -22,8 +14,13 @@ const HOMEPAGE_SERVICE_SLUGS = [
   'bathroom-remodeling',
 ]
 
+/**
+ * Homepage. Its sections live in the Pages collection (record `home`), so
+ * they can be added, reordered and removed from the admin panel like any
+ * other page.
+ */
 export async function LandscapingPage() {
-  const homepage = await resolveHomepage()
+  const page = await resolvePageBySlug('home')
   const settings = await resolveSiteSettings()
   const services = (await resolveServices()).filter((service) =>
     HOMEPAGE_SERVICE_SLUGS.includes(service.slug),
@@ -32,25 +29,11 @@ export async function LandscapingPage() {
     (a, b) => HOMEPAGE_SERVICE_SLUGS.indexOf(a.slug) - HOMEPAGE_SERVICE_SLUGS.indexOf(b.slug),
   )
 
+  const context: PageSectionContext = { services, socialLinks: settings.socialLinks }
+
   return (
     <div className="min-h-screen bg-white">
-      <LandscapingHero hero={homepage.hero} />
-      <LandscapingIntro
-        intro={homepage.intro}
-        bodyContent={<RichTextContent data={homepage.intro.body} />}
-      />
-      <LandscapingDifference
-        difference={homepage.difference}
-        socialLinks={settings.socialLinks}
-      />
-      <HomeProjects heading={homepage.projectsIntro.heading} />
-      {/* <LandscapingServices /> */}
-      <HomeServices heading={homepage.servicesIntro.heading} services={services} />
-
-      <HomeFeatureBlocks featureBlocks={homepage.featureBlocks} />
-      <HomeContact contactIntro={homepage.contactIntro} />
-
-      <LandscapingServiceAreas heading={homepage.serviceAreas.heading} />
+      <PageSections sections={page?.layout ?? []} context={context} />
     </div>
   )
 }

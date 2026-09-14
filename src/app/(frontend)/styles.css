@@ -11,11 +11,11 @@
 
   --font-sans: var(--font-outfit), Arial, sans-serif;
 
-  --animate-blink-slow: blink-slow 2.6s ease-in-out infinite;
+  /* --animate-blink-slow: blink-slow 2.6s ease-in-out infinite; */
   --animate-fade-in: fade-in 0.4s ease-out;
 }
 
-@keyframes blink-slow {
+/* @keyframes blink-slow {
   0%,
   100% {
     opacity: 1;
@@ -23,7 +23,7 @@
   50% {
     opacity: 0.2;
   }
-}
+} */
 
 @keyframes fade-in {
   from {

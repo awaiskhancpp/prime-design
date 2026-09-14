@@ -3,7 +3,8 @@ import { LandscapingServiceAreas } from '@/components/blocks/LandscapingServiceA
 import { PageHero } from '@/components/layout/PageHero'
 import { Section } from '@/components/ui/Section'
 import { resolveBlogPosts } from '@/lib/blog'
-import { resolvePageBySlug, type PageBlock } from '@/lib/pages'
+import { resolvePageBySlug } from '@/lib/pages'
+import type { PageSection } from '@/lib/pageSections'
 import { BlogCard } from './BlogCard'
 import { ServiceEstimateCta } from '../services/ServiceEstimateCta'
 
@@ -21,7 +22,7 @@ export async function BlogPage() {
   // page 1670. Its copy lives in Payload as a `cta` layout block on this
   // page record; the hardcoded copy below is the WordPress fallback.
   const estimateBlock = page?.layout.find(
-    (block): block is Extract<PageBlock, { blockType: 'cta' }> => block.blockType === 'cta',
+    (section): section is Extract<PageSection, { type: 'cta' }> => section.type === 'cta',
   )
 
   return (
@@ -55,8 +56,8 @@ export async function BlogPage() {
         </div>
       </Section>
       <ServiceEstimateCta
-        heading={estimateBlock?.heading || 'Ready to schedule your free estimate?'}
-        description={estimateBlock?.body || 'Contact us here or reach us at (650) 235-4863'}
+        heading={estimateBlock?.content.heading || 'Ready to schedule your free estimate?'}
+        description={estimateBlock?.content.body || 'Contact us here or reach us at (650) 235-4863'}
       />
       <ProjectsReviews />
       <LandscapingServiceAreas />
