@@ -68,7 +68,7 @@ function TeamCard({ member, onClick }: { member: TeamMember; onClick: () => void
             {member.role}
           </p>
           <span className="mt-3 inline-flex items-center gap-1.5 text-xs font-semibold uppercase tracking-[0.14em] text-brass-deep transition-all duration-200 group-hover:gap-2.5">
-            View bio
+            Learn More
             <ArrowRight className="h-3.5 w-3.5" aria-hidden />
           </span>
         </div>

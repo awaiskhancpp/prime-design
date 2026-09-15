@@ -180,8 +180,13 @@ export function SiteHeader({
 
               <Button
                 href={isMinimal ? '#contact' : '/contact'}
-                size="lg"
                 variant={isLight ? 'outline' : 'outline-light'}
+                // Header CTA only: the shared `lg` size (px-6 py-3.5 / 16px
+                // text) drew a 107x54 box around a 57px-wide word, so the
+                // outline read as a stretched empty frame next to the 12px
+                // nav links. Tightened here rather than in Button.tsx so no
+                // other section's CTA changes.
+                className="px-4 py-2.5"
               >
                 {isMinimal ? 'Get A Quote' : 'Contact'}
               </Button>

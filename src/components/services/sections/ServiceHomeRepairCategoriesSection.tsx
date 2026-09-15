@@ -56,12 +56,7 @@ export function ServiceHomeRepairCategoriesSection({
   return (
     <Section className="grid gap-20">
       {heading ? (
-        <SectionHeader
-          align="center"
-          eyebrow={eyebrow}
-          title={heading}
-          description={description}
-        />
+        <SectionHeader align="center" eyebrow={eyebrow} title={heading} description={description} />
       ) : null}
       {categories.map((category, index) => {
         const [firstWord, ...rest] = category.title.split(' ')
@@ -70,7 +65,7 @@ export function ServiceHomeRepairCategoriesSection({
         return (
           <div
             key={category.title}
-            className={`grid gap-8 md:grid-cols-2 md:items-center md:gap-16 ${
+            className={`grid gap-8 mt-6 first:mt-0 md:grid-cols-2 md:items-center md:gap-16 ${
               imageOnRight ? 'md:[&>div:first-child]:order-2' : ''
             }`}
           >
@@ -96,9 +91,7 @@ export function ServiceHomeRepairCategoriesSection({
                   <p className="bg-gradient-to-r from-ink-2 to-brass bg-clip-text font-display text-2xl font-medium text-transparent">
                     {firstWord}
                   </p>
-                  <h3 className="font-display text-3xl font-semibold text-ink">
-                    {rest.join(' ')}
-                  </h3>
+                  <h3 className="font-display text-3xl font-semibold text-ink">{rest.join(' ')}</h3>
                 </>
               )}
               {category.body ? (

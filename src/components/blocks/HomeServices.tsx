@@ -90,7 +90,7 @@ export function HomeServices({
                 <h3 className="font-display text-xl font-medium text-ink-2 transition-colors group-hover:text-brass-deep">
                   {service.title}
                 </h3>
-                <p className="mt-2 flex-1 text-sm leading-7 text-ink-2/70">
+                <p className="mt-2 flex-1 text-sm leading-7 text-ink-2/70 line-clamp-2">
                   {service.shortDescription || service.description}
                 </p>
 

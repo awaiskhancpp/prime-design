@@ -83,7 +83,7 @@ export function LandscapingIntro({
       </svg>
 
       <Container className="relative">
-        <div className="grid items-center gap-12 lg:grid-cols-12 lg:gap-10">
+        <div className="grid items-center gap-12 lg:grid-cols-12 lg:gap-12">
           <div className={cn(image ? 'lg:col-span-5' : 'lg:col-span-8')}>
             <span className="block h-1 w-16 bg-brass" aria-hidden />
             <h2 className="mt-6 font-display text-3xl font-medium leading-tight text-ink-2 md:text-4xl lg:text-[2.5rem] lg:leading-[3rem]">
