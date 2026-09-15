@@ -13,7 +13,15 @@ const sourceIcon: Record<string, string> = {
   Yelp: '/social/Yelp.png',
 }
 
-export function TestimonialsSpotlight() {
+export function TestimonialsSpotlight({
+  eyebrow = 'Testimonials that matter',
+  heading = 'Real results, real people.',
+}: {
+  /** Optional overrides — e.g. the "Our Happy Customers" heading WordPress
+   *  authored on the landing pages' testimonials sections. */
+  eyebrow?: string
+  heading?: string
+}) {
   const { testimonialsFeatured, reviewSummary } = website
   const spotlightReviews = [
     ...testimonialsFeatured,
@@ -39,10 +47,10 @@ export function TestimonialsSpotlight() {
       <div className="grid gap-12 lg:grid-cols-[0.9fr_1.1fr] lg:items-center lg:gap-24">
         <div>
           <p className="text-sm font-semibold uppercase tracking-[0.2em] text-brass">
-            Testimonials that matter
+            {eyebrow}
           </p>
           <h2 className="mt-5 max-w-xl font-display text-5xl font-medium leading-[0.98] tracking-tight text-ink-2 md:text-7xl">
-            Real results, real people.
+            {heading}
           </h2>
           <p className="mt-8 max-w-xl text-lg leading-8 text-ink-2/75">
             See why our clients trust Prime Design & Build with the spaces that matter most to them.

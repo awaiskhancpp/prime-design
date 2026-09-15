@@ -21,6 +21,7 @@ import { LandingFaqSection } from './LandingFaqSection'
 import { LandingBookingSection } from './LandingBookingSection'
 import { LandingContact } from './Contact'
 import { TestimonialsSpotlight } from '@/components/testimonials/TestimonialsSpotlight'
+import { LandingTestimonialsSection } from '@/components/landing/LandingTestimonialsSection'
 import { faqCategories } from '@/lib/faq'
 import { richTextHasContent, richTextToPlainText, type RichTextValue } from '@/lib/richText'
 import { RichTextContent } from '@/components/rich-text/RichTextContent'
@@ -552,6 +553,44 @@ export const landingBlockRegistry: Record<string, Renderer> = {
   ),
   faq: FaqBlock,
   testimonials: () => <TestimonialsSpotlight />,
+  // `landing-testimonials` — the structured version WordPress authors on the
+  // Google-Ads landing pages ("Our Happy Customers"). When the block carries
+  // providers with reviews it renders the CMS-driven provider-tabs marquee;
+  // the common heading-only case (WordPress shows its global review slider
+  // there) falls back to the testimonials spotlight with the CMS heading.
+  'landing-testimonials': ({ block }) => {
+    const providers = (Array.isArray(block.providers) ? block.providers : [])
+      .map((provider) => provider as Record<string, unknown>)
+      .map((provider) => ({
+        name: text(provider.name) || '',
+        reviewUrl: text(provider.reviewUrl),
+        rating: typeof provider.rating === 'number' ? provider.rating : undefined,
+        reviewCount:
+          typeof provider.reviewCount === 'number' ? provider.reviewCount : undefined,
+        reviews: (Array.isArray(provider.reviews) ? provider.reviews : [])
+          .map((review) => review as Record<string, unknown>)
+          .filter((review) => text(review.body))
+          .map((review) => ({
+            reviewer: text(review.reviewer),
+            rating: typeof review.rating === 'number' ? review.rating : undefined,
+            body: text(review.body),
+            date: text(review.date),
+          })),
+      }))
+      .filter((provider) => provider.reviews.length > 0)
+
+    if (providers.length) {
+      return (
+        <LandingTestimonialsSection
+          eyebrow={text(block.eyebrow)}
+          heading={text(block.heading)}
+          description={text(block.description)}
+          providers={providers}
+        />
+      )
+    }
+    return <TestimonialsSpotlight heading={text(block.heading) || undefined} />
+  },
   booking: ({ block }) => (
     <LandingBookingSection heading={text(block.heading) || 'Request an Estimate Appointment'} />
   ),
