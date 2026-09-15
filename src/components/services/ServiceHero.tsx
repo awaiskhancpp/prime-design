@@ -3,16 +3,27 @@ import { ArrowRight } from 'lucide-react'
 
 import { Button } from '@/components/ui/Button'
 import { Container } from '@/components/ui/Container'
+import { HeroImagePairSlider, type HeroSlide } from '@/components/layout/HeroImagePairSlider'
 import type { ServiceDetail } from '@/lib/services'
 
 // Real project footage already hosted for the site, used as the full
 // background — same idea as the landscaping page's video hero, just
 // tied to actual company footage instead of a stock clip.
-const AMBIENT_VIDEO_URL =
-  'https://tagmediaspace.b-cdn.net/Prime%20Design%20and%20Build/09.04.2024%20Ilay%20Prime%20Kitchen%20700%20Alice%20Ave%20Mountain%20View.mp4'
+const AMBIENT_VIDEO_URL = '/api/media/file/ilay-alice-ave-kitchen.mp4'
 
 export function ServiceHero({ service }: { service: ServiceDetail }) {
   const heroVideo = service.heroVideoUrl
+  const heroSecondary = service.heroImageSecondary
+  // Two hero images (and no video) render the pair slider: first image
+  // visible, crossfade to the second, prev/next arrows only because there
+  // are exactly two. A video still wins over both images.
+  const heroPair =
+    !heroVideo && service.image && heroSecondary
+      ? ([
+          { src: service.image, alt: service.heroHeading || service.title },
+          { src: heroSecondary, alt: service.heroHeading || service.title },
+        ] as [HeroSlide, HeroSlide])
+      : undefined
 
   return (
     <section className="relative isolate flex min-h-screen items-end overflow-hidden bg-ink pb-16 pt-16 text-white lg:pb-24">
@@ -29,6 +40,10 @@ export function ServiceHero({ service }: { service: ServiceDetail }) {
         >
           <source src={heroVideo} type="video/mp4" />
         </video>
+      ) : heroPair ? (
+        <div className="absolute inset-0 z-0">
+          <HeroImagePairSlider slides={heroPair} />
+        </div>
       ) : (
         <Image
           src={service.image}

@@ -53,14 +53,24 @@ export async function getServiceAreas(serviceSlug: string): Promise<ServiceLocat
           slug?: string
           city?: string | null
           location?: { name?: string | null; slug?: string | null } | number | null
+          featuredImage?: { url?: string | null } | number | null
         }
         const location =
           typeof raw.location === 'object' && raw.location !== null ? raw.location : null
         const name = location?.name || raw.city || ''
+        // Each city card shows its own WordPress image (e.g.
+        // "Kitchen-Remodeling-in-Campbell.png") — the per-location featured
+        // image, not the service's hero photo. Falls back to nothing; the
+        // section decides its own fallback.
+        const featuredImage =
+          typeof raw.featuredImage === 'object' && raw.featuredImage?.url
+            ? raw.featuredImage.url
+            : undefined
         return {
           serviceSlug,
           location: { name, slug: location?.slug || '' },
           slug: raw.slug || '',
+          featuredImage,
         } as ServiceLocation
       })
       .filter((area) => Boolean(area.location.name && area.slug))

@@ -24,6 +24,8 @@ export type ServiceDetail = Service & {
   gallery: string[]
   introHeading?: string
   heroVideoUrl?: string
+  /** Second hero image — when set, the hero renders the two-image crossfade. */
+  heroImageSecondary?: string
   contentBlocks?: ServiceContentBlock[]
   sections?: Array<{ blockType: string; [key: string]: unknown }>
   /**
@@ -298,6 +300,7 @@ type PayloadServiceRecord = {
     heading?: string | null
     lead?: string | null
     image?: number | PayloadMedia | null
+    imageSecondary?: number | PayloadMedia | null
     video?: number | PayloadMedia | null
     buttons?: Array<{ label?: string; url?: string }> | null
   } | null
@@ -483,6 +486,7 @@ export async function resolveServiceDetail(slug: string): Promise<ServiceDetail 
     eyebrow: record.hero?.eyebrow || '',
     lead: record.hero?.lead || record.description || record.shortDescription || '',
     heroVideoUrl: payloadImageUrl(record.hero?.video),
+    heroImageSecondary: payloadImageUrl(record.hero?.imageSecondary),
     keyFeatures: [],
     benefits: [],
     processSteps: [],

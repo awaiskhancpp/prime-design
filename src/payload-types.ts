@@ -1574,6 +1574,10 @@ export interface Service {
     lead?: string | null;
     image?: (number | null) | Media;
     /**
+     * Optional second hero image. When set (and no hero video), the hero crossfades between the two images with prev/next arrows — the same pair-slider design as the pages hero.
+     */
+    imageSecondary?: (number | null) | Media;
+    /**
      * Optional uploaded background video. Use this instead of an external video URL when available.
      */
     video?: (number | null) | Media;
@@ -4867,6 +4871,7 @@ export interface ServicesSelect<T extends boolean = true> {
         heading?: T;
         lead?: T;
         image?: T;
+        imageSecondary?: T;
         video?: T;
         buttons?:
           | T

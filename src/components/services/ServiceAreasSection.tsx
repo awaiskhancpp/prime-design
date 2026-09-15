@@ -37,12 +37,17 @@ export async function ServiceAreasSection({ service }: { service: ServiceDetail 
         {locations.map((entry) => {
           const href = `/${entry.serviceSlug}/${entry.slug}`
           const description = `Bring ${serviceLabel.toLowerCase()} in ${entry.location.name} to life with thoughtful design, quality craftsmanship, and a process built around your home.`
+          // WordPress gives every city card its own image
+          // ("Home-Remodeling-in-Campbell.png", etc.) — the location's
+          // featured image. Only fall back to the service hero photo when a
+          // location has no image of its own.
+          const cardImage = entry.featuredImage || service.image
 
           return (
             <article key={entry.slug} className="group flex h-full flex-col">
               <Link href={href} className="relative block aspect-[4/3] overflow-hidden bg-paper-2">
                 <Image
-                  src={service.image}
+                  src={cardImage}
                   alt={`${serviceLabel} in ${entry.location.name}`}
                   fill
                   className="object-cover transition-transform duration-500 ease-out group-hover:scale-105"

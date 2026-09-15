@@ -547,6 +547,15 @@ export const Services: CollectionConfig = {
                 { name: 'lead', type: 'textarea' },
                 { name: 'image', type: 'upload', relationTo: 'media' },
                 {
+                  name: 'imageSecondary',
+                  type: 'upload',
+                  relationTo: 'media',
+                  admin: {
+                    description:
+                      'Optional second hero image. When set (and no hero video), the hero crossfades between the two images with prev/next arrows — the same pair-slider design as the pages hero.',
+                  },
+                },
+                {
                   name: 'video',
                   type: 'upload',
                   relationTo: 'media',

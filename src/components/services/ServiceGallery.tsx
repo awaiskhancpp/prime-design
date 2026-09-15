@@ -36,8 +36,16 @@ function galleryImagesFor(service: ServiceDetail) {
   })
 
   // Gallery images come from Payload only — no static category fallback.
-  const combined = [...fromSections, ...fromCms, ...service.gallery, service.image]
-  return [...new Set(combined.filter(Boolean))].slice(0, 6)
+  // When the page has real gallery content (section galleries or a CMS
+  // gallery block) show exactly those images — WordPress authors the count
+  // (e.g. 8 on Home Remodeling), so there is no cap and no extra hero-image
+  // filler. The hero/gallery-record fallbacks only apply when the page has
+  // no gallery content at all.
+  const authored = [...fromSections, ...fromCms]
+  const combined = authored.length
+    ? authored
+    : [...service.gallery, service.image].filter(Boolean)
+  return [...new Set(combined)]
 }
 
 export function ServiceGallery({ service }: { service: ServiceDetail }) {
