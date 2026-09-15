@@ -28,6 +28,7 @@ import * as migration_20260914_163206_homepage_about_collections from './2026091
 import * as migration_20260914_170623_gallery_page_collection from './20260914_170623_gallery_page_collection';
 import * as migration_20260914_172948_pages_section_blocks from './20260914_172948_pages_section_blocks';
 import * as migration_20260914_180701_video_story_fields from './20260914_180701_video_story_fields';
+import * as migration_20260915_120000_difference_video_posters from './20260915_120000_difference_video_posters';
 
 export const migrations = [
   {
@@ -179,5 +180,10 @@ export const migrations = [
     up: migration_20260914_180701_video_story_fields.up,
     down: migration_20260914_180701_video_story_fields.down,
     name: '20260914_180701_video_story_fields'
+  },
+  {
+    up: migration_20260915_120000_difference_video_posters.up,
+    down: migration_20260915_120000_difference_video_posters.down,
+    name: '20260915_120000_difference_video_posters',
   },
 ];

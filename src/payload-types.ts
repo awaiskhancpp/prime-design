@@ -1430,6 +1430,10 @@ export interface Service {
       };
       [k: string]: unknown;
     } | null;
+    /**
+     * The project photos stacked beside the overview lists (WordPress puts two in this section). Falls back to the hero image + first gallery shots when empty.
+     */
+    overviewImages?: (number | Media)[] | null;
   };
   /**
    * Optional "Craftsmanship That Transforms" split-image section shown below the process section. Use an H2 heading followed by body paragraphs.
@@ -1449,6 +1453,10 @@ export interface Service {
     };
     [k: string]: unknown;
   } | null;
+  /**
+   * The two photos in the "Craftsmanship That Transforms" section (large + small overlap). Falls back to the hero image when empty.
+   */
+  craftsmanshipImages?: (number | Media)[] | null;
   /**
    * Optional "A Client-Centered Approach to Home Remodeling" section shown below the estimate CTA. Use an H2 heading, a paragraph, and a numbered list of steps.
    */
@@ -1980,6 +1988,10 @@ export interface Page {
                    * Direct .mp4 URL.
                    */
                   url: string;
+                  /**
+                   * Poster frame for the thumbnail strip.
+                   */
+                  poster?: (number | null) | Media;
                   /**
                    * Short summary or quote from the video. Renders under the player, like a testimonial.
                    */
@@ -4763,8 +4775,10 @@ export interface ServicesSelect<T extends boolean = true> {
         keyFeatures?: T;
         benefits?: T;
         process?: T;
+        overviewImages?: T;
       };
   craftsmanship?: T;
+  craftsmanshipImages?: T;
   clientApproach?: T;
   clientApproachImage?: T;
   process?:
@@ -5170,6 +5184,7 @@ export interface PagesSelect<T extends boolean = true> {
                 | {
                     title?: T;
                     url?: T;
+                    poster?: T;
                     summary?: T;
                     speakerName?: T;
                     speakerRole?: T;

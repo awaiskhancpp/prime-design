@@ -36,8 +36,19 @@ export type ServiceDetail = Service & {
     benefits?: RichTextValue
     process?: RichTextValue
   }
+  /**
+   * CMS photos for the overview section (stacked beside the Key Features /
+   * Benefits lists). WordPress puts two in this section; falls back to the
+   * hero image + first gallery shots when empty.
+   */
+  overviewImages?: string[]
   /** CMS-authored rich text for the "Craftsmanship That Transforms" section. */
   craftsmanship?: RichTextValue
+  /**
+   * The two photos in the "Craftsmanship That Transforms" section (large +
+   * small overlap). Falls back to the hero image when empty.
+   */
+  craftsmanshipImages?: string[]
   /** CMS-authored rich text for the "A Client-Centered Approach" section. */
   clientApproach?: RichTextValue
   /** Side image for the "A Client-Centered Approach" section. */
@@ -209,9 +220,12 @@ type PayloadServiceRecord = {
     keyFeatures?: unknown
     benefits?: unknown
     process?: unknown
+    overviewImages?: Array<PayloadMedia | number> | null
   } | null
   /** Rich text for the "Craftsmanship That Transforms" section. */
   craftsmanship?: unknown
+  /** Photos for the "Craftsmanship That Transforms" section (upload hasMany). */
+  craftsmanshipImages?: Array<PayloadMedia | number> | null
   /** Rich text for the "A Client-Centered Approach to Home Remodeling" section. */
   clientApproach?: unknown
   /** Side image for the "A Client-Centered Approach" section. */
@@ -504,9 +518,15 @@ export async function resolveServiceDetail(slug: string): Promise<ServiceDetail 
             : undefined,
         }
       : undefined,
+    overviewImages: (record.overview?.overviewImages as Array<PayloadMedia | number> | undefined | null)
+      ?.map((image) => payloadImageUrl(image))
+      .filter((url): url is string => Boolean(url)),
     craftsmanship: richTextHasContent(record.craftsmanship as RichTextValue)
       ? (record.craftsmanship as RichTextValue)
       : undefined,
+    craftsmanshipImages: (record.craftsmanshipImages as Array<PayloadMedia | number> | undefined | null)
+      ?.map((image) => payloadImageUrl(image))
+      .filter((url): url is string => Boolean(url)),
     clientApproach: richTextHasContent(record.clientApproach as RichTextValue)
       ? (record.clientApproach as RichTextValue)
       : undefined,

@@ -51,12 +51,7 @@ export type PageDifferenceContent = {
   videos: Array<{
     title: string
     url: string
-    /**
-     * Optional poster frame. The difference-videos array in the Pages schema
-     * does not define an upload field for this yet, so it is normally
-     * undefined and the thumbnail strip falls back to the play icon; the
-     * renderer supports it for when the field is added.
-     */
+    /** Optional poster frame for the thumbnail strip. */
     poster?: string
     /** What the video says — rendered under the player like a testimonial. */
     summary?: RichTextValue
@@ -245,6 +240,7 @@ export function toPageSection(block: PageBlock): PageSection | undefined {
             .map((item) => ({
               title: text(item.title),
               url: text(item.url),
+              poster: mediaUrl(item.poster),
               summary: rich(item.summary),
               speakerName: optionalText(item.speakerName),
               speakerRole: optionalText(item.speakerRole),

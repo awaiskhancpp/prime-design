@@ -36,13 +36,21 @@ export function mediaUrl(value: unknown): string | undefined {
   if (typeof value === 'string') return value
   if (!value || typeof value !== 'object') return undefined
   const record = value as Record<string, unknown>
+  // A media group (uploaded `asset` + WordPress provenance fields): prefer
+  // the real uploaded document over the group's `sourceUrl` hotlink — the
+  // optimizer cannot fetch the WordPress origin (403), so the hotlink
+  // renders as a broken image.
+  if (record.asset && typeof record.asset === 'object') {
+    const fromAsset = mediaUrl(record.asset)
+    if (fromAsset) return fromAsset
+  }
   if (typeof record.url === 'string') return record.url
   // Migrated WordPress media keeps its original URL in `sourceUrl` when the
   // file was never uploaded to the Payload media collection — use it so
   // images render even when only the source URL was preserved.
   if (typeof record.sourceUrl === 'string') return record.sourceUrl
   if (typeof record.full === 'string') return record.full
-  return mediaUrl(record.asset)
+  return undefined
 }
 
 function button(value: unknown) {

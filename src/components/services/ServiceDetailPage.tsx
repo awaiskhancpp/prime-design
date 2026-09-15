@@ -405,6 +405,7 @@ export function ServiceTemplate({ service }: { service: ServiceDetail }) {
                   title={payloadProcess.title}
                   description={payloadProcess.description}
                   steps={steps}
+                  sideImage={service.clientApproachImage || '/prime-design-phone.webp'}
                 />
               )
             }
@@ -428,7 +429,14 @@ export function ServiceTemplate({ service }: { service: ServiceDetail }) {
                   heading="We make it easy for"
                   headingAccent="you"
                   body={payloadProcess.description ? [payloadProcess.description] : []}
-                  images={[service.image, service.image]}
+                  images={
+                    service.craftsmanshipImages?.length
+                      ? [
+                          service.craftsmanshipImages[0],
+                          service.craftsmanshipImages[1] ?? service.craftsmanshipImages[0],
+                        ]
+                      : [service.image, service.image]
+                  }
                   cta={{ label: 'Free on-site estimate', href: '/contact' }}
                 />
                 {/* Steps — separate section, no repeated header. */}
@@ -461,8 +469,12 @@ export function ServiceTemplate({ service }: { service: ServiceDetail }) {
             heading=""
             headingAccent=""
             body={[]}
-            images={[service.image, service.image]}
-            cta={{ label: '', href: '/contact' }}
+            images={
+              service.craftsmanshipImages?.length
+                ? [service.craftsmanshipImages[0], service.craftsmanshipImages[1] ?? service.craftsmanshipImages[0]]
+                : [service.image, service.image]
+            }
+            cta={{ label: 'Free on-site estimate', href: '/contact' }}
             content={service.craftsmanship}
           />
         ) : null),
@@ -532,11 +544,28 @@ export function ServiceTemplate({ service }: { service: ServiceDetail }) {
     {
       key: 'client-approach',
       node:
-        service.slug === 'complete-renovation' && service.clientApproach ? (
-          <ServiceClientApproachSection
-            content={service.clientApproach}
-            image={service.clientApproachImage}
-          />
+        service.slug === 'complete-renovation' ? (
+          // The bespoke "A Client-Centered Approach" design (same as Home
+          // Remodeling's process section), fed from the structured Payload
+          // process group. Falls back to the rich-text variant only when no
+          // steps were imported.
+          service.process?.steps?.length ? (
+            <HomeRemodelingProcessSection
+              title={service.process.title}
+              description={service.process.description}
+              steps={service.process.steps.map((step, index) => ({
+                title: step.title || `Step ${index + 1}`,
+                description: step.description || '',
+                image: step.image,
+              }))}
+              sideImage={service.clientApproachImage || '/prime-design-phone.webp'}
+            />
+          ) : service.clientApproach ? (
+            <ServiceClientApproachSection
+              content={service.clientApproach}
+              image={service.clientApproachImage}
+            />
+          ) : null
         ) : null,
     },
     {

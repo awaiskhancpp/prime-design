@@ -38,8 +38,11 @@ export function ServiceOverview({
   hasVisualProcess: boolean
 }) {
   const rich = service.overviewRich
-  // Feature image plus the first two gallery shots, de-duplicated.
-  const sideImages = [...new Set([service.image, ...service.gallery].filter(Boolean))].slice(0, 2)
+  // The section's own photos (WordPress puts two here). Fall back to the
+  // hero image plus the first gallery shots when the CMS field is empty.
+  const sideImages = service.overviewImages?.length
+    ? service.overviewImages
+    : [...new Set([service.image, ...service.gallery].filter(Boolean))].slice(0, 2)
   const showProcess =
     showInlineProcess && !hasVisualProcess && Boolean(rich?.process || service.processSteps.length > 0)
 

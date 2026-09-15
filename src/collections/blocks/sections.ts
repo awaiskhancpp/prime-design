@@ -152,6 +152,12 @@ export const differenceBlock: Block = {
           required: true,
           admin: { description: 'Direct .mp4 URL.' },
         },
+        {
+          name: 'poster',
+          type: 'upload',
+          relationTo: 'media',
+          admin: { description: 'Poster frame for the thumbnail strip.' },
+        },
         ...videoStoryFields(),
       ],
     },

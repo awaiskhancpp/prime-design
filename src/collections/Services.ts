@@ -349,6 +349,17 @@ export const Services: CollectionConfig = {
                       'Numbered steps shown under the "Process" heading (only on pages that display the inline process). Use a numbered list.',
                   },
                 },
+                {
+                  name: 'overviewImages',
+                  type: 'upload',
+                  relationTo: 'media',
+                  hasMany: true,
+                  label: 'Overview photos',
+                  admin: {
+                    description:
+                      'The project photos stacked beside the overview lists (WordPress puts two in this section). Falls back to the hero image + first gallery shots when empty.',
+                  },
+                },
               ],
             },
             {
@@ -358,6 +369,17 @@ export const Services: CollectionConfig = {
               admin: {
                 description:
                   'Optional "Craftsmanship That Transforms" split-image section shown below the process section. Use an H2 heading followed by body paragraphs.',
+              },
+            },
+            {
+              name: 'craftsmanshipImages',
+              type: 'upload',
+              relationTo: 'media',
+              hasMany: true,
+              label: 'Craftsmanship photos',
+              admin: {
+                description:
+                  'The two photos in the "Craftsmanship That Transforms" section (large + small overlap). Falls back to the hero image when empty.',
               },
             },
             {

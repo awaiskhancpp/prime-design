@@ -146,85 +146,90 @@ export function LandscapingDifference({
       ) : null}
 
       {active ? (
-        <div className="relative mx-auto mt-10 max-w-5xl">
-          {/* One prev/next pair spans the whole video+summary row — not
-              per-side arrows — since moving to a different video always
-              changes both columns together. Autoplay + auto-advance on end
-              is the primary way through the set; the arrows are the manual
-              override, and neither one wraps past either end. */}
-          <button
-            type="button"
-            onClick={goPrev}
-            disabled={!canGoPrev}
-            aria-label="Previous video"
-            className={cn(
-              'absolute left-0 top-1/2 z-10 flex h-10 w-10 -translate-x-1/2 -translate-y-1/2 items-center justify-center border bg-white text-ink-2 shadow-sm transition-colors',
-              canGoPrev
-                ? 'border-line hover:border-brass hover:text-brass-deep'
-                : 'cursor-not-allowed border-line/50 text-ink-2/30',
-            )}
-          >
-            <ChevronLeft className="h-4 w-4" aria-hidden />
-          </button>
-          <button
-            type="button"
-            onClick={goNext}
-            disabled={!canGoNext}
-            aria-label="Next video"
-            className={cn(
-              'absolute right-0 top-1/2 z-10 flex h-10 w-10 -translate-y-1/2 translate-x-1/2 items-center justify-center border bg-white text-ink-2 shadow-sm transition-colors',
-              canGoNext
-                ? 'border-line hover:border-brass hover:text-brass-deep'
-                : 'cursor-not-allowed border-line/50 text-ink-2/30',
-            )}
-          >
-            <ChevronRight className="h-4 w-4" aria-hidden />
-          </button>
+        <div className="mt-10">
+          {/* The `relative` box is scoped to the video + summary row only.
+              It previously also wrapped the thumbnail strip below, so the
+              arrows' `top-1/2` centred against video + summary + thumbnails
+              combined — which read as noticeably below the video's centre. */}
+          <div className="relative mx-auto max-w-7xl">
+            {/* One prev/next pair spans the whole video+summary row — not
+                per-side arrows — since moving to a different video always
+                changes both columns together. Autoplay + auto-advance on end
+                is the primary way through the set; the arrows are the manual
+                override, and neither one wraps past either end. */}
+            <button
+              type="button"
+              onClick={goPrev}
+              disabled={!canGoPrev}
+              aria-label="Previous video"
+              className={cn(
+                'absolute left-0 top-1/2 z-10 flex h-10 w-10 -translate-x-1/2 -translate-y-1/2 items-center justify-center border bg-white text-ink-2 shadow-sm transition-colors',
+                canGoPrev
+                  ? 'border-line hover:border-brass hover:text-brass-deep'
+                  : 'cursor-not-allowed border-line/50 text-ink-2/30',
+              )}
+            >
+              <ChevronLeft className="h-4 w-4" aria-hidden />
+            </button>
+            <button
+              type="button"
+              onClick={goNext}
+              disabled={!canGoNext}
+              aria-label="Next video"
+              className={cn(
+                'absolute right-0 top-1/2 z-10 flex h-10 w-10 -translate-y-1/2 translate-x-1/2 items-center justify-center border bg-white text-ink-2 shadow-sm transition-colors',
+                canGoNext
+                  ? 'border-line hover:border-brass hover:text-brass-deep'
+                  : 'cursor-not-allowed border-line/50 text-ink-2/30',
+              )}
+            >
+              <ChevronRight className="h-4 w-4" aria-hidden />
+            </button>
 
-          {/* Video is now the wider column (7/12), summary the narrower
-              one (5/12) — swapped from the previous 5/7 split. */}
-          <div className="grid gap-8 lg:grid-cols-12 lg:items-center lg:gap-8">
-            <div className="lg:col-span-7">
-              <div className="relative aspect-[4/3] overflow-hidden bg-ink">
-                <video
-                  key={active.url}
-                  className="h-full w-full object-cover"
-                  controls
-                  autoPlay
-                  muted
-                  playsInline
-                  preload="metadata"
-                  onEnded={handleEnded}
-                >
-                  <source src={active.url} type="video/mp4" />
-                  Your browser does not support the video tag.
-                </video>
-              </div>
-            </div>
-
-            <div className="lg:col-span-5">
-              {active.summary ? (
-                <div className="border-l-2 border-brass/60 pl-5">
-                  <div className="text-sm leading-7 text-ink-2/75">
-                    <RichTextContent data={active.summary} />
-                  </div>
-                  {active.speakerName ? (
-                    <p className="mt-3 text-[11px] font-semibold uppercase tracking-[0.14em] text-brass-deep">
-                      {active.speakerName}
-                      {active.speakerRole ? ` — ${active.speakerRole}` : ''}
-                    </p>
-                  ) : null}
+            {/* Video is the wider column (7/12), summary the narrower (5/12). */}
+            <div className="grid gap-8 lg:grid-cols-12 lg:items-center lg:gap-8">
+              <div className="lg:col-span-7">
+                <div className="relative aspect-[4/3] overflow-hidden bg-ink">
+                  <video
+                    key={active.url}
+                    className="h-full w-full object-cover"
+                    controls
+                    autoPlay
+                    muted
+                    playsInline
+                    preload="metadata"
+                    onEnded={handleEnded}
+                  >
+                    <source src={active.url} type="video/mp4" />
+                    Your browser does not support the video tag.
+                  </video>
                 </div>
-              ) : null}
+              </div>
+
+              <div className="lg:col-span-5">
+                {active.summary ? (
+                  <div className="border-l-2 border-brass/60 pl-5">
+                    <div className="text-sm leading-7 text-ink-2/75">
+                      <RichTextContent data={active.summary} />
+                    </div>
+                    {active.speakerName ? (
+                      <p className="mt-3 text-[11px] font-semibold uppercase tracking-[0.14em] text-brass-deep">
+                        {active.speakerName}
+                        {active.speakerRole ? ` — ${active.speakerRole}` : ''}
+                      </p>
+                    ) : null}
+                  </div>
+                ) : null}
+              </div>
             </div>
           </div>
 
           {/* Thumbnail strip — makes it visible that this is a set of
               videos, not a single one, and lets someone jump straight to a
-              specific project instead of arrowing through. Centered under
-              the showcase; only rendered when there's more than one. */}
+              specific project instead of arrowing through. Sits outside the
+              `relative` box above so it can't affect arrow centring. */}
           {projectVideos.length > 1 ? (
-            <div className="mt-8">
+            <div className="mx-auto mt-8 max-w-7xl">
               <p className="text-center text-[11px] font-semibold uppercase tracking-[0.14em] text-ink-2/50">
                 More project videos
               </p>
