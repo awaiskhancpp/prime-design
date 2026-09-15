@@ -1,5 +1,6 @@
 import type { Block, CollectionConfig, CollectionSlug } from 'payload'
 import { SEOFields } from './fields/SEO'
+import { videoStoryFields } from './fields/videoStory'
 import { landingPageBlocks } from '../blocks/LandingPageBlocks'
 
 const textItems = (name = 'items') => ({
@@ -99,6 +100,7 @@ export const serviceContentBlocks: Block[] = [
       },
       { name: 'videoUrl', type: 'text' },
       { name: 'poster', type: 'upload', relationTo: 'media' },
+      ...videoStoryFields(),
     ],
   },
   {

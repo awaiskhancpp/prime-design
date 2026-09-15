@@ -19,6 +19,11 @@ export type ServiceVideoContent = {
   tagline?: ReactNode
   videoUrl: string
   poster?: string
+  /** What the video says (CMS `summary`), rendered under the player. */
+  summary?: ReactNode
+  /** Only when the video itself names the speaker. */
+  speakerName?: string
+  speakerRole?: string
 }
 
 const videosBySlug: Record<string, ServiceVideoContent> = {
@@ -73,6 +78,9 @@ export function ServiceVideoSection({
   tagline,
   videoUrl,
   poster,
+  summary,
+  speakerName,
+  speakerRole,
   embedded = false,
 }: ServiceVideoContent & { embedded?: boolean }) {
   if (!videoUrl) return null
@@ -110,6 +118,18 @@ export function ServiceVideoSection({
           Your browser does not support the video tag.
         </video>
       </div>
+
+      {summary ? (
+        <div className="mx-auto mt-8 max-w-3xl border-l-2 border-brass/60 pl-5 text-left">
+          <div className="text-sm leading-7 text-ink-2/75">{summary}</div>
+          {speakerName ? (
+            <p className="mt-3 text-[11px] font-semibold uppercase tracking-[0.14em] text-brass-deep">
+              {speakerName}
+              {speakerRole ? ` — ${speakerRole}` : ''}
+            </p>
+          ) : null}
+        </div>
+      ) : null}
     </>
   )
 

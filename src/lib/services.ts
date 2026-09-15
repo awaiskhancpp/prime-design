@@ -152,7 +152,16 @@ export type ServiceContentBlock =
       heading: string
       items: Array<{ title: string; description: string; image?: string; link?: string }>
     }
-  | { blockType: 'video'; heading?: string; videoUrl: string; poster?: string }
+  | {
+      blockType: 'video'
+      heading?: string
+      videoUrl: string
+      poster?: string
+      /** What the video says (CMS summary) + optional on-screen attribution. */
+      summary?: RichTextValue
+      speakerName?: string
+      speakerRole?: string
+    }
   | { blockType: 'quote'; quote: string; attribution?: string }
   | {
       blockType: 'icon-feature-list'
@@ -377,6 +386,9 @@ export function normalizePayloadBlocks(
           heading: typeof block.heading === 'string' ? block.heading : undefined,
           videoUrl,
           poster: payloadImageUrl(block.poster),
+          summary: (block.summary ?? undefined) as RichTextValue | undefined,
+          speakerName: typeof block.speakerName === 'string' ? block.speakerName : undefined,
+          speakerRole: typeof block.speakerRole === 'string' ? block.speakerRole : undefined,
         },
       ] as ServiceContentBlock[]
     }

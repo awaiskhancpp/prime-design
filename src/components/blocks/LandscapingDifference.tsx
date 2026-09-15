@@ -1,106 +1,15 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useState } from 'react'
 
 import { Section } from '@/components/ui/Section'
 import { HighlightedText } from '@/components/ui/HighlightedText'
 import type { PageDifferenceContent } from '@/lib/pageSections'
+import { RichTextContent } from '@/components/rich-text/RichTextContent'
 import type { SiteSettingsValue } from '@/lib/siteSettings'
 import { cn } from '@/lib/utils'
-import { Check } from 'lucide-react'
+import { Check, ChevronLeft, ChevronRight, Play } from 'lucide-react'
 import Image from 'next/image'
-
-/**
- * The CDN hosting the project videos sends no CORS headers, so the frames
- * are captured through our own same-origin `/api/video-proxy` — the browser
- * fetches the range it needs, then draws that frame onto a canvas and uses
- * the resulting JPEG as the thumbnail poster.
- */
-const posterSrc = (url: string) => `/api/video-proxy?url=${encodeURIComponent(url)}`
-
-/**
- * WordPress ships no poster images for these five videos (the Bricks video
- * elements have no `poster` set), so the thumbnail has to come from the
- * video itself. Two things made the naive capture come out black: with
- * `preload="metadata"` the browser never decodes a paintable frame, and the
- * first seconds are a shared white/black intro card, so every tile ended up
- * looking identical. A frame 15% in lands on that project's own footage.
- */
-const POSTER_FRACTION = 0.15
-
-/** Media-fragment time for the instant fallback frame, before the capture. */
-const POSTER_FALLBACK_SECONDS = 10
-
-function VideoPoster({ src, alt }: { src: string; alt: string }) {
-  const [poster, setPoster] = useState<string | null>(null)
-
-  useEffect(() => {
-    const video = document.createElement('video')
-    video.muted = true
-    video.playsInline = true
-    video.preload = 'auto'
-    video.src = src
-
-    let captured = false
-    const cleanup = () => {
-      video.onloadedmetadata = null
-      video.onseeked = null
-      video.onerror = null
-      video.removeAttribute('src')
-      video.load()
-    }
-
-    video.onloadedmetadata = () => {
-      const duration =
-        Number.isFinite(video.duration) && video.duration > 0
-          ? video.duration
-          : POSTER_FALLBACK_SECONDS * 2
-      video.currentTime = Math.max(0, Math.min(duration * POSTER_FRACTION, duration - 0.5))
-    }
-
-    video.onseeked = () => {
-      if (captured) return
-      captured = true
-      try {
-        const canvas = document.createElement('canvas')
-        canvas.width = video.videoWidth || 640
-        canvas.height = video.videoHeight || 360
-        const context = canvas.getContext('2d')
-        if (context) {
-          context.drawImage(video, 0, 0, canvas.width, canvas.height)
-          setPoster(canvas.toDataURL('image/jpeg', 0.72))
-        }
-      } catch {
-        // Tainted canvas — keep the frame video fallback below.
-      }
-      cleanup()
-    }
-    video.onerror = cleanup
-
-    return cleanup
-  }, [src])
-
-  if (poster) {
-    return (
-      // eslint-disable-next-line @next/next/no-img-element
-      <img
-        src={poster}
-        alt={alt}
-        aria-hidden="true"
-        className="pointer-events-none absolute inset-0 h-full w-full object-cover"
-      />
-    )
-  }
-
-  // Until the frame is captured, show the video's own frame at the fallback time.
-  return (
-    <span className="pointer-events-none absolute inset-0 bg-ink" aria-hidden="true">
-      <video className="h-full w-full object-cover" muted playsInline preload="auto" tabIndex={-1}>
-        <source src={`${src}#t=${POSTER_FALLBACK_SECONDS}`} type="video/mp4" />
-      </video>
-    </span>
-  )
-}
 
 /**
  * WordPress homepage review badges (Bricks image elements whose `link` is the
@@ -138,7 +47,24 @@ export function LandscapingDifference({
 }) {
   // The project videos come from the section's `videos` array in Payload.
   const projectVideos = difference?.videos?.length ? difference.videos : []
-  const [active, setActive] = useState(projectVideos[0])
+
+  const [index, setIndex] = useState(0)
+  const active = projectVideos[index]
+  const canGoPrev = index > 0
+  const canGoNext = index < projectVideos.length - 1
+
+  // Bounded, not infinite: clamped, never wraps past either end — same rule
+  // for the manual arrows and for auto-advance on a video ending.
+  function goPrev() {
+    setIndex((current) => Math.max(0, current - 1))
+  }
+  function goNext() {
+    setIndex((current) => Math.min(projectVideos.length - 1, current + 1))
+  }
+  function handleEnded() {
+    if (canGoNext) goNext()
+    // On the last video, it just ends — no loop back to the first.
+  }
 
   const statLine = difference?.eyebrow
   const heading = difference?.heading ?? ''
@@ -146,7 +72,7 @@ export function LandscapingDifference({
 
   return (
     <Section className="">
-      <div className="mb-12 flex flex-wrap items-center justify-center gap-x-10 gap-y-6">
+      <div className="mb-10 flex flex-wrap items-center justify-center gap-x-10 gap-y-6">
         {socialBadges.map((badge) => {
           const href = socialLinks?.[badge.key]
           const image = (
@@ -178,69 +104,181 @@ export function LandscapingDifference({
           )
         })}
       </div>
-      <div className="grid gap-12 lg:grid-cols-2 lg:items-center lg:gap-16">
-        <div className="order-2 lg:order-1">
-          <div className="relative aspect-[4/3] overflow-hidden bg-ink">
-            <video
-              key={active.url}
-              className="h-full w-full object-cover"
-              controls
-              playsInline
-              preload="metadata"
-            >
-              <source src={active.url} type="video/mp4" />
-              Your browser does not support the video tag.
-            </video>
-          </div>
 
-          <div className="order-1 lg:order-2 mt-3 grid grid-cols-5 gap-2">
-            {projectVideos.map((video) => (
-              <button
-                key={video.url}
-                type="button"
-                onClick={() => setActive(video)}
-                aria-label={`Play video: ${video.title}`}
-                aria-pressed={active.url === video.url}
-                className={cn(
-                  'relative aspect-video overflow-hidden border-2 transition-colors',
-                  active.url === video.url
-                    ? 'border-brass'
-                    : 'border-transparent hover:border-line',
-                )}
-              >
-                <VideoPoster src={posterSrc(video.url)} alt={video.title} />
-              </button>
-            ))}
-          </div>
-        </div>
-        <div>
-          <p className="text-xs font-semibold uppercase tracking-[0.2em] text-brass-deep">
-            {statLine}
-          </p>
-          <h2 className="mt-4 font-display text-3xl font-medium leading-tight text-ink-2 md:text-4xl">
-            <HighlightedText text={heading} highlight={difference?.headingHighlight} />
-          </h2>
-
-          <ul className="mt-8 space-y-4">
-            {checklist.map((bullet) => (
-              <li key={bullet.lead + bullet.text} className="flex items-start gap-3">
-                <span
-                  aria-hidden
-                  className=" flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-ink text-[10px] text-paper"
-                >
-                  <Check />
-                </span>
-                <span className="italic leading-relaxed text-ink-2/80">
-                  {bullet.lead && (
-                    <span className="font-semibold not-italic text-ink-2">{bullet.lead}</span>
-                  )}
-                  {bullet.text}
-                </span>
-              </li>
-            ))}
-          </ul>
-        </div>
+      {/* Heading banner — eyebrow + heading sit above the whole showcase,
+          framing it as one story to scroll through rather than a heading
+          competing side-by-side with the video for attention. */}
+      <div className="mx-auto max-w-2xl text-center">
+        <p className="text-xs font-semibold uppercase tracking-[0.2em] text-brass-deep">
+          {statLine}
+        </p>
+        <h2 className="mt-3 font-display text-3xl font-medium leading-tight text-ink-2 md:text-4xl">
+          <HighlightedText text={heading} highlight={difference?.headingHighlight} />
+        </h2>
       </div>
+
+      {/* Flex (not grid) so an incomplete final row centers itself: with 5
+          items this gives 3 on top and the remaining 2 centered beneath,
+          instead of grid's default left-alignment leaving a gap on the
+          right. Basis matches a 3-up row; it reflows to 1-up on mobile. */}
+      {checklist.length > 0 ? (
+        <ul className="mx-auto mt-6 flex max-w-5xl flex-wrap justify-center gap-x-8 gap-y-4">
+          {checklist.map((bullet) => (
+            <li
+              key={bullet.lead + bullet.text}
+              className="flex w-full items-start gap-3 sm:w-[calc(33.333%-1.5rem)]"
+            >
+              <span
+                aria-hidden
+                className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-ink text-[10px] text-paper"
+              >
+                <Check className="h-3 w-3" />
+              </span>
+              <span className="text-sm italic leading-relaxed text-ink-2/80">
+                {bullet.lead && (
+                  <span className="font-semibold not-italic text-ink-2">{bullet.lead}</span>
+                )}
+                {bullet.text}
+              </span>
+            </li>
+          ))}
+        </ul>
+      ) : null}
+
+      {active ? (
+        <div className="relative mx-auto mt-10 max-w-5xl">
+          {/* One prev/next pair spans the whole video+summary row — not
+              per-side arrows — since moving to a different video always
+              changes both columns together. Autoplay + auto-advance on end
+              is the primary way through the set; the arrows are the manual
+              override, and neither one wraps past either end. */}
+          <button
+            type="button"
+            onClick={goPrev}
+            disabled={!canGoPrev}
+            aria-label="Previous video"
+            className={cn(
+              'absolute left-0 top-1/2 z-10 flex h-10 w-10 -translate-x-1/2 -translate-y-1/2 items-center justify-center border bg-white text-ink-2 shadow-sm transition-colors',
+              canGoPrev
+                ? 'border-line hover:border-brass hover:text-brass-deep'
+                : 'cursor-not-allowed border-line/50 text-ink-2/30',
+            )}
+          >
+            <ChevronLeft className="h-4 w-4" aria-hidden />
+          </button>
+          <button
+            type="button"
+            onClick={goNext}
+            disabled={!canGoNext}
+            aria-label="Next video"
+            className={cn(
+              'absolute right-0 top-1/2 z-10 flex h-10 w-10 -translate-y-1/2 translate-x-1/2 items-center justify-center border bg-white text-ink-2 shadow-sm transition-colors',
+              canGoNext
+                ? 'border-line hover:border-brass hover:text-brass-deep'
+                : 'cursor-not-allowed border-line/50 text-ink-2/30',
+            )}
+          >
+            <ChevronRight className="h-4 w-4" aria-hidden />
+          </button>
+
+          {/* Video is now the wider column (7/12), summary the narrower
+              one (5/12) — swapped from the previous 5/7 split. */}
+          <div className="grid gap-8 lg:grid-cols-12 lg:items-center lg:gap-8">
+            <div className="lg:col-span-7">
+              <div className="relative aspect-[4/3] overflow-hidden bg-ink">
+                <video
+                  key={active.url}
+                  className="h-full w-full object-cover"
+                  controls
+                  autoPlay
+                  muted
+                  playsInline
+                  preload="metadata"
+                  onEnded={handleEnded}
+                >
+                  <source src={active.url} type="video/mp4" />
+                  Your browser does not support the video tag.
+                </video>
+              </div>
+            </div>
+
+            <div className="lg:col-span-5">
+              {active.summary ? (
+                <div className="border-l-2 border-brass/60 pl-5">
+                  <div className="text-sm leading-7 text-ink-2/75">
+                    <RichTextContent data={active.summary} />
+                  </div>
+                  {active.speakerName ? (
+                    <p className="mt-3 text-[11px] font-semibold uppercase tracking-[0.14em] text-brass-deep">
+                      {active.speakerName}
+                      {active.speakerRole ? ` — ${active.speakerRole}` : ''}
+                    </p>
+                  ) : null}
+                </div>
+              ) : null}
+            </div>
+          </div>
+
+          {/* Thumbnail strip — makes it visible that this is a set of
+              videos, not a single one, and lets someone jump straight to a
+              specific project instead of arrowing through. Centered under
+              the showcase; only rendered when there's more than one. */}
+          {projectVideos.length > 1 ? (
+            <div className="mt-8">
+              <p className="text-center text-[11px] font-semibold uppercase tracking-[0.14em] text-ink-2/50">
+                More project videos
+              </p>
+              <div className="mt-4 flex flex-wrap items-stretch justify-center gap-4">
+                {projectVideos.map((video, videoIndex) => {
+                  const isActive = videoIndex === index
+                  return (
+                    <button
+                      key={video.url}
+                      type="button"
+                      onClick={() => setIndex(videoIndex)}
+                      aria-label={`Play video ${videoIndex + 1}${video.speakerName ? `: ${video.speakerName}` : ''}`}
+                      aria-current={isActive}
+                      className={cn(
+                        'group relative w-32 overflow-hidden border transition-all sm:w-36',
+                        isActive
+                          ? 'border-brass opacity-100 ring-1 ring-brass'
+                          : 'border-line opacity-70 hover:opacity-100',
+                      )}
+                    >
+                      <span className="relative block aspect-video overflow-hidden bg-ink">
+                        {video.poster ? (
+                          <Image
+                            src={video.poster}
+                            alt=""
+                            aria-hidden="true"
+                            fill
+                            className="object-cover"
+                            sizes="144px"
+                          />
+                        ) : null}
+                        <span
+                          aria-hidden
+                          className={cn(
+                            'absolute inset-0 flex items-center justify-center transition-colors',
+                            isActive ? 'bg-ink/20' : 'bg-ink/45 group-hover:bg-ink/25',
+                          )}
+                        >
+                          <Play className="h-5 w-5 fill-white text-white" />
+                        </span>
+                      </span>
+                      {video.speakerName ? (
+                        <span className="block truncate px-2 py-1.5 text-[11px] font-medium text-ink-2">
+                          {video.speakerName}
+                        </span>
+                      ) : null}
+                    </button>
+                  )
+                })}
+              </div>
+            </div>
+          ) : null}
+        </div>
+      ) : null}
     </Section>
   )
 }

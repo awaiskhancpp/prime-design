@@ -28,7 +28,9 @@ const targetSlugs = [
   'home-remodeling-information',
   'outdoor-hardscape-outdoor-kitchen-information',
   'siding-installation-replacement-information',
-  'comprehensive-home-repair-installation-services-in-silicon-valley',
+  // NOTE: comprehensive-home-repair-… is a SERVICE (canonical slug under
+  // /services/, migrated by migrate-services.ts), not a landing page — its
+  // root URL redirects there via the service resolver.
   'remodeling-information',
 ]
 

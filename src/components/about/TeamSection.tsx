@@ -8,7 +8,7 @@ import { Container } from '@/components/ui/Container'
 import { HighlightedText } from '@/components/ui/HighlightedText'
 import type { PageTeamIntroContent } from '@/lib/pageSections'
 import type { AboutTeamMember } from '@/lib/team'
-import { X } from 'lucide-react'
+import { ArrowRight, X } from 'lucide-react'
 
 type TeamMember = {
   name: string
@@ -17,7 +17,6 @@ type TeamMember = {
   initials: string
   image?: string
 }
-
 
 function Portrait({
   member,
@@ -34,7 +33,16 @@ function Portrait({
       {member.image ? (
         // `alt` used to be the image URL, which is what showed up as text
         // inside the frame whenever a portrait failed to load.
-        <Image src={member.image} alt={member.name} fill className="object-cover object-top" />
+        <Image
+          src={member.image}
+          alt={member.name}
+          fill
+          className={
+            variant === 'grid'
+              ? 'object-cover object-top transition-transform duration-500 ease-out group-hover:scale-105'
+              : 'object-cover object-top'
+          }
+        />
       ) : (
         <div className="flex h-full items-center justify-center bg-[radial-gradient(circle_at_50%_20%,#c19a5b_0%,#1f3358_46%,#14213d_100%)]">
           <span className="font-display text-7xl font-medium text-white/85">{member.initials}</span>
@@ -46,26 +54,25 @@ function Portrait({
 
 function TeamCard({ member, onClick }: { member: TeamMember; onClick: () => void }) {
   return (
-    <article className="border border-line bg-white transition-colors hover:border-brass">
-      <Portrait member={member} />
+    <article className="group border border-line bg-white transition-colors hover:border-brass">
+      <button type="button" onClick={onClick} className="block w-full text-left">
+        <div className="overflow-hidden">
+          <Portrait member={member} />
+        </div>
 
-      <div className="flex flex-col gap-2 lg:gap-5 border-t border-line px-3 py-5 sm:px-2 sm:py-3 md:flex-row md:items-center md:justify-between md:gap-4 lg:px-6 lg:py-6">
-        <div className="min-w-0 flex-1">
-          <h3 className="font-display text-2xl font-medium leading-tight text-ink-2">
+        <div className="border-t border-line px-5 py-5">
+          <h3 className="font-display text-xl font-medium leading-tight text-ink-2">
             {member.name}
           </h3>
-
-          <p className="mt-2 text-xs font-semibold uppercase leading-5 tracking-[0.1em] text-ink-2/60">
+          <p className="mt-1.5 text-xs font-semibold uppercase leading-5 tracking-[0.1em] text-ink-2/60">
             {member.role}
           </p>
+          <span className="mt-3 inline-flex items-center gap-1.5 text-xs font-semibold uppercase tracking-[0.14em] text-brass-deep transition-all duration-200 group-hover:gap-2.5">
+            View bio
+            <ArrowRight className="h-3.5 w-3.5" aria-hidden />
+          </span>
         </div>
-
-        <div className="shrink-0">
-          <Button type="button" variant="secondary" size="sm" onClick={onClick}>
-            Learn more
-          </Button>
-        </div>
-      </div>
+      </button>
     </article>
   )
 }
@@ -110,7 +117,10 @@ export function TeamSection({
             {teamIntro?.eyebrow}
           </p>
           <h2 className="mt-4 font-display text-5xl font-medium leading-none tracking-tight text-ink-2 md:text-7xl">
-            <HighlightedText text={teamIntro?.heading ?? ''} highlight={teamIntro?.headingHighlight} />
+            <HighlightedText
+              text={teamIntro?.heading ?? ''}
+              highlight={teamIntro?.headingHighlight}
+            />
           </h2>
           <div className="mx-auto mt-6 max-w-2xl text-base leading-7 text-ink-2/70">
             {bodyContent}
@@ -122,22 +132,16 @@ export function TeamSection({
           ) : null}
         </div>
 
-        {/* Featured row: paragraph + CEO card, side by side. This uses the
-            SAME column grid (md:grid-cols-2 lg:grid-cols-3) as the team
-            grid below, with the card taking exactly one column and the
-            text taking the rest. That's what makes the card's width
-            identical to the grid cards below — same track math, not a
-            separately guessed max-width. The card itself also uses the
-            default 'grid' Portrait variant (aspect-[4/5]), same as every
-            other card, so the aspect ratio matches too. */}
-        <div className="mt-20 grid gap-6 md:grid-cols-2 lg:grid-cols-3 lg:items-center">
-          <div className="md:col-span-1 lg:col-span-2">
+        {/* Featured row: paragraph + CEO card, side by side. Uses the SAME
+            4-column grid as the team grid below (text spans 3 columns,
+            card spans 1), so the CEO card's width matches the grid cards
+            below exactly — same track math, not a guessed max-width. */}
+        <div className="mt-20 grid gap-6 md:grid-cols-2 lg:grid-cols-4 lg:items-center">
+          <div className="md:col-span-1 lg:col-span-3">
             <h2 className="font-display text-4xl font-medium leading-tight text-ink-2 md:text-5xl">
               {teamIntro?.introHeading}
             </h2>
-            <p className="mt-2 text-2xl italic text-brass-deep/80">
-              {teamIntro?.introSubheading}
-            </p>
+            <p className="mt-2 text-2xl italic text-brass-deep/80">{teamIntro?.introSubheading}</p>
             <div className="mt-6 h-1 w-12 bg-brass" aria-hidden />
             <div className="mt-6 max-w-xl text-base leading-7 text-ink-2/75">
               {introBodyContent}
@@ -145,14 +149,14 @@ export function TeamSection({
           </div>
 
           <div className="md:col-span-1 lg:col-span-1">
-            <TeamCard member={ceo} onClick={() => setSelectedMember(ceo)} />
+            {ceo ? <TeamCard member={ceo} onClick={() => setSelectedMember(ceo)} /> : null}
           </div>
         </div>
 
-        {/* Remaining Team Grid — identical column structure as the row
-            above, so every card (including the CEO's, above) is the same
-            width. */}
-        <div className="mt-6 grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+        {/* Remaining Team Grid — 4 per row at lg, identical column
+            structure as the row above so every card (including the CEO's)
+            is the same width. */}
+        <div className="mt-6 grid gap-6 md:grid-cols-2 lg:grid-cols-4">
           {restOfTeam.map((member) => (
             <TeamCard key={member.name} member={member} onClick={() => setSelectedMember(member)} />
           ))}

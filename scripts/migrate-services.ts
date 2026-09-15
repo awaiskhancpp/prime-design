@@ -57,6 +57,12 @@ const targetServices: Array<{
     title: 'Shaker Kitchen',
     parentServiceSlug: 'kitchen-remodeling',
   },
+  { wordpressPageId: 345, serviceSlug: 'finance', title: 'Finance' },
+  {
+    wordpressPageId: 3463,
+    serviceSlug: 'comprehensive-home-repair-installation-services-in-silicon-valley',
+    title: 'Comprehensive Home Repair & Installation Services in Silicon Valley',
+  },
 ]
 
 const sourcePhone = website.header.phoneCta
@@ -1377,7 +1383,13 @@ async function resolveVideoMedia(url: string | undefined): Promise<number | unde
   }
 
   try {
-    const response = await fetch(url)
+    const response = await fetch(url, {
+      headers: {
+        'User-Agent': 'Mozilla/5.0 (compatible; Googlebot/2.1; +http://www.google.com/bot.html)',
+        Accept: 'video/*,*/*',
+      },
+      signal: AbortSignal.timeout(600000),
+    })
     if (!response.ok) {
       console.warn(`[hero video] Skipped ${url} — HTTP ${response.status}`)
       videoCache.set(url, undefined)

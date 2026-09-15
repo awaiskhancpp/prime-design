@@ -1,5 +1,6 @@
 import type { Block, Field } from 'payload'
 
+import { videoStoryFields } from '../fields/videoStory'
 import { customSectionBlock } from './SharedBlocks'
 
 /**
@@ -151,6 +152,7 @@ export const differenceBlock: Block = {
           required: true,
           admin: { description: 'Direct .mp4 URL.' },
         },
+        ...videoStoryFields(),
       ],
     },
   ],
@@ -289,6 +291,7 @@ export const expertsBlock: Block = {
     { name: 'badge', type: 'upload', relationTo: 'media' },
     { name: 'ctaLabel', type: 'text' },
     { name: 'ctaHref', type: 'text' },
+    ...videoStoryFields(),
   ],
 }
 

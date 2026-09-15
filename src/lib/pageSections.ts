@@ -48,7 +48,21 @@ export type PageDifferenceContent = {
   heading: string
   headingHighlight?: string
   checklist: Array<{ lead: string; text: string }>
-  videos: Array<{ title: string; url: string }>
+  videos: Array<{
+    title: string
+    url: string
+    /**
+     * Optional poster frame. The difference-videos array in the Pages schema
+     * does not define an upload field for this yet, so it is normally
+     * undefined and the thumbnail strip falls back to the play icon; the
+     * renderer supports it for when the field is added.
+     */
+    poster?: string
+    /** What the video says — rendered under the player like a testimonial. */
+    summary?: RichTextValue
+    speakerName?: string
+    speakerRole?: string
+  }>
 }
 
 export type PageFeatureBlocksContent = {
@@ -103,6 +117,10 @@ export type PageExpertsContent = {
   badge?: string
   ctaLabel?: string
   ctaHref?: string
+  /** What the video says + optional on-screen attribution. */
+  summary?: RichTextValue
+  speakerName?: string
+  speakerRole?: string
 }
 
 export type PageFaqIntroContent = { heading: string; description?: string }
@@ -224,7 +242,13 @@ export function toPageSection(block: PageBlock): PageSection | undefined {
           videos: (Array.isArray(block.videos) ? block.videos : [])
             .map((item) => group(item))
             .filter((item) => item.url)
-            .map((item) => ({ title: text(item.title), url: text(item.url) })),
+            .map((item) => ({
+              title: text(item.title),
+              url: text(item.url),
+              summary: rich(item.summary),
+              speakerName: optionalText(item.speakerName),
+              speakerRole: optionalText(item.speakerRole),
+            })),
         },
       }
     case 'projects':
@@ -316,6 +340,9 @@ export function toPageSection(block: PageBlock): PageSection | undefined {
           badge: mediaUrl(block.badge),
           ctaLabel: optionalText(block.ctaLabel),
           ctaHref: optionalText(block.ctaHref),
+          summary: rich(block.summary),
+          speakerName: optionalText(block.speakerName),
+          speakerRole: optionalText(block.speakerRole),
         },
       }
     case 'faq':

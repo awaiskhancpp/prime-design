@@ -393,6 +393,32 @@ export interface Service {
             video?: (number | null) | Media;
             videoUrl?: string | null;
             poster?: (number | null) | Media;
+            /**
+             * Short summary or quote from the video. Renders under the player, like a testimonial.
+             */
+            summary?: {
+              root: {
+                type: string;
+                children: {
+                  type: any;
+                  version: number;
+                  [k: string]: unknown;
+                }[];
+                direction: ('ltr' | 'rtl') | null;
+                format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+                indent: number;
+                version: number;
+              };
+              [k: string]: unknown;
+            } | null;
+            /**
+             * Only when the video names the speaker (on-screen lower-third or the source page). Leave empty if unknown.
+             */
+            speakerName?: string | null;
+            /**
+             * e.g. "Homeowner", "Co-Owner", "Project Manager".
+             */
+            speakerRole?: string | null;
             id?: string | null;
             blockName?: string | null;
             blockType: 'video';
@@ -571,6 +597,32 @@ export interface Service {
             poster?: (number | null) | Media;
             controls?: boolean | null;
             sourceVideoId?: string | null;
+            /**
+             * Short summary or quote from the video. Renders under the player, like a testimonial.
+             */
+            summary?: {
+              root: {
+                type: string;
+                children: {
+                  type: any;
+                  version: number;
+                  [k: string]: unknown;
+                }[];
+                direction: ('ltr' | 'rtl') | null;
+                format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+                indent: number;
+                version: number;
+              };
+              [k: string]: unknown;
+            } | null;
+            /**
+             * Only when the video names the speaker (on-screen lower-third or the source page). Leave empty if unknown.
+             */
+            speakerName?: string | null;
+            /**
+             * e.g. "Homeowner", "Co-Owner", "Project Manager".
+             */
+            speakerRole?: string | null;
             sourceId?: string | null;
             sourceElementType?: string | null;
             sourceAttachmentId?: number | null;
@@ -1928,6 +1980,32 @@ export interface Page {
                    * Direct .mp4 URL.
                    */
                   url: string;
+                  /**
+                   * Short summary or quote from the video. Renders under the player, like a testimonial.
+                   */
+                  summary?: {
+                    root: {
+                      type: string;
+                      children: {
+                        type: any;
+                        version: number;
+                        [k: string]: unknown;
+                      }[];
+                      direction: ('ltr' | 'rtl') | null;
+                      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+                      indent: number;
+                      version: number;
+                    };
+                    [k: string]: unknown;
+                  } | null;
+                  /**
+                   * Only when the video names the speaker (on-screen lower-third or the source page). Leave empty if unknown.
+                   */
+                  speakerName?: string | null;
+                  /**
+                   * e.g. "Homeowner", "Co-Owner", "Project Manager".
+                   */
+                  speakerRole?: string | null;
                   id?: string | null;
                 }[]
               | null;
@@ -2185,6 +2263,32 @@ export interface Page {
             badge?: (number | null) | Media;
             ctaLabel?: string | null;
             ctaHref?: string | null;
+            /**
+             * Short summary or quote from the video. Renders under the player, like a testimonial.
+             */
+            summary?: {
+              root: {
+                type: string;
+                children: {
+                  type: any;
+                  version: number;
+                  [k: string]: unknown;
+                }[];
+                direction: ('ltr' | 'rtl') | null;
+                format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+                indent: number;
+                version: number;
+              };
+              [k: string]: unknown;
+            } | null;
+            /**
+             * Only when the video names the speaker (on-screen lower-third or the source page). Leave empty if unknown.
+             */
+            speakerName?: string | null;
+            /**
+             * e.g. "Homeowner", "Co-Owner", "Project Manager".
+             */
+            speakerRole?: string | null;
             id?: string | null;
             blockName?: string | null;
             blockType: 'experts';
@@ -2367,6 +2471,32 @@ export interface Project {
   gallery?: (number | Media)[] | null;
   address?: string | null;
   videoUrl?: string | null;
+  /**
+   * Short summary or quote from the video. Renders under the player, like a testimonial.
+   */
+  videoSummary?: {
+    root: {
+      type: string;
+      children: {
+        type: any;
+        version: number;
+        [k: string]: unknown;
+      }[];
+      direction: ('ltr' | 'rtl') | null;
+      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+      indent: number;
+      version: number;
+    };
+    [k: string]: unknown;
+  } | null;
+  /**
+   * Only when the video names the speaker (on-screen lower-third or the source page). Leave empty if unknown.
+   */
+  videoSpeakerName?: string | null;
+  /**
+   * e.g. "Homeowner", "Co-Owner", "Project Manager".
+   */
+  videoSpeakerRole?: string | null;
   /**
    * Checked projects are shown on the homepage "Our Latest Remodeling Projects" grid. When none are checked, the six most recent projects are shown instead.
    */
@@ -2787,6 +2917,32 @@ export interface LandingPage {
         poster?: (number | null) | Media;
         controls?: boolean | null;
         sourceVideoId?: string | null;
+        /**
+         * Short summary or quote from the video. Renders under the player, like a testimonial.
+         */
+        summary?: {
+          root: {
+            type: string;
+            children: {
+              type: any;
+              version: number;
+              [k: string]: unknown;
+            }[];
+            direction: ('ltr' | 'rtl') | null;
+            format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+            indent: number;
+            version: number;
+          };
+          [k: string]: unknown;
+        } | null;
+        /**
+         * Only when the video names the speaker (on-screen lower-third or the source page). Leave empty if unknown.
+         */
+        speakerName?: string | null;
+        /**
+         * e.g. "Homeowner", "Co-Owner", "Project Manager".
+         */
+        speakerRole?: string | null;
         sourceId?: string | null;
         sourceElementType?: string | null;
         sourceAttachmentId?: number | null;
@@ -3874,6 +4030,9 @@ export interface ServicesSelect<T extends boolean = true> {
               video?: T;
               videoUrl?: T;
               poster?: T;
+              summary?: T;
+              speakerName?: T;
+              speakerRole?: T;
               id?: T;
               blockName?: T;
             };
@@ -4037,6 +4196,9 @@ export interface ServicesSelect<T extends boolean = true> {
               poster?: T;
               controls?: T;
               sourceVideoId?: T;
+              summary?: T;
+              speakerName?: T;
+              speakerRole?: T;
               sourceId?: T;
               sourceElementType?: T;
               sourceAttachmentId?: T;
@@ -5008,6 +5170,9 @@ export interface PagesSelect<T extends boolean = true> {
                 | {
                     title?: T;
                     url?: T;
+                    summary?: T;
+                    speakerName?: T;
+                    speakerRole?: T;
                     id?: T;
                   };
               id?: T;
@@ -5119,6 +5284,9 @@ export interface PagesSelect<T extends boolean = true> {
               badge?: T;
               ctaLabel?: T;
               ctaHref?: T;
+              summary?: T;
+              speakerName?: T;
+              speakerRole?: T;
               id?: T;
               blockName?: T;
             };
@@ -5259,6 +5427,9 @@ export interface ProjectsSelect<T extends boolean = true> {
   gallery?: T;
   address?: T;
   videoUrl?: T;
+  videoSummary?: T;
+  videoSpeakerName?: T;
+  videoSpeakerRole?: T;
   featured?: T;
   seo?:
     | T
@@ -5551,6 +5722,9 @@ export interface LandingPagesSelect<T extends boolean = true> {
               poster?: T;
               controls?: T;
               sourceVideoId?: T;
+              summary?: T;
+              speakerName?: T;
+              speakerRole?: T;
               sourceId?: T;
               sourceElementType?: T;
               sourceAttachmentId?: T;

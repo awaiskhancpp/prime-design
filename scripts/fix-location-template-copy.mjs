@@ -32,7 +32,7 @@ const HOME = {
 const client = new pg.Client({ connectionString: conn })
 await client.connect()
 try {
-  for (const [serviceId, content] of [[3, BATHROOM], [2, HOME]]) {
+  for (const [serviceId, content] of [[2, BATHROOM], [3, HOME]]) {
     const setSql = Object.entries(content)
       .map(([col]) => `${col} = $2`)
       .join(', ')

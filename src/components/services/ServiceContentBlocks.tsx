@@ -1,6 +1,8 @@
 import { Check } from 'lucide-react'
 import Image from 'next/image'
 import type { ReactNode } from 'react'
+import { RichTextContent } from '@/components/rich-text/RichTextContent'
+import { richTextHasContent } from '@/lib/richText'
 import type { ServiceContentBlock, ServiceDetail } from '@/lib/services'
 import { ServiceOfferingsSection } from './ServiceOfferingsSection'
 import { ServiceProcessSection } from './ServiceProcessSection'
@@ -248,6 +250,11 @@ function renderContentBlock(service: ServiceDetail, block: ServiceContentBlock, 
           title={block.heading || 'See the difference'}
           videoUrl={block.videoUrl}
           poster={block.poster}
+          summary={
+            richTextHasContent(block.summary) ? <RichTextContent data={block.summary} /> : undefined
+          }
+          speakerName={block.speakerName ?? undefined}
+          speakerRole={block.speakerRole ?? undefined}
         />
       )
     case 'quote':

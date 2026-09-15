@@ -44,7 +44,7 @@ export function LandscapingCta() {
           aria-hidden="true"
         />
 
-        <p className="mx-auto mt-8 max-w-3xl text-base leading-8 text-white/70">
+        <p className="mx-auto mt-8 max-w-4xl text-base leading-8 text-white/70">
           At Prime Design &amp; Build, we stand proudly as one of Silicon Valley&apos;s premier
           remodeling and construction authorities, specializing in a wide range of high-quality
           services tailored to meet your specific needs. Our well-established reputation is built on

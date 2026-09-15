@@ -10,6 +10,7 @@ import {
   mediaReferenceFields,
   provenanceFields,
 } from '../fields/Shared'
+import { videoStoryFields } from '../collections/fields/videoStory'
 
 const labels = (singular: string, plural = `${singular}s`) => ({ singular, plural })
 
@@ -48,6 +49,7 @@ export const landingPageBlocks: Block[] = [
     { name: 'poster', type: 'upload' as const, relationTo: 'media' as const },
     { name: 'controls', type: 'checkbox' as const, defaultValue: true },
     text('sourceVideoId'),
+    ...videoStoryFields(),
   ]),
   base('gallery', 'Gallery', [
     text('heading'),

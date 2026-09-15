@@ -22,7 +22,8 @@ import { LandingBookingSection } from './LandingBookingSection'
 import { LandingContact } from './Contact'
 import { TestimonialsSpotlight } from '@/components/testimonials/TestimonialsSpotlight'
 import { faqCategories } from '@/lib/faq'
-import { richTextToPlainText } from '@/lib/richText'
+import { richTextHasContent, richTextToPlainText, type RichTextValue } from '@/lib/richText'
+import { RichTextContent } from '@/components/rich-text/RichTextContent'
 import type { LandingPageBlock } from '@/lib/landingPages'
 
 type Block = LandingPageBlock & Record<string, unknown>
@@ -102,6 +103,9 @@ function ImageTextBlock({ block }: { block: Block }) {
 function VideoBlock({ block }: { block: Block }) {
   const url = text(block.externalUrl) || mediaUrl(block.video)
   if (!url) return <UnsupportedLandingBlock block={block} />
+  const summary = richTextHasContent(block.summary as RichTextValue) ? (
+    <RichTextContent data={block.summary as RichTextValue} />
+  ) : undefined
   return (
     <ServiceVideoSection
       eyebrow={text(block.eyebrow)}
@@ -109,6 +113,9 @@ function VideoBlock({ block }: { block: Block }) {
       description={text(block.description)}
       videoUrl={url}
       poster={mediaUrl(block.poster)}
+      summary={summary}
+      speakerName={text(block.speakerName)}
+      speakerRole={text(block.speakerRole)}
     />
   )
 }

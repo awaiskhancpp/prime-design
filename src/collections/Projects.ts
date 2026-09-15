@@ -1,5 +1,6 @@
 import type { CollectionConfig } from 'payload'
 import { SEOFields } from './fields/SEO'
+import { videoStoryFields } from './fields/videoStory'
 
 export const Projects: CollectionConfig = {
   slug: 'projects',
@@ -20,6 +21,7 @@ export const Projects: CollectionConfig = {
     { name: 'gallery', type: 'upload', relationTo: 'media', hasMany: true },
     { name: 'address', type: 'textarea' },
     { name: 'videoUrl', type: 'text' },
+    ...videoStoryFields({ prefix: 'video' }),
     {
       name: 'featured',
       type: 'checkbox',

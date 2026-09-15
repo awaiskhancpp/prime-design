@@ -9,6 +9,12 @@ const titles: Record<string, string> = {
   'kitchen-remodeling': 'Kitchen Remodeling',
   'bathroom-remodeling': 'Bathroom Remodeling',
   'home-remodeling': 'Home Remodeling',
+  adu: 'ADU',
+  additions: 'Additions',
+  'complete-renovation': 'Complete Renovation',
+  'european-kitchen': 'European Kitchen',
+  'custom-kitchen': 'Custom Kitchen',
+  'shaker-kitchen': 'Shaker Kitchen',
 }
 
 const slugify = (value: string) => value.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '')

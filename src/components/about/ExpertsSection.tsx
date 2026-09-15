@@ -69,19 +69,36 @@ export function ExpertsSection({ experts }: { experts?: AboutExpertsValue }) {
           ) : null}
         </div>
 
-        <div className="overflow-hidden bg-ink lg:col-span-7">
-          <video
-            className="aspect-video h-full w-full object-cover"
-            controls
-            muted
-            loop
-            playsInline
-            poster={experts?.poster}
-            preload="metadata"
-          >
-            {videoUrl ? <source src={videoUrl} type="video/mp4" /> : null}
-            Your browser does not support the video tag.
-          </video>
+        <div className="lg:col-span-7">
+          <div className="overflow-hidden bg-ink">
+            <video
+              className="aspect-video h-full w-full object-cover"
+              controls
+              muted
+              loop
+              playsInline
+              poster={experts?.poster}
+              preload="metadata"
+            >
+              {videoUrl ? <source src={videoUrl} type="video/mp4" /> : null}
+              Your browser does not support the video tag.
+            </video>
+          </div>
+
+          {/* What the video says — optional CMS summary + attribution. */}
+          {experts?.summary ? (
+            <div className="mt-6 border-l-2 border-brass/60 pl-5">
+              <div className="text-sm leading-7 text-ink-2/75">
+                <RichTextContent data={experts.summary} />
+              </div>
+              {experts.speakerName ? (
+                <p className="mt-3 text-[11px] font-semibold uppercase tracking-[0.14em] text-brass-deep">
+                  {experts.speakerName}
+                  {experts.speakerRole ? ` — ${experts.speakerRole}` : ''}
+                </p>
+              ) : null}
+            </div>
+          ) : null}
         </div>
       </div>
     </Section>

@@ -27,6 +27,7 @@ import * as migration_20260911_225142_gallery_global from './20260911_225142_gal
 import * as migration_20260914_163206_homepage_about_collections from './20260914_163206_homepage_about_collections';
 import * as migration_20260914_170623_gallery_page_collection from './20260914_170623_gallery_page_collection';
 import * as migration_20260914_172948_pages_section_blocks from './20260914_172948_pages_section_blocks';
+import * as migration_20260914_180701_video_story_fields from './20260914_180701_video_story_fields';
 
 export const migrations = [
   {
@@ -172,6 +173,11 @@ export const migrations = [
   {
     up: migration_20260914_172948_pages_section_blocks.up,
     down: migration_20260914_172948_pages_section_blocks.down,
-    name: '20260914_172948_pages_section_blocks'
+    name: '20260914_172948_pages_section_blocks',
+  },
+  {
+    up: migration_20260914_180701_video_story_fields.up,
+    down: migration_20260914_180701_video_story_fields.down,
+    name: '20260914_180701_video_story_fields'
   },
 ];

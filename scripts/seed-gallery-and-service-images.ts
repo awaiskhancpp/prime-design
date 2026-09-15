@@ -62,6 +62,14 @@ async function mediaIdsForAttachmentIds(ids, cap = 12) {
   for (const id of ids) {
     const entry = attachments.get(id)
     if (!entry) continue
+    // prefer exact wordpress_id match (filename-based lookups break on
+    // payload-sanitized names)
+    const byWp = await client.query(`SELECT id FROM media WHERE wordpress_id = $1 LIMIT 1`, [id])
+    if (byWp.rows[0]) {
+      if (!out.includes(byWp.rows[0].id)) out.push(byWp.rows[0].id)
+      if (out.length >= cap) break
+      continue
+    }
     const mediaId = await mediaIdFor(entry.filename)
     if (mediaId && !out.includes(mediaId)) out.push(mediaId)
     if (out.length >= cap) break
@@ -112,20 +120,24 @@ for (const tab of galleryTabs) {
 // ---------- services hero + gallery images ----------
 const serviceImageMap = {
   // WP page → [heroImageIds (first blob wins), galleryCategory, pageImageIds fallback]
-  1: { hero: [2626], gallery: 'Kitchens', page: [2681, 2748, 2392, 2298, 2407, 2676, 2495, 2628, 2411, 543, 2577, 503] },
-  2: { hero: [2072, 872], gallery: 'Home Remodeling', page: [693, 696, 698, 872] },
-  3: { hero: [1844, 2415, 2490, 2710], gallery: 'Bathrooms', page: [2415, 2490, 468, 465, 2487, 2710, 2413, 517, 466, 516, 515, 508] },
-  7: { hero: [2010, 2006, 2429, 2007], gallery: 'ADU', page: [2010, 2006, 2429, 2007] },
-  8: { hero: [2003, 2482, 2492], gallery: 'Addition', page: [2003, 2482, 2492] },
-  9: { hero: [2048, 2012, 2050, 872], gallery: 'New Construction', page: [2048, 2012, 2050, 872, 2051, 2052] },
-  10: { hero: [1335, 2628, 2495], gallery: 'Kitchens', page: [2628, 2495, 522, 2678, 1652] },
-  11: { hero: [827, 502, 494, 491], gallery: 'Custom Kitchens', page: [502, 1652, 494, 491, 483, 533, 1928, 532, 531, 528] },
-  12: { hero: [542, 539], gallery: 'Kitchens', page: [542, 539] },
-  13: { hero: [868, 872], gallery: '', page: [868, 872] },
-  14: { hero: [2407, 2422, 2673, 975], gallery: '', page: [2407, 2422, 2763, 2673, 975, 2705, 2682] },
+  'kitchen-remodeling': { hero: [2626], gallery: 'Kitchens', page: [2681, 2748, 2392, 2298, 2407, 2676, 2495, 2628, 2411, 543, 2577, 503] },
+  'bathroom-remodeling': { hero: [2072, 872], gallery: 'Home Remodeling', page: [693, 696, 698, 872] },
+  'home-remodeling': { hero: [1844, 2415, 2490, 2710], gallery: 'Bathrooms', page: [2415, 2490, 468, 465, 2487, 2710, 2413, 517, 466, 516, 515, 508] },
+  adu: { hero: [2010, 2006, 2429, 2007], gallery: 'ADU', page: [2010, 2006, 2429, 2007] },
+  additions: { hero: [2003, 2482, 2492], gallery: 'Addition', page: [2003, 2482, 2492] },
+  'complete-renovation': { hero: [2048, 2012, 2050, 872], gallery: 'New Construction', page: [2048, 2012, 2050, 872, 2051, 2052] },
+  'european-kitchen': { hero: [1335, 2628, 2495], gallery: 'Kitchens', page: [2628, 2495, 522, 2678, 1652] },
+  'custom-kitchen': { hero: [827, 502, 494, 491], gallery: 'Custom Kitchens', page: [502, 1652, 494, 491, 483, 533, 1928, 532, 531, 528] },
+  'shaker-kitchen': { hero: [542, 539], gallery: 'Kitchens', page: [542, 539] },
 }
 
-for (const [serviceId, spec] of Object.entries(serviceImageMap)) {
+for (const [serviceSlug, spec] of Object.entries(serviceImageMap)) {
+  const svc = await client.query('SELECT id FROM services WHERE slug = $1 LIMIT 1', [serviceSlug])
+  if (!svc.rows[0]) {
+    console.log(`service ${serviceSlug}: not found, skipped`)
+    continue
+  }
+  const serviceId = svc.rows[0].id
   // Hero image — first attachment with a blob-backed media record.
   let heroMediaId
   for (const attachmentId of spec.hero) {

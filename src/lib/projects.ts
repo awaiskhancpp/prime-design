@@ -1,12 +1,17 @@
 import { getPayload } from 'payload'
 
 import configPromise from '@payload-config'
+import { richTextHasContent, type RichTextValue } from './richText'
 import { shouldUseLocalFallback } from './runtime'
 
 export type ProjectVideo = {
   url: string
   title?: string
   projectManager?: string
+  /** What the video says (CMS `videoSummary`) + optional attribution. */
+  summary?: RichTextValue
+  speakerName?: string
+  speakerRole?: string
 }
 
 export type Project = {
@@ -263,6 +268,9 @@ type PayloadProject = {
   featuredImage?: number | PayloadMedia | null
   gallery?: Array<number | PayloadMedia> | null
   videoUrl?: string | null
+  videoSummary?: RichTextValue | null
+  videoSpeakerName?: string | null
+  videoSpeakerRole?: string | null
   featured?: boolean | null
 }
 
@@ -285,11 +293,19 @@ function normalizeProject(project: PayloadProject): Project {
     heroImage: payloadMediaUrl(project.featuredImage) || fallback?.heroImage || home,
     gallery: gallery?.length ? gallery : fallback?.gallery || [],
     // When the payload video URL matches the static entry, keep the richer
-    // static caption (title + project manager) that was authored for it.
+    // static caption (title + project manager) that was authored for it; the
+    // CMS summary and attribution always win when they're filled in.
     video: project.videoUrl
-      ? fallback?.video?.url === project.videoUrl
-        ? fallback.video
-        : { url: project.videoUrl, title: project.title }
+      ? {
+          ...(fallback?.video?.url === project.videoUrl
+            ? fallback.video
+            : { url: project.videoUrl, title: project.title }),
+          summary: richTextHasContent(project.videoSummary)
+            ? (project.videoSummary as RichTextValue)
+            : undefined,
+          speakerName: project.videoSpeakerName || undefined,
+          speakerRole: project.videoSpeakerRole || undefined,
+        }
       : fallback?.video,
     featured: Boolean(project.featured),
   }

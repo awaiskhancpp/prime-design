@@ -1,6 +1,7 @@
 import Image from 'next/image'
 
 import { LandscapingServiceAreas } from '@/components/blocks/LandscapingServiceAreas'
+import { RichTextContent } from '@/components/rich-text/RichTextContent'
 import { Container } from '@/components/ui/Container'
 import { Section } from '@/components/ui/Section'
 import type { Project } from '@/lib/projects'
@@ -67,6 +68,21 @@ export function ProjectDetailPage({ project }: { project: Project }) {
               {project.video.projectManager}
             </p>
           )}
+
+          {/* What the video says — optional CMS summary + attribution. */}
+          {project.video.summary ? (
+            <div className="mt-6 max-w-3xl border-l-2 border-brass/60 pl-5">
+              <div className="text-sm leading-7 text-ink-2/75">
+                <RichTextContent data={project.video.summary} />
+              </div>
+              {project.video.speakerName ? (
+                <p className="mt-3 text-[11px] font-semibold uppercase tracking-[0.14em] text-brass-deep">
+                  {project.video.speakerName}
+                  {project.video.speakerRole ? ` — ${project.video.speakerRole}` : ''}
+                </p>
+              ) : null}
+            </div>
+          ) : null}
         </Section>
       )}
 

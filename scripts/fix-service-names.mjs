@@ -1,4 +1,4 @@
-﻿import 'dotenv/config'
+import 'dotenv/config'
 import pg from '../node_modules/.pnpm/pg@8.20.0/node_modules/pg/esm/index.mjs'
 const { Client } = pg
 const url = (process.env.DATABASE_URL || '').replace(/^"|"$/g, '')
@@ -22,9 +22,12 @@ await client.query(
 //    consultation-only service so the name comes from the services collection.
 const existing = await client.query(`SELECT id FROM services WHERE slug = 'new-construction'`)
 if (!existing.rows.length) {
+  // hero image = the homepage "New Construction" card image (WP 2122)
+  const media = await client.query(`SELECT id FROM media WHERE wordpress_id = 2122 LIMIT 1`)
   await client.query(
     `INSERT INTO services (title, slug, consultation_label, show_in_consultation_form, hero_image_id, sort_order)
-     VALUES ('New Construction', 'new-construction', 'New Construction Consultation', true, 157, '0')`
+     VALUES ('New Construction', 'new-construction', 'New Construction Consultation', true, $1, '0')`,
+    [media.rows[0]?.id ?? null],
   )
   console.log('inserted new-construction service')
 } else {
