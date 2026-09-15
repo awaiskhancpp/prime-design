@@ -1,6 +1,6 @@
 import Image from 'next/image'
 import Link from 'next/link'
-import { ArrowRight } from 'lucide-react'
+import { ArrowRight, ArrowUpRight, MapPin, Plus } from 'lucide-react'
 
 import { Section } from '@/components/ui/Section'
 import { SectionHeader } from '@/components/ui/SectionHeader'
@@ -33,7 +33,7 @@ export async function ServiceAreasSection({ service }: { service: ServiceDetail 
         title={`We offer top ${service.title} in the following areas`}
       />
 
-      <div className=" mt-12 grid  gap-x-8 gap-y-10 sm:grid-cols-2 lg:grid-cols-4">
+      <div className="mt-12 grid gap-x-8 gap-y-10 sm:grid-cols-2 lg:grid-cols-4">
         {locations.map((entry) => {
           const href = `/${entry.serviceSlug}/${entry.slug}`
           const description = `Bring ${serviceLabel.toLowerCase()} in ${entry.location.name} to life with thoughtful design, quality craftsmanship, and a process built around your home.`
@@ -44,29 +44,33 @@ export async function ServiceAreasSection({ service }: { service: ServiceDetail 
           const cardImage = entry.featuredImage || service.image
 
           return (
-            <article key={entry.slug} className="group flex h-full flex-col">
+            <article key={entry.slug} className="flex h-full flex-col border border-line bg-white">
               <Link href={href} className="relative block aspect-[4/3] overflow-hidden bg-paper-2">
                 <Image
                   src={cardImage}
                   alt={`${serviceLabel} in ${entry.location.name}`}
                   fill
-                  className="object-cover transition-transform duration-500 ease-out group-hover:scale-105"
+                  className="object-cover transition-transform duration-500 ease-out hover:scale-105"
                   sizes="(min-width: 1024px) 33vw, (min-width: 640px) 50vw, 100vw"
                 />
               </Link>
 
-              <div className="flex flex-1 flex-col pt-5">
-                <h3 className="font-display text-2xl font-medium leading-tight text-ink-2 md:text-3xl">
-                  {entry.location.name}
-                </h3>
+              <div className="flex flex-1 flex-col p-6">
+                <div className="flex items-center gap-2">
+                  <MapPin className="h-5 w-5 shrink-0 text-brass" aria-hidden />
+                  <h3 className="font-display text-2xl font-medium leading-tight text-ink-2">
+                    {entry.location.name}
+                  </h3>
+                </div>
                 <p className="mt-3 line-clamp-2 text-base leading-7 text-ink-2/70">{description}</p>
+
                 <div className="mt-auto pt-5">
                   <Link
                     href={href}
-                    className="inline-flex items-center gap-2 border border-brass px-4 py-2 text-xs font-semibold uppercase tracking-[0.12em] text-brass-deep transition-colors hover:bg-brass hover:text-white"
+                    className="inline-flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.12em] text-brass-deep transition-colors hover:text-brass"
                   >
-                    {serviceLabel} in {entry.location.name}
-                    <ArrowRight />
+                    View area
+                    <ArrowUpRight className="h-3.5 w-3.5" aria-hidden />
                   </Link>
                 </div>
               </div>
@@ -75,18 +79,37 @@ export async function ServiceAreasSection({ service }: { service: ServiceDetail 
         })}
 
         {/* "And all surrounding cities!" card — matches the WordPress pill. */}
-        <article className="group flex h-full flex-col">
-          <div className="flex flex-1 flex-col border border-line bg-paper p-6">
-            <h3 className="mt-3 font-display text-2xl font-medium leading-tight text-ink-2 md:text-3xl">
-              And all surrounding cities!
-            </h3>
+        {/* "And all surrounding cities!" card — no location photo to show, so a
+    solid ink-2 block with the Plus glyph fills the same aspect-[4/3] slot
+    the photo cards use, keeping this card the same visual weight and grid
+    height as its siblings instead of just floating text in empty space. */}
+        <article className="flex h-full flex-col border border-line bg-white">
+          <div className="relative flex aspect-[4/3] items-center justify-center overflow-hidden bg-ink-2">
+            <Plus
+              aria-hidden
+              className="pointer-events-none absolute h-40 w-40 text-white/[0.06]"
+            />
+            <Plus className="relative h-20 w-20 text-brass/70" aria-hidden />
+          </div>
+
+          <div className="flex flex-1 flex-col p-6">
+            <div className="flex items-center gap-2">
+              <MapPin className="h-5 w-5 shrink-0 text-brass" aria-hidden />
+              <h3 className="font-display text-2xl font-medium leading-tight text-ink-2">
+                All surrounding cities
+              </h3>
+            </div>
+            <p className="mt-3 line-clamp-2 text-base leading-7 text-ink-2/70">
+              Don&apos;t see your city listed? We likely serve it too.
+            </p>
+
             <div className="mt-auto pt-5">
               <Link
                 href="/contact"
-                className="inline-flex items-center gap-2 border border-brass px-4 py-2 text-xs font-semibold uppercase tracking-[0.12em] text-brass-deep transition-colors hover:bg-brass hover:text-white"
+                className="inline-flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.12em] text-brass-deep transition-colors hover:text-brass"
               >
                 Contact us
-                <ArrowRight />
+                <ArrowRight className="h-3.5 w-3.5" aria-hidden />
               </Link>
             </div>
           </div>
