@@ -166,6 +166,9 @@ const SERVICE_PAGE_LAYOUTS: Record<string, ServicePageSections> = {
     process: true,
     offerings: true,
     gallery: true,
+    // "Let's build your dream bathroom, step-by-step / We make it easy" —
+    // the WordPress section directly below the gallery.
+    craftsmanship: true,
     siliconValleyLoves: true,
     faq: true,
     estimate: true,

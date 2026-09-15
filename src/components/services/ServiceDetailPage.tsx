@@ -666,6 +666,7 @@ export function ServiceTemplate({ service }: { service: ServiceDetail }) {
       'process',
       'offerings',
       'gallery',
+      'craftsmanship',
       'silicon-valley-loves',
       'prime-difference',
       'faq',
