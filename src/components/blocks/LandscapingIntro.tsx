@@ -7,44 +7,6 @@ import { Container } from '@/components/ui/Container'
 import type { PageIntroContent } from '@/lib/pageSections'
 import { cn } from '@/lib/utils'
 
-function RevealLine({ children, className }: { children: ReactNode; className?: string }) {
-  const ref = useRef<HTMLDivElement>(null)
-  const [visible, setVisible] = useState(false)
-
-  useEffect(() => {
-    const node = ref.current
-    if (!node) return
-
-    // Reveal once and stay revealed. The previous version re-hid content
-    // whenever it left the viewport, and used a 0.6 threshold that a tall
-    // element can never satisfy — so content could stay stuck invisible.
-    const observer = new IntersectionObserver(
-      ([entry]) => {
-        if (!entry.isIntersecting) return
-        setVisible(true)
-        observer.disconnect()
-      },
-      { threshold: 0.15, rootMargin: '0px 0px -10% 0px' },
-    )
-
-    observer.observe(node)
-    return () => observer.disconnect()
-  }, [])
-
-  return (
-    <div
-      ref={ref}
-      className={cn(
-        'transition-all duration-700 ease-out motion-reduce:transition-none',
-        visible ? 'translate-y-0 opacity-100' : 'translate-y-5 opacity-0',
-        className,
-      )}
-    >
-      {children}
-    </div>
-  )
-}
-
 /**
  * CMS-driven intro (Homepage global). The rich-text body is rendered by the
  * server (RichTextContent) and passed in as `bodyContent` because this
