@@ -344,11 +344,10 @@ export function ServiceTemplate({ service }: { service: ServiceDetail }) {
     {
       key: 'why-choose-us',
       node:
-        service.slug === 'additions' ||
-        service.slug === 'complete-renovation' ||
-        service.slug === 'adu' ? (
-          // Additions, Complete Renovation and ADU show the "Experience the
-          // Prime Difference" design (gallery WhyChooseUs).
+        service.slug === 'additions' || service.slug === 'adu' ? (
+          // Additions and ADU show the "Experience the Prime Difference"
+          // design (gallery WhyChooseUs). Complete Renovation's WordPress
+          // page has no Why Choose Us section at all.
           <WhyChooseUs />
         ) : (
           (cmsSlotNodes.get('why-choose-us') ??
@@ -634,7 +633,6 @@ export function ServiceTemplate({ service }: { service: ServiceDetail }) {
       'client-approach',
       'craftsmanship',
       'silicon-valley-loves',
-      'why-choose-us',
       'reviews',
       'contact',
       'service-areas',

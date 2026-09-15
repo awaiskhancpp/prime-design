@@ -15,21 +15,39 @@ export function ServiceLicensedInsuredSection({
   heading,
   description,
   items,
+  image,
 }: {
   heading: string
   description?: string
   items?: LicensedInsuredItem[]
+  /** Optional background photo (the WordPress section's full-bleed image). */
+  image?: string
 }) {
   return (
-    <Section className="relative bg-ink text-white">
-      <div className="mx-auto max-w-3xl text-center">
+    <Section className="relative isolate overflow-hidden bg-ink text-white">
+      {image ? (
+        <>
+          <Image
+            src={image}
+            alt=""
+            aria-hidden="true"
+            fill
+            className="absolute inset-0 z-0 object-cover"
+            sizes="100vw"
+          />
+          {/* WordPress shade overlay so the white copy stays readable. */}
+          <div className="pointer-events-none absolute inset-0 z-[1] bg-ink/75" />
+        </>
+      ) : null}
+
+      <div className="relative z-10 mx-auto max-w-3xl text-center">
         <h2 className="font-display text-3xl font-medium tracking-tight md:text-5xl">{heading}</h2>
         {description ? (
           <p className="mt-4 text-base leading-7 text-white/75 md:text-lg">{description}</p>
         ) : null}
       </div>
 
-      <div className="mt-12 grid justify-items-center gap-10 sm:grid-cols-3">
+      <div className="relative z-10 mt-12 grid justify-items-center gap-10 sm:grid-cols-3">
         {(items ?? []).map((item) => (
           <div key={item.title} className="flex flex-col items-center gap-5 text-center">
             {item.icon ? (

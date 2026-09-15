@@ -2,7 +2,7 @@ import type { Metadata } from 'next'
 import { notFound, permanentRedirect } from 'next/navigation'
 import { ServiceTemplate } from '@/components/services/ServiceTemplate'
 import { resolveServiceDetail, servicePathAliases } from '@/lib/services'
-import { serviceMetadata } from '@/lib/seo'
+import { buildSeoMetadata } from '@/lib/seo'
 
 // Service pages are CMS-driven: render on each request so Payload edits
 // (sections, copy, SEO) appear without a rebuild.
@@ -18,7 +18,15 @@ export async function generateMetadata({
   params: Promise<{ serviceSlug: string }>
 }): Promise<Metadata> {
   const { serviceSlug } = await params
-  return serviceMetadata(await resolveServiceDetail(targetOf(serviceSlug)))
+  const service = await resolveServiceDetail(targetOf(serviceSlug))
+  if (!service) return {}
+
+  // The migrated WordPress (Rank Math) SEO drives the metadata — title,
+  // description, canonical and the no-index flag.
+  return buildSeoMetadata(service.seo, {
+    title: service.title,
+    description: service.description,
+  })
 }
 
 /** `/services/[serviceSlug]` — a CMS-driven service detail page. */

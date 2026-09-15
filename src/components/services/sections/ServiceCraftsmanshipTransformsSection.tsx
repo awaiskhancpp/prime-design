@@ -25,6 +25,30 @@ export function ServiceCraftsmanshipTransformsSection({
   cta,
   content,
 }: ServiceCraftsmanshipContent & { content?: RichTextValue }) {
+  // The WordPress section carries a small line ("We make it easy") between
+  // its heading and body. On this design it is the eyebrow above the
+  // heading, so lift that h3 out of the rich text and render it there —
+  // the paragraphs keep flowing underneath the heading.
+  let eyebrowText = eyebrow
+  let contentToRender = content
+  const root = (content as { root?: { children?: unknown[] } } | undefined)?.root
+  if (root && Array.isArray(root.children)) {
+    const children = [...root.children]
+    const h3Index = children.findIndex((child) => {
+      const node = child as { type?: string; tag?: string; children?: Array<{ text?: string }> }
+      return node?.type === 'heading' && node?.tag === 'h3'
+    })
+    if (h3Index >= 0) {
+      const node = children[h3Index] as { children?: Array<{ text?: string }> }
+      const text = (node.children ?? []).map((child) => child.text ?? '').join('').trim()
+      if (text) {
+        eyebrowText = text
+        children.splice(h3Index, 1)
+        contentToRender = { ...(content as object), root: { ...root, children } } as RichTextValue
+      }
+    }
+  }
+
   return (
     <Section className="">
       <div className="grid items-center gap-14 lg:grid-cols-[0.85fr_1fr] lg:gap-20">
@@ -53,11 +77,13 @@ export function ServiceCraftsmanshipTransformsSection({
         </div>
 
         <div className="pt-14 lg:pt-0">
-          <p className="text-xs font-semibold uppercase tracking-[0.2em] text-brass-deep">
-            {eyebrow}
-          </p>
-          {content ? (
-            <RichTextContent data={content} />
+          {eyebrowText ? (
+            <p className="text-xs font-semibold uppercase tracking-[0.2em] text-brass-deep">
+              {eyebrowText}
+            </p>
+          ) : null}
+          {contentToRender ? (
+            <RichTextContent data={contentToRender} />
           ) : (
             <>
               <h2 className="mt-3 font-display text-4xl font-medium leading-tight tracking-tight text-ink md:text-5xl">

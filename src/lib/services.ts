@@ -132,6 +132,7 @@ export type ServiceDetail = Service & {
     noIndex?: boolean | null
     ogTitle?: string | null
     ogDescription?: string | null
+    ogImage?: PayloadMedia | number | null
   }
 }
 
@@ -499,6 +500,19 @@ export async function resolveServiceDetail(slug: string): Promise<ServiceDetail 
     // builds "Kitchen Remodeling in Campbell") never get the slogan.
     title: record.title,
     heroHeading: record.hero?.heading || undefined,
+    // Migrated WordPress (Rank Math) SEO — services previously fell back to
+    // the generated title/description because nothing mapped this through.
+    seo: record.seo
+      ? {
+          metaTitle: record.seo.metaTitle ?? undefined,
+          metaDescription: record.seo.metaDescription ?? undefined,
+          canonicalUrl: record.seo.canonicalUrl ?? undefined,
+          noIndex: record.seo.noIndex ?? undefined,
+          ogTitle: record.seo.ogTitle ?? undefined,
+          ogDescription: record.seo.ogDescription ?? undefined,
+          ogImage: (record.seo.ogImage as PayloadMedia | number | null | undefined) ?? undefined,
+        }
+      : undefined,
     description: record.description || base.description,
     lead: record.hero?.lead || base.lead,
     // Only show a hero eyebrow when WordPress actually authored one — never

@@ -26,6 +26,16 @@ export type Project = {
   video?: ProjectVideo
   /** Payload "Featured on homepage" checkbox. */
   featured?: boolean
+  /** Migrated WordPress (Rank Math) SEO metadata. */
+  seo?: {
+    metaTitle?: string | null
+    metaDescription?: string | null
+    canonicalUrl?: string | null
+    noIndex?: boolean | null
+    ogTitle?: string | null
+    ogDescription?: string | null
+    ogImage?: PayloadMedia | number | null
+  }
 }
 
 const kitchen = '/services/kitchen-remodeling.jpeg'
@@ -272,6 +282,15 @@ type PayloadProject = {
   videoSpeakerName?: string | null
   videoSpeakerRole?: string | null
   featured?: boolean | null
+  seo?: {
+    metaTitle?: string | null
+    metaDescription?: string | null
+    canonicalUrl?: string | null
+    noIndex?: boolean | null
+    ogTitle?: string | null
+    ogDescription?: string | null
+    ogImage?: PayloadMedia | number | null
+  } | null
 }
 
 const payloadMediaUrl = (value: unknown) =>
@@ -308,6 +327,17 @@ function normalizeProject(project: PayloadProject): Project {
         }
       : fallback?.video,
     featured: Boolean(project.featured),
+    seo: project.seo
+      ? {
+          metaTitle: project.seo.metaTitle ?? undefined,
+          metaDescription: project.seo.metaDescription ?? undefined,
+          canonicalUrl: project.seo.canonicalUrl ?? undefined,
+          noIndex: project.seo.noIndex ?? undefined,
+          ogTitle: project.seo.ogTitle ?? undefined,
+          ogDescription: project.seo.ogDescription ?? undefined,
+          ogImage: (project.seo.ogImage as PayloadMedia | number | null | undefined) ?? undefined,
+        }
+      : undefined,
   }
 }
 

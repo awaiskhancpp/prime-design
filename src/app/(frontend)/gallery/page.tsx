@@ -1,10 +1,18 @@
 import type { Metadata } from 'next'
 
 import { GalleryPage } from '@/components/gallery/GalleryPage'
+import { resolvePageBySlug } from '@/lib/pages'
+import { buildSeoMetadata } from '@/lib/seo'
 
-export const metadata: Metadata = {
-  title: 'Gallery | Prime Design & Build',
-  description: 'Explore kitchen, bathroom, ADU, and home addition projects by Prime Design & Build in Silicon Valley.',
+// CMS-driven SEO: the migrated WordPress (Rank Math) metadata for the
+// `gallery` page wins; the previous hardcoded strings remain the fallback.
+export async function generateMetadata(): Promise<Metadata> {
+  const page = await resolvePageBySlug('gallery')
+  return buildSeoMetadata(page?.seo, {
+    title: 'Gallery',
+    description:
+      'Explore kitchen, bathroom, ADU, and home addition projects by Prime Design & Build in Silicon Valley.',
+  })
 }
 
 export default function GalleryRoute() {

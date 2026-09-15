@@ -53,7 +53,7 @@ export function ProjectCard({ project }: { project: Project }) {
 
         <Link
           href={`/project/${project.slug}`}
-          className="mt-auto inline-flex items-center gap-2 self-start border border-brass px-4 py-2 text-xs font-semibold uppercase tracking-[0.12em] text-brass-deep transition-colors hover:bg-brass hover:text-white"
+          className="mt-2 inline-flex items-center gap-2 self-start border border-brass px-4 py-2 text-xs font-semibold uppercase tracking-[0.12em] text-brass-deep transition-colors hover:bg-brass hover:text-white"
         >
           View project <ArrowRight />
         </Link>

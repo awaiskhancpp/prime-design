@@ -1691,13 +1691,37 @@ export interface Service {
    * Select services to recommend alongside this one
    */
   relatedServices?: (number | Service)[] | null;
+  /**
+   * Search-engine and social-share metadata. Titles and descriptions are migrated from the WordPress Rank Math data — keep them unique per page.
+   */
   seo?: {
+    /**
+     * Shown as the blue link in search results. Aim for 50–60 characters. Leave empty to fall back to the page title plus the site name.
+     */
     metaTitle?: string | null;
+    /**
+     * The snippet under the title in search results. Aim for 120–160 characters.
+     */
     metaDescription?: string | null;
+    /**
+     * The preferred URL for this page when it can be reached by more than one.
+     */
     canonicalUrl?: string | null;
+    /**
+     * Tick only for pages that should stay out of Google (thank-you pages, duplicates).
+     */
     noIndex?: boolean | null;
+    /**
+     * Title used when the page is shared on Facebook/LinkedIn. Empty falls back to the SEO title.
+     */
     ogTitle?: string | null;
+    /**
+     * Description used when the page is shared. Empty falls back to the meta description.
+     */
     ogDescription?: string | null;
+    /**
+     * Preview image for social shares. Recommended 1200×630.
+     */
     ogImage?: (number | null) | Media;
   };
   updatedAt: string;
@@ -1715,13 +1739,37 @@ export interface Location {
   slug: string;
   seoDescription?: string | null;
   featuredImage?: (number | null) | Media;
+  /**
+   * Search-engine and social-share metadata. Titles and descriptions are migrated from the WordPress Rank Math data — keep them unique per page.
+   */
   seo?: {
+    /**
+     * Shown as the blue link in search results. Aim for 50–60 characters. Leave empty to fall back to the page title plus the site name.
+     */
     metaTitle?: string | null;
+    /**
+     * The snippet under the title in search results. Aim for 120–160 characters.
+     */
     metaDescription?: string | null;
+    /**
+     * The preferred URL for this page when it can be reached by more than one.
+     */
     canonicalUrl?: string | null;
+    /**
+     * Tick only for pages that should stay out of Google (thank-you pages, duplicates).
+     */
     noIndex?: boolean | null;
+    /**
+     * Title used when the page is shared on Facebook/LinkedIn. Empty falls back to the SEO title.
+     */
     ogTitle?: string | null;
+    /**
+     * Description used when the page is shared. Empty falls back to the meta description.
+     */
     ogDescription?: string | null;
+    /**
+     * Preview image for social shares. Recommended 1200×630.
+     */
     ogImage?: (number | null) | Media;
   };
   updatedAt: string;
@@ -1782,13 +1830,37 @@ export interface ServiceLocation {
         id?: string | null;
       }[]
     | null;
+  /**
+   * Search-engine and social-share metadata. Titles and descriptions are migrated from the WordPress Rank Math data — keep them unique per page.
+   */
   seo?: {
+    /**
+     * Shown as the blue link in search results. Aim for 50–60 characters. Leave empty to fall back to the page title plus the site name.
+     */
     metaTitle?: string | null;
+    /**
+     * The snippet under the title in search results. Aim for 120–160 characters.
+     */
     metaDescription?: string | null;
+    /**
+     * The preferred URL for this page when it can be reached by more than one.
+     */
     canonicalUrl?: string | null;
+    /**
+     * Tick only for pages that should stay out of Google (thank-you pages, duplicates).
+     */
     noIndex?: boolean | null;
+    /**
+     * Title used when the page is shared on Facebook/LinkedIn. Empty falls back to the SEO title.
+     */
     ogTitle?: string | null;
+    /**
+     * Description used when the page is shared. Empty falls back to the meta description.
+     */
     ogDescription?: string | null;
+    /**
+     * Preview image for social shares. Recommended 1200×630.
+     */
     ogImage?: (number | null) | Media;
   };
   /**
@@ -2442,13 +2514,37 @@ export interface Page {
       )[]
     | null;
   isGoogleAdsPage?: boolean | null;
+  /**
+   * Search-engine and social-share metadata. Titles and descriptions are migrated from the WordPress Rank Math data — keep them unique per page.
+   */
   seo?: {
+    /**
+     * Shown as the blue link in search results. Aim for 50–60 characters. Leave empty to fall back to the page title plus the site name.
+     */
     metaTitle?: string | null;
+    /**
+     * The snippet under the title in search results. Aim for 120–160 characters.
+     */
     metaDescription?: string | null;
+    /**
+     * The preferred URL for this page when it can be reached by more than one.
+     */
     canonicalUrl?: string | null;
+    /**
+     * Tick only for pages that should stay out of Google (thank-you pages, duplicates).
+     */
     noIndex?: boolean | null;
+    /**
+     * Title used when the page is shared on Facebook/LinkedIn. Empty falls back to the SEO title.
+     */
     ogTitle?: string | null;
+    /**
+     * Description used when the page is shared. Empty falls back to the meta description.
+     */
     ogDescription?: string | null;
+    /**
+     * Preview image for social shares. Recommended 1200×630.
+     */
     ogImage?: (number | null) | Media;
   };
   updatedAt: string;
@@ -2517,13 +2613,37 @@ export interface Project {
    * Checked projects are shown on the homepage "Our Latest Remodeling Projects" grid. When none are checked, the six most recent projects are shown instead.
    */
   featured?: boolean | null;
+  /**
+   * Search-engine and social-share metadata. Titles and descriptions are migrated from the WordPress Rank Math data — keep them unique per page.
+   */
   seo?: {
+    /**
+     * Shown as the blue link in search results. Aim for 50–60 characters. Leave empty to fall back to the page title plus the site name.
+     */
     metaTitle?: string | null;
+    /**
+     * The snippet under the title in search results. Aim for 120–160 characters.
+     */
     metaDescription?: string | null;
+    /**
+     * The preferred URL for this page when it can be reached by more than one.
+     */
     canonicalUrl?: string | null;
+    /**
+     * Tick only for pages that should stay out of Google (thank-you pages, duplicates).
+     */
     noIndex?: boolean | null;
+    /**
+     * Title used when the page is shared on Facebook/LinkedIn. Empty falls back to the SEO title.
+     */
     ogTitle?: string | null;
+    /**
+     * Description used when the page is shared. Empty falls back to the meta description.
+     */
     ogDescription?: string | null;
+    /**
+     * Preview image for social shares. Recommended 1200×630.
+     */
     ogImage?: (number | null) | Media;
   };
   updatedAt: string;
@@ -2571,13 +2691,37 @@ export interface Team {
     };
     [k: string]: unknown;
   } | null;
+  /**
+   * Search-engine and social-share metadata. Titles and descriptions are migrated from the WordPress Rank Math data — keep them unique per page.
+   */
   seo?: {
+    /**
+     * Shown as the blue link in search results. Aim for 50–60 characters. Leave empty to fall back to the page title plus the site name.
+     */
     metaTitle?: string | null;
+    /**
+     * The snippet under the title in search results. Aim for 120–160 characters.
+     */
     metaDescription?: string | null;
+    /**
+     * The preferred URL for this page when it can be reached by more than one.
+     */
     canonicalUrl?: string | null;
+    /**
+     * Tick only for pages that should stay out of Google (thank-you pages, duplicates).
+     */
     noIndex?: boolean | null;
+    /**
+     * Title used when the page is shared on Facebook/LinkedIn. Empty falls back to the SEO title.
+     */
     ogTitle?: string | null;
+    /**
+     * Description used when the page is shared. Empty falls back to the meta description.
+     */
     ogDescription?: string | null;
+    /**
+     * Preview image for social shares. Recommended 1200×630.
+     */
     ogImage?: (number | null) | Media;
   };
   updatedAt: string;
@@ -2736,7 +2880,7 @@ export interface Blog {
   relatedPosts?: (number | Blog)[] | null;
   seo?: {
     /**
-     * Overrides the default title. Keep under 55 characters.
+     * Overrides the default title. Aim for 50–60 characters (hard limit 55 here).
      */
     meta_title?: string | null;
     /**
@@ -3708,13 +3852,37 @@ export interface LandingPage {
   };
   sourceWordPressId?: number | null;
   sourceSlug?: string | null;
+  /**
+   * Search-engine and social-share metadata. Titles and descriptions are migrated from the WordPress Rank Math data — keep them unique per page.
+   */
   seo?: {
+    /**
+     * Shown as the blue link in search results. Aim for 50–60 characters. Leave empty to fall back to the page title plus the site name.
+     */
     metaTitle?: string | null;
+    /**
+     * The snippet under the title in search results. Aim for 120–160 characters.
+     */
     metaDescription?: string | null;
+    /**
+     * The preferred URL for this page when it can be reached by more than one.
+     */
     canonicalUrl?: string | null;
+    /**
+     * Tick only for pages that should stay out of Google (thank-you pages, duplicates).
+     */
     noIndex?: boolean | null;
+    /**
+     * Title used when the page is shared on Facebook/LinkedIn. Empty falls back to the SEO title.
+     */
     ogTitle?: string | null;
+    /**
+     * Description used when the page is shared. Empty falls back to the meta description.
+     */
     ogDescription?: string | null;
+    /**
+     * Preview image for social shares. Recommended 1200×630.
+     */
     ogImage?: (number | null) | Media;
   };
   updatedAt: string;
@@ -6429,13 +6597,37 @@ export interface SiteSetting {
       }[]
     | null;
   defaultOgImage?: (number | null) | Media;
+  /**
+   * Search-engine and social-share metadata. Titles and descriptions are migrated from the WordPress Rank Math data — keep them unique per page.
+   */
   seo?: {
+    /**
+     * Shown as the blue link in search results. Aim for 50–60 characters. Leave empty to fall back to the page title plus the site name.
+     */
     metaTitle?: string | null;
+    /**
+     * The snippet under the title in search results. Aim for 120–160 characters.
+     */
     metaDescription?: string | null;
+    /**
+     * The preferred URL for this page when it can be reached by more than one.
+     */
     canonicalUrl?: string | null;
+    /**
+     * Tick only for pages that should stay out of Google (thank-you pages, duplicates).
+     */
     noIndex?: boolean | null;
+    /**
+     * Title used when the page is shared on Facebook/LinkedIn. Empty falls back to the SEO title.
+     */
     ogTitle?: string | null;
+    /**
+     * Description used when the page is shared. Empty falls back to the meta description.
+     */
     ogDescription?: string | null;
+    /**
+     * Preview image for social shares. Recommended 1200×630.
+     */
     ogImage?: (number | null) | Media;
   };
   updatedAt?: string | null;

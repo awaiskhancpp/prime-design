@@ -64,8 +64,11 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     const cmsLocations = (payloadLocations.docs as unknown as SitemapRecord[]).flatMap((record) => {
       const service = typeof record.service === 'object' ? record.service?.slug : undefined
       const location = typeof record.location === 'object' ? record.location?.slug : undefined
+      // Service-location pages live at the WordPress-style root path
+      // (`/{service}/{location}`), not under `/services/` — the `/services/…`
+      // twin 404s.
       return record.seo?.noIndex !== true && record.slug && service && location
-        ? [entry(`${siteUrl}/services/${service}/${record.slug}`, 0.65)]
+        ? [entry(`${siteUrl}/${service}/${record.slug}`, 0.65)]
         : []
     })
     servicePages = cmsServices

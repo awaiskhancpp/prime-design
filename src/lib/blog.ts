@@ -22,6 +22,8 @@ export type BlogPost = {
     metaDescription?: string | null
     canonicalUrl?: string | null
     noIndex?: boolean | null
+    /** Social share image — the blog's `meta_image` field. */
+    ogImage?: PayloadMedia | number | null
   }
 }
 
@@ -282,6 +284,7 @@ type PayloadBlogPost = {
     meta_description?: string | null
     canonical_url?: string | null
     no_index?: boolean | null
+    meta_image?: number | PayloadMedia | null
   } | null
 }
 
@@ -333,6 +336,8 @@ function normalizePost(post: PayloadBlogPost): BlogPost {
           metaDescription: post.seo.meta_description,
           canonicalUrl: post.seo.canonical_url,
           noIndex: post.seo.no_index,
+          // The blog's social image field is `meta_image`.
+          ogImage: post.seo.meta_image as PayloadMedia | number | null | undefined,
         }
       : fallback?.seo,
   }

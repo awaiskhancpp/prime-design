@@ -27,7 +27,13 @@ export async function ServiceAreasStrip({
   serviceSlug: string
   heading?: string
 }) {
-  const areas = await getServiceAreas(serviceSlug)
+  // Only Kitchen, Bathroom, Home Remodeling and the Home Repair page have
+  // their own location records. Every other page (ADU, Additions, Complete
+  // Renovation, Finance, …) still shows the shared "Areas we service" strip
+  // in WordPress — listing the same cities — so fall back to the
+  // kitchen-remodeling list that those pills already link to.
+  const own = await getServiceAreas(serviceSlug)
+  const areas = own.length ? own : await getServiceAreas('kitchen-remodeling')
   if (!areas.length) return null
   const prefix = LOCATION_SERVICES.includes(serviceSlug) ? serviceSlug : 'kitchen-remodeling'
   const items = areas.map((area) => ({

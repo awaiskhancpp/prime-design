@@ -12,6 +12,9 @@ export type SeoFields = {
   metaDescription?: string | null
   canonicalUrl?: string | null
   noIndex?: boolean | null
+  ogTitle?: string | null
+  ogDescription?: string | null
+  ogImage?: { url?: string | null } | number | null
 }
 
 /**
@@ -22,16 +25,30 @@ export type SeoFields = {
  *   used verbatim.
  * - A canonical URL and the no-index directive are applied only when the
  *   CMS actually sets them (otherwise Next would emit empty directives).
+ * - Open Graph tags mirror the WordPress output: the social fields when
+ *   authored, otherwise the SEO title/description.
  */
 export function buildSeoMetadata(
   seo: SeoFields | undefined,
   fallbacks: { title: string; description?: string },
 ): Metadata {
+  const title = seo?.metaTitle || `${fallbacks.title} | ${SITE_NAME}`
+  const description = seo?.metaDescription || fallbacks.description
+  const ogImageUrl =
+    seo?.ogImage && typeof seo.ogImage === 'object' && 'url' in seo.ogImage
+      ? seo.ogImage.url || undefined
+      : undefined
+
   return {
-    title: seo?.metaTitle || `${fallbacks.title} | ${SITE_NAME}`,
-    description: seo?.metaDescription || fallbacks.description,
+    title,
+    description,
     alternates: seo?.canonicalUrl ? { canonical: seo.canonicalUrl } : undefined,
     robots: seo?.noIndex ? { index: false, follow: false } : undefined,
+    openGraph: {
+      title: seo?.ogTitle || title,
+      description: seo?.ogDescription || description,
+      ...(ogImageUrl ? { images: [{ url: ogImageUrl }] } : {}),
+    },
   }
 }
 

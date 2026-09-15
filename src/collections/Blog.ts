@@ -345,12 +345,22 @@ export const Blog: CollectionConfig = {
       label: 'SEO',
       fields: [
         {
+          name: 'score',
+          type: 'ui',
+          admin: {
+            components: {
+              Field: '/components/admin/SeoScore#SeoScore',
+            },
+          },
+        },
+        {
           name: 'meta_title',
           type: 'text',
           required: false,
           maxLength: 55,
           admin: {
-            description: 'Overrides the default title. Keep under 55 characters.',
+            description:
+              'Overrides the default title. Aim for 50–60 characters (hard limit 55 here).',
           },
         },
         {

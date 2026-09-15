@@ -23,9 +23,9 @@ import {
 import { ServiceSiliconValleyLovesSection } from './sections/ServiceSiliconValleyLovesSection'
 import { ServiceLicensedInsuredSection } from './sections/ServiceLicensedInsuredSection'
 import { ServiceFinanceCtaSection } from './sections/ServiceFinanceCtaSection'
-import { ServiceFinanceProcessSection } from './sections/ServiceFinanceProcessSection'
 import { mediaUrl, sharedSectionRegistry, text } from '@/components/landing/LandingBlockRenderer'
 import type { RichTextValue } from '@/lib/richText'
+import type { ServiceContentStep } from '@/lib/services'
 import type { CarouselVideo } from '@/components/landing/VideoCarousel'
 import type { ComponentType } from 'react'
 
@@ -390,21 +390,46 @@ function renderFinanceCta(block: RawBlock): RenderedSection {
 }
 
 /**
- * `image-text` — the Finance "Renovation financing, simplified." process
- * section: heading + phone image + rich-text body/ordered steps on the
- * left, the phone image on the right (the WordPress two-column design).
+ * `image-text` — the Finance "Renovation financing, simplified." section.
+ * The WordPress copy is one text block: an intro paragraph followed by four
+ * "Label: description" steps (blank-line separated). Rendered with the
+ * designed process section (`HomeRemodelingProcessSection`) so it matches
+ * the site's step-by-step process design, with the phone image as its side
+ * image.
  */
 function renderFinanceProcess(block: RawBlock): RenderedSection {
-  const content = block.description
+  const raw = block.description
+  const text = typeof raw === 'string' ? raw : ''
+
+  // Intro: everything before the first step label.
+  const labelRe = /(?:^|(?<=[.!?])\s+)([A-Z][^:]{2,60}):\s+/g
+  const matches = [...text.matchAll(labelRe)]
+  const firstLabelAt = matches.length ? (matches[0].index ?? 0) : text.length
+  const intro = text.slice(0, firstLabelAt).trim()
+
+  const steps: ServiceContentStep[] = matches.map((match, index) => {
+    const start = (match.index ?? 0) + match[0].length
+    const end = index + 1 < matches.length ? (matches[index + 1].index ?? text.length) : text.length
+    return {
+      title: match[1].trim(),
+      description: text.slice(start, end).trim(),
+    }
+  })
+
+  if (!steps.length) return { key: 'shared-registry', node: null }
+
   return {
     key: 'shared-registry',
     node: (
-      <ServiceFinanceProcessSection
-        heading={str(block.heading)}
-        content={
-          content && typeof content === 'object' ? (content as RichTextValue) : undefined
-        }
-        image={mediaUrl(block.media)}
+      <HomeRemodelingProcessSection
+        title={str(block.heading)}
+        description={intro}
+        steps={steps}
+        // Same phone mockup the Home Remodeling / Complete Renovation
+        // process sections use, placed in flow (no scroll pinning) so the
+        // finance page matches those sections.
+        sideImage="/prime-design-phone.webp"
+        stickySideImage={false}
       />
     ),
   }
@@ -429,6 +454,7 @@ function renderLicensedInsured(block: RawBlock): RenderedSection {
         heading={str(block.heading) || 'Pick a company you can trust'}
         description={str(block.description) || undefined}
         items={items}
+        image={mediaUrl(block.media)}
       />
     ),
   }

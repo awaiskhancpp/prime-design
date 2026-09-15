@@ -136,7 +136,6 @@ const SERVICE_PAGE_LAYOUTS: Record<string, ServicePageSections> = {
     inlineProcess: true,
     craftsmanship: true,
     siliconValleyLoves: true,
-    whyChooseUs: true,
     estimate: true,
     reviews: true,
     contact: true,

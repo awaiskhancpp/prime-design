@@ -10,11 +10,17 @@ export function HomeRemodelingProcessSection({
   description = '',
   steps = [],
   sideImage = '',
+  stickySideImage = true,
 }: {
   title?: string
   description?: string
   steps?: ServiceContentStep[]
   sideImage?: string
+  /**
+   * Whether the side image pins while the steps scroll past it. Pass `false`
+   * for pages that want the plain in-flow placement (no scroll pinning).
+   */
+  stickySideImage?: boolean
 } = {}) {
   // Content comes from Payload only — render nothing without steps.
   if (!steps.length) return null
@@ -63,7 +69,7 @@ export function HomeRemodelingProcessSection({
         </ol>
 
         {sideImage ? (
-          <div className="flex justify-center lg:sticky lg:top-24">
+          <div className={'flex justify-center lg:sticky lg:top-24'}>
             <Image
               src={sideImage}
               alt="Prime Design & Build"
