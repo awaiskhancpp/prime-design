@@ -16,7 +16,8 @@ export function LandingFaqSection({
   items?: FaqItem[]
   categories?: FaqCategory[]
 }) {
-  const [open, setOpen] = useState<number | null>(null)
+  // Initialize with 0 instead of null so the first question renders open.
+  const [open, setOpen] = useState<number | null>(0)
   const [activeCategory, setActiveCategory] = useState(0)
   const visibleItems = categories.length ? categories[activeCategory]?.items || [] : items
   if (!visibleItems.length) return null

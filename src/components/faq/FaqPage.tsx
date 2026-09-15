@@ -30,7 +30,8 @@ export function FaqPage() {
                   <div className="mt-3 h-px w-20 bg-brass" />
                   <div className="mt-2 divide-y divide-line">
                     {category.items.map((item, index) => (
-                      <details key={item.question} className="group">
+                      // First question of every category renders open.
+                      <details key={item.question} className="group" open={index === 0}>
                         <summary className="flex cursor-pointer list-none items-center justify-between gap-5 py-5 text-base font-medium text-ink-2 marker:hidden [&::-webkit-details-marker]:hidden">
                           <span>{item.question}</span>
                           <ChevronDown

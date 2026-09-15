@@ -19,7 +19,8 @@ export function ServiceFaq({
 }) {
   const shownItems = items ?? []
   const desc = description ?? ''
-  const [openIndex, setOpenIndex] = useState<number | null>(null)
+  // Initialize with 0 instead of null so the first question renders open.
+  const [openIndex, setOpenIndex] = useState<number | null>(0)
 
   if (!shownItems.length) return null
 
