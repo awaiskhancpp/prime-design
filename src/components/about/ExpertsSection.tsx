@@ -74,11 +74,10 @@ export function ExpertsSection({ experts }: { experts?: AboutExpertsValue }) {
             <video
               className="aspect-video h-full w-full object-cover"
               controls
-              muted
               loop
               playsInline
               poster={experts?.poster}
-              preload="metadata"
+              preload="none"
             >
               {videoUrl ? <source src={videoUrl} type="video/mp4" /> : null}
               Your browser does not support the video tag.

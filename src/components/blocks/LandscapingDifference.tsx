@@ -72,7 +72,7 @@ export function LandscapingDifference({
 
   return (
     <Section className="">
-      <div className="mb-10 flex flex-wrap items-center justify-center gap-x-10 gap-y-6">
+      <div className="mb-16 flex flex-wrap items-center justify-center gap-x-10 gap-y-6">
         {socialBadges.map((badge) => {
           const href = socialLinks?.[badge.key]
           const image = (
@@ -154,9 +154,10 @@ export function LandscapingDifference({
           <div className="relative mx-auto max-w-7xl">
             {/* One prev/next pair spans the whole video+summary row — not
                 per-side arrows — since moving to a different video always
-                changes both columns together. Autoplay + auto-advance on end
-                is the primary way through the set; the arrows are the manual
-                override, and neither one wraps past either end. */}
+                changes both columns together. Click-to-play with
+                auto-advance on end is the way through the set; the arrows
+                are the manual override, and neither one wraps past either
+                end. */}
             <button
               type="button"
               onClick={goPrev}
@@ -186,18 +187,21 @@ export function LandscapingDifference({
               <ChevronRight className="h-4 w-4" aria-hidden />
             </button>
 
-            {/* Video is the wider column (7/12), summary the narrower (5/12). */}
+            {/* Video is the wider column (7/12), summary the narrower (5/12).
+                Testimonial/walkthrough clips: click-to-play (no autoplay),
+                no download until the visitor presses play (preload="none" +
+                poster), and the box keeps the clips' native 16:9 instead of
+                cropping them into 4:3. */}
             <div className="grid gap-8 lg:grid-cols-12 lg:items-center lg:gap-8">
               <div className="lg:col-span-7">
-                <div className="relative aspect-[4/3] overflow-hidden bg-ink">
+                <div className="relative aspect-video overflow-hidden bg-ink">
                   <video
                     key={active.url}
                     className="h-full w-full object-cover"
                     controls
-                    autoPlay
-                    muted
                     playsInline
-                    preload="metadata"
+                    preload="none"
+                    poster={active.poster}
                     onEnded={handleEnded}
                   >
                     <source src={active.url} type="video/mp4" />
@@ -229,11 +233,11 @@ export function LandscapingDifference({
               specific project instead of arrowing through. Sits outside the
               `relative` box above so it can't affect arrow centring. */}
           {projectVideos.length > 1 ? (
-            <div className="mx-auto mt-8 max-w-7xl">
+            <div className="mx-auto mt-6 max-w-7xl">
               <p className="text-center text-[11px] font-semibold uppercase tracking-[0.14em] text-ink-2/50">
                 More project videos
               </p>
-              <div className="mt-4 flex flex-wrap items-stretch justify-center gap-4">
+              <div className="mt-3 flex flex-wrap items-stretch justify-center gap-4">
                 {projectVideos.map((video, videoIndex) => {
                   const isActive = videoIndex === index
                   return (
@@ -271,11 +275,11 @@ export function LandscapingDifference({
                           <Play className="h-5 w-5 fill-white text-white" />
                         </span>
                       </span>
-                      {video.speakerName ? (
+                      {/* {video.speakerName ? (
                         <span className="block truncate px-2 py-1.5 text-[11px] font-medium text-ink-2">
                           {video.speakerName}
                         </span>
-                      ) : null}
+                      ) : null} */}
                     </button>
                   )
                 })}

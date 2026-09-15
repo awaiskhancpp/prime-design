@@ -143,26 +143,31 @@
     {
       "title": "Rosewood Dr, Atherton",
       "projectManager": "Noam",
-      "videoUrl": "https://tagmediaspace.b-cdn.net/Prime%20Design%20and%20Build/03.09.2024%20Noam%20Prime%2041%20Rosewood%20Dr%20Atherton.mp4"
+      "videoUrl": "/api/media/file/noam-rosewood-atherton.mp4",
+      "poster": "/api/media/file/noam-rosewood-atherton-poster.jpg"
     },
     {
       "title": "Bluebonnet Ct, Morgan Hill (Full House)",
       "projectManager": "Josef",
-      "videoUrl": "https://tagmediaspace.b-cdn.net/Prime%20Design%20and%20Build/07.18.2024%20Josef%20Prime%20Full%20House%201840%20Bluebonnet%20Ct%20Morgan%20Hill.mp4"
+      "videoUrl": "/api/media/file/josef-bluebonnet-morgan-hill.mp4",
+      "poster": "/api/media/file/josef-bluebonnet-morgan-hill-poster.jpg"
     },
     {
       "title": "Alice Ave, Mountain View (Kitchen)",
       "projectManager": "Ilay",
-      "videoUrl": "https://tagmediaspace.b-cdn.net/Prime%20Design%20and%20Build/09.04.2024%20Ilay%20Prime%20Kitchen%20700%20Alice%20Ave%20Mountain%20View.mp4"
+      "videoUrl": "/api/media/file/ilay-alice-ave-kitchen.mp4",
+      "poster": "/api/media/file/ilay-alice-ave-kitchen-poster.jpg"
     },
     {
       "title": "Client walkthrough",
       "speaker": "Noah, Co-Owner",
-      "videoUrl": "https://tagmediaspace.b-cdn.net/Prime%20Design%20and%20Build/Prime%20Vid%20Noah.mp4"
+      "videoUrl": "/api/media/file/noah-prime-intro.mp4",
+      "poster": "/api/media/file/noah-prime-intro-poster.jpg"
     },
     {
       "title": "First floor renovation",
-      "videoUrl": "https://tagmediaspace.b-cdn.net/Prime%20Design%20and%20Build/First%20Floor.mp4"
+      "videoUrl": "/api/media/file/first-floor-renovation.mp4",
+      "poster": "/api/media/file/first-floor-renovation-poster.jpg"
     }
   ],
   "latestProjects": [
@@ -332,8 +337,8 @@
       "eyebrow": "Experts in Silicon Valley",
       "heading": "This is why our customers love us!",
       "description": "At Prime Design & Build, we combine the latest advancements in home technology with a relentless commitment to superior craftsmanship, ensuring every inch of your space is thoughtfully utilized for the way you live.",
-      "videoUrl": "https://tagmediaspace.b-cdn.net/Prime%20Design%20and%20Build/Prime%20Vid%20Noah.mp4",
-      "videoPoster": "/services/home-remodeling.jpeg"
+      "videoUrl": "/api/media/file/noah-prime-intro.mp4",
+      "videoPoster": "/api/media/file/noah-prime-intro-poster.jpg"
     },
     "faq": {
       "heading": "Frequently Asked Questions",

@@ -3,14 +3,20 @@ import type { ReactNode } from 'react'
 import { Section } from '@/components/ui/Section'
 import type { Location } from '@/lib/serviceLocations'
 
-const kitchenVideo =
-  'https://tagmediaspace.b-cdn.net/Prime%20Design%20and%20Build/09.04.2024%20Ilay%20Prime%20Kitchen%20700%20Alice%20Ave%20Mountain%20View.mp4'
-const fullHomeVideo =
-  'https://tagmediaspace.b-cdn.net/Prime%20Design%20and%20Build/07.18.2024%20Josef%20Prime%20Full%20House%201840%20Bluebonnet%20Ct%20Morgan%20Hill.mp4'
-const firstFloorVideo =
-  'https://tagmediaspace.b-cdn.net/Prime%20Design%20and%20Build/First%20Floor.mp4'
-const noahIntroVideo =
-  'https://tagmediaspace.b-cdn.net/Prime%20Design%20and%20Build/Prime%20Vid%20Noah.mp4'
+// All hosted in the company blob (optimized 1080p H.264 cuts — see
+// scripts/upload-missing-media.ts and the video optimization pass); the old
+// tagmediaspace Bunny CDN hotlinks are kept only as media.sourceUrl
+// provenance on the media documents.
+const kitchenVideo = '/api/media/file/ilay-alice-ave-kitchen.mp4'
+const fullHomeVideo = '/api/media/file/josef-bluebonnet-morgan-hill.mp4'
+const firstFloorVideo = '/api/media/file/first-floor-renovation.mp4'
+const noahIntroVideo = '/api/media/file/noah-prime-intro.mp4'
+
+// Poster frames for the same clips.
+const kitchenPoster = '/api/media/file/ilay-alice-ave-kitchen-poster.jpg'
+const fullHomePoster = '/api/media/file/josef-bluebonnet-morgan-hill-poster.jpg'
+const noahPoster = '/api/media/file/noah-prime-intro-poster.jpg'
+const firstFloorPoster = '/api/media/file/first-floor-renovation-poster.jpg'
 
 export type ServiceVideoContent = {
   eyebrow?: string
@@ -31,43 +37,43 @@ const videosBySlug: Record<string, ServiceVideoContent> = {
     eyebrow: 'Kitchen remodeling',
     title: 'Take a tour through one of our stunning kitchen transformations',
     videoUrl: kitchenVideo,
-    poster: '/services/kitchen-remodeling.jpeg',
+    poster: kitchenPoster,
   },
   'home-remodeling': {
     eyebrow: 'Home remodeling',
     title: 'See a full-home transformation in Silicon Valley',
     videoUrl: fullHomeVideo,
-    poster: '/services/home-remodeling.jpeg',
+    poster: fullHomePoster,
   },
   'complete-renovation': {
     eyebrow: 'Complete renovation',
     title: 'Take a tour through one of our complete home renovations',
     videoUrl: fullHomeVideo,
-    poster: '/before-after/complete_remodeling_after.jpeg',
+    poster: fullHomePoster,
   },
   additions: {
     eyebrow: 'Home additions',
     title: 'See how we expand homes with thoughtful additions',
     videoUrl: firstFloorVideo,
-    poster: '/services/home-remodeling.jpeg',
+    poster: firstFloorPoster,
   },
   'european-kitchen-silicon-valley': {
     eyebrow: 'European kitchens',
     title: 'Take a tour through one of our European kitchen transformations',
     videoUrl: kitchenVideo,
-    poster: '/services/kitchen-remodeling.jpeg',
+    poster: kitchenPoster,
   },
   'shaker-kitchen-silicon-valley': {
     eyebrow: 'Shaker kitchens',
     title: 'Hear from our team on what makes a Shaker kitchen work',
     videoUrl: noahIntroVideo,
-    poster: '/services/kitchen-remodeling.jpeg',
+    poster: noahPoster,
   },
   'custom-kitchen-silicon-valley': {
     eyebrow: 'Custom kitchens',
     title: 'Take a tour through one of our custom kitchen transformations',
     videoUrl: kitchenVideo,
-    poster: '/services/kitchen-remodeling.jpeg',
+    poster: kitchenPoster,
   },
 }
 
@@ -111,7 +117,7 @@ export function ServiceVideoSection({
           className="aspect-video h-auto w-full object-cover"
           controls
           playsInline
-          preload="metadata"
+          preload="none"
           poster={poster}
         >
           <source src={videoUrl} type="video/mp4" />

@@ -7,9 +7,10 @@ import { Section } from '@/components/ui/Section'
 import { Textarea } from '@/components/ui/Textarea'
 import { resolveSiteSettings } from '@/lib/siteSettings'
 
-// WordPress contact-section walkthrough (template 1495/1584/1639).
-const CONTACT_VIDEO =
-  'https://tagmediaspace.b-cdn.net/Prime%20Kitchens/01.19.2023%20Prime%20Kitchens%201794%20San%20Luis%20Ave%20Mountain%20View.mp4'
+// WordPress contact-section walkthrough (template 1495/1584/1639) — the
+// San Luis Ave tour, re-encoded and hosted in the company blob (the old
+// tagmediaspace hotlink is kept as the media doc's sourceUrl provenance).
+const CONTACT_VIDEO = '/api/media/file/prime-kitchens-san-luis.mp4'
 
 export async function Contact({ city, poster }: { city?: string; poster?: string }) {
   const settings = await resolveSiteSettings()
@@ -133,6 +134,7 @@ export async function Contact({ city, poster }: { city?: string; poster?: string
                 className="h-full w-full object-cover"
                 controls
                 playsInline
+                preload="none"
                 poster={poster || '/services/kitchen-remodeling.jpeg'}
               >
                 <source src={CONTACT_VIDEO} type="video/mp4" />

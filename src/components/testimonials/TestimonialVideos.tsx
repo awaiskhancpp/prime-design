@@ -7,7 +7,13 @@ export function TestimonialVideos() {
       <div className="grid gap-8 md:grid-cols-2">
         {website.projectVideos.map((video, index) => (
           <figure key={video.videoUrl} className="overflow-hidden bg-ink">
-            <video className="aspect-video h-auto w-full object-cover" controls muted playsInline preload="metadata">
+            <video
+              className="aspect-video h-auto w-full object-cover"
+              controls
+              playsInline
+              preload="none"
+              poster={video.poster}
+            >
               <source src={video.videoUrl} type="video/mp4" />
               Your browser does not support the video tag.
             </video>

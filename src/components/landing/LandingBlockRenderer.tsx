@@ -306,6 +306,7 @@ function VideoCarouselBlock({ block }: { block: Block }) {
               className="aspect-video w-full object-cover"
               controls
               playsInline
+              preload="none"
               poster={mediaUrl(value.poster)}
             >
               <source src={url} />

@@ -62,7 +62,7 @@ export function VideoCarousel({
           ref={videoRef}
           className="h-full w-full object-cover"
           playsInline
-          preload="metadata"
+          preload="none"
           poster={active.poster}
           onEnded={() => setPlaying(false)}
         >
