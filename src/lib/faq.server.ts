@@ -1,5 +1,16 @@
-import type { FaqItem } from './faq'
 import type { RichTextValue } from './richText'
+
+/**
+ * A question and its answer, as the service and landing FAQ sections render
+ * them. `answer` is Lexical rich text on every record in the FAQs collection
+ * (the column is jsonb); the plain-string form stays in the union because the
+ * landing sections flatten it for their single-line design.
+ *
+ * These types used to live in `lib/faq.ts` alongside a hardcoded copy of every
+ * question. That file is gone — the FAQs collection is the only source now.
+ */
+export type FaqItem = { question: string; answer: string | RichTextValue }
+export type FaqCategory = { title: string; items: FaqItem[] }
 
 // Which Payload FAQ category feeds each service page. The Q&A itself comes
 // from the `faqs` collection — no static copy.

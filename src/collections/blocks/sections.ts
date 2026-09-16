@@ -488,6 +488,41 @@ export const testimonialsSpotlightBlock: Block = {
   ],
 }
 
+/**
+ * The FAQ page's searchable index.
+ *
+ * WordPress builds this page as an authored hero plus a Bricks query loop
+ * (`{term_name} Questions` -> `{post_title}` / `{post_content}`) over the FAQ
+ * taxonomy. The Payload equivalent keeps that split: this block stores only
+ * the section's own copy, and the questions come from the FAQs collection
+ * grouped by their FAQ Category relationship at render time. No question is
+ * ever stored on the page.
+ */
+export const faqIndexBlock: Block = {
+  slug: 'faq-index',
+  labels: { singular: 'FAQ Index', plural: 'FAQ Indexes' },
+  fields: [
+    { name: 'eyebrow', type: 'text' },
+    { name: 'heading', type: 'text' },
+    {
+      name: 'description',
+      type: 'textarea',
+      admin: { description: 'Line above the search field, e.g. "Browse by category or search below".' },
+    },
+    { name: 'searchPlaceholder', type: 'text' },
+    {
+      name: 'allLabel',
+      type: 'text',
+      admin: { description: 'Label for the category that shows every question, e.g. "All questions".' },
+    },
+    {
+      name: 'emptyMessage',
+      type: 'text',
+      admin: { description: 'Shown when a search matches nothing.' },
+    },
+  ],
+}
+
 export const serviceAreasBlock: Block = {
   slug: 'service-areas',
   labels: { singular: 'Service Areas', plural: 'Service Areas' },
@@ -520,6 +555,7 @@ export const sectionBlocks: Block[] = [
   galleryTabsBlock,
   whyChooseUsBlock,
   contactFormBlock,
+  faqIndexBlock,
   testimonialVideosBlock,
   reviewHighlightsBlock,
   testimonialsSpotlightBlock,

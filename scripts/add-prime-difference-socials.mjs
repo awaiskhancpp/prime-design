@@ -26,10 +26,23 @@ const SOCIALS = [
   ],
 ]
 
-const BLOCKS = [
-  ['home-remodeling', '009134c4-9abf-4aa3-80e9-990161774756'],
-  ['bathroom-remodeling', '94a657a1-47b3-40b2-a889-2ee41b12ba09'],
-]
+/**
+ * Resolved through the service slug, never by a literal block uuid. The two
+ * uuids that used to be pinned here no longer exist, so every insert below was
+ * parented to a dead id where nothing could read it.
+ */
+const BLOCKS = []
+for (const slug of ['home-remodeling', 'bathroom-remodeling']) {
+  const { rows } = await c.query(
+    `select b.id from services_blocks_prime_difference b
+       join services s on s.id = b._parent_id
+      where s.slug = $1`,
+    [slug],
+  )
+  if (!rows.length) throw new Error(`No prime-difference block on the "${slug}" service`)
+  BLOCKS.push([slug, rows[0].id])
+  console.log(`${slug} prime-difference block -> ${rows[0].id}`)
+}
 
 await c.query(
   `create table if not exists services_blocks_prime_difference_socials (

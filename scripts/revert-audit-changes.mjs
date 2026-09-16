@@ -22,13 +22,37 @@ const u = env.match(/^DATABASE_URL=(.+)$/m)[1].trim()
 const c = new Client({ connectionString: u })
 await c.connect()
 
+/**
+ * Services and blocks are resolved by slug, never by literal ids. The services
+ * table was reseeded and every id shifted (adu 7->4, additions 8->5,
+ * complete-renovation 9->6), and the two prime-difference block uuids below
+ * no longer exist at all, so every statement here silently matched nothing.
+ */
+const serviceId = async (slug) => {
+  const { rows } = await c.query('select id from services where slug = $1', [slug])
+  if (!rows.length) throw new Error(`No service row with slug "${slug}"`)
+  return rows[0].id
+}
+const primeDifferenceBlockId = async (slug) => {
+  const { rows } = await c.query(
+    `select b.id from services_blocks_prime_difference b
+       join services s on s.id = b._parent_id
+      where s.slug = $1`,
+    [slug],
+  )
+  return rows[0]?.id ?? null
+}
+const ADU = await serviceId('adu')
+const ADDITIONS = await serviceId('additions')
+const COMPLETE_RENOVATION = await serviceId('complete-renovation')
+
 // --- remove audit-added blocks (children first) ---
 for (const [serviceId, table, childTable] of [
-  [7, 'services_blocks_cta', null],
-  [7, 'services_blocks_experience_difference', 'services_blocks_experience_difference_features'],
-  [8, 'services_blocks_cta', null],
-  [8, 'services_blocks_experience_difference', 'services_blocks_experience_difference_features'],
-  [9, 'services_blocks_experience_difference', 'services_blocks_experience_difference_features'],
+  [ADU, 'services_blocks_cta', null],
+  [ADU, 'services_blocks_experience_difference', 'services_blocks_experience_difference_features'],
+  [ADDITIONS, 'services_blocks_cta', null],
+  [ADDITIONS, 'services_blocks_experience_difference', 'services_blocks_experience_difference_features'],
+  [COMPLETE_RENOVATION, 'services_blocks_experience_difference', 'services_blocks_experience_difference_features'],
 ]) {
   const rows = await c.query(`select id from ${table} where _parent_id = $1`, [serviceId])
   for (const r of rows.rows) {
@@ -41,29 +65,37 @@ for (const [serviceId, table, childTable] of [
 }
 // additions Noah video block
 const vids = await c.query(
-  "delete from services_blocks_video_2 where _parent_id = 8 and external_url like '%Prime%20Vid%20Noah%' returning id",
+  "delete from services_blocks_video_2 where _parent_id = $1 and external_url like '%Prime%20Vid%20Noah%' returning id",
+  [ADDITIONS],
 )
 console.log(`removed ${vids.rows.length} audit video rows (additions)`)
 
 // --- clear audit group data ---
-await c.query('update services set craftsmanship = null where id = 7')
+await c.query('update services set craftsmanship = null where id = $1', [ADU])
 await c.query(
-  "delete from services_rels where parent_id = 7 and path = 'galleryImages'",
+  "delete from services_rels where parent_id = $1 and path = 'galleryImages'",
+  [ADU],
 )
 await c.query(
   `update services set
      silicon_valley_loves_eyebrow = null,
      silicon_valley_loves_heading = null,
      silicon_valley_loves_body = null
-   where id in (8, 9)`,
+   where id = any($1::int[])`,
+  [[ADDITIONS, COMPLETE_RENOVATION]],
 )
 console.log('cleared audit craftsmanship / gallery rels / silicon valley loves')
 
 // --- logos: only Home Remodeling + Bathroom have none ---
 const removed = await c.query(
   `delete from services_blocks_prime_difference_socials
-   where _parent_id in ('009134c4-9abf-4aa3-80e9-990161774756', '94a657a1-47b3-40b2-a889-2ee41b12ba09')
+   where _parent_id = any($1::varchar[])
    returning _parent_id`,
+  [
+    (
+      await Promise.all(['home-remodeling', 'bathroom-remodeling'].map(primeDifferenceBlockId))
+    ).filter(Boolean),
+  ],
 )
 console.log(`removed social rows from ${removed.rows.length} blocks (home-remodeling + bathroom)`)
 

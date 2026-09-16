@@ -28,6 +28,21 @@ const u = env.match(/^DATABASE_URL=(.+)$/m)[1].trim()
 const c = new Client({ connectionString: u })
 await c.connect()
 
+/**
+ * Services are resolved by slug, never by a literal row id. The services table
+ * was reseeded and every id shifted (adu 7->4, additions 8->5,
+ * complete-renovation 9->6, finance 13->21), after which every statement below
+ * silently matched nothing while the script still exited 0.
+ */
+const serviceId = async (slug) => {
+  const { rows } = await c.query('select id from services where slug = $1', [slug])
+  if (!rows.length) throw new Error(`No service row with slug "${slug}"`)
+  return rows[0].id
+}
+const ADU = await serviceId('adu')
+const ADDITIONS = await serviceId('additions')
+const COMPLETE_RENOVATION = await serviceId('complete-renovation')
+
 const paragraph = (text) => ({
   type: 'paragraph',
   format: '',
@@ -120,9 +135,9 @@ async function ensureSvl(serviceId) {
 
 // ============ ADU (7) ============
 console.log('step: adu cta')
-await ensureCta(7, 'cducqf', 2)
+await ensureCta(ADU, 'cducqf', 2)
 console.log('step: adu why-choose')
-await ensureWhyChoose(7, 3, { eyebrow: null })
+await ensureWhyChoose(ADU, 3, { eyebrow: null })
 console.log('step: adu craftsmanship')
 await c.query(
   `update services set craftsmanship = $2::jsonb where id = $1 and craftsmanship is null`,
@@ -154,40 +169,41 @@ for (const [name, wpUrl] of [
     mediaId = ins.rows[0].id
   }
   const rel = await c.query(
-    "select id from services_rels where parent_id = 7 and path = 'galleryImages' and media_id = $1",
-    [mediaId],
+    "select id from services_rels where parent_id = $2 and path = 'galleryImages' and media_id = $1",
+    [mediaId, ADU],
   )
   if (!rel.rows.length) {
     await c.query(
-      `insert into services_rels ("order", parent_id, path, media_id) values (0, 7, 'galleryImages', $1)`,
-      [mediaId],
+      `insert into services_rels ("order", parent_id, path, media_id) values (0, $2, 'galleryImages', $1)`,
+      [mediaId, ADU],
     )
   }
 }
-console.log('service 7: craftsmanship + gallery images set')
+console.log(`service ${ADU} (adu): craftsmanship + gallery images set`)
 
 // ============ Additions (8) ============
-await ensureCta(8, 'est', 2)
+await ensureCta(ADDITIONS, 'est', 2)
 const addVideo = await c.query(
-  "select id from services_blocks_video_2 where _parent_id = 8 and external_url like '%Prime%20Vid%20Noah%'",
+  "select id from services_blocks_video_2 where _parent_id = $1 and external_url like '%Prime%20Vid%20Noah%'",
+  [ADDITIONS],
 )
 if (!addVideo.rows.length) {
   await c.query(
     `insert into services_blocks_video_2
        (_order, _parent_id, _path, id, heading, description, source, external_url, poster_id, controls, source_id, source_element_type)
-     values (3, 8, 'sections', $1, null, null, 'externalUrl',
+     values (3, $2, 'sections', $1, null, null, 'externalUrl',
              'https://tagmediaspace.b-cdn.net/Prime%20Design%20and%20Build/Prime%20Vid%20Noah.mp4',
              null, true, 'additions-video', 'video')`,
-    [randomUUID()],
+    [randomUUID(), ADDITIONS],
   )
-  console.log('service 8: video block created (Noah MP4)')
+  console.log(`service ${ADDITIONS} (additions): video block created (Noah MP4)`)
 }
-await ensureWhyChoose(8, 4, { eyebrow: 'Experience the' })
-await ensureSvl(8)
+await ensureWhyChoose(ADDITIONS, 4, { eyebrow: 'Experience the' })
+await ensureSvl(ADDITIONS)
 
 // ============ Complete Renovation (9) ============
-await ensureWhyChoose(9, 3, { eyebrow: 'Experience the' })
-await ensureSvl(9)
+await ensureWhyChoose(COMPLETE_RENOVATION, 3, { eyebrow: 'Experience the' })
+await ensureSvl(COMPLETE_RENOVATION)
 
 await c.end()
 console.log('Done.')

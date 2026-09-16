@@ -20,9 +20,23 @@ const u = env.match(/^DATABASE_URL=(.+)$/m)[1].trim()
 const c = new Client({ connectionString: u })
 await c.connect()
 
+/**
+ * Services are resolved by slug, never by a literal row id. The services table
+ * was reseeded at some point and every id shifted (adu 7->4, additions 8->5,
+ * complete-renovation 9->6, european-kitchen 10->7, custom-kitchen 11->8,
+ * shaker-kitchen 12->9, finance 13->21, home repair 14->22), after which the
+ * statements below silently matched nothing and the script still exited 0.
+ */
+const serviceId = async (slug) => {
+  const { rows } = await c.query('select id from services where slug = $1', [slug])
+  if (!rows.length) throw new Error(`No service row with slug "${slug}"`)
+  return rows[0].id
+}
+const HOME_REPAIR = await serviceId('comprehensive-home-repair-installation-services-in-silicon-valley')
+
 // ---- 1. Comprehensive why-choose --------------------------------------
 const whyBlock = (
-  await c.query(`select id from services_blocks_experience_difference where _parent_id = 14`)
+  await c.query(`select id from services_blocks_experience_difference where _parent_id = $1`, [HOME_REPAIR])
 ).rows[0]
 await c.query(`update services_blocks_experience_difference set heading = 'The Prime Difference' where id = $1`, [
   whyBlock.id,

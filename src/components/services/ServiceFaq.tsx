@@ -7,7 +7,7 @@ import { RichTextContent } from '@/components/rich-text/RichTextContent'
 import { Button } from '@/components/ui/Button'
 import { Section } from '@/components/ui/Section'
 import { SectionHeader } from '@/components/ui/SectionHeader'
-import type { FaqItem } from '@/lib/faq'
+import type { FaqItem } from '@/lib/faq.server'
 import { cn } from '@/lib/utils'
 
 export function ServiceFaq({

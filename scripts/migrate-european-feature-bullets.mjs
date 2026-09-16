@@ -71,6 +71,20 @@ const ITEMS = {
 const client = new Client({ connectionString: u })
 await client.connect()
 
+/**
+ * Services are resolved by slug, never by a literal row id. The services table
+ * was reseeded at some point and every id shifted (adu 7->4, additions 8->5,
+ * complete-renovation 9->6, european-kitchen 10->7, custom-kitchen 11->8,
+ * shaker-kitchen 12->9, finance 13->21, home repair 14->22), after which the
+ * statements below silently matched nothing and the script still exited 0.
+ */
+const serviceId = async (slug) => {
+  const { rows } = await client.query('select id from services where slug = $1', [slug])
+  if (!rows.length) throw new Error(`No service row with slug "${slug}"`)
+  return rows[0].id
+}
+const EUROPEAN_KITCHEN = await serviceId('european-kitchen')
+
 // Columns for the items table + child table for the features array
 // (Payload group arrays land in `{table}_{array}` child tables).
 await client.query(`ALTER TABLE services_blocks_sub_services_2_items ADD COLUMN IF NOT EXISTS label varchar`)
@@ -81,7 +95,8 @@ await client.query(
 )
 
 const block = await client.query(
-  'select id from services_blocks_sub_services_2 where _parent_id = 10',
+  'select id from services_blocks_sub_services_2 where _parent_id = $1',
+  [EUROPEAN_KITCHEN],
 )
 const blockId = block.rows[0].id
 const items = await client.query(

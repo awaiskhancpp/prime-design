@@ -72,9 +72,14 @@ for (const [serviceId, buttons] of Object.entries(HERO_BUTTONS)) {
 
 // Bathroom hero heading: WordPress "Crafting Your Dream Bathroom, Our
 // Specialty" (the migrated value has a stray space before the comma).
+// Resolved by slug: the literal id 3 was Bathroom under the old numbering and
+// is Home Remodeling now, so this only ever matched because the heading test
+// also had to pass.
 await c.query(
   `update services set hero_heading = 'Crafting Your Dream Bathroom, Our Specialty'
-   where id = 3 and hero_heading = 'Crafting Your Dream Bathroom , Our Specialty'`,
+     from (select id from services where slug = 'bathroom-remodeling') target
+   where services.id = target.id
+     and services.hero_heading = 'Crafting Your Dream Bathroom , Our Specialty'`,
 )
 console.log('bathroom hero heading: comma artifact fixed')
 

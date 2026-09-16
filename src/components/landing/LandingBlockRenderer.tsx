@@ -17,12 +17,11 @@ import { LandingProjectGridSection } from './LandingProjectGridSection'
 import { LandingProjectsSection } from './LandingProjectsSection'
 import { LandingRepairServicesSection } from './LandingRepairServicesSection'
 import { LandingServiceAreasSection } from './LandingServiceAreasSection'
-import { LandingFaqSection } from './LandingFaqSection'
 import { LandingBookingSection } from './LandingBookingSection'
 import { LandingContact } from './Contact'
 import { TestimonialsSpotlightSection } from '@/components/testimonials/TestimonialsSpotlightSection'
 import { LandingTestimonialsSection } from '@/components/landing/LandingTestimonialsSection'
-import { faqCategories } from '@/lib/faq'
+import { LandingFaqBlockSection } from './LandingFaqBlockSection'
 import { richTextHasContent, richTextToPlainText, type RichTextValue } from '@/lib/richText'
 import { RichTextContent } from '@/components/rich-text/RichTextContent'
 import type { LandingPageBlock } from '@/lib/landingPages'
@@ -259,38 +258,30 @@ function SubServicesBlock({ block }: { block: Block }) {
 }
 
 function FaqBlock({ block }: { block: Block }) {
+  // Only the block's own inline questions are read here. A category that names
+  // no questions is filled from the FAQs collection by LandingFaqBlockSection,
+  // so there is no hardcoded copy of the Q&A anywhere in this path.
   const categories = Array.isArray(block.categories)
-    ? block.categories
-        .map((category) => {
-          const value = category as Record<string, unknown>
-          const title = text(value.title) || ''
-          const source = faqCategories.find(
-            (item) => item.title.toLowerCase() === title.toLowerCase(),
-          )
-          const questions = Array.isArray(value.questions) ? value.questions : []
-          return {
-            title,
-            items: questions.length
-              ? questions
-                  .map((question) => {
-                    const item = question as Record<string, unknown>
-                    return {
-                      question: text(item.question) || '',
-                      // FAQs answers are Lexical rich text now — flatten to
-                      // plain text for this section's design.
-                      answer: richTextToPlainText(item.answer),
-                    }
-                  })
-                  .filter((item) => item.question && item.answer)
-              : source?.items.map((item) => ({
-                  question: item.question,
-                  answer: richTextToPlainText(item.answer),
-                })) || [],
-          }
-        })
-        .filter((category) => category.items.length)
+    ? block.categories.map((category) => {
+        const value = category as Record<string, unknown>
+        const questions = Array.isArray(value.questions) ? value.questions : []
+        return {
+          title: text(value.title) || '',
+          items: questions
+            .map((question) => {
+              const item = question as Record<string, unknown>
+              return {
+                question: text(item.question) || '',
+                // FAQ answers are Lexical rich text; this section's design is a
+                // single line per answer, so flatten it.
+                answer: richTextToPlainText(item.answer),
+              }
+            })
+            .filter((item) => item.question && item.answer),
+        }
+      })
     : []
-  return <LandingFaqSection heading={text(block.heading)} categories={categories} />
+  return <LandingFaqBlockSection heading={text(block.heading)} categories={categories} />
 }
 
 function VideoCarouselBlock({ block }: { block: Block }) {

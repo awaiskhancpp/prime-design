@@ -22,6 +22,7 @@ import { Contact } from '@/components/gallery/Contact'
 import { GalleryTabs } from '@/components/gallery/GalleryTab'
 import { WhyChooseUs } from '@/components/gallery/WhyChooseUs'
 import { SectionHero } from './SectionHero'
+import { FaqExplorer } from '@/components/faq/FaqExplorer'
 import { TestimonialVideos } from '@/components/testimonials/TestimonialVideos'
 import { ReviewHighlights } from '@/components/testimonials/ReviewHighlights'
 import { TestimonialsSpotlight } from '@/components/testimonials/TestimonialsSpotlight'
@@ -31,6 +32,7 @@ import type { GalleryCategory } from '@/lib/gallery.server'
 import type { Service } from '@/lib/services'
 import type { SiteSettingsValue } from '@/lib/siteSettings'
 import type { CollectionTestimonial } from '@/lib/testimonialsCollection.server'
+import type { FaqIndexCategory } from '@/lib/faqIndex.server'
 
 /**
  * Everything a section might need that isn't stored on the page itself:
@@ -49,6 +51,12 @@ export type PageSectionContext = {
    * slider's query loop over the `testimonial` post type.
    */
   testimonials?: CollectionTestimonial[]
+  /**
+   * FAQs grouped by category, for the FAQ index section. Passed in rather than
+   * stored on the page, mirroring the WordPress query loop over the FAQ
+   * taxonomy.
+   */
+  faqCategories?: FaqIndexCategory[]
 }
 
 /**
@@ -183,6 +191,9 @@ function PageSectionNode({
         />
       )
     }
+
+    case 'faq-index':
+      return <FaqExplorer content={section.content} categories={context.faqCategories ?? []} />
 
     case 'service-areas':
       return <LandscapingServiceAreas heading={section.content.heading} />

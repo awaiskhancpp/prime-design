@@ -1,64 +1,28 @@
-import { ChevronDown } from 'lucide-react'
+import { PageSections, type PageSectionContext } from '@/components/pages/PageSections'
+import { resolvePageBySlug } from '@/lib/pages'
+import { resolveFaqIndex } from '@/lib/faqIndex.server'
 
-import { LandscapingServiceAreas } from '@/components/blocks/LandscapingServiceAreas'
-import { PageHero } from '@/components/layout/PageHero'
-import { Section } from '@/components/ui/Section'
-import { RichTextContent } from '@/components/rich-text/RichTextContent'
-import { faqCategories } from '@/lib/faq'
+/**
+ * FAQ page. Its sections live in the Pages collection (record `faq`), like the
+ * homepage, About, Gallery and Testimonials pages, so the hero and the index's
+ * copy are editable in the admin.
+ *
+ * The questions are FAQs collection records grouped by their FAQ Category
+ * relationship and passed through the section context — never copied onto the
+ * page. That is the same split WordPress uses, where this page is an authored
+ * hero plus a Bricks query loop (`{term_name} Questions` -> `{post_title}` /
+ * `{post_content}`) over the FAQ taxonomy, and it is why the service pages can
+ * reuse the very same records.
+ */
+export async function FaqPage() {
+  const page = await resolvePageBySlug('faq')
+  const faqCategories = await resolveFaqIndex()
 
-export function FaqPage() {
+  const context: PageSectionContext = { faqCategories }
+
   return (
-    <div className="min-h-screen bg-white">
-      <PageHero
-        eyebrow="Frequently asked questions"
-        title="Explore the FAQs: Your Comprehensive Guide to Home Remodeling"
-        description="Find helpful answers about our design process, remodeling services, timelines, materials, and more."
-        image="/services/kitchen-remodeling.jpeg"
-        imageAlt="Bright remodeled kitchen"
-        cta={{ label: 'Browse questions', href: '#faq-list' }}
-      />
-
-      <main>
-        <Section id="faq-list" className="bg-white py-12 md:py-20">
-          <div className="mx-auto max-w-5xl">
-            <div className="grid gap-12 md:gap-14">
-              {faqCategories.map((category) => (
-                <section key={category.title}>
-                  <h2 className="font-display text-2xl font-semibold text-ink md:text-3xl">
-                    {category.title}
-                  </h2>
-                  <div className="mt-3 h-px w-20 bg-brass" />
-                  <div className="mt-2 divide-y divide-line">
-                    {category.items.map((item, index) => (
-                      // First question of every category renders open.
-                      <details key={item.question} className="group" open={index === 0}>
-                        <summary className="flex cursor-pointer list-none items-center justify-between gap-5 py-5 text-base font-medium text-ink-2 marker:hidden [&::-webkit-details-marker]:hidden">
-                          <span>{item.question}</span>
-                          <ChevronDown
-                            className="h-4 w-4 shrink-0 text-ink-2/60 transition-transform duration-200 group-open:rotate-180"
-                            aria-hidden
-                          />
-                        </summary>
-                        {typeof item.answer === 'string' ? (
-                          <p className="max-w-3xl pb-5 pr-10 text-sm leading-7 text-ink-2/70">
-                            {item.answer}
-                          </p>
-                        ) : (
-                          <div className="max-w-3xl pb-5 pr-10 text-sm leading-7 text-ink-2/70">
-                            <RichTextContent data={item.answer} />
-                          </div>
-                        )}
-                      </details>
-                    ))}
-                  </div>
-                </section>
-              ))}
-            </div>
-          </div>
-        </Section>
-      </main>
-
-      <LandscapingServiceAreas />
+    <div className="min-h-screen">
+      <PageSections sections={page?.layout ?? []} context={context} />
     </div>
   )
 }

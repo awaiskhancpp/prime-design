@@ -1,4 +1,5 @@
 import { Section } from '@/components/ui/Section'
+import { SectionHeader } from '@/components/ui/SectionHeader'
 import type { PageTestimonialVideosContent } from '@/lib/pageSections'
 
 /**
@@ -14,14 +15,28 @@ export function TestimonialVideos({ content }: { content: PageTestimonialVideosC
   return (
     <Section className="bg-white pt-0">
       {content.heading ? (
-        <h2 className="mb-8 font-display text-3xl font-medium text-ink-2">{content.heading}</h2>
+        <div className="mb-12">
+          <SectionHeader title={content.heading} description={content.description ?? undefined} />
+        </div>
       ) : null}
-      {content.description ? (
-        <p className="mb-8 max-w-2xl text-base leading-7 text-ink-2/75">{content.description}</p>
-      ) : null}
+
       <div className="grid gap-8 md:grid-cols-2">
         {content.videos.map((video) => (
-          <figure key={video.url} className="overflow-hidden bg-paper">
+          <figure
+            key={video.url}
+            className="group relative border border-transparent bg-paper transition-colors duration-300 hover:border-line"
+          >
+            {/* Brass corner accent — same squared-off hover language as
+                ProjectCard and the rest of the UI */}
+            <span
+              className="pointer-events-none absolute left-0 top-0 h-px w-0 bg-brass transition-[width] duration-500 ease-out group-hover:w-10"
+              aria-hidden="true"
+            />
+            <span
+              className="pointer-events-none absolute left-0 top-0 h-0 w-px bg-brass transition-[height] duration-500 ease-out group-hover:h-10"
+              aria-hidden="true"
+            />
+
             <video
               className="aspect-video h-auto w-full object-cover"
               controls
@@ -32,16 +47,21 @@ export function TestimonialVideos({ content }: { content: PageTestimonialVideosC
               <source src={video.url} type="video/mp4" />
               Your browser does not support the video tag.
             </video>
+
             {video.title || video.speaker ? (
-              <figcaption className="border border-t-0 border-line bg-paper px-5 py-4">
-                {video.title ? (
-                  <p className="font-display text-xl text-ink-2">{video.title}</p>
-                ) : null}
-                {video.speaker ? (
-                  <p className="mt-1 text-xs uppercase tracking-[0.12em] text-ink-2/55">
-                    {video.speaker}
-                  </p>
-                ) : null}
+              <figcaption className="border-t border-line px-5 py-4">
+                <div className="flex items-start justify-between gap-4">
+                  <div className="border-l-2 border-brass/60 pl-4">
+                    {video.title ? (
+                      <p className="font-display text-lg font-medium text-ink-2">{video.title}</p>
+                    ) : null}
+                    {video.speaker ? (
+                      <p className="mt-1 text-[10px] font-semibold uppercase tracking-[0.16em] text-brass-deep">
+                        {video.speaker}
+                      </p>
+                    ) : null}
+                  </div>
+                </div>
               </figcaption>
             ) : null}
           </figure>

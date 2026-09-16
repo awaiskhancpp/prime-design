@@ -34,6 +34,7 @@ import * as migration_20260916_120000_trust_section_fields from './20260916_1200
 import * as migration_20260916_130000_craftsmanship_cta from './20260916_130000_craftsmanship_cta';
 import * as migration_20260916_140000_repair_category_eyebrow from './20260916_140000_repair_category_eyebrow';
 import * as migration_20260916_150000_testimonials_page_sections from './20260916_150000_testimonials_page_sections';
+import * as migration_20260917_120000_faq_index_section from './20260917_120000_faq_index_section';
 
 export const migrations = [
   {
@@ -215,5 +216,10 @@ export const migrations = [
     up: migration_20260916_150000_testimonials_page_sections.up,
     down: migration_20260916_150000_testimonials_page_sections.down,
     name: '20260916_150000_testimonials_page_sections',
+  },
+  {
+    up: migration_20260917_120000_faq_index_section.up,
+    down: migration_20260917_120000_faq_index_section.down,
+    name: '20260917_120000_faq_index_section',
   },
 ];

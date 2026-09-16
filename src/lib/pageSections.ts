@@ -172,6 +172,15 @@ export type PageTestimonialsSpotlightContent = {
   reviewLimit?: number
 }
 
+export type PageFaqIndexContent = {
+  eyebrow?: string
+  heading?: string
+  description?: string
+  searchPlaceholder?: string
+  allLabel?: string
+  emptyMessage?: string
+}
+
 export type PageSection =
   | { type: 'hero'; content: PageHeroContent }
   | { type: 'intro'; content: PageIntroContent }
@@ -191,6 +200,7 @@ export type PageSection =
   | { type: 'testimonial-videos'; content: PageTestimonialVideosContent }
   | { type: 'review-highlights'; content: PageReviewHighlightsContent }
   | { type: 'testimonials-spotlight'; content: PageTestimonialsSpotlightContent }
+  | { type: 'faq-index'; content: PageFaqIndexContent }
   | { type: 'service-areas'; content: { heading?: string } }
   | { type: 'custom'; content: CustomSectionContent }
   | { type: 'content'; content: PageGenericContent }
@@ -465,6 +475,18 @@ export function toPageSection(block: PageBlock): PageSection | undefined {
           ctaHref: optionalText(block.ctaHref),
           ctaNote: optionalText(block.ctaNote),
           reviewLimit: typeof block.reviewLimit === 'number' ? block.reviewLimit : undefined,
+        },
+      }
+    case 'faq-index':
+      return {
+        type: 'faq-index',
+        content: {
+          eyebrow: optionalText(block.eyebrow),
+          heading: optionalText(block.heading),
+          description: optionalText(block.description),
+          searchPlaceholder: optionalText(block.searchPlaceholder),
+          allLabel: optionalText(block.allLabel),
+          emptyMessage: optionalText(block.emptyMessage),
         },
       }
     case 'service-areas':

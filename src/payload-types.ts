@@ -2458,6 +2458,26 @@ export interface Page {
             blockType: 'contact';
           }
         | {
+            eyebrow?: string | null;
+            heading?: string | null;
+            /**
+             * Line above the search field, e.g. "Browse by category or search below".
+             */
+            description?: string | null;
+            searchPlaceholder?: string | null;
+            /**
+             * Label for the category that shows every question, e.g. "All questions".
+             */
+            allLabel?: string | null;
+            /**
+             * Shown when a search matches nothing.
+             */
+            emptyMessage?: string | null;
+            id?: string | null;
+            blockName?: string | null;
+            blockType: 'faq-index';
+          }
+        | {
             heading?: string | null;
             description?: string | null;
             /**
@@ -5666,6 +5686,18 @@ export interface PagesSelect<T extends boolean = true> {
           | {
               city?: T;
               poster?: T;
+              id?: T;
+              blockName?: T;
+            };
+        'faq-index'?:
+          | T
+          | {
+              eyebrow?: T;
+              heading?: T;
+              description?: T;
+              searchPlaceholder?: T;
+              allLabel?: T;
+              emptyMessage?: T;
               id?: T;
               blockName?: T;
             };

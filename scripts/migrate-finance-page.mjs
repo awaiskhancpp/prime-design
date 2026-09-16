@@ -27,16 +27,56 @@ const u = env.match(/^DATABASE_URL=(.+)$/m)[1].trim()
 const c = new Client({ connectionString: u })
 await c.connect()
 
+/**
+ * The finance service and its blocks are resolved by slug and by the
+ * WordPress Bricks element id each block carries (`source_id`), never by
+ * literal row ids. The service id moved from 13 to 21 when the services table
+ * was reseeded and all four block uuids below stopped existing, after which
+ * every statement here silently matched nothing.
+ */
+const serviceRow = await c.query(`select id from services where slug = 'finance'`)
+if (!serviceRow.rows.length) throw new Error('No service row with slug "finance"')
+const FINANCE = serviceRow.rows[0].id
+
+/** Block id on the finance service, by its WordPress Bricks element id. */
+const blockBySource = async (table, sourceId) => {
+  const { rows } = await c.query(
+    `select id from ${table} where _parent_id = $1 and source_id = $2`,
+    [FINANCE, sourceId],
+  )
+  if (!rows.length) throw new Error(`No ${table} block with source_id "${sourceId}" on finance`)
+  return rows[0].id
+}
+const ONE_STOP_BLOCK = await blockBySource('services_blocks_cta', 'abpyoz')
+const WORK_TOGETHER_BLOCK = await blockBySource('services_blocks_cta', 'ckdypr')
+const PROCESS_BLOCK = await blockBySource('services_blocks_image_text_2', 'jcsoxt')
+const trustRow = await c.query(
+  `select id from services_blocks_experience_difference where _parent_id = $1`,
+  [FINANCE],
+)
+if (!trustRow.rows.length) throw new Error('No experience-difference block on finance')
+const TRUST_BLOCK = trustRow.rows[0].id
+
+/** The Finance FAQ category, by title — category ids drift the same way. */
+const faqCategoryRow = await c.query(
+  `select id from faq_categories where title = 'Finance Questions'`,
+)
+if (!faqCategoryRow.rows.length) throw new Error('No faq_categories row titled "Finance Questions"')
+const FINANCE_FAQ_CATEGORY = faqCategoryRow.rows[0].id
+
 // ---- 1. Hero ---------------------------------------------------------------
-await c.query(`update services set hero_heading = $2 where id = 13 and hero_heading = $1`, [
+await c.query(`update services set hero_heading = $2 where id = $3 and hero_heading = $1`, [
   'Your Dream Home , Financed',
   'Your Dream Home, Financed',
+  FINANCE,
 ])
-const heroButtons = await c.query('select id from services_hero_buttons where _parent_id = 13')
+const heroButtons = await c.query('select id from services_hero_buttons where _parent_id = $1', [
+  FINANCE,
+])
 if (!heroButtons.rows.length) {
   await c.query(
-    `insert into services_hero_buttons (_order, _parent_id, id, label, url) values (0, 13, $1, $2, $3)`,
-    [randomUUID(), 'Unlock Your Dream Home Today', '/contact'],
+    `insert into services_hero_buttons (_order, _parent_id, id, label, url) values (0, $4, $1, $2, $3)`,
+    [randomUUID(), 'Unlock Your Dream Home Today', '/contact', FINANCE],
   )
   console.log('hero: single WP button added')
 }
@@ -54,8 +94,8 @@ if (!heroMediaId) {
   heroMediaId = inserted.rows[0].id
 }
 await c.query(
-  `update services set hero_image_id = coalesce(hero_image_id, $1) where id = 13 and hero_image_id is null`,
-  [heroMediaId],
+  `update services set hero_image_id = coalesce(hero_image_id, $1) where id = $2 and hero_image_id is null`,
+  [heroMediaId, FINANCE],
 )
 console.log(`hero: background image media ${heroMediaId}`)
 
@@ -67,11 +107,11 @@ await c.query(
    set description = $2,
        media_source_url = coalesce(media_source_url, '/Finance-Prime-Kitchens.webp')
    where id = $1`,
-  ['cc6d26bb-c0c2-41f5-83f0-7384427bb615', ONE_STOP_DESCRIPTION],
+  [ONE_STOP_BLOCK, ONE_STOP_DESCRIPTION],
 )
 await c.query(
   `update services_blocks_cta_buttons set url = '/contact' where _parent_id = $1 and url = '#contact'`,
-  ['cc6d26bb-c0c2-41f5-83f0-7384427bb615'],
+  [ONE_STOP_BLOCK],
 )
 console.log('one-stop hub: copy + image + button wired')
 
@@ -81,13 +121,13 @@ await c.query(
    set media_source_url = coalesce(media_source_url, $2)
    where id = $1`,
   [
-    'c12dc432-6994-4ceb-9ce7-5eb3efdaae48',
+    WORK_TOGETHER_BLOCK,
     'https://primedesignandbuild.com/wp-content/uploads/2023/05/Kitchen-And-Bathroom-Images-1920-%C3%97-1080-px-1.png',
   ],
 )
 await c.query(
   `update services_blocks_cta_buttons set url = '/contact' where _parent_id = $1 and url = '#contact'`,
-  ['c12dc432-6994-4ceb-9ce7-5eb3efdaae48'],
+  [WORK_TOGETHER_BLOCK],
 )
 console.log("let's work together: background image + button wired")
 
@@ -181,7 +221,7 @@ await c.query(
        media_source_url = coalesce(media_source_url, $3)
    where id = $1`,
   [
-    '6117ea9b-fca1-4ef2-8cfe-2d07cfbbf744',
+    PROCESS_BLOCK,
     JSON.stringify(processLexical),
     'https://primedesignandbuild.com/wp-content/uploads/2023/05/Prime-Kitchens-Phone.png',
   ],
@@ -192,7 +232,7 @@ console.log('renovation financing: rich-text steps + phone image wired')
 const ICONS = ['/finance-licenced.svg', '/finance-bonded.svg', '/finance-insured.svg']
 const features = await c.query(
   `select id, _order from services_blocks_experience_difference_features where _parent_id = $1 order by _order`,
-  ['dead86f6-617d-4c0d-b46c-ae5e516bfcf6'],
+  [TRUST_BLOCK],
 )
 for (const feature of features.rows) {
   await c.query(
@@ -245,8 +285,8 @@ const faqLexical = (text) => ({
 for (let i = 0; i < FAQS.length; i++) {
   const [question, answer] = FAQS[i]
   const existing = await c.query(
-    `select id from faqs where category_id = 7 and question = $1`,
-    [question],
+    `select id from faqs where category_id = $2 and question = $1`,
+    [question, FINANCE_FAQ_CATEGORY],
   )
   if (existing.rows.length) {
     await c.query(`update faqs set sort_order = $2, visible = true where id = $1`, [
@@ -262,7 +302,10 @@ for (let i = 0; i < FAQS.length; i++) {
   }
 }
 const financeFaqs = await c.query(
-  `select id, question, sort_order from faqs where category_id = 7 and visible = true order by sort_order`,
+  `select f.id, f.question, f.sort_order from faqs f
+     join faq_categories cat on cat.id = f.category_id
+    where cat.title = 'Finance Questions' and f.visible = true
+    order by f.sort_order`,
 )
 console.log(
   'faqs:',
