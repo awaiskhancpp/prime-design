@@ -154,6 +154,67 @@ Required, every time:
 3. Confirm the specific named gaps for that task (if any were identified going in) are
    actually closed, one by one — not just that the general shape of the page looks complete.
 
+## 8b. Migrations: `migrate:create` is BLOCKED
+
+**Do not run `payload migrate:create`, and do not work around the guard by
+invoking the binary directly (`pnpm payload migrate:create`).** The
+`migrate:create` package script is wired to `scripts/block-migrate-create.mjs`,
+which prints this reason and exits non-zero.
+
+**Why.** There are 39 migration `.ts` files but only 25 `.json` schema
+snapshots. Payload generates a migration by diffing the current config against
+the *newest* snapshot — which is
+`20260914_180701_video_story_fields.json`. Every migration written after that
+date was hand-written SQL with no snapshot, so the snapshot has no knowledge of
+the tables and columns they added. Running `migrate:create` today would read
+those as *removals* and emit SQL that DROPs them, or mis-read them as renames
+and issue `RENAME` against live tables. `payload.config.ts` sets `push: false`,
+so nothing auto-syncs; the danger is entirely in that one command.
+
+Applying migrations (`pnpm payload migrate`) is unaffected and stays safe.
+
+### The 16 migrations with no snapshot
+
+```
+20260827_024700_service_content_blocks
+20260827_025500_services_media_relation
+20260827_030500_services_hero_fields
+20260828_010000_services_video_upload
+20260829_000000_service_checklist_icon_feature_list_blocks
+20260906_000000_landing_sub_services_heading_optional
+20260906_010000_project_grid_eyebrow_icon
+20260915_120000_difference_video_posters
+20260916_010000_services_hero_image_secondary
+20260916_120000_trust_section_fields
+20260916_130000_craftsmanship_cta
+20260916_140000_repair_category_eyebrow
+20260916_150000_testimonials_page_sections
+20260917_120000_faq_index_section
+20260917_130000_consultations_section
+20260917_140000_contact_submissions
+```
+
+### Lifting the block
+
+The block is lifted **only** after a baseline snapshot has been restored, and
+that work happens on a throwaway branch against a restored copy of production —
+never against the live database:
+
+1. Restore a copy of the production database somewhere disposable.
+2. On a throwaway branch, run `payload migrate:create --skip-empty` against
+   that copy to emit a fresh schema snapshot.
+3. Confirm the generated migration is a no-op (an empty `up`). If it is not,
+   the diff is showing where the hand-written SQL and the Payload config
+   disagree — fix the config, not the old migrations.
+4. Commit only the new `.json` snapshot plus the empty baseline migration, and
+   record it as applied.
+5. Remove the guard from `package.json` in that same change.
+
+**Never edit, rewrite or delete an existing migration file to make the diff
+come out clean.** They have already run against production; rewriting them
+makes the applied state and the file history disagree, which is worse than the
+missing snapshots.
+
 ## 9. Known debt — don't silently "fix" it, but do know it's there
 
 - Homepage components are split between a `Landscaping*` naming scheme and a `Home*` one

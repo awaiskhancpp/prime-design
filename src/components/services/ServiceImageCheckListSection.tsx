@@ -51,7 +51,7 @@ export function ServiceImageChecklistSection({
             {items.map(({ title, description }) => (
               <li key={title}>
                 <div className="flex items-center gap-3">
-                  <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full border border-ink text-ink">
+                  <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full border border-brass text-brass">
                     <Check className="h-4 w-4" strokeWidth={2.5} aria-hidden />
                   </span>
                   <p className="font-display text-lg font-semibold text-ink">{title}</p>
