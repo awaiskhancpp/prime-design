@@ -187,6 +187,7 @@ export const landingPageBlocks: Block[] = [
     },
   ]),
   base('repair-services', 'Repair Services', [
+    text('eyebrow'),
     text('heading', true),
     description(),
     {
@@ -196,6 +197,9 @@ export const landingPageBlocks: Block[] = [
         // Full WordPress heading (e.g. "Cabinet Repair & Installation") —
         // the section splits it into the gradient first word + heading rest.
         text('title', true),
+        // The WordPress accent line above the heading (e.g. "Inspiration
+        // starts all around you" on the European Kitchen page).
+        text('eyebrow'),
         // The WordPress sub-heading above the bullet list ("Services
         // include:", "We service and install:", "Key benefits:", ...).
         text('label'),

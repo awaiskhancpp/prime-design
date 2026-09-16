@@ -1,5 +1,6 @@
 import Image from 'next/image'
 import { Clock, Heart, KeyRound, Ruler, Sparkles, type LucideIcon } from 'lucide-react'
+import { Container } from '../ui/Container'
 
 type ChecklistItem = {
   /** Icon name from the WordPress source (themify), mapped to a Lucide icon. */
@@ -109,44 +110,44 @@ export function ServiceIconChecklistGallerySection({
 }) {
   return (
     <section className=" py-16 md:py-24">
-      <div className="mx-auto grid max-w-6xl gap-14 px-6 md:grid-cols-2 md:items-center md:gap-16">
-        <div>
-          {eyebrow ? <p className="font-display text-lg italic text-ink-2/80">{eyebrow}</p> : null}
-          <h2 className="mt-3 font-display text-3xl font-medium leading-tight tracking-tight text-ink md:text-4xl">
-            {heading}
-          </h2>
+      <Container>
+        <div className=" grid  gap-14 px-6 md:grid-cols-2 md:items-center md:gap-16">
+          <div>
+            {eyebrow ? (
+              <p className="font-display text-lg italic text-ink-2/80">{eyebrow}</p>
+            ) : null}
+            <h2 className="mt-3 font-display text-3xl font-medium leading-tight tracking-tight text-ink md:text-4xl">
+              {heading}
+            </h2>
 
-          <ul className="mt-9 grid gap-7">
-            {items.map(({ icon, title, description }) => {
-              const Icon = iconMap[icon] ?? Sparkles
-              return (
-                <li key={title} className="flex gap-4">
-                  <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full border border-brass/40 text-brass-deep">
-                    <Icon className="h-5 w-5" strokeWidth={1.5} aria-hidden />
-                  </span>
-                  <div>
-                    <p className="font-display text-lg font-medium text-ink">{title}</p>
-                    <p className="mt-1 text-sm leading-6 text-ink-2/70">{description}</p>
-                  </div>
-                </li>
-              )
-            })}
-          </ul>
-        </div>
+            <ul className="mt-9 grid gap-7">
+              {items.map(({ icon, title, description }) => {
+                const Icon = iconMap[icon] ?? Sparkles
+                return (
+                  <li key={title} className="flex gap-4">
+                    <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full border border-brass/40 text-brass-deep">
+                      <Icon className="h-5 w-5" strokeWidth={1.5} aria-hidden />
+                    </span>
+                    <div>
+                      <p className="font-display text-lg font-medium text-ink">{title}</p>
+                      <p className="mt-1 text-sm leading-6 text-ink-2/70">{description}</p>
+                    </div>
+                  </li>
+                )
+              })}
+            </ul>
+          </div>
 
-        {/* Offset brass frame behind the whole gallery — same motif used
+          {/* Offset brass frame behind the whole gallery — same motif used
             elsewhere on the site (intro/contact sections) — instead of the
             hard navy/brass color-block split this replaces. */}
-        <div className="relative">
-          <div
-            className="absolute inset-0 translate-x-4 translate-y-4 border border-brass"
-            aria-hidden
-          />
           <div className="relative">
-            <ImageGrid images={images} alt={imageAlt} />
+            <div className="relative">
+              <ImageGrid images={images} alt={imageAlt} />
+            </div>
           </div>
         </div>
-      </div>
+      </Container>
     </section>
   )
 }

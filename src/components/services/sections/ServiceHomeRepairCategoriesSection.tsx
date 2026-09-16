@@ -22,6 +22,13 @@ export type HomeRepairCategory = {
   closingBody?: RichTextValue | string
 }
 
+/** Split a plain-string body into its source paragraphs (blank-line separated). */
+const paragraphsOf = (body: string) =>
+  body
+    .split(/\n\s*\n/)
+    .map((paragraph) => paragraph.trim())
+    .filter(Boolean)
+
 /**
  * ServiceHomeRepairCategoriesSection
  *
@@ -37,12 +44,20 @@ export type HomeRepairCategory = {
  * renderer cannot drift the card design.
  */
 export function ServiceHomeRepairCategoriesSection({
-  categories = homeRepairCategoriesContent,
+  categories,
   eyebrow,
   heading,
   description,
 }: {
-  categories?: HomeRepairCategory[]
+  /**
+   * Required, with no default. This used to default to
+   * `homeRepairCategoriesContent`, which meant any page that reached this
+   * component without CMS data silently rendered the six static Home Repair
+   * categories as if they had come from Payload. The Home Repair page still
+   * passes that array explicitly (see ServiceDetailPage) — it is the one page
+   * whose categories have no Payload source yet.
+   */
+  categories: HomeRepairCategory[]
   /**
    * Optional centered header shown above the cards. Only pages whose source
    * section carries a heading (e.g. the European Kitchen page's "What are
@@ -96,7 +111,18 @@ export function ServiceHomeRepairCategoriesSection({
               )}
               {category.body ? (
                 typeof category.body === 'string' ? (
-                  <p className="mt-4 text-base leading-7 text-ink-2/75">{category.body}</p>
+                  // A plain-string body may carry more than one source
+                  // paragraph (the Shaker cards do), separated by a blank
+                  // line. Render one <p> per paragraph so the second one is
+                  // not silently run together with the first.
+                  paragraphsOf(category.body).map((paragraph, i) => (
+                    <p
+                      key={i}
+                      className={`text-base leading-7 text-ink-2/75 ${i === 0 ? 'mt-4' : 'mt-3'}`}
+                    >
+                      {paragraph}
+                    </p>
+                  ))
                 ) : (
                   <div className="mt-4 text-base leading-7 text-ink-2/75 [&_p]:mt-0 [&_p]:text-ink-2/75">
                     <RichTextContent data={category.body} />

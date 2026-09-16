@@ -83,6 +83,51 @@ export const SiteSettings: GlobalConfig = {
       type: 'upload',
       relationTo: 'media',
     },
+    {
+      name: 'trustIntro',
+      type: 'group',
+      label: 'Trust Section (Projects page)',
+      admin: {
+        description:
+          'The "Silicon Valley loves working with us!" section as shown on the Projects page. Service pages use their own copy of this section (Services → Silicon Valley Loves).',
+      },
+      fields: [
+        { name: 'eyebrow', type: 'text' },
+        { name: 'heading', type: 'text' },
+        { name: 'body', type: 'textarea' },
+        { name: 'image', type: 'upload', relationTo: 'media' },
+        {
+          name: 'stats',
+          type: 'array',
+          fields: [
+            { name: 'value', type: 'text' },
+            { name: 'label', type: 'text' },
+            {
+              name: 'showStars',
+              type: 'checkbox',
+              defaultValue: false,
+            },
+          ],
+        },
+        {
+          name: 'buttons',
+          type: 'array',
+          fields: [
+            { name: 'label', type: 'text', required: true },
+            { name: 'url', type: 'text', required: true },
+            {
+              name: 'variant',
+              type: 'select',
+              defaultValue: 'outline',
+              options: [
+                { label: 'Outlined', value: 'outline' },
+                { label: 'Brass (filled)', value: 'brass' },
+              ],
+            },
+          ],
+        },
+      ],
+    },
     ...SEOFields,
   ],
 }

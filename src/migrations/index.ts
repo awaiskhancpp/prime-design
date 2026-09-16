@@ -30,6 +30,9 @@ import * as migration_20260914_172948_pages_section_blocks from './20260914_1729
 import * as migration_20260914_180701_video_story_fields from './20260914_180701_video_story_fields';
 import * as migration_20260915_120000_difference_video_posters from './20260915_120000_difference_video_posters';
 import * as migration_20260916_010000_services_hero_image_secondary from './20260916_010000_services_hero_image_secondary';
+import * as migration_20260916_120000_trust_section_fields from './20260916_120000_trust_section_fields';
+import * as migration_20260916_130000_craftsmanship_cta from './20260916_130000_craftsmanship_cta';
+import * as migration_20260916_140000_repair_category_eyebrow from './20260916_140000_repair_category_eyebrow';
 
 export const migrations = [
   {
@@ -191,5 +194,20 @@ export const migrations = [
     up: migration_20260916_010000_services_hero_image_secondary.up,
     down: migration_20260916_010000_services_hero_image_secondary.down,
     name: '20260916_010000_services_hero_image_secondary',
+  },
+  {
+    up: migration_20260916_120000_trust_section_fields.up,
+    down: migration_20260916_120000_trust_section_fields.down,
+    name: '20260916_120000_trust_section_fields',
+  },
+  {
+    up: migration_20260916_130000_craftsmanship_cta.up,
+    down: migration_20260916_130000_craftsmanship_cta.down,
+    name: '20260916_130000_craftsmanship_cta',
+  },
+  {
+    up: migration_20260916_140000_repair_category_eyebrow.up,
+    down: migration_20260916_140000_repair_category_eyebrow.down,
+    name: '20260916_140000_repair_category_eyebrow',
   },
 ];

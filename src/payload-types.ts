@@ -984,11 +984,13 @@ export interface Service {
             blockType: 'service-areas';
           }
         | {
+            eyebrow?: string | null;
             heading: string;
             description?: string | null;
             categories?:
               | {
                   title: string;
+                  eyebrow?: string | null;
                   label?: string | null;
                   description?: {
                     root: {
@@ -1454,9 +1456,16 @@ export interface Service {
     [k: string]: unknown;
   } | null;
   /**
-   * The two photos in the "Craftsmanship That Transforms" section (large + small overlap). Falls back to the hero image when empty.
+   * The two photos in the "Craftsmanship That Transforms" section (large + small overlap). The section renders without a photo when empty — nothing is substituted.
    */
   craftsmanshipImages?: (number | Media)[] | null;
+  /**
+   * Button under the craftsmanship copy. Leave empty for no button.
+   */
+  craftsmanshipCta?: {
+    label?: string | null;
+    href?: string | null;
+  };
   /**
    * Optional "A Client-Centered Approach to Home Remodeling" section shown below the estimate CTA. Use an H2 heading, a paragraph, and a numbered list of steps.
    */
@@ -1505,18 +1514,36 @@ export interface Service {
     image?: (number | null) | Media;
   };
   /**
-   * Structured "Silicon Valley Loves Working With Us!" section.
+   * The trust section ("Silicon Valley loves working with us!") rendered with the projects-page design. All content is authored here — nothing is hardcoded.
    */
   siliconValleyLoves?: {
     eyebrow?: string | null;
     heading?: string | null;
     body?: string | null;
     image?: (number | null) | Media;
+    /**
+     * The floating stat card (e.g. rating / review count / projects built). Add one row per block.
+     */
     stats?:
       | {
           value?: string | null;
           label?: string | null;
           detail?: string | null;
+          /**
+           * Render five stars above the value (for ratings).
+           */
+          showStars?: boolean | null;
+          id?: string | null;
+        }[]
+      | null;
+    /**
+     * Call-to-action buttons under the copy.
+     */
+    buttons?:
+      | {
+          label: string;
+          url: string;
+          variant?: ('outline' | 'brass') | null;
           id?: string | null;
         }[]
       | null;
@@ -3464,11 +3491,13 @@ export interface LandingPage {
         blockType: 'service-areas';
       }
     | {
+        eyebrow?: string | null;
         heading: string;
         description?: string | null;
         categories?:
           | {
               title: string;
+              eyebrow?: string | null;
               label?: string | null;
               description?: {
                 root: {
@@ -4696,12 +4725,14 @@ export interface ServicesSelect<T extends boolean = true> {
         'repair-services'?:
           | T
           | {
+              eyebrow?: T;
               heading?: T;
               description?: T;
               categories?:
                 | T
                 | {
                     title?: T;
+                    eyebrow?: T;
                     label?: T;
                     description?: T;
                     features?:
@@ -4951,6 +4982,12 @@ export interface ServicesSelect<T extends boolean = true> {
       };
   craftsmanship?: T;
   craftsmanshipImages?: T;
+  craftsmanshipCta?:
+    | T
+    | {
+        label?: T;
+        href?: T;
+      };
   clientApproach?: T;
   clientApproachImage?: T;
   process?:
@@ -4989,6 +5026,15 @@ export interface ServicesSelect<T extends boolean = true> {
               value?: T;
               label?: T;
               detail?: T;
+              showStars?: T;
+              id?: T;
+            };
+        buttons?:
+          | T
+          | {
+              label?: T;
+              url?: T;
+              variant?: T;
               id?: T;
             };
       };
@@ -6226,12 +6272,14 @@ export interface LandingPagesSelect<T extends boolean = true> {
         'repair-services'?:
           | T
           | {
+              eyebrow?: T;
               heading?: T;
               description?: T;
               categories?:
                 | T
                 | {
                     title?: T;
+                    eyebrow?: T;
                     label?: T;
                     description?: T;
                     features?:
@@ -6598,6 +6646,31 @@ export interface SiteSetting {
     | null;
   defaultOgImage?: (number | null) | Media;
   /**
+   * The "Silicon Valley loves working with us!" section as shown on the Projects page. Service pages use their own copy of this section (Services → Silicon Valley Loves).
+   */
+  trustIntro?: {
+    eyebrow?: string | null;
+    heading?: string | null;
+    body?: string | null;
+    image?: (number | null) | Media;
+    stats?:
+      | {
+          value?: string | null;
+          label?: string | null;
+          showStars?: boolean | null;
+          id?: string | null;
+        }[]
+      | null;
+    buttons?:
+      | {
+          label: string;
+          url: string;
+          variant?: ('outline' | 'brass') | null;
+          id?: string | null;
+        }[]
+      | null;
+  };
+  /**
    * Search-engine and social-share metadata. Titles and descriptions are migrated from the WordPress Rank Math data — keep them unique per page.
    */
   seo?: {
@@ -6678,6 +6751,30 @@ export interface SiteSettingsSelect<T extends boolean = true> {
         id?: T;
       };
   defaultOgImage?: T;
+  trustIntro?:
+    | T
+    | {
+        eyebrow?: T;
+        heading?: T;
+        body?: T;
+        image?: T;
+        stats?:
+          | T
+          | {
+              value?: T;
+              label?: T;
+              showStars?: T;
+              id?: T;
+            };
+        buttons?:
+          | T
+          | {
+              label?: T;
+              url?: T;
+              variant?: T;
+              id?: T;
+            };
+      };
   seo?:
     | T
     | {

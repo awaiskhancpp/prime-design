@@ -3,6 +3,7 @@ import { LandscapingServiceAreas } from '@/components/blocks/LandscapingServiceA
 import { PageHero } from '@/components/layout/PageHero'
 import { resolvePageBySlug } from '@/lib/pages'
 import { resolveProjects } from '@/lib/projects'
+import { resolveSiteSettings } from '@/lib/siteSettings'
 import { ProjectCard } from './ProjectCard'
 import { ProjectsReviews } from './ProjectsReviews'
 import { ProjectsTrustIntro } from './ProjectsTrustIntro'
@@ -10,11 +11,12 @@ import { ProjectsTrustIntro } from './ProjectsTrustIntro'
 export async function ProjectsPage() {
   const projects = await resolveProjects()
 
-  // The hero comes from the pages collection record "our-projects" (seeded
-  // from WordPress page 339); the hardcoded values below are only a
-  // fallback for local runs without a database.
+  // The hero comes from the pages collection record "our-projects"; the trust
+  // section's copy comes from Site Settings → Trust Section.
   const page = await resolvePageBySlug('our-projects')
   const hero = page?.hero
+  const settings = await resolveSiteSettings()
+  const trust = settings.trustIntro
 
   return (
     <div className="min-h-screen ">
@@ -36,7 +38,14 @@ export async function ProjectsPage() {
         </div>
       </Section>
 
-      <ProjectsTrustIntro />
+      <ProjectsTrustIntro
+        eyebrow={trust?.eyebrow}
+        heading={trust?.heading}
+        body={trust?.body}
+        image={trust?.image}
+        stats={trust?.stats}
+        buttons={trust?.buttons}
+      />
       <ProjectsReviews />
       <LandscapingServiceAreas />
     </div>

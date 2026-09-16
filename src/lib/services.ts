@@ -51,6 +51,8 @@ export type ServiceDetail = Service & {
    * small overlap). Falls back to the hero image when empty.
    */
   craftsmanshipImages?: string[]
+  /** Button under the craftsmanship copy (Payload-authored). */
+  craftsmanshipCta?: { label?: string; href?: string }
   /** CMS-authored rich text for the "A Client-Centered Approach" section. */
   clientApproach?: RichTextValue
   /** Side image for the "A Client-Centered Approach" section. */
@@ -70,7 +72,8 @@ export type ServiceDetail = Service & {
     heading?: string
     body?: string
     image?: string
-    stats?: Array<{ value?: string; label?: string; detail?: string }>
+    stats?: Array<{ value?: string; label?: string; detail?: string; showStars?: boolean }>
+    buttons?: Array<{ label: string; url: string; variant?: string }>
   }
   /** Structured "Why Choose" section (heading + items). */
   whyChooseUs?: {
@@ -229,6 +232,7 @@ type PayloadServiceRecord = {
   craftsmanship?: unknown
   /** Photos for the "Craftsmanship That Transforms" section (upload hasMany). */
   craftsmanshipImages?: Array<PayloadMedia | number> | null
+  craftsmanshipCta?: { label?: string | null; href?: string | null } | null
   /** Rich text for the "A Client-Centered Approach to Home Remodeling" section. */
   clientApproach?: unknown
   /** Side image for the "A Client-Centered Approach" section. */
@@ -251,7 +255,8 @@ type PayloadServiceRecord = {
     heading?: string | null
     body?: string | null
     image?: number | PayloadMedia | null
-    stats?: Array<{ value?: string; label?: string; detail?: string }> | null
+    stats?: Array<{ value?: string; label?: string; detail?: string; showStars?: boolean | null }> | null
+    buttons?: Array<{ label?: string; url?: string; variant?: string | null }> | null
   } | null
   whyChooseUs?: {
     eyebrow?: string | null
@@ -545,6 +550,9 @@ export async function resolveServiceDetail(slug: string): Promise<ServiceDetail 
     craftsmanshipImages: (record.craftsmanshipImages as Array<PayloadMedia | number> | undefined | null)
       ?.map((image) => payloadImageUrl(image))
       .filter((url): url is string => Boolean(url)),
+    craftsmanshipCta: record.craftsmanshipCta
+      ? { label: record.craftsmanshipCta.label ?? undefined, href: record.craftsmanshipCta.href ?? undefined }
+      : undefined,
     clientApproach: richTextHasContent(record.clientApproach as RichTextValue)
       ? (record.clientApproach as RichTextValue)
       : undefined,
@@ -585,7 +593,13 @@ export async function resolveServiceDetail(slug: string): Promise<ServiceDetail 
             value: stat.value,
             label: stat.label,
             detail: stat.detail,
+            showStars: Boolean((stat as { showStars?: boolean | null }).showStars),
           })),
+          buttons: record.siliconValleyLoves.buttons?.flatMap((button) =>
+            button?.label && button?.url
+              ? [{ label: button.label, url: button.url, variant: button.variant ?? undefined }]
+              : [],
+          ),
         }
       : undefined,
     whyChooseUs: record.whyChooseUs

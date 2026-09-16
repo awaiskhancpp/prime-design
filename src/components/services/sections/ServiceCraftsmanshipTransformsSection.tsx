@@ -12,8 +12,10 @@ export type ServiceCraftsmanshipContent = {
   heading: string
   headingAccent: string
   body: string[]
-  images: [string, string]
-  cta: { label: string; href: string }
+  /** The section's photos — the design renders with one or two; none is fine. */
+  images?: string[]
+  /** Button under the copy; no button renders when this is absent. */
+  cta?: { label?: string; href?: string }
 }
 
 export function ServiceCraftsmanshipTransformsSection({
@@ -49,32 +51,39 @@ export function ServiceCraftsmanshipTransformsSection({
     }
   }
 
+  // Photos come from Payload only — no stand-in image is substituted.
+  const photos = (images ?? []).filter(Boolean)
+
   return (
     <Section className="">
       <div className="grid items-center gap-14 lg:grid-cols-[0.85fr_1fr] lg:gap-20">
-        <div className="relative mb-14 w-full lg:mx-0">
-          <div className="relative aspect-[16/10] w-full overflow-hidden bg-paper-2 shadow-xl shadow-ink/10">
-            <Image
-              src={images[0]}
-              alt=""
-              fill
-              className="object-cover"
-              sizes="(min-width: 1024px) 45vw, 90vw"
-            />
-          </div>
-
-          <div className="absolute -bottom-10 left-4 w-2/5 border-5 border-paper bg-paper shadow-2xl shadow-ink/20 sm:-left-3">
-            <div className="relative aspect-[4/3] overflow-hidden bg-paper-2">
+        {photos.length ? (
+          <div className="relative mb-14 w-full lg:mx-0">
+            <div className="relative aspect-[16/10] w-full overflow-hidden bg-paper-2 shadow-xl shadow-ink/10">
               <Image
-                src={images[1]}
+                src={photos[0]}
                 alt=""
                 fill
                 className="object-cover"
-                sizes="(min-width: 1024px) 18vw, 35vw"
+                sizes="(min-width: 1024px) 45vw, 90vw"
               />
             </div>
+
+            {photos[1] ? (
+              <div className="absolute -bottom-10 left-4 w-2/5 border-5 border-paper bg-paper shadow-2xl shadow-ink/20 sm:-left-3">
+                <div className="relative aspect-[4/3] overflow-hidden bg-paper-2">
+                  <Image
+                    src={photos[1]}
+                    alt=""
+                    fill
+                    className="object-cover"
+                    sizes="(min-width: 1024px) 18vw, 35vw"
+                  />
+                </div>
+              </div>
+            ) : null}
           </div>
-        </div>
+        ) : null}
 
         <div className="pt-14 lg:pt-0">
           {eyebrowText ? (
@@ -103,15 +112,17 @@ export function ServiceCraftsmanshipTransformsSection({
             </>
           )}
 
-          <div className="mt-9">
-            <Button
-              href={cta.href}
-              className="border-brass bg-brass text-white hover:border-brass-deep hover:bg-brass-deep"
-            >
-              {cta.label}
-              <ArrowRight className="h-4 w-4" aria-hidden />
-            </Button>
-          </div>
+          {cta?.label && cta?.href ? (
+            <div className="mt-9">
+              <Button
+                href={cta.href}
+                className="border-brass bg-brass text-white hover:border-brass-deep hover:bg-brass-deep"
+              >
+                {cta.label}
+                <ArrowRight className="h-4 w-4" aria-hidden />
+              </Button>
+            </div>
+          ) : null}
         </div>
       </div>
     </Section>

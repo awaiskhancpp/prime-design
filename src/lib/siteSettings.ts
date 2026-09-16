@@ -43,6 +43,15 @@ export type SiteSettingsValue = {
     serviceRegion?: string | null
     addresses?: Array<{ address?: string | null; link?: string | null }> | null
   }
+  /** Trust section ("Silicon Valley loves working with us!") for the Projects page. */
+  trustIntro?: {
+    eyebrow?: string
+    heading?: string
+    body?: string
+    image?: string
+    stats?: Array<{ value?: string; label?: string; showStars?: boolean }>
+    buttons?: Array<{ label: string; url: string; variant?: string }>
+  }
 }
 
 export type SiteArea = { name: string; slug: string }
@@ -103,10 +112,21 @@ type PayloadSiteSettings = {
     bbb?: string | null
   } | null
   serviceAreas?: Array<{ location?: { name?: string | null; slug?: string | null } } | number> | null
+  trustIntro?: {
+    eyebrow?: string | null
+    heading?: string | null
+    body?: string | null
+    image?: { url?: string | null } | number | null
+    stats?: Array<{ value?: string | null; label?: string | null; showStars?: boolean | null }> | null
+    buttons?: Array<{ label?: string | null; url?: string | null; variant?: string | null }> | null
+  } | null
 }
 
 const textOr = (value: string | null | undefined) =>
   typeof value === 'string' && value.trim() ? value : undefined
+
+const mediaUrl = (value: { url?: string | null } | number | null | undefined) =>
+  value && typeof value === 'object' && typeof value.url === 'string' ? value.url : undefined
 
 export async function resolveSiteAreas(): Promise<SiteArea[]> {
   if (!process.env.DATABASE_URL) return localAreas
@@ -135,6 +155,7 @@ export async function resolveSiteSettings(): Promise<SiteSettingsValue> {
   const settings = (await payload.findGlobal({ slug: 'site-settings', depth: 1 })) as PayloadSiteSettings
   const company = settings.company
   const social = settings.socialLinks
+  const trustRaw = settings.trustIntro
 
   return {
     name: textOr(company?.name) || localSettings.name,
@@ -162,5 +183,24 @@ export async function resolveSiteSettings(): Promise<SiteSettingsValue> {
     },
     topBanner: settings.topBanner ?? undefined,
     company: settings.company ?? undefined,
+    // Trust section (Projects page) — authored in Site Settings.
+    trustIntro: trustRaw
+      ? {
+          eyebrow: textOr(trustRaw.eyebrow),
+          heading: textOr(trustRaw.heading),
+          body: textOr(trustRaw.body),
+          image: mediaUrl(trustRaw.image),
+          stats: (trustRaw.stats ?? []).map((stat) => ({
+            value: textOr(stat?.value),
+            label: textOr(stat?.label),
+            showStars: Boolean(stat?.showStars),
+          })),
+          buttons: (trustRaw.buttons ?? []).flatMap((button) =>
+            textOr(button?.label) && textOr(button?.url)
+              ? [{ label: textOr(button?.label)!, url: textOr(button?.url)!, variant: textOr(button?.variant) }]
+              : [],
+          ),
+        }
+      : undefined,
   }
 }

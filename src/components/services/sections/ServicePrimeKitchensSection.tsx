@@ -26,10 +26,16 @@ export function ServicePrimeKitchensSection({
 
   return (
     <Section className="bg-white">
+      {/*
+        No fallback copy: every string here renders the Payload `primeKitchens`
+        group verbatim. If a field is blank in the CMS it must read as blank on
+        the page — a hardcoded default that happens to match the real content
+        makes a broken CMS wiring look like a working one.
+      */}
       <SectionHeader
         align="center"
         eyebrow={content.eyebrow}
-        title={content.title || 'The Prime Difference'}
+        title={content.title ?? ''}
         description={content.description}
       />
 
@@ -42,18 +48,20 @@ export function ServicePrimeKitchensSection({
         </div>
       ) : null}
 
-      <div className="mx-auto mt-10 grid max-w-4xl gap-10 md:grid-cols-3">
+      <div className=" mt-10 grid gap-10 md:grid-cols-3">
         {cards.map((card) => (
           <article key={card.title} className="flex flex-col items-center text-center">
-            <div className="relative aspect-square w-full max-w-[260px] overflow-hidden ">
-              <Image
-                src={card.image || '/services/kitchen-remodeling.jpeg'}
-                alt={card.title}
-                fill
-                className="object-cover"
-                sizes="(min-width: 768px) 33vw, 100vw"
-              />
-            </div>
+            {card.image ? (
+              <div className="relative aspect-square w-full  overflow-hidden ">
+                <Image
+                  src={card.image}
+                  alt={card.title}
+                  fill
+                  className="object-cover"
+                  sizes="(min-width: 768px) 33vw, 100vw"
+                />
+              </div>
+            ) : null}
             <h4 className="mt-5 font-display text-lg font-medium leading-snug text-ink-2">
               {card.title}
             </h4>

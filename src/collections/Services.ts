@@ -379,8 +379,20 @@ export const Services: CollectionConfig = {
               label: 'Craftsmanship photos',
               admin: {
                 description:
-                  'The two photos in the "Craftsmanship That Transforms" section (large + small overlap). Falls back to the hero image when empty.',
+                  'The two photos in the "Craftsmanship That Transforms" section (large + small overlap). The section renders without a photo when empty — nothing is substituted.',
               },
+            },
+            {
+              name: 'craftsmanshipCta',
+              type: 'group',
+              label: 'Craftsmanship Section Button',
+              admin: {
+                description: 'Button under the craftsmanship copy. Leave empty for no button.',
+              },
+              fields: [
+                { name: 'label', type: 'text' },
+                { name: 'href', type: 'text' },
+              ],
             },
             {
               name: 'clientApproach',
@@ -443,7 +455,8 @@ export const Services: CollectionConfig = {
               type: 'group',
               label: 'Silicon Valley Loves Section',
               admin: {
-                description: 'Structured "Silicon Valley Loves Working With Us!" section.',
+                description:
+                  'The trust section ("Silicon Valley loves working with us!") rendered with the projects-page design. All content is authored here — nothing is hardcoded.',
               },
               fields: [
                 { name: 'eyebrow', type: 'text' },
@@ -453,10 +466,38 @@ export const Services: CollectionConfig = {
                 {
                   name: 'stats',
                   type: 'array',
+                  admin: {
+                    description:
+                      'The floating stat card (e.g. rating / review count / projects built). Add one row per block.',
+                  },
                   fields: [
                     { name: 'value', type: 'text' },
                     { name: 'label', type: 'text' },
                     { name: 'detail', type: 'text' },
+                    {
+                      name: 'showStars',
+                      type: 'checkbox',
+                      defaultValue: false,
+                      admin: { description: 'Render five stars above the value (for ratings).' },
+                    },
+                  ],
+                },
+                {
+                  name: 'buttons',
+                  type: 'array',
+                  admin: { description: 'Call-to-action buttons under the copy.' },
+                  fields: [
+                    { name: 'label', type: 'text', required: true },
+                    { name: 'url', type: 'text', required: true },
+                    {
+                      name: 'variant',
+                      type: 'select',
+                      defaultValue: 'outline',
+                      options: [
+                        { label: 'Outlined', value: 'outline' },
+                        { label: 'Brass (filled)', value: 'brass' },
+                      ],
+                    },
                   ],
                 },
               ],

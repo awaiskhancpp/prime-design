@@ -1,5 +1,6 @@
 import { LandingServiceAreasSection } from '@/components/landing/LandingServiceAreasSection'
 import { getServiceAreas } from '@/lib/serviceAreas.server'
+import { resolveSiteAreas } from '@/lib/siteSettings'
 
 const slugify = (value: string) =>
   value
@@ -19,6 +20,9 @@ const LOCATION_SERVICES = ['kitchen-remodeling', 'bathroom-remodeling', 'home-re
  * city (`/{service}/...-in-{city}`); every other page starts with
  * `kitchen-remodeling`. The list ends with the "And surrounding cities!"
  * pill linking to /contact.
+ *
+ * Pages without their own location records use the shared areas list from
+ * Site Settings (Payload) — the same CMS source the rest of the site uses.
  */
 export async function ServiceAreasStrip({
   serviceSlug,
@@ -27,19 +31,23 @@ export async function ServiceAreasStrip({
   serviceSlug: string
   heading?: string
 }) {
-  // Only Kitchen, Bathroom, Home Remodeling and the Home Repair page have
-  // their own location records. Every other page (ADU, Additions, Complete
-  // Renovation, Finance, …) still shows the shared "Areas we service" strip
-  // in WordPress — listing the same cities — so fall back to the
-  // kitchen-remodeling list that those pills already link to.
   const own = await getServiceAreas(serviceSlug)
-  const areas = own.length ? own : await getServiceAreas('kitchen-remodeling')
-  if (!areas.length) return null
   const prefix = LOCATION_SERVICES.includes(serviceSlug) ? serviceSlug : 'kitchen-remodeling'
-  const items = areas.map((area) => ({
-    label: area.location.name,
-    href: `/${prefix}/${prefix}-in-${slugify(area.location.name)}`,
+
+  let names = own.map((area) => area.location.name)
+  if (!names.length) {
+    const shared = await resolveSiteAreas()
+    names = shared.map((area) => area.name)
+  }
+  if (!names.length) return null
+
+  const items = names.map((name) => ({
+    label: name,
+    href: `/${prefix}/${prefix}-in-${slugify(name)}`,
   }))
   items.push({ label: 'And surrounding cities!', href: '/contact' })
-  return <LandingServiceAreasSection heading={heading || 'Areas we service'} areas={items} />
+  // The heading is passed through exactly as Payload has it (the service's
+  // `areasWeService.heading`). No default — an empty heading here means the
+  // CMS field is empty, and that should be visible rather than papered over.
+  return <LandingServiceAreasSection heading={heading} areas={items} />
 }

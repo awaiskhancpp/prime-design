@@ -6,8 +6,15 @@ import { Button } from '@/components/ui/Button'
 
 type Area = { label?: string; href?: string }
 
+/**
+ * Every string rendered here comes from the caller (a Payload `service-areas`
+ * block, or a service's `areasWeService` group). There are deliberately no
+ * default headings or eyebrows: a section that invents its own copy when the
+ * CMS field is empty makes it impossible to tell whether the content is
+ * actually wired to Payload.
+ */
 export function LandingServiceAreasSection({
-  eyebrow = 'Service areas',
+  eyebrow,
   heading,
   description,
   ctaLabel,
@@ -28,16 +35,20 @@ export function LandingServiceAreasSection({
     <Section className="bg-white text-ink">
       <div className="grid gap-10 pt-10 lg:grid-cols-[0.85fr_1.15fr] lg:items-start lg:gap-20">
         <div>
-          <p className="text-xs font-semibold uppercase tracking-[0.2em] text-brass">{eyebrow}</p>
-          <h2 className="mt-3 max-w-sm font-display text-3xl font-medium leading-tight tracking-tight md:text-4xl">
-            {heading || 'Built across Silicon Valley, one neighborhood at a time.'}
-          </h2>
+          {eyebrow ? (
+            <p className="text-xs font-semibold uppercase tracking-[0.2em] text-brass">{eyebrow}</p>
+          ) : null}
+          {heading ? (
+            <h2 className="mt-3 max-w-sm font-display text-3xl font-medium leading-tight tracking-tight md:text-4xl">
+              {heading}
+            </h2>
+          ) : null}
           {description ? (
             <p className="mt-4 max-w-sm text-base text-ink/70">{description}</p>
           ) : null}
           {ctaHref ? (
             <Button href={ctaHref} variant="line" className="mt-6 text-ink">
-              {ctaLabel || 'Explore all areas'}
+              {ctaLabel}
               <ArrowUpRight className="h-4 w-4" aria-hidden />
             </Button>
           ) : null}

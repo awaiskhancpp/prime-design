@@ -61,13 +61,16 @@ export function ServiceHero({ service }: { service: ServiceDetail }) {
       <div className="pointer-events-none absolute inset-0 z-[1] bg-[linear-gradient(90deg,rgba(20,33,61,0.55)_0%,rgba(20,33,61,0.3)_45%,rgba(20,33,61,0.12)_100%),linear-gradient(0deg,rgba(20,33,61,0.45)_0%,transparent_65%)]" />
 
       <Container className="relative z-10 w-full">
-        <div className="max-w-3xl">
+        <div className="max-w-4xl">
           {service.eyebrow ? (
             <p className="mb-5 text-xs font-semibold uppercase tracking-[0.2em] text-brass">
               {service.eyebrow}
             </p>
           ) : null}
-          <h1 className="max-w-2xl font-display text-5xl font-medium leading-tight tracking-tight md:text-7xl">
+          {/* Wider measure than the copy below: long WordPress headings (e.g.
+              the European Kitchen slogan) otherwise wrap to four lines, which
+              pushed the whole block up to the middle of the hero. */}
+          <h1 className="max-w-4xl font-display text-5xl font-medium leading-tight tracking-tight md:text-7xl">
             {service.heroHeading || service.title}
           </h1>
           <p className="mt-7 max-w-xl text-base leading-7 text-white/75 md:text-lg">

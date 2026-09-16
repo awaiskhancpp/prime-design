@@ -21,7 +21,7 @@ import {
   getRealHomesContent,
   ServiceRealHomesStoriesSection,
 } from './sections/ServiceRealHomesStoriesSection'
-import { ServiceSiliconValleyLovesSection } from './sections/ServiceSiliconValleyLovesSection'
+import { ProjectsTrustIntro } from '@/components/projects/ProjectsTrustIntro'
 import { ServicePrimeKitchensSection } from './sections/ServicePrimeKitchensSection'
 import { ServiceIconChecklistGallerySection } from './ServiceIconCheckListGallerySection'
 import { ServiceImageChecklistSection } from './ServiceImageCheckListSection'
@@ -114,6 +114,15 @@ export function ServiceTemplate({ service }: { service: ServiceDetail }) {
   // ---- 1. Resolve layout flags and curated content ----------------------
 
   const sections = getServicePageSections(service.slug)
+
+  // Section orders/conditions in this file are keyed by the WordPress
+  // `-silicon-valley` slugs, while the service records carry the base slug
+  // (e.g. `european-kitchen`). Normalise both ways so either matches.
+  const slugKey = service.slug.replace(/-silicon-valley$/, '')
+  const slugMatches = (...targets: string[]) =>
+    targets.includes(service.slug) ||
+    targets.includes(slugKey) ||
+    targets.includes(`${slugKey}-silicon-valley`)
   // Every service page uses the gallery/Contact design (the default
   // `contactVariant` is 'gallery').
   const ContactSection = sections.contactVariant === 'gallery' ? GalleryContact : HomeContact
@@ -219,8 +228,7 @@ export function ServiceTemplate({ service }: { service: ServiceDetail }) {
       // section on WordPress — their content is the CMS sections, so the
       // static Key Features / Benefits overview never renders for them.
       node:
-        service.slug === 'custom-kitchen-silicon-valley' ||
-        service.slug === 'shaker-kitchen-silicon-valley' ? null : !sections.homeRepairCategories && hasOverviewRich ? (
+        slugMatches('custom-kitchen', 'shaker-kitchen') ? null : !sections.homeRepairCategories && hasOverviewRich ? (
           // Rich-text overview lists (Key Features / Benefits / Process) from
           // Payload take priority over both the legacy checklist blocks and
           // the built-in static arrays.
@@ -395,6 +403,13 @@ export function ServiceTemplate({ service }: { service: ServiceDetail }) {
               description: step.description || '',
               image: step.image,
             }))
+            // The craftsmanship heading is the process copy split so the last
+            // word can carry the gradient accent — no hardcoded wording.
+            const processWords = (payloadProcess.title || '').trim().split(/\s+/)
+            const accentWord = processWords.length > 1 ? processWords[processWords.length - 1] : ''
+            const headingLead = accentWord
+              ? processWords.slice(0, -1).join(' ')
+              : payloadProcess.title || ''
             // Home Remodeling keeps the bespoke "A Client-Centered Approach"
             // design (side image + steps), now fed from Payload. Bathroom shows
             // only the steps (its header lives in the craftsmanship slot).
@@ -404,7 +419,7 @@ export function ServiceTemplate({ service }: { service: ServiceDetail }) {
                   title={payloadProcess.title}
                   description={payloadProcess.description}
                   steps={steps}
-                  sideImage={service.clientApproachImage || '/prime-design-phone.webp'}
+                  sideImage={service.clientApproachImage}
                 />
               )
             }
@@ -422,21 +437,14 @@ export function ServiceTemplate({ service }: { service: ServiceDetail }) {
             return (
               <>
                 {/* "Our Process / We make it easy for you" — craftsmanship design
-                    (2 images + button + heading + text), separate from steps. */}
+                    (photos + button + heading + text), separate from steps. */}
                 <ServiceCraftsmanshipTransformsSection
                   eyebrow={payloadProcess.eyebrow || ''}
-                  heading="We make it easy for"
-                  headingAccent="you"
+                  heading={headingLead}
+                  headingAccent={accentWord}
                   body={payloadProcess.description ? [payloadProcess.description] : []}
-                  images={
-                    service.craftsmanshipImages?.length
-                      ? [
-                          service.craftsmanshipImages[0],
-                          service.craftsmanshipImages[1] ?? service.craftsmanshipImages[0],
-                        ]
-                      : [service.image, service.image]
-                  }
-                  cta={{ label: 'Free on-site estimate', href: '/contact' }}
+                  images={service.craftsmanshipImages}
+                  cta={service.craftsmanshipCta}
                 />
                 {/* Steps — separate section, no repeated header. */}
                 <ServiceProcessSection
@@ -468,12 +476,10 @@ export function ServiceTemplate({ service }: { service: ServiceDetail }) {
             heading=""
             headingAccent=""
             body={[]}
-            images={
-              service.craftsmanshipImages?.length
-                ? [service.craftsmanshipImages[0], service.craftsmanshipImages[1] ?? service.craftsmanshipImages[0]]
-                : [service.image, service.image]
-            }
-            cta={{ label: 'Free on-site estimate', href: '/contact' }}
+            // Photos and the button come from Payload only — the section
+            // renders without them when they are not authored.
+            images={service.craftsmanshipImages}
+            cta={service.craftsmanshipCta}
             content={service.craftsmanship}
           />
         ) : null),
@@ -484,13 +490,14 @@ export function ServiceTemplate({ service }: { service: ServiceDetail }) {
       // the city-pill strip (LandingServiceAreasSection, rendered by the
       // `areas-we-service` slot) — no "Service areas" cards section.
       node:
-        service.slug === 'comprehensive-home-repair-installation-services-in-silicon-valley' ||
-        service.slug === 'european-kitchen-silicon-valley' ||
-        service.slug === 'custom-kitchen-silicon-valley' ||
-        service.slug === 'shaker-kitchen-silicon-valley' ||
-        service.slug === 'adu' ||
-        service.slug === 'finance' ? null : service.slug === 'additions' ||
-          service.slug === 'complete-renovation' ? (
+        slugMatches(
+          'comprehensive-home-repair-installation-services-in-silicon-valley',
+          'european-kitchen',
+          'custom-kitchen',
+          'shaker-kitchen',
+          'adu',
+          'finance',
+        ) ? null : slugMatches('additions', 'complete-renovation') ? (
           <LandscapingServiceAreas serviceSlug={service.slug} />
         ) : (
           (cmsSlotNodes.get('service-areas') ?? <ServiceAreasSection service={service} />)
@@ -498,18 +505,19 @@ export function ServiceTemplate({ service }: { service: ServiceDetail }) {
     },
     {
       key: 'areas-we-service',
-      node:
-        service.slug === 'kitchen-remodeling' ||
-        service.slug === 'bathroom-remodeling' ||
-        service.slug === 'home-remodeling' ||
-        service.slug === 'comprehensive-home-repair-installation-services-in-silicon-valley' ||
-        service.slug === 'european-kitchen-silicon-valley' ||
-        service.slug === 'custom-kitchen-silicon-valley' ||
-        service.slug === 'shaker-kitchen-silicon-valley' ||
-        service.slug === 'adu' ||
-        service.slug === 'finance' ? (
-          <ServiceAreasStrip serviceSlug={service.slug} heading={service.areasWeService?.heading} />
-        ) : null,
+      node: slugMatches(
+        'kitchen-remodeling',
+        'bathroom-remodeling',
+        'home-remodeling',
+        'comprehensive-home-repair-installation-services-in-silicon-valley',
+        'european-kitchen',
+        'custom-kitchen',
+        'shaker-kitchen',
+        'adu',
+        'finance',
+      ) ? (
+        <ServiceAreasStrip serviceSlug={service.slug} heading={service.areasWeService?.heading} />
+      ) : null,
     },
     {
       key: 'quote',
@@ -557,7 +565,7 @@ export function ServiceTemplate({ service }: { service: ServiceDetail }) {
                 description: step.description || '',
                 image: step.image,
               }))}
-              sideImage={service.clientApproachImage || '/prime-design-phone.webp'}
+              sideImage={service.clientApproachImage}
             />
           ) : service.clientApproach ? (
             <ServiceClientApproachSection
@@ -573,7 +581,16 @@ export function ServiceTemplate({ service }: { service: ServiceDetail }) {
         cmsSlotNodes.get('silicon-valley-loves') ??
         (sections.siliconValleyLoves &&
         (service.siliconValleyLoves?.heading || service.siliconValleyLoves?.body) ? (
-          <ServiceSiliconValleyLovesSection content={service.siliconValleyLoves} />
+          // Rendered with the Projects-page trust design (the redesign), from
+          // this service's own Silicon Valley Loves content in Payload.
+          <ProjectsTrustIntro
+            eyebrow={service.siliconValleyLoves?.eyebrow}
+            heading={service.siliconValleyLoves?.heading}
+            body={service.siliconValleyLoves?.body}
+            image={service.siliconValleyLoves?.image}
+            stats={service.siliconValleyLoves?.stats}
+            buttons={service.siliconValleyLoves?.buttons}
+          />
         ) : null),
     },
     {
@@ -709,15 +726,18 @@ export function ServiceTemplate({ service }: { service: ServiceDetail }) {
       'areas-we-service',
     ],
     // Custom Kitchen (WP page custom-kitchen-silicon-valley): estimate →
-    // video (moved out of the hero) → icon checklist gallery → image
-    // checklist → materials showcase → "Why Choose Prime Kitchens? / The
-    // Prime Difference" → reviews → contact → the shared "Areas we service"
-    // strip.
+    // video (moved out of the hero) → image checklist ("Your Vision, Our
+    // Expertise / The Power of Customization") → icon checklist gallery
+    // ("Endless Possibilities / Discover Your Signature Style") → materials
+    // showcase ("Uncompromising Quality / Materials Crafted to Perfection")
+    // → "Why Choose Prime Kitchens? / The Prime Difference" → reviews →
+    // contact → the shared "Areas we service" strip. That is the order the
+    // WordPress page runs them in.
     'custom-kitchen-silicon-valley': [
       'estimate',
       'video',
-      'icon-checklist-gallery',
       'image-checklist',
+      'icon-checklist-gallery',
       'materials-showcase',
       'prime-kitchens',
       'reviews',
@@ -756,11 +776,17 @@ export function ServiceTemplate({ service }: { service: ServiceDetail }) {
     finance: ['cms-body', 'faq', 'areas-we-service'],
   }
 
+  // Section orders/conditions in this file are keyed by the WordPress
+  // `-silicon-valley` slugs, while the service records carry the base slug
+  // (e.g. `european-kitchen`). `slugKey`/`slugMatches` are declared above the
+  // section nodes so both the conditions and this lookup can use them.
+
   const order: string[] = service.sectionOrder?.length
     ? service.sectionOrder
-    : PAGE_SECTION_ORDERS[service.slug]
-      ? PAGE_SECTION_ORDERS[service.slug]
-      : [...FALLBACK_SECTION_ORDER]
+    : (PAGE_SECTION_ORDERS[service.slug] ??
+        PAGE_SECTION_ORDERS[slugKey] ??
+        PAGE_SECTION_ORDERS[`${slugKey}-silicon-valley`] ??
+        [...FALLBACK_SECTION_ORDER])
 
   const rank = (key: string) => {
     const index = order.indexOf(key)

@@ -216,10 +216,11 @@ function renderOfferings(
   // WordPress accent heading renders as the card's eyebrow above its heading.
   // The European cards keep their bullet lists (plus italic lead-in labels);
   // the Shaker cards carry paragraph bodies instead.
-  if (
-    service.slug === 'european-kitchen-silicon-valley' ||
-    service.slug === 'shaker-kitchen-silicon-valley'
-  ) {
+  // Conditions use the base slug too — the CMS records are `european-kitchen`
+  // / `shaker-kitchen`, while the WordPress URLs carry the `-silicon-valley`
+  // suffix.
+  const baseSlug = service.slug.replace(/-silicon-valley$/, '')
+  if (baseSlug === 'european-kitchen' || baseSlug === 'shaker-kitchen') {
     const categories = cards.map((card) => ({
       eyebrow: card.description,
       title: card.title,
@@ -425,10 +426,8 @@ function renderFinanceProcess(block: RawBlock): RenderedSection {
         title={str(block.heading)}
         description={intro}
         steps={steps}
-        // Same phone mockup the Home Remodeling / Complete Renovation
-        // process sections use, placed in flow (no scroll pinning) so the
-        // finance page matches those sections.
-        sideImage="/prime-design-phone.webp"
+        // The phone image is authored on the block — no hardcoded path.
+        sideImage={mediaUrl(block.media)}
         stickySideImage={false}
       />
     ),
@@ -491,9 +490,10 @@ export function renderSection(
   // The European Kitchen page replaces the standard Prime Difference design
   // with the bespoke "Why Choose Prime Kitchens?" three-card section (from
   // the service's `primeKitchens` group), so its legacy block renders nothing.
+  // (The CMS record is `european-kitchen`; the URL carries the suffix.)
   if (
     blockType === 'prime-difference' &&
-    service.slug === 'european-kitchen-silicon-valley'
+    service.slug.replace(/-silicon-valley$/, '') === 'european-kitchen'
   ) {
     return null
   }
