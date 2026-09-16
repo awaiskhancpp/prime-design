@@ -2458,6 +2458,106 @@ export interface Page {
             blockType: 'contact';
           }
         | {
+            heading?: string | null;
+            description?: string | null;
+            /**
+             * One card per clip. Upload the file, or paste an external URL.
+             */
+            videos?:
+              | {
+                  title?: string | null;
+                  /**
+                   * Caption under the title — usually the project manager.
+                   */
+                  speaker?: string | null;
+                  video?: (number | null) | Media;
+                  /**
+                   * Used when no file is uploaded (e.g. a bunny.net URL).
+                   */
+                  externalUrl?: string | null;
+                  poster?: (number | null) | Media;
+                  id?: string | null;
+                }[]
+              | null;
+            id?: string | null;
+            blockName?: string | null;
+            blockType: 'testimonial-videos';
+          }
+        | {
+            /**
+             * Rating badges shown across the top (Yelp, Google, Houzz, BBB).
+             */
+            badges?:
+              | {
+                  image?: (number | null) | Media;
+                  /**
+                   * Used when no upload is set (files live in /public/social).
+                   */
+                  imagePath?: string | null;
+                  alt?: string | null;
+                  id?: string | null;
+                }[]
+              | null;
+            /**
+             * One entry per review platform.
+             */
+            stats?:
+              | {
+                  /**
+                   * e.g. "Google reviews".
+                   */
+                  label?: string | null;
+                  rating?: number | null;
+                  count?: number | null;
+                  url?: string | null;
+                  /**
+                   * e.g. "Read all reviews on Google".
+                   */
+                  linkLabel?: string | null;
+                  id?: string | null;
+                }[]
+              | null;
+            /**
+             * How many featured testimonials to show as cards below the badges. Cards come from the Testimonials collection (featured, by sort order) — they are not stored on this page.
+             */
+            reviewLimit?: number | null;
+            id?: string | null;
+            blockName?: string | null;
+            blockType: 'review-highlights';
+          }
+        | {
+            eyebrow?: string | null;
+            heading?: string | null;
+            body?: {
+              root: {
+                type: string;
+                children: {
+                  type: any;
+                  version: number;
+                  [k: string]: unknown;
+                }[];
+                direction: ('ltr' | 'rtl') | null;
+                format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+                indent: number;
+                version: number;
+              };
+              [k: string]: unknown;
+            } | null;
+            ctaLabel?: string | null;
+            ctaHref?: string | null;
+            /**
+             * Small line beside the button ("Ready to talk?").
+             */
+            ctaNote?: string | null;
+            /**
+             * How many testimonials to pull into the marquee. Empty shows every featured testimonial.
+             */
+            reviewLimit?: number | null;
+            id?: string | null;
+            blockName?: string | null;
+            blockType: 'testimonials-spotlight';
+          }
+        | {
             /**
              * Heading only — the city list is shared site-wide via Site Settings service areas.
              */
@@ -2767,6 +2867,10 @@ export interface Testimonial {
   location?: string | null;
   rating?: number | null;
   source?: string | null;
+  /**
+   * Relative date as the review platform shows it, e.g. "5 months ago". Rendered beside the source on the Testimonials page.
+   */
+  timeAgo?: string | null;
   image?: (number | null) | Media;
   featured?: boolean | null;
   sortOrder?: number | null;
@@ -5565,6 +5669,62 @@ export interface PagesSelect<T extends boolean = true> {
               id?: T;
               blockName?: T;
             };
+        'testimonial-videos'?:
+          | T
+          | {
+              heading?: T;
+              description?: T;
+              videos?:
+                | T
+                | {
+                    title?: T;
+                    speaker?: T;
+                    video?: T;
+                    externalUrl?: T;
+                    poster?: T;
+                    id?: T;
+                  };
+              id?: T;
+              blockName?: T;
+            };
+        'review-highlights'?:
+          | T
+          | {
+              badges?:
+                | T
+                | {
+                    image?: T;
+                    imagePath?: T;
+                    alt?: T;
+                    id?: T;
+                  };
+              stats?:
+                | T
+                | {
+                    label?: T;
+                    rating?: T;
+                    count?: T;
+                    url?: T;
+                    linkLabel?: T;
+                    id?: T;
+                  };
+              reviewLimit?: T;
+              id?: T;
+              blockName?: T;
+            };
+        'testimonials-spotlight'?:
+          | T
+          | {
+              eyebrow?: T;
+              heading?: T;
+              body?: T;
+              ctaLabel?: T;
+              ctaHref?: T;
+              ctaNote?: T;
+              reviewLimit?: T;
+              id?: T;
+              blockName?: T;
+            };
         'service-areas'?:
           | T
           | {
@@ -5725,6 +5885,7 @@ export interface TestimonialsSelect<T extends boolean = true> {
   location?: T;
   rating?: T;
   source?: T;
+  timeAgo?: T;
   image?: T;
   featured?: T;
   sortOrder?: T;

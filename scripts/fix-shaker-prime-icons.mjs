@@ -17,6 +17,25 @@ const u = env.match(/^DATABASE_URL=(.+)$/m)[1].trim()
 const c = new Client({ connectionString: u })
 await c.connect()
 
+/**
+ * The prime-difference block is resolved through the service slug, never by a
+ * literal block id. The uuid used to be inlined into both statements below and
+ * stopped existing when the block was rewritten with a fresh one, so every
+ * update matched nothing and the script reported "NOT FOUND" for all four
+ * icons while appearing to succeed.
+ */
+const SERVICE_SLUG = 'shaker-kitchen'
+const blockRow = await c.query(
+  `select b.id from services_blocks_prime_difference b
+     join services s on s.id = b._parent_id
+    where s.slug = $1`,
+  [SERVICE_SLUG],
+)
+if (!blockRow.rows.length)
+  throw new Error(`No prime-difference block on the "${SERVICE_SLUG}" service`)
+const BLOCK_ID = blockRow.rows[0].id
+console.log(`${SERVICE_SLUG} prime-difference block -> ${BLOCK_ID}`)
+
 const ICONS = {
   'Customer Satisfaction': '/customer-satisfaction.svg',
   Expertise: '/professional-expertise.svg',
@@ -28,16 +47,17 @@ for (const [title, path] of Object.entries(ICONS)) {
   const r = await c.query(
     `update services_blocks_prime_difference_features
        set icon_source_svg_url = $1
-     where _parent_id = '5bea4421-5ea0-47e4-8dab-ac25ac7bb20c' and title = $2
+     where _parent_id = $2 and title = $3
      returning title`,
-    [path, title],
+    [path, BLOCK_ID, title],
   )
   console.log(r.rows.length ? `updated: ${title} -> ${path}` : `NOT FOUND: ${title}`)
 }
 
 const check = await c.query(
   `select title, icon_source_svg_url from services_blocks_prime_difference_features
-   where _parent_id = '5bea4421-5ea0-47e4-8dab-ac25ac7bb20c' order by _order`,
+   where _parent_id = $1 order by _order`,
+  [BLOCK_ID],
 )
 console.log(JSON.stringify(check.rows))
 await c.end()

@@ -14,7 +14,25 @@ const u = env.match(/^DATABASE_URL=(.+)$/m)[1].trim()
 const c = new Client({ connectionString: u })
 await c.connect()
 
-const BLOCK_ID = '5bea4421-5ea0-47e4-8dab-ac25ac7bb20c'
+/**
+ * The prime-difference block is resolved through the service slug, never by a
+ * literal block id. This was a hardcoded
+ * `BLOCK_ID = '5bea4421-5ea0-47e4-8dab-ac25ac7bb20c'`, which stopped existing
+ * when the block was rewritten with a fresh uuid: every statement below then
+ * matched nothing, so this script reported "NOT FOUND" for every row (and the
+ * insert variant parented new rows to a dead id, where nothing can read them).
+ */
+const SERVICE_SLUG = 'shaker-kitchen'
+const blockRow = await c.query(
+  `select b.id from services_blocks_prime_difference b
+     join services s on s.id = b._parent_id
+    where s.slug = $1`,
+  [SERVICE_SLUG],
+)
+if (!blockRow.rows.length)
+  throw new Error(`No prime-difference block on the "${SERVICE_SLUG}" service`)
+const BLOCK_ID = blockRow.rows[0].id
+console.log(`${SERVICE_SLUG} prime-difference block -> ${BLOCK_ID}`)
 
 const SOCIALS = [
   { match: '%Social-Media-Links-2.png', image: '/social/Yelp.png', url: 'https://www.yelp.com/biz/prime-kitchens-santa-clara' },

@@ -23,7 +23,7 @@ export async function HomeContact({ contactIntro }: { contactIntro?: PageHeading
     : "If you have any questions or you'd like to find out more about our services, please get in touch."
   return (
     <Section id="contact" className="bg-white">
-      <div className="grid gap-12  border border-line  p-8 md:p-12 lg:grid-cols-[0.85fr_1.15fr] lg:gap-20">
+      <div className="grid gap-12 border border-line p-8 md:p-12 lg:grid-cols-[0.85fr_1.15fr] lg:gap-20">
         <div>
           <SectionHeader
             eyebrow={contactIntro?.eyebrow || 'Contact'}

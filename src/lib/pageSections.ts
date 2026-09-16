@@ -143,6 +143,35 @@ export type PageCtaContent = {
   href?: string
 }
 
+export type PageTestimonialVideosContent = {
+  heading?: string
+  description?: string
+  videos: Array<{ title?: string; speaker?: string; url: string; poster?: string }>
+}
+
+export type PageReviewHighlightsContent = {
+  badges: Array<{ image: string; alt: string }>
+  stats: Array<{
+    label?: string
+    rating?: number
+    count?: number
+    url?: string
+    linkLabel?: string
+  }>
+  /** How many featured testimonials to render as cards. */
+  reviewLimit?: number
+}
+
+export type PageTestimonialsSpotlightContent = {
+  eyebrow?: string
+  heading?: string
+  body?: RichTextValue
+  ctaLabel?: string
+  ctaHref?: string
+  ctaNote?: string
+  reviewLimit?: number
+}
+
 export type PageSection =
   | { type: 'hero'; content: PageHeroContent }
   | { type: 'intro'; content: PageIntroContent }
@@ -159,6 +188,9 @@ export type PageSection =
   | { type: 'gallery-tabs'; content: { heading?: string; description?: string } }
   | { type: 'why-choose-us'; content: PageWhyChooseUsContent }
   | { type: 'contact'; content: { city?: string; poster?: string } }
+  | { type: 'testimonial-videos'; content: PageTestimonialVideosContent }
+  | { type: 'review-highlights'; content: PageReviewHighlightsContent }
+  | { type: 'testimonials-spotlight'; content: PageTestimonialsSpotlightContent }
   | { type: 'service-areas'; content: { heading?: string } }
   | { type: 'custom'; content: CustomSectionContent }
   | { type: 'content'; content: PageGenericContent }
@@ -378,6 +410,62 @@ export function toPageSection(block: PageBlock): PageSection | undefined {
       return {
         type: 'contact',
         content: { city: optionalText(block.city), poster: mediaUrl(block.poster) },
+      }
+    case 'testimonial-videos':
+      return {
+        type: 'testimonial-videos',
+        content: {
+          heading: optionalText(block.heading),
+          description: optionalText(block.description),
+          videos: (Array.isArray(block.videos) ? block.videos : [])
+            .map((value) => group(value))
+            .map((value) => ({
+              title: optionalText(value.title),
+              speaker: optionalText(value.speaker),
+              // An uploaded file wins; the external URL is the fallback the
+              // WordPress source used.
+              url: mediaUrl(value.video) || text(value.externalUrl),
+              poster: mediaUrl(value.poster),
+            }))
+            .filter((value) => value.url),
+        },
+      }
+    case 'review-highlights':
+      return {
+        type: 'review-highlights',
+        content: {
+          badges: (Array.isArray(block.badges) ? block.badges : [])
+            .map((value) => group(value))
+            .map((value) => ({
+              image: mediaUrl(value.image) || text(value.imagePath),
+              alt: text(value.alt),
+            }))
+            .filter((value) => value.image),
+          stats: (Array.isArray(block.stats) ? block.stats : [])
+            .map((value) => group(value))
+            .map((value) => ({
+              label: optionalText(value.label),
+              rating: typeof value.rating === 'number' ? value.rating : undefined,
+              count: typeof value.count === 'number' ? value.count : undefined,
+              url: optionalText(value.url),
+              linkLabel: optionalText(value.linkLabel),
+            }))
+            .filter((value) => value.label || value.rating || value.linkLabel),
+          reviewLimit: typeof block.reviewLimit === 'number' ? block.reviewLimit : undefined,
+        },
+      }
+    case 'testimonials-spotlight':
+      return {
+        type: 'testimonials-spotlight',
+        content: {
+          eyebrow: optionalText(block.eyebrow),
+          heading: optionalText(block.heading),
+          body: rich(block.body),
+          ctaLabel: optionalText(block.ctaLabel),
+          ctaHref: optionalText(block.ctaHref),
+          ctaNote: optionalText(block.ctaNote),
+          reviewLimit: typeof block.reviewLimit === 'number' ? block.reviewLimit : undefined,
+        },
       }
     case 'service-areas':
       return { type: 'service-areas', content: { heading: optionalText(block.heading) } }

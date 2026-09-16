@@ -1,5 +1,5 @@
 import React from 'react'
-import { Fraunces, Outfit } from 'next/font/google'
+import { Outfit } from 'next/font/google'
 import { headers } from 'next/headers'
 
 import { LandscapingCta } from '@/components/blocks/LandscapingCta'
@@ -16,12 +16,6 @@ const outfit = Outfit({
   subsets: ['latin'],
   weight: ['300', '400', '500', '600', '700', '800', '900'],
   variable: '--font-outfit',
-  display: 'swap',
-})
-
-const fraunces = Fraunces({
-  subsets: ['latin'],
-  variable: '--font-fraunces',
   display: 'swap',
 })
 
@@ -59,7 +53,7 @@ export default async function RootLayout(props: { children: React.ReactNode }) {
 
   if (bare) {
     return (
-      <html lang="en" className={`${outfit.variable} ${fraunces.variable}`}>
+      <html lang="en" className={outfit.variable}>
         <body>{children}</body>
       </html>
     )
@@ -73,7 +67,7 @@ export default async function RootLayout(props: { children: React.ReactNode }) {
       : 'dark'
 
   return (
-    <html lang="en" className={`${outfit.variable} ${fraunces.variable}`}>
+    <html lang="en" className={outfit.variable}>
       <body>
         <TopBanner />
         <div className="relative">

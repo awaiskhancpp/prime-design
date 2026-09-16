@@ -33,6 +33,7 @@ import * as migration_20260916_010000_services_hero_image_secondary from './2026
 import * as migration_20260916_120000_trust_section_fields from './20260916_120000_trust_section_fields';
 import * as migration_20260916_130000_craftsmanship_cta from './20260916_130000_craftsmanship_cta';
 import * as migration_20260916_140000_repair_category_eyebrow from './20260916_140000_repair_category_eyebrow';
+import * as migration_20260916_150000_testimonials_page_sections from './20260916_150000_testimonials_page_sections';
 
 export const migrations = [
   {
@@ -209,5 +210,10 @@ export const migrations = [
     up: migration_20260916_140000_repair_category_eyebrow.up,
     down: migration_20260916_140000_repair_category_eyebrow.down,
     name: '20260916_140000_repair_category_eyebrow',
+  },
+  {
+    up: migration_20260916_150000_testimonials_page_sections.up,
+    down: migration_20260916_150000_testimonials_page_sections.down,
+    name: '20260916_150000_testimonials_page_sections',
   },
 ];

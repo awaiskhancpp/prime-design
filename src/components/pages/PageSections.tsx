@@ -22,11 +22,15 @@ import { Contact } from '@/components/gallery/Contact'
 import { GalleryTabs } from '@/components/gallery/GalleryTab'
 import { WhyChooseUs } from '@/components/gallery/WhyChooseUs'
 import { SectionHero } from './SectionHero'
+import { TestimonialVideos } from '@/components/testimonials/TestimonialVideos'
+import { ReviewHighlights } from '@/components/testimonials/ReviewHighlights'
+import { TestimonialsSpotlight } from '@/components/testimonials/TestimonialsSpotlight'
 
 import type { AboutTeamMember } from '@/lib/team'
 import type { GalleryCategory } from '@/lib/gallery.server'
 import type { Service } from '@/lib/services'
 import type { SiteSettingsValue } from '@/lib/siteSettings'
+import type { CollectionTestimonial } from '@/lib/testimonialsCollection.server'
 
 /**
  * Everything a section might need that isn't stored on the page itself:
@@ -39,6 +43,12 @@ export type PageSectionContext = {
   galleryCategories?: GalleryCategory[]
   phone?: string
   socialLinks?: SiteSettingsValue['socialLinks']
+  /**
+   * Testimonials collection records, for the sections that show reviews. They
+   * are passed in rather than stored on the page, mirroring the WordPress
+   * slider's query loop over the `testimonial` post type.
+   */
+  testimonials?: CollectionTestimonial[]
 }
 
 /**
@@ -149,6 +159,30 @@ function PageSectionNode({
 
     case 'contact':
       return <Contact city={section.content.city} poster={section.content.poster} />
+
+    case 'testimonial-videos':
+      return <TestimonialVideos content={section.content} />
+
+    case 'review-highlights':
+      return (
+        <ReviewHighlights content={section.content} testimonials={context.testimonials ?? []} />
+      )
+
+    case 'testimonials-spotlight': {
+      const reviews = context.testimonials ?? []
+      const limit = section.content.reviewLimit
+      return (
+        <TestimonialsSpotlight
+          reviews={limit && limit > 0 ? reviews.slice(0, limit) : reviews}
+          eyebrow={section.content.eyebrow}
+          heading={section.content.heading}
+          body={section.content.body}
+          ctaLabel={section.content.ctaLabel}
+          ctaHref={section.content.ctaHref}
+          ctaNote={section.content.ctaNote}
+        />
+      )
+    }
 
     case 'service-areas':
       return <LandscapingServiceAreas heading={section.content.heading} />

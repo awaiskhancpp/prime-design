@@ -1,5 +1,5 @@
 /**
- * European Kitchen (service id 10) — payload migration for the section
+ * European Kitchen — payload migration for the section
  * structure authored on the WordPress page `european-kitchen-silicon-valley`:
  *
  *   hero   → background IMAGE (no video), one button "Schedule a Consultation"
@@ -27,12 +27,23 @@ const env = readFileSync(new URL('../.env', import.meta.url), 'utf8')
 const u = env.match(/^DATABASE_URL=(.+)$/m)[1].trim()
 if (!u) throw new Error('DATABASE_URL not found in .env')
 
-const SERVICE_ID = 10
+const SERVICE_SLUG = 'european-kitchen'
 const HERO_VIDEO_URL =
   'https://tagmediaspace.b-cdn.net/Prime%20Kitchens/01.19.2023%20Prime%20Kitchens%201794%20San%20Luis%20Ave%20Mountain%20View.mp4'
 
 const client = new Client({ connectionString: u })
 await client.connect()
+
+// ---- 0. Resolve the service row -------------------------------------------
+// Resolved by slug, never by a literal id. This was `const SERVICE_ID = 10`,
+// which silently went stale when the services table was reseeded and the row
+// became id 7: every write below then landed on a row that does not exist,
+// so the script exited 0 having changed nothing while the page's sections came
+// back empty. Failing loudly beats writing into the void.
+const found = await client.query('select id from services where slug = $1', [SERVICE_SLUG])
+if (!found.rows.length) throw new Error(`No service row with slug "${SERVICE_SLUG}"`)
+const SERVICE_ID = found.rows[0].id
+console.log(`service "${SERVICE_SLUG}" resolved to id ${SERVICE_ID}`)
 
 // ---- 1. Hero group: image background, single button, clean lead ----------
 await client.query(`ALTER TABLE services ADD COLUMN IF NOT EXISTS prime_kitchens_eyebrow varchar`)

@@ -1,5 +1,5 @@
 /**
- * Shaker Kitchen (service id 12) — payload migration for the WordPress page
+ * Shaker Kitchen — payload migration for the WordPress page
  * `shaker-kitchen-silicon-valley`. All copy verbatim from the WP XML.
  *
  *   hero   → background IMAGE, one button "Schedule a Consultation" → #contact
@@ -26,7 +26,7 @@ const env = readFileSync(new URL('../.env', import.meta.url), 'utf8')
 const u = env.match(/^DATABASE_URL=(.+)$/m)[1].trim()
 if (!u) throw new Error('DATABASE_URL not found in .env')
 
-const SERVICE_ID = 12
+const SERVICE_SLUG = 'shaker-kitchen'
 const HERO_VIDEO_URL =
   'https://tagmediaspace.b-cdn.net/Prime%20Kitchens/05.03.2023%20Daniel%20CLIENT%20PRIME%20KITCHEN%20(2%20videos%20)%202365%20Cryer%20St%20Hayward.mp4'
 const HERO_IMAGE_SOURCE =
@@ -35,6 +35,17 @@ const WP = (name) => `https://primedesignandbuild.com/wp-content/uploads/2023/05
 
 const client = new Client({ connectionString: u })
 await client.connect()
+
+// ---- 0. Resolve the service row -------------------------------------------
+// Resolved by slug, never by a literal id. This was `const SERVICE_ID = 12`,
+// which silently went stale when the services table was reseeded and the row
+// became id 9: every write below then landed on a row that does not exist,
+// so the script exited 0 having changed nothing while the page's sections came
+// back empty. Failing loudly beats writing into the void.
+const found = await client.query('select id from services where slug = $1', [SERVICE_SLUG])
+if (!found.rows.length) throw new Error(`No service row with slug "${SERVICE_SLUG}"`)
+const SERVICE_ID = found.rows[0].id
+console.log(`service "${SERVICE_SLUG}" resolved to id ${SERVICE_ID}`)
 
 // ---- 1. Hero media + hero group ------------------------------------------
 let heroImageId = (

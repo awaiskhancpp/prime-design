@@ -22,9 +22,6 @@ export type ServiceOfferingsContent = {
   secondaryCta?: { label: string; href: string }
 }
 
-const kitchenImage = '/services/kitchen-remodeling.jpeg'
-const bathroomImage = '/before-after/bathroom_remodeling_after.jpeg'
-
 export function ServiceOfferingsSection({
   eyebrow,
   title,
@@ -55,7 +52,12 @@ export function ServiceOfferingsSection({
 
   const content = (
     <>
-      <SectionHeader align="center" eyebrow={eyebrow} title={shownTitle} description={description} />
+      <SectionHeader
+        align="center"
+        eyebrow={eyebrow}
+        title={shownTitle}
+        description={description}
+      />
 
       {(primaryCta || secondaryCta) && (
         <div className="mt-8 flex flex-wrap items-center justify-center gap-3">

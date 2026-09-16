@@ -20,7 +20,7 @@ import { LandingServiceAreasSection } from './LandingServiceAreasSection'
 import { LandingFaqSection } from './LandingFaqSection'
 import { LandingBookingSection } from './LandingBookingSection'
 import { LandingContact } from './Contact'
-import { TestimonialsSpotlight } from '@/components/testimonials/TestimonialsSpotlight'
+import { TestimonialsSpotlightSection } from '@/components/testimonials/TestimonialsSpotlightSection'
 import { LandingTestimonialsSection } from '@/components/landing/LandingTestimonialsSection'
 import { faqCategories } from '@/lib/faq'
 import { richTextHasContent, richTextToPlainText, type RichTextValue } from '@/lib/richText'
@@ -552,7 +552,7 @@ export const landingBlockRegistry: Record<string, Renderer> = {
     />
   ),
   faq: FaqBlock,
-  testimonials: () => <TestimonialsSpotlight />,
+  testimonials: () => <TestimonialsSpotlightSection />,
   // `landing-testimonials` — the structured version WordPress authors on the
   // Google-Ads landing pages ("Our Happy Customers"). When the block carries
   // providers with reviews it renders the CMS-driven provider-tabs marquee;
@@ -589,7 +589,7 @@ export const landingBlockRegistry: Record<string, Renderer> = {
         />
       )
     }
-    return <TestimonialsSpotlight heading={text(block.heading) || undefined} />
+    return <TestimonialsSpotlightSection heading={text(block.heading) || undefined} />
   },
   booking: ({ block }) => (
     <LandingBookingSection heading={text(block.heading) || 'Request an Estimate Appointment'} />

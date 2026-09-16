@@ -369,6 +369,125 @@ export const contactFormBlock: Block = {
   ],
 }
 
+/**
+ * The Testimonials page's video wall (WordPress page `testimonials`, second
+ * Bricks section — seven `<video>` elements with bunny.net sources).
+ */
+export const testimonialVideosBlock: Block = {
+  slug: 'testimonial-videos',
+  labels: { singular: 'Testimonial Videos', plural: 'Testimonial Videos' },
+  fields: [
+    { name: 'heading', type: 'text' },
+    { name: 'description', type: 'textarea' },
+    {
+      name: 'videos',
+      type: 'array',
+      admin: { description: 'One card per clip. Upload the file, or paste an external URL.' },
+      fields: [
+        { name: 'title', type: 'text' },
+        {
+          name: 'speaker',
+          type: 'text',
+          admin: { description: 'Caption under the title — usually the project manager.' },
+        },
+        { name: 'video', type: 'upload', relationTo: 'media' },
+        {
+          name: 'externalUrl',
+          type: 'text',
+          admin: { description: 'Used when no file is uploaded (e.g. a bunny.net URL).' },
+        },
+        { name: 'poster', type: 'upload', relationTo: 'media' },
+      ],
+    },
+  ],
+}
+
+/**
+ * The aggregate review strip — rating badges, the per-platform score/count,
+ * and the "read all reviews" links.
+ *
+ * On WordPress this whole section is a third-party plugin shortcode
+ * (`[brb_collection id="1223"]`), so there is no WordPress content to migrate:
+ * the numbers come from Google and Yelp. They live here so they can be updated
+ * in the admin instead of being edited in code.
+ */
+export const reviewHighlightsBlock: Block = {
+  slug: 'review-highlights',
+  labels: { singular: 'Review Highlights', plural: 'Review Highlights' },
+  fields: [
+    {
+      name: 'badges',
+      type: 'array',
+      admin: { description: 'Rating badges shown across the top (Yelp, Google, Houzz, BBB).' },
+      fields: [
+        { name: 'image', type: 'upload', relationTo: 'media' },
+        {
+          name: 'imagePath',
+          type: 'text',
+          admin: { description: 'Used when no upload is set (files live in /public/social).' },
+        },
+        { name: 'alt', type: 'text' },
+      ],
+    },
+    {
+      name: 'stats',
+      type: 'array',
+      admin: { description: 'One entry per review platform.' },
+      fields: [
+        { name: 'label', type: 'text', admin: { description: 'e.g. "Google reviews".' } },
+        { name: 'rating', type: 'number' },
+        { name: 'count', type: 'number' },
+        { name: 'url', type: 'text' },
+        { name: 'linkLabel', type: 'text', admin: { description: 'e.g. "Read all reviews on Google".' } },
+      ],
+    },
+    {
+      name: 'reviewLimit',
+      type: 'number',
+      admin: {
+        description:
+          'How many featured testimonials to show as cards below the badges. Cards come from the Testimonials collection (featured, by sort order) — they are not stored on this page.',
+      },
+    },
+  ],
+}
+
+/**
+ * "Testimonials that Matter / Real Results, Real People" — the scrolling
+ * review marquee.
+ *
+ * On WordPress this is a Bricks slider whose query loop reads the
+ * `testimonial` custom post type (`{"objectType":"post","post_type":
+ * ["testimonial"]}`) and prints `{post_title}` / `{post_content}` per slide.
+ * The Payload equivalent is the same split: this block stores only the
+ * section's own copy, and the cards are read from the Testimonials collection
+ * at render time. Nothing about an individual review is duplicated here.
+ */
+export const testimonialsSpotlightBlock: Block = {
+  slug: 'testimonials-spotlight',
+  labels: { singular: 'Testimonials Spotlight', plural: 'Testimonials Spotlight' },
+  fields: [
+    { name: 'eyebrow', type: 'text' },
+    { name: 'heading', type: 'text' },
+    { name: 'body', type: 'richText' },
+    { name: 'ctaLabel', type: 'text' },
+    { name: 'ctaHref', type: 'text' },
+    {
+      name: 'ctaNote',
+      type: 'text',
+      admin: { description: 'Small line beside the button ("Ready to talk?").' },
+    },
+    {
+      name: 'reviewLimit',
+      type: 'number',
+      admin: {
+        description:
+          'How many testimonials to pull into the marquee. Empty shows every featured testimonial.',
+      },
+    },
+  ],
+}
+
 export const serviceAreasBlock: Block = {
   slug: 'service-areas',
   labels: { singular: 'Service Areas', plural: 'Service Areas' },
@@ -401,6 +520,9 @@ export const sectionBlocks: Block[] = [
   galleryTabsBlock,
   whyChooseUsBlock,
   contactFormBlock,
+  testimonialVideosBlock,
+  reviewHighlightsBlock,
+  testimonialsSpotlightBlock,
   serviceAreasBlock,
   customSectionBlock,
 ]
