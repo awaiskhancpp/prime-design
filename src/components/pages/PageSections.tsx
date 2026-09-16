@@ -23,6 +23,8 @@ import { GalleryTabs } from '@/components/gallery/GalleryTab'
 import { WhyChooseUs } from '@/components/gallery/WhyChooseUs'
 import { SectionHero } from './SectionHero'
 import { FaqExplorer } from '@/components/faq/FaqExplorer'
+import { ConsultationGrid } from '@/components/contact/ConsultationGrid'
+import { SectionHeader } from '@/components/ui/SectionHeader'
 import { TestimonialVideos } from '@/components/testimonials/TestimonialVideos'
 import { ReviewHighlights } from '@/components/testimonials/ReviewHighlights'
 import { TestimonialsSpotlight } from '@/components/testimonials/TestimonialsSpotlight'
@@ -33,6 +35,7 @@ import type { Service } from '@/lib/services'
 import type { SiteSettingsValue } from '@/lib/siteSettings'
 import type { CollectionTestimonial } from '@/lib/testimonialsCollection.server'
 import type { FaqIndexCategory } from '@/lib/faqIndex.server'
+import type { ConsultationType } from '@/lib/consultations'
 
 /**
  * Everything a section might need that isn't stored on the page itself:
@@ -57,6 +60,9 @@ export type PageSectionContext = {
    * taxonomy.
    */
   faqCategories?: FaqIndexCategory[]
+  /** Consultation types for the contact page's picker. */
+  consultations?: ConsultationType[]
+  phoneClean?: string
 }
 
 /**
@@ -191,6 +197,27 @@ function PageSectionNode({
         />
       )
     }
+
+    case 'consultations':
+      return (
+        <Section className="bg-white">
+          {section.content.heading || section.content.eyebrow ? (
+            <div className="mb-10">
+              <SectionHeader
+                align="center"
+                eyebrow={section.content.eyebrow}
+                title={section.content.heading ?? ''}
+                description={section.content.description}
+              />
+            </div>
+          ) : null}
+          <ConsultationGrid
+            consultations={context.consultations ?? []}
+            phone={context.phone}
+            phoneClean={context.phoneClean}
+          />
+        </Section>
+      )
 
     case 'faq-index':
       return <FaqExplorer content={section.content} categories={context.faqCategories ?? []} />

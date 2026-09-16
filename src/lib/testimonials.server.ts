@@ -42,7 +42,8 @@ export async function getFeaturedTestimonials(): Promise<FeaturedTestimonial[]> 
       }))
     }
     return []
-  } catch {
+  } catch (error) {
+    console.error('getFeaturedTestimonials: could not load featured testimonials', error)
     return []
   }
 }

@@ -1,10 +1,8 @@
 import { Mail, MapPin, Phone } from 'lucide-react'
 
 import website from '../../../website.json'
-import { Button } from '@/components/ui/Button'
-import { Input } from '@/components/ui/Input'
+import { LeadForm } from '@/components/forms/LeadForm'
 import { Section } from '@/components/ui/Section'
-import { Textarea } from '@/components/ui/Textarea'
 import { resolveSiteSettings } from '@/lib/siteSettings'
 
 // WordPress contact-section walkthrough (template 1495/1584/1639) — the
@@ -80,47 +78,14 @@ export async function Contact({ city, poster }: { city?: string; poster?: string
             )}
           </div>
 
-          <form className="mt-10 grid gap-6 bg-white p-8 shadow-sm border border-black/5 ">
-            <div className="grid gap-5 sm:grid-cols-2">
-              <label className="grid gap-2 text-sm font-medium text-ink-2">
-                First Name*
-                <Input name="firstName" autoComplete="given-name" required className="mt-1" />
-              </label>
-              <label className="grid gap-2 text-sm font-medium text-ink-2">
-                Last Name*
-                <Input name="lastName" autoComplete="family-name" required className="mt-1" />
-              </label>
-            </div>
-
-            <div className="grid gap-5 sm:grid-cols-2">
-              <label className="grid gap-2 text-sm font-medium text-ink-2">
-                Email*
-                <Input type="email" name="email" autoComplete="email" required className="mt-1" />
-              </label>
-              <label className="grid gap-2 text-sm font-medium text-ink-2">
-                Phone*
-                <Input type="tel" name="phone" autoComplete="tel" required className="mt-1" />
-              </label>
-            </div>
-
-            <label className="grid gap-2 text-sm font-medium text-ink-2">
-              Subject
-              <Input name="subject" className="mt-1" />
-            </label>
-
-            <label className="grid gap-2 text-sm font-medium text-ink-2">
-              Tell Us About Your Project
-              <Textarea
-                name="message"
-                placeholder="Type your message..."
-                className="mt-1 min-h-[120px]"
-              />
-            </label>
-
-            <Button type="submit" variant="primary" className="w-full sm:w-fit mt-2">
-              {website.contactForm.submitLabel}
-            </Button>
-          </form>
+          <LeadForm
+            className="mt-10 gap-6 bg-white p-8 shadow-sm border border-black/5"
+            inputClassName="mt-1"
+            textareaClassName="min-h-[120px]"
+            submitClassName="w-full sm:w-fit mt-2"
+            submitLabel={website.contactForm.submitLabel}
+            messagePlaceholder="Type your message..."
+          />
         </div>
 
         {/* Right Column: Sticky Media */}

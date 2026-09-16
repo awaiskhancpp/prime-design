@@ -40,7 +40,8 @@ export async function getGalleryCategories(): Promise<GalleryCategory[]> {
         images: (category.images ?? []).map(mediaUrl).filter((url): url is string => Boolean(url)),
       }))
       .filter((category) => category.images.length)
-  } catch {
+  } catch (error) {
+    console.error('getGalleryCategories: could not load gallery categories', error)
     return []
   }
 }

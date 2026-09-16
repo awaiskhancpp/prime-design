@@ -181,6 +181,12 @@ export type PageFaqIndexContent = {
   emptyMessage?: string
 }
 
+export type PageConsultationsContent = {
+  eyebrow?: string
+  heading?: string
+  description?: string
+}
+
 export type PageSection =
   | { type: 'hero'; content: PageHeroContent }
   | { type: 'intro'; content: PageIntroContent }
@@ -201,6 +207,7 @@ export type PageSection =
   | { type: 'review-highlights'; content: PageReviewHighlightsContent }
   | { type: 'testimonials-spotlight'; content: PageTestimonialsSpotlightContent }
   | { type: 'faq-index'; content: PageFaqIndexContent }
+  | { type: 'consultations'; content: PageConsultationsContent }
   | { type: 'service-areas'; content: { heading?: string } }
   | { type: 'custom'; content: CustomSectionContent }
   | { type: 'content'; content: PageGenericContent }
@@ -475,6 +482,15 @@ export function toPageSection(block: PageBlock): PageSection | undefined {
           ctaHref: optionalText(block.ctaHref),
           ctaNote: optionalText(block.ctaNote),
           reviewLimit: typeof block.reviewLimit === 'number' ? block.reviewLimit : undefined,
+        },
+      }
+    case 'consultations':
+      return {
+        type: 'consultations',
+        content: {
+          eyebrow: optionalText(block.eyebrow),
+          heading: optionalText(block.heading),
+          description: optionalText(block.description),
         },
       }
     case 'faq-index':

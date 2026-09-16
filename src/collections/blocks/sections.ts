@@ -523,6 +523,25 @@ export const faqIndexBlock: Block = {
   ],
 }
 
+/**
+ * The contact page's consultation picker.
+ *
+ * WordPress authors the six consultation cards inline under a "Schedule Your
+ * Free Consultation" heading. Here the cards are Consultations records, so
+ * this block stores only the section's own copy and the cards are read from
+ * the collection at render time — the same split the FAQ and testimonials
+ * pages use.
+ */
+export const consultationsBlock: Block = {
+  slug: 'consultations',
+  labels: { singular: 'Consultation Picker', plural: 'Consultation Pickers' },
+  fields: [
+    { name: 'eyebrow', type: 'text' },
+    { name: 'heading', type: 'text' },
+    { name: 'description', type: 'textarea' },
+  ],
+}
+
 export const serviceAreasBlock: Block = {
   slug: 'service-areas',
   labels: { singular: 'Service Areas', plural: 'Service Areas' },
@@ -556,6 +575,7 @@ export const sectionBlocks: Block[] = [
   whyChooseUsBlock,
   contactFormBlock,
   faqIndexBlock,
+  consultationsBlock,
   testimonialVideosBlock,
   reviewHighlightsBlock,
   testimonialsSpotlightBlock,

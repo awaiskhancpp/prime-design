@@ -21,10 +21,15 @@ const iconMap: Record<string, LucideIcon> = {
 }
 
 /**
- * Adaptive gallery grid — handles 1-4+ images without assuming an exact
- * count, since real per-page content won't always have exactly 4 photos.
- * 1 image: single frame. 2: side-by-side. 3: one large + two stacked.
- * 4+: even 2x2 grid (only the first 4 are shown).
+ * Adaptive gallery — handles 1-4+ images without assuming an exact count,
+ * since real per-page content won't always have exactly 4 photos.
+ * 1: single frame. 2: side-by-side. 3: one tall + two stacked.
+ * 4+: two columns with the right column dropped, echoing the staggered
+ * collage of the WordPress source rather than a flat, static 2x2.
+ *
+ * Keys are composite (`src` + index) because migrated galleries in this
+ * project genuinely repeat the same file, which would collide on `src`
+ * alone and drop images from the render.
  */
 function ImageGrid({ images, alt }: { images: string[]; alt: string }) {
   const shown = images.slice(0, 4)
@@ -47,9 +52,12 @@ function ImageGrid({ images, alt }: { images: string[]; alt: string }) {
 
   if (shown.length === 2) {
     return (
-      <div className="grid grid-cols-2 gap-3">
+      <div className="grid grid-cols-2 gap-4">
         {shown.map((src, index) => (
-          <div key={src} className="relative aspect-[3/4] overflow-hidden">
+          <div
+            key={`${src}-${index}`}
+            className={`relative aspect-[3/4] overflow-hidden ${index === 1 ? 'mt-8' : ''}`}
+          >
             <Image
               src={src}
               alt={`${alt} ${index + 1}`}
@@ -65,12 +73,12 @@ function ImageGrid({ images, alt }: { images: string[]; alt: string }) {
 
   if (shown.length === 3) {
     return (
-      <div className="grid grid-cols-2 gap-3">
+      <div className="grid grid-cols-2 gap-4">
         <div className="relative row-span-2 aspect-[3/5] overflow-hidden">
           <Image src={shown[0]} alt={`${alt} 1`} fill className="object-cover" sizes="22vw" />
         </div>
         {shown.slice(1).map((src, index) => (
-          <div key={src} className="relative aspect-[4/3] overflow-hidden">
+          <div key={`${src}-${index}`} className="relative aspect-[4/3] overflow-hidden">
             <Image
               src={src}
               alt={`${alt} ${index + 2}`}
@@ -84,17 +92,36 @@ function ImageGrid({ images, alt }: { images: string[]; alt: string }) {
     )
   }
 
+  // 4+: staggered two-column collage. The right column is offset downward
+  // and the aspect ratios alternate, so the block reads as a composition
+  // rather than a uniform grid of square crops.
   return (
-    <div className="grid grid-cols-2 gap-3">
-      {shown.map((src, index) => (
-        <div key={src} className="relative aspect-square overflow-hidden">
-          <Image src={src} alt={`${alt} ${index + 1}`} fill className="object-cover" sizes="22vw" />
+    <div className="grid grid-cols-2 gap-4">
+      <div className="grid gap-4">
+        <div className="relative aspect-[4/3] overflow-hidden">
+          <Image src={shown[0]} alt={`${alt} 1`} fill className="object-cover" sizes="22vw" />
         </div>
-      ))}
+        <div className="relative aspect-[3/4] overflow-hidden">
+          <Image src={shown[2]} alt={`${alt} 3`} fill className="object-cover" sizes="22vw" />
+        </div>
+      </div>
+      <div className="grid gap-4 md:mt-10">
+        <div className="relative aspect-[3/4] overflow-hidden">
+          <Image src={shown[1]} alt={`${alt} 2`} fill className="object-cover" sizes="22vw" />
+        </div>
+        <div className="relative aspect-[4/3] overflow-hidden">
+          <Image src={shown[3]} alt={`${alt} 4`} fill className="object-cover" sizes="22vw" />
+        </div>
+      </div>
     </div>
   )
 }
 
+/**
+ * Icon checklist + photo collage. Image sits on the RIGHT here,
+ * deliberately mirroring ServiceImageChecklistSection (image left), so
+ * consecutive sections alternate instead of stacking the same shape twice.
+ */
 export function ServiceIconChecklistGallerySection({
   eyebrow,
   heading,
@@ -111,7 +138,7 @@ export function ServiceIconChecklistGallerySection({
   return (
     <section className=" py-16 md:py-24">
       <Container>
-        <div className=" grid  gap-14 px-6 md:grid-cols-2 md:items-center md:gap-16">
+        <div className="grid gap-14 md:grid-cols-[1.05fr_0.95fr] md:items-start md:gap-16">
           <div>
             {eyebrow ? (
               <p className="font-display text-lg italic text-ink-2/80">{eyebrow}</p>
@@ -119,13 +146,21 @@ export function ServiceIconChecklistGallerySection({
             <h2 className="mt-3 font-display text-3xl font-medium leading-tight tracking-tight text-ink md:text-4xl">
               {heading}
             </h2>
+            {/* Short brass rule — same header anchor used by the sibling
+                section, so the pair reads as one family. */}
+            <span className="mt-7 block h-px w-16 bg-brass" aria-hidden />
 
-            <ul className="mt-9 grid gap-7">
-              {items.map(({ icon, title, description }) => {
+            <ul className="mt-9 grid">
+              {items.map(({ icon, title, description }, index) => {
                 const Icon = iconMap[icon] ?? Sparkles
                 return (
-                  <li key={title} className="flex gap-4">
-                    <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full border border-brass/40 text-brass-deep">
+                  <li
+                    key={title}
+                    className={`group flex gap-4 py-5 ${
+                      index === 0 ? 'pt-0' : 'border-t border-line'
+                    }`}
+                  >
+                    <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full border border-brass/40 text-brass-deep transition-colors duration-300 group-hover:border-brass group-hover:bg-brass group-hover:text-white">
                       <Icon className="h-5 w-5" strokeWidth={1.5} aria-hidden />
                     </span>
                     <div>
@@ -138,14 +173,7 @@ export function ServiceIconChecklistGallerySection({
             </ul>
           </div>
 
-          {/* Offset brass frame behind the whole gallery — same motif used
-            elsewhere on the site (intro/contact sections) — instead of the
-            hard navy/brass color-block split this replaces. */}
-          <div className="relative">
-            <div className="relative">
-              <ImageGrid images={images} alt={imageAlt} />
-            </div>
-          </div>
+          <ImageGrid images={images} alt={imageAlt} />
         </div>
       </Container>
     </section>

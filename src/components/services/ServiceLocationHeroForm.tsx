@@ -4,10 +4,8 @@ import { getPayload } from 'payload'
 
 import configPromise from '@payload-config'
 import { BrandMark } from '@/components/layout/BrandMark'
-import { Button } from '@/components/ui/Button'
+import { LeadForm } from '@/components/forms/LeadForm'
 import { Container } from '@/components/ui/Container'
-import { Input } from '@/components/ui/Input'
-import { Textarea } from '@/components/ui/Textarea'
 import type { ServiceDetail } from '@/lib/services'
 import type { Location } from '@/lib/serviceLocations'
 import { resolveSiteSettings } from '@/lib/siteSettings'
@@ -86,7 +84,8 @@ async function resolveHeroBackground(): Promise<string | undefined> {
     // prefer the local blob copy; the WordPress source URL remains the
     // fallback.
     return media?.url || media?.sourceUrl || undefined
-  } catch {
+  } catch (error) {
+    console.error('ServiceLocationHeroForm: could not load the hero background media', error)
     return undefined
   }
 }
@@ -190,42 +189,14 @@ export async function ServiceLocationHeroForm({
               started.
             </p>
 
-            <form className="mt-6 grid gap-4">
-              <div className="grid gap-4 sm:grid-cols-2">
-                <label className="grid gap-2 text-sm font-medium text-ink-2">
-                  First Name*
-                  <Input name="firstName" autoComplete="given-name" required />
-                </label>
-                <label className="grid gap-2 text-sm font-medium text-ink-2">
-                  Last Name*
-                  <Input name="lastName" autoComplete="family-name" required />
-                </label>
-              </div>
-
-              <label className="grid gap-2 text-sm font-medium text-ink-2">
-                Email*
-                <Input type="email" name="email" autoComplete="email" required />
-              </label>
-
-              <label className="grid gap-2 text-sm font-medium text-ink-2">
-                Phone*
-                <Input type="tel" name="phone" autoComplete="tel" required />
-              </label>
-
-              <label className="grid gap-2 text-sm font-medium text-ink-2">
-                Subject*
-                <Input name="subject" required />
-              </label>
-
-              <label className="grid gap-2 text-sm font-medium text-ink-2">
-                Tell Us About Your Project*
-                <Textarea name="message" placeholder="Tell Us About Your Project" required />
-              </label>
-
-              <Button type="submit" variant="primary" className="mt-2 w-full justify-center">
-                Request A Quote
-              </Button>
-            </form>
+            <LeadForm
+              className="mt-6 gap-4"
+              layout="stacked"
+              requireSubject
+              submitLabel="Request A Quote"
+              submitClassName="mt-2 w-full justify-center"
+              messagePlaceholder="Tell Us About Your Project"
+            />
           </div>
         </div>
       </Container>

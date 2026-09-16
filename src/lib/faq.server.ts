@@ -51,7 +51,8 @@ export async function getFaqItems(categoryTitle: string): Promise<FaqItem[]> {
     return (faqs.docs as Array<{ question?: string; answer?: unknown }>)
       .filter((doc) => doc.question && doc.answer)
       .map((doc) => ({ question: doc.question as string, answer: doc.answer as RichTextValue }))
-  } catch {
+  } catch (error) {
+    console.error(`getFaqItems: could not load FAQs for category "${categoryTitle}"`, error)
     return []
   }
 }

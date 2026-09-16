@@ -77,7 +77,8 @@ export async function getServiceAreas(serviceSlug: string): Promise<ServiceLocat
       // Only the cities WordPress lists in this section, in WP order.
       .filter((area) => cityOrder.includes(area.location.name))
       .sort((a, b) => cityOrder.indexOf(a.location.name) - cityOrder.indexOf(b.location.name))
-  } catch {
+  } catch (error) {
+    console.error(`getServiceAreas: could not load service areas for "${serviceSlug}"`, error)
     return []
   }
 }

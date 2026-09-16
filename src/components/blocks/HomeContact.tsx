@@ -1,11 +1,9 @@
 import { Mail, MapPin, Phone } from 'lucide-react'
 
 import website from '../../../website.json'
-import { Button } from '@/components/ui/Button'
-import { Input } from '@/components/ui/Input'
+import { LeadForm } from '@/components/forms/LeadForm'
 import { Section } from '@/components/ui/Section'
 import { SectionHeader } from '@/components/ui/SectionHeader'
-import { Textarea } from '@/components/ui/Textarea'
 import { HighlightedText } from '@/components/ui/HighlightedText'
 import type { PageHeadingContent } from '@/lib/pageSections'
 import { richTextToPlainText } from '@/lib/richText'
@@ -57,43 +55,7 @@ export async function HomeContact({ contactIntro }: { contactIntro?: PageHeading
           </div>
         </div>
 
-        <form className="grid gap-5">
-          <div className="grid gap-5 sm:grid-cols-2">
-            <label className="grid gap-2 text-sm font-medium text-ink-2">
-              First Name*
-              <Input name="firstName" autoComplete="given-name" required />
-            </label>
-            <label className="grid gap-2 text-sm font-medium text-ink-2">
-              Last Name*
-              <Input name="lastName" autoComplete="family-name" required />
-            </label>
-          </div>
-
-          <div className="grid gap-5 sm:grid-cols-2">
-            <label className="grid gap-2 text-sm font-medium text-ink-2">
-              Email*
-              <Input type="email" name="email" autoComplete="email" required />
-            </label>
-            <label className="grid gap-2 text-sm font-medium text-ink-2">
-              Phone*
-              <Input type="tel" name="phone" autoComplete="tel" required />
-            </label>
-          </div>
-
-          <label className="grid gap-2 text-sm font-medium text-ink-2">
-            Subject
-            <Input name="subject" />
-          </label>
-
-          <label className="grid gap-2 text-sm font-medium text-ink-2">
-            Tell Us About Your Project
-            <Textarea name="message" placeholder="Type your message..." />
-          </label>
-
-          <Button type="submit" variant="primary" className="w-fit">
-            {website.contactForm.submitLabel}
-          </Button>
-        </form>
+        <LeadForm submitLabel={website.contactForm.submitLabel} messagePlaceholder="Type your message..." />
       </div>
     </Section>
   )

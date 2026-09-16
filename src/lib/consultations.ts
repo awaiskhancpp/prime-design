@@ -35,7 +35,7 @@ const fallbackConsultations: ConsultationType[] = [
   },
   {
     title: 'New Construction Consultation',
-    slug: 'new-construction',
+    slug: 'home-remodeling',
     duration: '~1 Hour',
     image: '/services/home-remodeling.jpeg',
     bookingUrl: '#contact',
@@ -72,7 +72,11 @@ const WP_CONTACT_ORDER = [
   'additions',
   'complete-renovation',
   'adu',
-  'new-construction',
+  // WordPress's "New Construction Consultation" card. There is no
+  // `new-construction` service — the card is backed by Home Remodeling, whose
+  // `consultationLabel` carries the card's title. Ordering by a slug that does
+  // not exist is what dropped this card from the page.
+  'home-remodeling',
   'kitchen-remodeling',
   'bathroom-remodeling',
 ]

@@ -98,7 +98,8 @@ async function landingPageResults(): Promise<SearchResult[]> {
           excerpt: page?.hero?.lead,
           section: 'Landing pages',
         }
-      } catch {
+      } catch (error) {
+        console.error(`searchSite: could not load landing page "${slug}"`, error)
         return { title: titleFromSlug(slug), url: `/${slug}`, section: 'Landing pages' }
       }
     }),
@@ -114,7 +115,8 @@ async function serviceResults(): Promise<SearchResult[]> {
       excerpt: s.description,
       section: 'Services',
     }))
-  } catch {
+  } catch (error) {
+    console.error('searchSite: could not load services', error)
     return []
   }
 }
@@ -128,7 +130,8 @@ async function projectResults(): Promise<SearchResult[]> {
       excerpt: p.summary || p.description,
       section: 'Projects',
     }))
-  } catch {
+  } catch (error) {
+    console.error('searchSite: could not load projects', error)
     return []
   }
 }
@@ -142,7 +145,8 @@ async function blogResults(): Promise<SearchResult[]> {
       excerpt: p.excerpt,
       section: 'Blog',
     }))
-  } catch {
+  } catch (error) {
+    console.error('searchSite: could not load blog posts', error)
     return []
   }
 }

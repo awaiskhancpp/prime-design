@@ -83,6 +83,7 @@ export interface Config {
     'blog-categories': BlogCategory;
     'landing-pages': LandingPage;
     'gallery-categories': GalleryCategory;
+    'contact-submissions': ContactSubmission;
     'payload-kv': PayloadKv;
     'payload-locked-documents': PayloadLockedDocument;
     'payload-preferences': PayloadPreference;
@@ -106,6 +107,7 @@ export interface Config {
     'blog-categories': BlogCategoriesSelect<false> | BlogCategoriesSelect<true>;
     'landing-pages': LandingPagesSelect<false> | LandingPagesSelect<true>;
     'gallery-categories': GalleryCategoriesSelect<false> | GalleryCategoriesSelect<true>;
+    'contact-submissions': ContactSubmissionsSelect<false> | ContactSubmissionsSelect<true>;
     'payload-kv': PayloadKvSelect<false> | PayloadKvSelect<true>;
     'payload-locked-documents': PayloadLockedDocumentsSelect<false> | PayloadLockedDocumentsSelect<true>;
     'payload-preferences': PayloadPreferencesSelect<false> | PayloadPreferencesSelect<true>;
@@ -2478,6 +2480,14 @@ export interface Page {
             blockType: 'faq-index';
           }
         | {
+            eyebrow?: string | null;
+            heading?: string | null;
+            description?: string | null;
+            id?: string | null;
+            blockName?: string | null;
+            blockType: 'consultations';
+          }
+        | {
             heading?: string | null;
             description?: string | null;
             /**
@@ -4054,6 +4064,65 @@ export interface GalleryCategory {
   createdAt: string;
 }
 /**
+ * Leads submitted through the site forms. Read-only record of what the visitor sent.
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "contact-submissions".
+ */
+export interface ContactSubmission {
+  id: number;
+  firstName: string;
+  lastName: string;
+  email: string;
+  /**
+   * Normalised to E.164 on submit; the raw input is kept in `meta`.
+   */
+  phone: string;
+  /**
+   * The six options the WordPress form offered. Blank when the form that submitted has no project selector.
+   */
+  projectType?:
+    | ('kitchen-remodeling' | 'bathroom-remodeling' | 'home-remodeling' | 'additions' | 'adu' | 'complete-renovation')
+    | null;
+  subject?: string | null;
+  message: string;
+  address?: string | null;
+  zipCode?: string | null;
+  consultationType?: string | null;
+  preferredDate?: string | null;
+  source: 'contact-page' | 'service-page' | 'location-page' | 'landing-page' | 'appointment' | 'other';
+  status: 'new' | 'contacted' | 'qualified' | 'archived';
+  /**
+   * Page the form was submitted from.
+   */
+  sourceUrl?: string | null;
+  notificationStatus?: ('pending' | 'not-configured' | 'sent' | 'failed') | null;
+  crmStatus?: ('pending' | 'not-configured' | 'synced' | 'failed') | null;
+  /**
+   * Last delivery error, if any.
+   */
+  deliveryError?: string | null;
+  recaptchaStatus?: ('not-configured' | 'verified' | 'skipped') | null;
+  /**
+   * Only set by reCAPTCHA v3.
+   */
+  recaptchaScore?: number | null;
+  /**
+   * Raw phone input, user agent and a hashed IP. No raw IP is stored.
+   */
+  meta?:
+    | {
+        [k: string]: unknown;
+      }
+    | unknown[]
+    | string
+    | number
+    | boolean
+    | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "payload-kv".
  */
@@ -4140,6 +4209,10 @@ export interface PayloadLockedDocument {
     | ({
         relationTo: 'gallery-categories';
         value: number | GalleryCategory;
+      } | null)
+    | ({
+        relationTo: 'contact-submissions';
+        value: number | ContactSubmission;
       } | null);
   globalSlug?: string | null;
   user: {
@@ -5701,6 +5774,15 @@ export interface PagesSelect<T extends boolean = true> {
               id?: T;
               blockName?: T;
             };
+        consultations?:
+          | T
+          | {
+              eyebrow?: T;
+              heading?: T;
+              description?: T;
+              id?: T;
+              blockName?: T;
+            };
         'testimonial-videos'?:
           | T
           | {
@@ -6743,6 +6825,34 @@ export interface GalleryCategoriesSelect<T extends boolean = true> {
   title?: T;
   slug?: T;
   images?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "contact-submissions_select".
+ */
+export interface ContactSubmissionsSelect<T extends boolean = true> {
+  firstName?: T;
+  lastName?: T;
+  email?: T;
+  phone?: T;
+  projectType?: T;
+  subject?: T;
+  message?: T;
+  address?: T;
+  zipCode?: T;
+  consultationType?: T;
+  preferredDate?: T;
+  source?: T;
+  status?: T;
+  sourceUrl?: T;
+  notificationStatus?: T;
+  crmStatus?: T;
+  deliveryError?: T;
+  recaptchaStatus?: T;
+  recaptchaScore?: T;
+  meta?: T;
   updatedAt?: T;
   createdAt?: T;
 }

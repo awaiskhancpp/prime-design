@@ -64,7 +64,8 @@ export async function resolveFeaturedTestimonials(limit = 50): Promise<Collectio
         location: doc.location ?? undefined,
         image: imageUrl(doc.image),
       }))
-  } catch {
+  } catch (error) {
+    console.error('resolveFeaturedTestimonials: could not load featured testimonials', error)
     return []
   }
 }

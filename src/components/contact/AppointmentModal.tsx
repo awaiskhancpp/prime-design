@@ -18,6 +18,17 @@ import {
 import { Button } from '@/components/ui/Button'
 import { Input } from '@/components/ui/Input'
 import { Textarea } from '@/components/ui/Textarea'
+import { cn } from '@/lib/utils'
+import {
+  email as emailRule,
+  minWords,
+  personName,
+  streetAddress,
+  usPhone,
+  usZip,
+  validateFields,
+  type FieldRules,
+} from '@/lib/formValidation'
 
 type AppointmentModalProps = {
   consultation: string | null
@@ -306,6 +317,7 @@ export function AppointmentScheduler({
     zipCode: string
     comments: string
   } | null>(null)
+  const [fieldErrors, setFieldErrors] = useState<Partial<Record<CustomerField, string>>>({})
   const [orderId] = useState(() => generateOrderId())
   const [showQr, setShowQr] = useState(false)
 
@@ -351,8 +363,9 @@ export function AppointmentScheduler({
 
   function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault()
-    const data = new FormData(event.currentTarget)
-    setCustomer({
+    const form = event.currentTarget
+    const data = new FormData(form)
+    const values = {
       firstName: String(data.get('firstName') || '').trim(),
       lastName: String(data.get('lastName') || '').trim(),
       email: String(data.get('email') || '').trim(),
@@ -360,7 +373,21 @@ export function AppointmentScheduler({
       address: String(data.get('address') || '').trim(),
       zipCode: String(data.get('zipCode') || '').trim(),
       comments: String(data.get('comments') || '').trim(),
-    })
+    }
+
+    // Every field is checked before the booking can advance to the review
+    // step, using the same rules as the site's other lead forms.
+    const found = validateFields(values, CUSTOMER_RULES)
+    setFieldErrors(found)
+    const firstInvalid = (Object.keys(CUSTOMER_RULES) as CustomerField[]).find(
+      (name) => found[name],
+    )
+    if (firstInvalid) {
+      form.querySelector<HTMLElement>(`[name="${firstInvalid}"]`)?.focus()
+      return
+    }
+
+    setCustomer(values)
     setStep(3)
   }
 
@@ -462,47 +489,71 @@ export function AppointmentScheduler({
             <div className="px-8 py-12 md:px-12">
               <h3 className="font-display text-3xl font-medium text-ink">Customer Information</h3>
               <div className="mt-8 grid gap-5 sm:grid-cols-2">
-                <Input
-                  name="firstName"
-                  placeholder="First Name"
-                  defaultValue={customer?.firstName}
-                  required
-                />
-                <Input
-                  name="lastName"
-                  placeholder="Last Name"
-                  defaultValue={customer?.lastName}
-                  required
-                />
-                <Input
-                  type="email"
-                  name="email"
-                  placeholder="Email Address"
-                  defaultValue={customer?.email}
-                  required
-                />
-                <Input
-                  type="tel"
-                  name="phone"
-                  placeholder="Phone Number"
-                  defaultValue={customer?.phone}
-                  required
-                />
-                <Input
-                  className="sm:col-span-2"
-                  name="address"
-                  placeholder="Address"
-                  defaultValue={customer?.address}
-                />
-                <Input name="zipCode" placeholder="Zip Code" defaultValue={customer?.zipCode} />
-                <Textarea
-                  className="sm:col-span-2"
+                <BookingField name="firstName" error={fieldErrors.firstName}>
+                  <Input
+                    name="firstName"
+                    placeholder="First Name*"
+                    defaultValue={customer?.firstName}
+                    aria-invalid={fieldErrors.firstName ? true : undefined}
+                  />
+                </BookingField>
+                <BookingField name="lastName" error={fieldErrors.lastName}>
+                  <Input
+                    name="lastName"
+                    placeholder="Last Name*"
+                    defaultValue={customer?.lastName}
+                    aria-invalid={fieldErrors.lastName ? true : undefined}
+                  />
+                </BookingField>
+                <BookingField name="email" error={fieldErrors.email}>
+                  <Input
+                    type="email"
+                    name="email"
+                    placeholder="Email Address*"
+                    defaultValue={customer?.email}
+                    aria-invalid={fieldErrors.email ? true : undefined}
+                  />
+                </BookingField>
+                <BookingField name="phone" error={fieldErrors.phone}>
+                  <Input
+                    type="tel"
+                    name="phone"
+                    placeholder="Phone Number*"
+                    defaultValue={customer?.phone}
+                    aria-invalid={fieldErrors.phone ? true : undefined}
+                  />
+                </BookingField>
+                <BookingField name="address" error={fieldErrors.address} className="sm:col-span-2">
+                  <Input
+                    name="address"
+                    placeholder="Address*"
+                    defaultValue={customer?.address}
+                    aria-invalid={fieldErrors.address ? true : undefined}
+                  />
+                </BookingField>
+                <BookingField name="zipCode" error={fieldErrors.zipCode}>
+                  <Input
+                    name="zipCode"
+                    placeholder="Zip Code*"
+                    inputMode="numeric"
+                    defaultValue={customer?.zipCode}
+                    aria-invalid={fieldErrors.zipCode ? true : undefined}
+                  />
+                </BookingField>
+                <BookingField
                   name="comments"
-                  placeholder="Comments"
-                  defaultValue={customer?.comments}
-                />
+                  error={fieldErrors.comments}
+                  className="sm:col-span-2"
+                >
+                  <Textarea
+                    name="comments"
+                    placeholder="Comments* (at least 8 words)"
+                    defaultValue={customer?.comments}
+                    aria-invalid={fieldErrors.comments ? true : undefined}
+                  />
+                </BookingField>
               </div>
-              <div className="mt-10 flex justify-between">
+              <div className="mt-8 flex justify-between">
                 <Button type="button" variant="outline" onClick={back}>
                   ← Back
                 </Button>
@@ -712,7 +763,12 @@ export function AppointmentScheduler({
   )
 }
 
-export function AppointmentModal({ consultation, onClose, phone, phoneClean }: AppointmentModalProps) {
+export function AppointmentModal({
+  consultation,
+  onClose,
+  phone,
+  phoneClean,
+}: AppointmentModalProps) {
   if (!consultation) return null
 
   return (
@@ -738,6 +794,49 @@ export function AppointmentModal({ consultation, onClose, phone, phoneClean }: A
           phoneClean={phoneClean}
         />
       </div>
+    </div>
+  )
+}
+
+type CustomerField =
+  'firstName' | 'lastName' | 'email' | 'phone' | 'address' | 'zipCode' | 'comments'
+
+/**
+ * Booking-form rules. Address and ZIP are required here (unlike the general
+ * contact form) because the estimator has to travel to the property, and the
+ * comments field asks for at least eight words so the appointment carries
+ * enough context to prepare for.
+ */
+const CUSTOMER_RULES: FieldRules<CustomerField> = {
+  firstName: personName('First name'),
+  lastName: personName('Last name'),
+  email: emailRule,
+  phone: usPhone,
+  address: streetAddress,
+  zipCode: usZip,
+  comments: minWords('Comments', 8),
+}
+
+/** One booking field plus its inline error message. */
+function BookingField({
+  name,
+  error,
+  className,
+  children,
+}: {
+  name: string
+  error?: string
+  className?: string
+  children: React.ReactNode
+}) {
+  return (
+    <div className={cn('grid gap-1.5', className)}>
+      {children}
+      {error ? (
+        <p id={`booking-${name}-error`} role="alert" className="text-xs text-red-600">
+          {error}
+        </p>
+      ) : null}
     </div>
   )
 }

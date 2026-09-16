@@ -85,7 +85,8 @@ export async function resolveFaqIndex(): Promise<FaqIndexCategory[]> {
         slug: category.slug || String(category.id),
         items: grouped.get(String(category.id)) as FaqIndexItem[],
       }))
-  } catch {
+  } catch (error) {
+    console.error('resolveFaqIndex: could not load FAQ categories or questions', error)
     return []
   }
 }

@@ -1,34 +1,33 @@
-import { HomeContact } from '@/components/blocks/HomeContact'
-import { LandscapingServiceAreas } from '@/components/blocks/LandscapingServiceAreas'
-import { PageHero } from '@/components/layout/PageHero'
-import { Section } from '@/components/ui/Section'
+import { PageSections, type PageSectionContext } from '@/components/pages/PageSections'
 import { resolveConsultations } from '@/lib/consultations'
+import { resolvePageBySlug } from '@/lib/pages'
 import { resolveSiteSettings } from '@/lib/siteSettings'
-import { ConsultationGrid } from './ConsultationGrid'
 
+/**
+ * Contact page. Its sections live in the Pages collection (record `contact`),
+ * like the homepage, About, Gallery, Testimonials and FAQ pages.
+ *
+ * The consultation cards are Consultations records and the phone number comes
+ * from Site Settings, both passed through the section context rather than
+ * stored on the page — the same split WordPress uses, where the page authors
+ * the "Schedule Your Free Consultation" heading and repeats the cards beneath.
+ */
 export async function ContactPage() {
-  const consultations = await resolveConsultations()
-  const settings = await resolveSiteSettings()
+  const [page, consultations, settings] = await Promise.all([
+    resolvePageBySlug('contact'),
+    resolveConsultations(),
+    resolveSiteSettings(),
+  ])
+
+  const context: PageSectionContext = {
+    consultations,
+    phone: settings.phone,
+    phoneClean: settings.phoneClean,
+  }
+
   return (
-    <div className="min-h-screen bg-white">
-      <PageHero
-        eyebrow="Contact Prime Design & Build"
-        title="Schedule Your Free Consultation"
-        description="Choose the type of project you are considering and take the first step toward a thoughtful, well-built transformation."
-        image="/services/home-remodeling.jpeg"
-        imageAlt="Prime Design & Build remodeling project"
-      />
-      <main>
-        <Section className="bg-white">
-          <ConsultationGrid
-            consultations={consultations}
-            phone={settings.phone}
-            phoneClean={settings.phoneClean}
-          />
-        </Section>
-        <HomeContact />
-      </main>
-      <LandscapingServiceAreas />
+    <div className="min-h-screen">
+      <PageSections sections={page?.layout ?? []} context={context} />
     </div>
   )
 }

@@ -23,6 +23,7 @@ import { Blog } from './collections/Blog'
 import { BlogCategories } from './collections/BlogCategories'
 import { LandingPages } from './collections/LandingPages'
 import { GalleryCategories } from './collections/GalleryCategories'
+import { ContactSubmissions } from './collections/ContactSubmissions'
 
 const filename = fileURLToPath(import.meta.url)
 const dirname = path.dirname(filename)
@@ -51,6 +52,7 @@ export default buildConfig({
     BlogCategories,
     LandingPages,
     GalleryCategories,
+    ContactSubmissions,
   ],
   // The homepage, About and Gallery pages are ordinary records in the Pages
   // collection (slugs home / about / gallery), built from the same section
