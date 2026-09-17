@@ -223,6 +223,17 @@ export const Services: CollectionConfig = {
       },
     },
     {
+      name: 'consultationImage',
+      type: 'upload',
+      relationTo: 'media',
+      label: 'Consultation Card Image',
+      admin: {
+        position: 'sidebar',
+        description:
+          'Photo for this service’s card in the Contact consultation list. WordPress used a dedicated image per card, not the service hero — leave empty to fall back to the hero image.',
+      },
+    },
+    {
       name: 'sortOrder',
       type: 'number',
       defaultValue: 0,
@@ -564,6 +575,18 @@ export const Services: CollectionConfig = {
               fields: [
                 { name: 'heading', type: 'text' },
               ],
+            },
+            {
+              name: 'locationFeatureImages',
+              type: 'upload',
+              relationTo: 'media',
+              hasMany: true,
+              maxRows: 3,
+              label: 'Location Page Feature Images',
+              admin: {
+                description:
+                  'The three photos beside the hero blurbs on this service’s city pages. WordPress sets them on the family template (kitchen/bathroom/home), not per city. Empty falls back to the service gallery, which is what made every city page show the wrong photos.',
+              },
             },
             {
               name: 'galleryImages',

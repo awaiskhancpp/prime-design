@@ -33,6 +33,7 @@ export type ServiceLocation = {
     headingAccent?: string
     body?: string
     ctaLabel?: string
+    image?: string
   }
   primeDifference?: {
     eyebrow?: string
@@ -128,6 +129,7 @@ export async function getServiceLocation(serviceSlug: string, locationSlugValue:
       headingAccent: textOr(doc.dontSettle?.headingAccent),
       body: textOr(doc.dontSettle?.body),
       ctaLabel: textOr(doc.dontSettle?.ctaLabel),
+      image: textOr(doc.dontSettle?.image),
     })
     const primeDifference = compact({
       eyebrow: textOr(doc.primeDifference?.eyebrow),

@@ -1,10 +1,23 @@
 /**
- * Shaker Kitchen prime-difference icon fix: the WordPress SVGs
- * (Customer-Focused.svg, Innovation.svg, Process-2.svg, Process-1.svg) were
- * colored via currentColor/CSS on the original site (#c19a5b brass), but
- * rendered through an <img> tag they lose that color. The site's local
- * equivalents for the same four concepts are already #c19a5b, so point the
- * four feature rows at them. Idempotent.
+ * Prime Difference icons: an INTENTIONAL brass substitution, not a bug fix.
+ *
+ * WordPress uses four SVGs for these rows (wp 901 Customer-Focused.svg,
+ * 897 Innovation.svg, 898 Process-2.svg, 902 Process-1.svg). All four are
+ * imported and available in the Media collection.
+ *
+ * An earlier version of this comment said those SVGs were coloured via
+ * `currentColor` and lost their colour through an <img> tag. That is wrong —
+ * they carry hardcoded BLACK fills (`#100f0d` on Customer-Focused, `#000000`
+ * on the other three), so on WordPress they render black.
+ *
+ * The site deliberately shows brass (`#c19a5b`) icons instead, using the local
+ * equivalents in /public for the same four concepts. This is a design decision
+ * taken for the Shaker Kitchen page and applied consistently to the
+ * service-location pages; it is a known, accepted divergence from the
+ * WordPress source, NOT a migration error. Do not "restore" the WordPress
+ * assets without asking — reverting would turn every one of these icons black.
+ *
+ * Idempotent.
  */
 import { readFileSync } from 'node:fs'
 import { createRequire } from 'node:module'

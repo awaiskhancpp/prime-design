@@ -161,7 +161,7 @@ invoking the binary directly (`pnpm payload migrate:create`).** The
 `migrate:create` package script is wired to `scripts/block-migrate-create.mjs`,
 which prints this reason and exits non-zero.
 
-**Why.** There are 39 migration `.ts` files but only 25 `.json` schema
+**Why.** There are 40 migration `.ts` files but only 25 `.json` schema
 snapshots. Payload generates a migration by diffing the current config against
 the *newest* snapshot — which is
 `20260914_180701_video_story_fields.json`. Every migration written after that
@@ -173,7 +173,7 @@ so nothing auto-syncs; the danger is entirely in that one command.
 
 Applying migrations (`pnpm payload migrate`) is unaffected and stays safe.
 
-### The 16 migrations with no snapshot
+### The 17 migrations with no snapshot
 
 ```
 20260827_024700_service_content_blocks
@@ -192,6 +192,7 @@ Applying migrations (`pnpm payload migrate`) is unaffected and stays safe.
 20260917_120000_faq_index_section
 20260917_130000_consultations_section
 20260917_140000_contact_submissions
+20260917_150000_service_consultation_image
 ```
 
 ### Lifting the block
@@ -214,6 +215,27 @@ never against the live database:
 come out clean.** They have already run against production; rewriting them
 makes the applied state and the file history disagree, which is worse than the
 missing snapshots.
+
+## 8c. Accepted divergences from the WordPress source
+
+These differ from the WordPress export **on purpose**. Do not "fix" them back
+without asking — each was a decision, not a migration error.
+
+- **Prime Difference icons are brass, WordPress is black.** WordPress uses
+  wp 901 `Customer-Focused.svg`, 897 `Innovation.svg`, 898 `Process-2.svg` and
+  902 `Process-1.svg`, and all four carry hardcoded black fills (`#100f0d` on
+  the first, `#000000` on the rest). The site renders the local `/public`
+  equivalents instead — `customer-satisfaction.svg`,
+  `professional-expertise.svg`, `attention-to-detail.svg`,
+  `quality-craftsmanship.svg` — which are `#c19a5b` brass. Applied to the
+  Shaker Kitchen page and, consistently, to the service-location pages.
+  Reverting would turn every one of these icons black. The WordPress originals
+  remain in the Media collection if that is ever wanted.
+
+  (A comment in `scripts/fix-shaker-prime-icons.mjs` used to claim the
+  WordPress SVGs relied on `currentColor` and lost their colour through an
+  `<img>` tag. They do not — the fills are literal. The script's docstring has
+  been corrected.)
 
 ## 9. Known debt — don't silently "fix" it, but do know it's there
 

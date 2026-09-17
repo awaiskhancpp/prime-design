@@ -1,6 +1,7 @@
 import { ReviewsSection } from './ReviewsSection'
 import { Section } from '@/components/ui/Section'
 import { ServiceQuoteSection } from './ServiceQuoteSection'
+import { mediaUrl } from '@/components/landing/LandingBlockRenderer'
 import { ServiceOfferingsSection } from './ServiceOfferingsSection'
 import { ServiceVideoSection } from './ServiceVideoSection'
 import { ServiceLocationHeroForm } from './ServiceLocationHeroForm'
@@ -69,6 +70,11 @@ export function ServiceLocationPage({
         description: fill(locVideo.description, serviceTitle, city),
         tagline: fill(locVideo.tagline, serviceTitle, city),
         videoUrl: locVideo.videoUrl,
+        // WordPress defines no poster, but the player preloads nothing, so
+        // without one the box renders empty. A still from that same clip now
+        // lives on the service-locations record (see
+        // scripts/fix-location-video-posters.mjs), so there is no fallback
+        // here — blank in Payload renders blank.
         poster: locVideo.poster,
       }
     : undefined
@@ -82,7 +88,10 @@ export function ServiceLocationPage({
         heading: fill(locDontSettle.heading, serviceTitle, city) || "Don't Settle for a Mediocre",
         headingAccent: fill(locDontSettle.headingAccent, serviceTitle, city) || city,
         body: fill(locDontSettle.body, serviceTitle, city) || '',
-        image: overrides.get('intro')?.image ?? service.image,
+        // WordPress uses one photo here on all three family templates
+        // (attachment 579). `service.image` is the city marketing graphic, so
+        // it is only the last resort.
+        image: locDontSettle.image ?? overrides.get('intro')?.image ?? service.image,
         cta: {
           label: locDontSettle.ctaLabel || 'Talk to an expert',
           href: '#contact',
@@ -107,10 +116,11 @@ export function ServiceLocationPage({
           .map((item) => ({
             title: String(item.title || ''),
             description: String(item.description || ''),
-            image:
-              typeof (item.media as { url?: string } | undefined)?.url === 'string'
-                ? ((item.media as { url: string }).url)
-                : service.image,
+            // `media` is a group (uploaded `asset` + WordPress `sourceUrl`), not a
+            // flat object with `url` — reading `media.url` never matched, so every
+            // card silently fell back to the page hero. Use the same resolver the
+            // service page's renderer uses.
+            image: mediaUrl(item.media) ?? service.image,
             href:
               typeof (item.link as { url?: string } | undefined)?.url === 'string'
                 ? ((item.link as { url: string }).url)
@@ -256,7 +266,11 @@ export function ServiceLocationPage({
           <ServiceSiliconValleyLovesSection content={siliconValleyLoves} />
         ) : null}
 
-        {enabled('contact') ? <GalleryContact city={city} poster={service.image} /> : null}
+        {/* No poster: the WordPress contact section's <video> defines only a
+            fileUrl, so the clip shows its own first frame. Passing the city's
+            featured image here pasted a "Kitchen Remodeling in {City}" graphic
+            over a video shot somewhere else. */}
+        {enabled('contact') ? <GalleryContact city={city} /> : null}
 
         <ServiceLocationFooter />
       </main>

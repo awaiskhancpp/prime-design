@@ -88,6 +88,14 @@ export const locationPageSectionFields = [
       { name: 'headingAccent', type: 'text' as const },
       { name: 'body', type: 'textarea' as const },
       { name: 'ctaLabel', type: 'text' as const },
+      {
+        name: 'image',
+        type: 'text' as const,
+        admin: {
+          description:
+            'Side image. WordPress uses the same photo (attachment 579, 11.png) on all three family templates. Empty falls back to the page hero, which is the city marketing graphic — not what WordPress shows.',
+        },
+      },
     ],
   },
   {

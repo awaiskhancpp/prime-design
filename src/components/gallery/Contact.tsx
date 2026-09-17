@@ -10,6 +10,15 @@ import { resolveSiteSettings } from '@/lib/siteSettings'
 // tagmediaspace hotlink is kept as the media doc's sourceUrl provenance).
 const CONTACT_VIDEO = '/api/media/file/prime-kitchens-san-luis.mp4'
 
+/**
+ * Poster frame for the clip above — a still taken from that same video, not a
+ * marketing graphic. The WordPress `<video>` sets no poster and relies on the
+ * browser painting the first frame, but this player uses `preload="none"`, so
+ * with no poster the box renders empty until someone presses play. This shows
+ * the frame WordPress would have shown. The CMS `poster` field still wins.
+ */
+const CONTACT_VIDEO_POSTER = '/api/media/file/prime-kitchens-san-luis-poster.jpg'
+
 export async function Contact({ city, poster }: { city?: string; poster?: string }) {
   const settings = await resolveSiteSettings()
   const contactDetails = [
@@ -100,7 +109,7 @@ export async function Contact({ city, poster }: { city?: string; poster?: string
                 controls
                 playsInline
                 preload="none"
-                poster={poster || '/services/kitchen-remodeling.jpeg'}
+                poster={poster ?? CONTACT_VIDEO_POSTER}
               >
                 <source src={CONTACT_VIDEO} type="video/mp4" />
               </video>

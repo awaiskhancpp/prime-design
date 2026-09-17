@@ -37,6 +37,9 @@ import * as migration_20260916_150000_testimonials_page_sections from './2026091
 import * as migration_20260917_120000_faq_index_section from './20260917_120000_faq_index_section';
 import * as migration_20260917_130000_consultations_section from './20260917_130000_consultations_section';
 import * as migration_20260917_140000_contact_submissions from './20260917_140000_contact_submissions';
+import * as migration_20260917_150000_service_consultation_image from './20260917_150000_service_consultation_image';
+import * as migration_20260917_160000_locked_documents_contact_submissions from './20260917_160000_locked_documents_contact_submissions';
+import * as migration_20260917_170000_location_dont_settle_image from './20260917_170000_location_dont_settle_image';
 
 export const migrations = [
   {
@@ -233,5 +236,20 @@ export const migrations = [
     up: migration_20260917_140000_contact_submissions.up,
     down: migration_20260917_140000_contact_submissions.down,
     name: '20260917_140000_contact_submissions',
+  },
+  {
+    up: migration_20260917_150000_service_consultation_image.up,
+    down: migration_20260917_150000_service_consultation_image.down,
+    name: '20260917_150000_service_consultation_image',
+  },
+  {
+    up: migration_20260917_160000_locked_documents_contact_submissions.up,
+    down: migration_20260917_160000_locked_documents_contact_submissions.down,
+    name: '20260917_160000_locked_documents_contact_submissions',
+  },
+  {
+    up: migration_20260917_170000_location_dont_settle_image.up,
+    down: migration_20260917_170000_location_dont_settle_image.down,
+    name: '20260917_170000_location_dont_settle_image',
   },
 ];

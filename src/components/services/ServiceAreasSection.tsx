@@ -33,7 +33,7 @@ export async function ServiceAreasSection({ service }: { service: ServiceDetail 
         title={`We offer top ${service.title} in the following areas`}
       />
 
-      <div className="mt-12 grid gap-x-8 gap-y-10 sm:grid-cols-2 lg:grid-cols-4">
+      <div className="mt-12 grid gap-x-4 gap-y-6 sm:grid-cols-2 lg:grid-cols-4">
         {locations.map((entry) => {
           const href = `/${entry.serviceSlug}/${entry.slug}`
           const description = `Bring ${serviceLabel.toLowerCase()} in ${entry.location.name} to life with thoughtful design, quality craftsmanship, and a process built around your home.`
@@ -55,16 +55,16 @@ export async function ServiceAreasSection({ service }: { service: ServiceDetail 
                 />
               </Link>
 
-              <div className="flex flex-1 flex-col p-6">
+              <div className="flex flex-1 flex-col p-5">
                 <div className="flex items-center gap-2">
                   <MapPin className="h-5 w-5 shrink-0 text-brass" aria-hidden />
                   <h3 className="font-display text-2xl font-medium leading-tight text-ink-2">
                     {entry.location.name}
                   </h3>
                 </div>
-                <p className="mt-3 line-clamp-2 text-base leading-7 text-ink-2/70">{description}</p>
+                <p className="mt-2 line-clamp-2 text-base leading-7 text-ink-2/70">{description}</p>
 
-                <div className="mt-auto pt-5">
+                <div className="mt-auto pt-3">
                   <Link
                     href={href}
                     className="inline-flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.12em] text-brass-deep transition-colors hover:text-brass"
@@ -92,7 +92,7 @@ export async function ServiceAreasSection({ service }: { service: ServiceDetail 
             <Plus className="relative h-20 w-20 text-brass/70" aria-hidden />
           </div>
 
-          <div className="flex flex-1 flex-col p-6">
+          <div className="flex flex-1 flex-col p-5">
             <div className="flex items-center gap-2">
               <MapPin className="h-5 w-5 shrink-0 text-brass" aria-hidden />
               <h3 className="font-display text-2xl font-medium leading-tight text-ink-2">
