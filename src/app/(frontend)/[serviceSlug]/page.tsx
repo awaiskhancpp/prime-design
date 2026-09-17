@@ -58,23 +58,31 @@ export async function generateMetadata({
   const aliasTarget = servicePathAliases[serviceSlug]
   const service = await resolveServiceDetail(aliasTarget || serviceSlug)
   if (service) {
-    return buildSeoMetadata(service.seo, {
-      title: service.title,
-      description: service.description,
-    })
+    // Alias URLs point their canonical at the `/services/…` twin so the two
+    // paths are not indexed as duplicates.
+    return buildSeoMetadata(
+      service.seo,
+      { title: service.title, description: service.description },
+      { path: `/services/${aliasTarget || serviceSlug}`, image: service.image },
+    )
   }
 
   const landingPage = await resolveLandingPage(serviceSlug)
   if (landingPage) {
-    return buildSeoMetadata(landingPage.seo, {
-      title: landingPage.title,
-      description: landingPage.hero?.lead,
-    })
+    return buildSeoMetadata(
+      landingPage.seo,
+      { title: landingPage.title, description: landingPage.hero?.lead },
+      { path: `/${serviceSlug}` },
+    )
   }
 
   const page = await resolvePageBySlug(serviceSlug)
   return page
-    ? buildSeoMetadata(page.seo, { title: page.title, description: page.hero?.description })
+    ? buildSeoMetadata(
+        page.seo,
+        { title: page.title, description: page.hero?.description },
+        { path: `/${serviceSlug}` },
+      )
     : {}
 }
 

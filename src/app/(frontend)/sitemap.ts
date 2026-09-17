@@ -6,8 +6,10 @@ import { shouldUseLocalFallback } from '@/lib/runtime'
 import { blogPosts } from '@/lib/blog'
 import { projects } from '@/lib/projects'
 import { listLandingPageSlugs } from '@/lib/landingPages'
+import { SITE_URL } from '@/lib/seo'
 
-const siteUrl = 'https://primedesignandbuild.com'
+// Shared with metadata and structured data so the three can never disagree.
+const siteUrl = SITE_URL
 
 type SitemapRecord = {
   slug?: string | null
@@ -33,6 +35,11 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     'testimonials',
     'blog',
     'contact',
+    // Were missing: indexable pages with their own WordPress SEO that no
+    // crawler could reach from the sitemap.
+    'team',
+    'landscaping',
+    'privacy-policy',
   ].map((path) => entry(`${siteUrl}/${path}`, path === '' ? 1 : 0.7))
 
   // Services and locations come from Payload only.

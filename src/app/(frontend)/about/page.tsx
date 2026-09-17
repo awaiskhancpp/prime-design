@@ -11,7 +11,7 @@ export async function generateMetadata(): Promise<Metadata> {
   return buildSeoMetadata(page?.seo, {
     title: 'About Prime Design & Build',
     description: 'Meet the people and principles behind Prime Design & Build in Silicon Valley.',
-  })
+  }, { path: '/about' })
 }
 
 export default function AboutRoute() {

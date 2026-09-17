@@ -3,6 +3,9 @@ import { notFound, permanentRedirect } from 'next/navigation'
 import { ServiceTemplate } from '@/components/services/ServiceTemplate'
 import { resolveServiceDetail, servicePathAliases } from '@/lib/services'
 import { buildSeoMetadata } from '@/lib/seo'
+import { JsonLd } from '@/components/seo/JsonLd'
+import { breadcrumbSchema, graph, serviceSchema } from '@/lib/structuredData'
+import { resolveSiteAreas } from '@/lib/siteSettings'
 
 // Service pages are CMS-driven: render on each request so Payload edits
 // (sections, copy, SEO) appear without a rebuild.
@@ -23,10 +26,11 @@ export async function generateMetadata({
 
   // The migrated WordPress (Rank Math) SEO drives the metadata — title,
   // description, canonical and the no-index flag.
-  return buildSeoMetadata(service.seo, {
-    title: service.title,
-    description: service.description,
-  })
+  return buildSeoMetadata(
+    service.seo,
+    { title: service.title, description: service.description },
+    { path: `/services/${targetOf(serviceSlug)}`, image: service.image },
+  )
 }
 
 /** `/services/[serviceSlug]` — a CMS-driven service detail page. */
@@ -40,5 +44,26 @@ export default async function ServicePage({
   if (target !== serviceSlug) permanentRedirect(`/services/${target}`)
   const service = await resolveServiceDetail(target)
   if (!service) notFound()
-  return <ServiceTemplate service={service} />
+  const areas = await resolveSiteAreas()
+  return (
+    <>
+      <ServiceTemplate service={service} />
+      <JsonLd
+        data={graph(
+          serviceSchema({
+            name: service.title,
+            description: service.description,
+            path: `/services/${target}`,
+            image: service.image,
+            areaServed: areas.map((area) => area.name),
+          }),
+          breadcrumbSchema([
+            { name: 'Home', path: '/' },
+            { name: 'Services', path: '/services' },
+            { name: service.title, path: `/services/${target}` },
+          ]),
+        )}
+      />
+    </>
+  )
 }

@@ -12,7 +12,7 @@ export async function generateMetadata(): Promise<Metadata> {
     title: 'Gallery',
     description:
       'Explore kitchen, bathroom, ADU, and home addition projects by Prime Design & Build in Silicon Valley.',
-  })
+  }, { path: '/gallery' })
 }
 
 export default function GalleryRoute() {

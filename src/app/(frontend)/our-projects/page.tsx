@@ -12,7 +12,7 @@ export async function generateMetadata(): Promise<Metadata> {
     title: 'Our Projects',
     description:
       'Explore remodeling and construction projects completed by Prime Design & Build across Silicon Valley.',
-  })
+  }, { path: '/our-projects' })
 }
 
 export default function OurProjectsRoute() {

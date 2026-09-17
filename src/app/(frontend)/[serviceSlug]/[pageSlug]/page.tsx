@@ -5,6 +5,8 @@ import { resolveServiceDetail } from '@/lib/services'
 import { getServiceLocation } from '@/lib/serviceLocations'
 import { resolveRedirect } from '@/lib/redirects'
 import { buildSeoMetadata, serviceMetadata } from '@/lib/seo'
+import { JsonLd } from '@/components/seo/JsonLd'
+import { breadcrumbSchema, graph, serviceSchema } from '@/lib/structuredData'
 
 /**
  * `/[serviceSlug]/[pageSlug]` — second-level routes, resolved in order:
@@ -47,13 +49,19 @@ export async function generateMetadata({
   const location = await getServiceLocation(serviceSlug, pageSlug)
   if (location) {
     const seo = 'seo' in location ? location.seo : undefined
-    return buildSeoMetadata(seo, {
-      title: `${location.service.title} in ${location.location.name}`,
-      description: location.seoDescription,
-    })
+    return buildSeoMetadata(
+      seo,
+      {
+        title: `${location.service.title} in ${location.location.name}`,
+        description: location.seoDescription,
+      },
+      { path: `/${serviceSlug}/${pageSlug}`, image: location.featuredImage },
+    )
   }
 
-  return serviceMetadata(await resolveServiceDetail(pageSlug))
+  return serviceMetadata(await resolveServiceDetail(pageSlug), {
+    path: `/services/${pageSlug}`,
+  })
 }
 
 export default async function ServiceChildRoute({
@@ -65,7 +73,30 @@ export default async function ServiceChildRoute({
 
   // 1. Service-location page (e.g. `/bathroom-remodeling/palo-alto`).
   const location = await getServiceLocation(serviceSlug, pageSlug)
-  if (location) return <ServiceLocationPage entry={location} />
+  if (location) {
+    const city = location.location.name
+    return (
+      <>
+        <ServiceLocationPage entry={location} />
+        <JsonLd
+          data={graph(
+            serviceSchema({
+              name: `${location.service.title} in ${city}`,
+              description: location.seoDescription,
+              path: `/${serviceSlug}/${pageSlug}`,
+              image: location.featuredImage,
+              areaServed: [city],
+            }),
+            breadcrumbSchema([
+              { name: 'Home', path: '/' },
+              { name: location.service.title, path: `/services/${serviceSlug}` },
+              { name: city, path: `/${serviceSlug}/${pageSlug}` },
+            ]),
+          )}
+        />
+      </>
+    )
+  }
 
   // 2. Kitchen style sub-page — redirect to its canonical URL.
   const service = await resolveServiceDetail(pageSlug)

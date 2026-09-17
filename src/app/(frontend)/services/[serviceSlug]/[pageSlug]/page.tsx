@@ -36,7 +36,9 @@ export async function generateMetadata({
   params: Promise<{ serviceSlug: string; pageSlug: string }>
 }): Promise<Metadata> {
   const { serviceSlug, pageSlug } = await params
-  return serviceMetadata(await resolveSubService(serviceSlug, pageSlug))
+  return serviceMetadata(await resolveSubService(serviceSlug, pageSlug), {
+    path: `/services/${serviceSlug}/${pageSlug}`,
+  })
 }
 
 /** `/services/[serviceSlug]/[pageSlug]` — a sub-service detail page. */

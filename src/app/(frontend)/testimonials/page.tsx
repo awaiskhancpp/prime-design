@@ -12,7 +12,7 @@ export async function generateMetadata(): Promise<Metadata> {
     title: 'Testimonials | Prime Design & Build',
     description:
       'Read reviews from homeowners who worked with Prime Design & Build across Silicon Valley.',
-  })
+  }, { path: '/testimonials' })
 }
 
 export default function TestimonialsRoute() {
