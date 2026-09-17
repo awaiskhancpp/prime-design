@@ -109,6 +109,9 @@ export function ServiceLocationPage({
         eyebrow: String((subServicesBlock as { eyebrow?: string }).eyebrow || ''),
         title: String((subServicesBlock as { heading?: string }).heading || ''),
         description: String((subServicesBlock as { description?: string }).description || ''),
+        // WordPress binds this section's image to `{featured_image}`, which on
+        // a city page is that city's own marketing graphic.
+        image: service.image,
         cards: (Array.isArray((subServicesBlock as { items?: unknown[] }).items)
           ? ((subServicesBlock as unknown as { items: unknown[] }).items as Record<string, unknown>[])
           : []
@@ -187,7 +190,11 @@ export function ServiceLocationPage({
 
   return (
     <div className="min-h-screen bg-white">
-      <ServiceLocationHeroForm service={service} location={entry.location} />
+      <ServiceLocationHeroForm
+        service={service}
+        location={entry.location}
+        heroOverride={entry.locationHero}
+      />
       <main>
         {enabled('video') && video ? (
           <Section>

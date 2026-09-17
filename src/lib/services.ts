@@ -67,6 +67,13 @@ export type ServiceDetail = Service & {
     steps?: Array<{ title?: string; description?: string; image?: string }>
   }
   /** Structured quote section content. */
+  /** Hero copy for this service's city pages; a city may override any field. */
+  locationHero?: {
+    lede?: string
+    body?: string
+    formSubject?: string
+    blurbs?: string[]
+  }
   quote?: { heading?: string; quote?: string; attribution?: string; image?: string }
   /** Structured "Silicon Valley Loves" section content. */
   siliconValleyLoves?: {
@@ -246,6 +253,12 @@ type PayloadServiceRecord = {
     title?: string | null
     description?: string | null
     steps?: Array<{ title?: string; description?: string; image?: number | PayloadMedia | null }> | null
+  } | null
+  locationHero?: {
+    lede?: string | null
+    body?: string | null
+    formSubject?: string | null
+    blurbs?: Array<{ text?: string | null }> | null
   } | null
   quote?: {
     heading?: string | null
@@ -581,6 +594,16 @@ export async function resolveServiceDetail(slug: string): Promise<ServiceDetail 
             description: step.description,
             image: payloadImageUrl(step.image),
           })),
+        }
+      : undefined,
+    locationHero: record.locationHero
+      ? {
+          lede: record.locationHero.lede ?? undefined,
+          body: record.locationHero.body ?? undefined,
+          formSubject: record.locationHero.formSubject ?? undefined,
+          blurbs: record.locationHero.blurbs
+            ?.map((blurb) => blurb.text)
+            .filter((text): text is string => Boolean(text)),
         }
       : undefined,
     quote: record.quote

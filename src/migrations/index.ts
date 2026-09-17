@@ -40,6 +40,7 @@ import * as migration_20260917_140000_contact_submissions from './20260917_14000
 import * as migration_20260917_150000_service_consultation_image from './20260917_150000_service_consultation_image';
 import * as migration_20260917_160000_locked_documents_contact_submissions from './20260917_160000_locked_documents_contact_submissions';
 import * as migration_20260917_170000_location_dont_settle_image from './20260917_170000_location_dont_settle_image';
+import * as migration_20260917_180000_location_hero_copy from './20260917_180000_location_hero_copy';
 
 export const migrations = [
   {
@@ -251,5 +252,10 @@ export const migrations = [
     up: migration_20260917_170000_location_dont_settle_image.up,
     down: migration_20260917_170000_location_dont_settle_image.down,
     name: '20260917_170000_location_dont_settle_image',
+  },
+  {
+    up: migration_20260917_180000_location_hero_copy.up,
+    down: migration_20260917_180000_location_hero_copy.down,
+    name: '20260917_180000_location_hero_copy',
   },
 ];

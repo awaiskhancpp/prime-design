@@ -17,6 +17,15 @@ export type ServiceOfferingsContent = {
   eyebrow?: string
   title: string
   description?: string
+  /**
+   * The banner between the intro and the cards. In the WordPress family
+   * templates this image element is bound to `{featured_image}`, so it shows
+   * the current page's own featured image rather than a fixed asset — the
+   * attachment ids baked into the templates (1546 Saratoga, 1582 Campbell)
+   * are only the Bricks editor's preview. Omitted on pages that have no
+   * featured image, which renders the section exactly as it did before.
+   */
+  image?: string
   cards: ServiceOfferingCard[]
   primaryCta?: { label: string; href: string }
   secondaryCta?: { label: string; href: string }
@@ -26,6 +35,7 @@ export function ServiceOfferingsSection({
   eyebrow,
   title,
   description,
+  image,
   cards,
   primaryCta,
   secondaryCta,
@@ -57,6 +67,18 @@ export function ServiceOfferingsSection({
           description={description}
         />
       </div>
+
+      {image ? (
+        <div className="relative mx-auto mt-10 aspect-[40/21] w-full max-w-3xl overflow-hidden bg-paper-2">
+          <Image
+            src={image}
+            alt=""
+            fill
+            className="object-cover"
+            sizes="(min-width: 768px) 768px, 92vw"
+          />
+        </div>
+      ) : null}
 
       {(primaryCta || secondaryCta) && (
         <div className="mt-8 flex flex-wrap items-center justify-center gap-3">
@@ -98,19 +120,19 @@ export function ServiceOfferingsSection({
                   // 1 column below that. Without this, `fill` falls back to 100vw
                   // and the srcset runs all the way to w=3840 for a card that is
                   // never wider than a third of the viewport.
-                  sizes="(min-width: 1024px) 33vw, (min-width: 640px) 50vw, 100vw"
+                  // sizes="(min-width: 1024px) 33vw, (min-width: 640px) 50vw, 100vw"
                 />
 
                 {/* Persistent bottom gradient — title is always readable */}
                 <div
                   aria-hidden="true"
-                  className="pointer-events-none absolute inset-x-0 bottom-0 h-2/3 bg-gradient-to-t from-ink/90 via-ink/40 to-transparent transition-opacity duration-500 group-hover:opacity-100"
+                  className="pointer-events-none absolute inset-x-0 bottom-0 h-2/3 bg-gradient-to-t from-ink/50 via-ink/20 to-transparent transition-opacity duration-500 group-hover:opacity-100"
                 />
 
                 {/* Content pinned inside the image at the bottom */}
                 <div className="absolute inset-x-0 bottom-0 p-5 md:p-6">
                   {/* Brass rule — grows left→right on hover */}
-                  <div className="mb-4 h-px w-full overflow-hidden">
+                  <div className="mb-2 h-px w-full overflow-hidden">
                     <div className="h-full w-full -translate-x-full bg-brass transition-transform duration-500 ease-out group-hover:translate-x-0" />
                   </div>
 

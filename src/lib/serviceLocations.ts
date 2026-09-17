@@ -19,6 +19,12 @@ export type ServiceLocation = {
   featuredImage?: string
   sectionOverrides?: ServiceLocationSectionOverride[]
   /** Location-page section overrides — empty = inherit from the parent service. */
+  locationHero?: {
+    lede?: string
+    body?: string
+    formSubject?: string
+    blurbs?: string[]
+  }
   locationVideo?: {
     eyebrow?: string
     title?: string
@@ -115,6 +121,14 @@ export async function getServiceLocation(serviceSlug: string, locationSlugValue:
       )
         ? value
         : undefined
+    const locationHero = compact({
+      lede: textOr(doc.locationHero?.lede),
+      body: textOr(doc.locationHero?.body),
+      formSubject: textOr(doc.locationHero?.formSubject),
+      blurbs: (doc.locationHero?.blurbs ?? [])
+        .map((blurb) => textOr(blurb.text))
+        .filter((text): text is string => Boolean(text)),
+    })
     const locationVideo = compact({
       eyebrow: textOr(doc.locationVideo?.eyebrow),
       title: textOr(doc.locationVideo?.title),
@@ -202,6 +216,7 @@ export async function getServiceLocation(serviceSlug: string, locationSlugValue:
       intro: doc.intro || undefined,
       featuredImage: mediaUrl(doc.featuredImage),
       sectionOverrides,
+      locationHero,
       locationVideo,
       dontSettle,
       primeDifference,

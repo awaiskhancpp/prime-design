@@ -7,7 +7,7 @@ import { BrandMark } from '@/components/layout/BrandMark'
 import { LeadForm } from '@/components/forms/LeadForm'
 import { Container } from '@/components/ui/Container'
 import type { ServiceDetail } from '@/lib/services'
-import type { Location } from '@/lib/serviceLocations'
+import type { Location, ServiceLocation } from '@/lib/serviceLocations'
 import { resolveSiteSettings } from '@/lib/siteSettings'
 
 type LocationFeature = { image: string; blurb: string }
@@ -15,6 +15,12 @@ type LocationFeature = { image: string; blurb: string }
 /**
  * WordPress location-template hero copy, per service (templates 1495/1584/
  * 1639). `{City}` and `{Company}` are substituted per page.
+ *
+ * This is the LAST resort only. The copy now lives in Payload — on the parent
+ * service as the per-family default, overridable per city on the
+ * service-location record — and this template is what renders if the seed has
+ * not run, matching how the Video, Don't Settle and Prime Difference sections
+ * keep their built-in templates.
  */
 const HERO_COPY: Record<
   string,
@@ -52,14 +58,37 @@ const HERO_COPY: Record<
   },
 }
 
-function getLocationFeatures(service: ServiceDetail): LocationFeature[] {
+type HeroCopy = { lede: string; body: string; formSubject: string; blurbs: string[] }
+
+/**
+ * City override -> parent-service default -> built-in template, resolved once
+ * and passed to both consumers (the feature blurbs and the hero body) so the
+ * two cannot drift apart.
+ */
+function resolveHeroCopy(service: ServiceDetail, override?: ServiceLocation['locationHero']): HeroCopy {
+  const template = HERO_COPY[service.slug] ?? HERO_COPY['kitchen-remodeling']
+  const fromService = service.locationHero
+  return {
+    lede: override?.lede ?? fromService?.lede ?? template.lede,
+    body: override?.body ?? fromService?.body ?? template.body,
+    formSubject: override?.formSubject ?? fromService?.formSubject ?? template.formSubject,
+    // Blurbs are all-or-nothing: a partially filled array would silently drop
+    // captions, so an empty array inherits the whole set rather than merging.
+    blurbs: override?.blurbs?.length
+      ? override.blurbs
+      : fromService?.blurbs?.length
+        ? fromService.blurbs
+        : template.blurbs,
+  }
+}
+
+function getLocationFeatures(service: ServiceDetail, copy: HeroCopy): LocationFeature[] {
   // The WordPress family template names three specific photos for these
   // blurbs. They come from `locationFeatureImages`; the service gallery is the
   // fallback for any slot the CMS has not filled (the home-remodeling family
   // still has two unimported originals).
   const featured = (service.locationFeatureImages ?? []).filter(Boolean)
   const gallery = [...new Set([...service.gallery, service.image])].filter(Boolean)
-  const copy = HERO_COPY[service.slug] ?? HERO_COPY['kitchen-remodeling']
   return copy.blurbs.map((blurb, index) => ({
     image: featured[index] ?? gallery[index] ?? gallery[0] ?? service.image,
     blurb,
@@ -96,14 +125,17 @@ async function resolveHeroBackground(): Promise<string | undefined> {
 export async function ServiceLocationHeroForm({
   service,
   location,
+  heroOverride,
 }: {
   service: ServiceDetail
   location: Location
+  /** This city's hero copy override; any empty field inherits the service. */
+  heroOverride?: ServiceLocation['locationHero']
 }) {
-  const features = getLocationFeatures(service)
+  const heroCopy = resolveHeroCopy(service, heroOverride)
+  const features = getLocationFeatures(service, heroCopy)
   const settings = await resolveSiteSettings()
   const heroBackground = await resolveHeroBackground()
-  const heroCopy = HERO_COPY[service.slug] ?? HERO_COPY['kitchen-remodeling']
   const fill = (text: string) =>
     text.replaceAll('{City}', location.name).replaceAll('{Company}', 'Prime Design & Build')
   const phone = settings.phone
@@ -164,7 +196,9 @@ export async function ServiceLocationHeroForm({
                       sizes="(min-width: 1024px) 18vw, 45vw"
                     />
                   </div>
-                  <p className="p-3 text-sm font-medium leading-snug text-ink-2">{feature.blurb}</p>
+                  <p className="p-3 text-sm font-medium leading-snug text-ink-2">
+                    {fill(feature.blurb)}
+                  </p>
                 </div>
               ))}
             </div>

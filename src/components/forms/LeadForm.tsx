@@ -184,7 +184,7 @@ export function LeadForm({
   })
 
   return (
-    <form className={cn('grid gap-5', className)} onSubmit={submit} noValidate>
+    <form className={cn('grid gap-3', className)} onSubmit={submit} noValidate>
       <div className="grid gap-5 sm:grid-cols-2">
         <Field label="First Name*" name="firstName" error={errors.firstName}>
           <Input autoComplete="given-name" {...field('firstName')} />

@@ -448,6 +448,48 @@ export const Services: CollectionConfig = {
               ],
             },
             {
+              name: 'locationHero',
+              type: 'group',
+              label: 'Location Hero Copy',
+              admin: {
+                description:
+                  'Hero copy above the quote form on this service’s city pages. WordPress keeps it on the family template (kitchen/bathroom/home) rather than per city, so this is the default all 45 city pages inherit. Use {City} for the city name and {Company} for the company name — both are substituted when the page renders. A city can override any field on its own record; empty here falls back to the built-in template.',
+              },
+              fields: [
+                {
+                  name: 'lede',
+                  type: 'text',
+                  admin: {
+                    description: 'Small brass line above the H1. {City} / {Company} are substituted.',
+                  },
+                },
+                {
+                  name: 'body',
+                  type: 'textarea',
+                  admin: {
+                    description: 'Paragraph under the H1. {City} / {Company} are substituted.',
+                  },
+                },
+                {
+                  name: 'formSubject',
+                  type: 'text',
+                  admin: {
+                    description:
+                      'Completes “Let’s talk about your dream …” beside the form — e.g. “kitchen”.',
+                  },
+                },
+                {
+                  name: 'blurbs',
+                  type: 'array',
+                  admin: {
+                    description:
+                      'The three captions under the hero feature photos, paired in order with Location Page Feature Images. {City} / {Company} are substituted.',
+                  },
+                  fields: [{ name: 'text', type: 'text' }],
+                },
+              ],
+            },
+            {
               name: 'quote',
               type: 'group',
               label: 'Quote Section',

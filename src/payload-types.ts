@@ -1511,6 +1511,32 @@ export interface Service {
       | null;
   };
   /**
+   * Hero copy above the quote form on this service’s city pages. WordPress keeps it on the family template (kitchen/bathroom/home) rather than per city, so this is the default all 45 city pages inherit. Use {City} for the city name and {Company} for the company name — both are substituted when the page renders. A city can override any field on its own record; empty here falls back to the built-in template.
+   */
+  locationHero?: {
+    /**
+     * Small brass line above the H1. {City} / {Company} are substituted.
+     */
+    lede?: string | null;
+    /**
+     * Paragraph under the H1. {City} / {Company} are substituted.
+     */
+    body?: string | null;
+    /**
+     * Completes “Let’s talk about your dream …” beside the form — e.g. “kitchen”.
+     */
+    formSubject?: string | null;
+    /**
+     * The three captions under the hero feature photos, paired in order with Location Page Feature Images. {City} / {Company} are substituted.
+     */
+    blurbs?:
+      | {
+          text?: string | null;
+          id?: string | null;
+        }[]
+      | null;
+  };
+  /**
    * Structured "Crafting Your Dream Home, Our Promise" pull-quote section.
    */
   quote?: {
@@ -1825,6 +1851,109 @@ export interface ServiceLocation {
   service: number | Service;
   location: number | Location;
   /**
+   * Hero copy above the quote form. Use {City} for the city name and {Company} for the company name — both are substituted when the page renders. Leave a field empty to inherit the parent service’s hero copy, then the built-in WordPress family template.
+   */
+  locationHero?: {
+    /**
+     * Small brass line above the H1. {City} / {Company} are substituted.
+     */
+    lede?: string | null;
+    /**
+     * Paragraph under the H1. {City} / {Company} are substituted.
+     */
+    body?: string | null;
+    /**
+     * Completes “Let’s talk about your dream …” beside the form — e.g. “kitchen”.
+     */
+    formSubject?: string | null;
+    /**
+     * The three captions under the hero feature photos. {City} / {Company} are substituted.
+     */
+    blurbs?:
+      | {
+          text?: string | null;
+          id?: string | null;
+        }[]
+      | null;
+  };
+  /**
+   * Video shown on the location page. Use {City} for the city name and {ServiceTitle} for the service name.
+   */
+  locationVideo?: {
+    eyebrow?: string | null;
+    title?: string | null;
+    description?: string | null;
+    tagline?: string | null;
+    videoUrl?: string | null;
+    poster?: string | null;
+  };
+  /**
+   * "Don't Settle for a Mediocre…" intro section. Use {City} and {ServiceTitle} placeholders.
+   */
+  dontSettle?: {
+    eyebrow?: string | null;
+    heading?: string | null;
+    headingAccent?: string | null;
+    body?: string | null;
+    ctaLabel?: string | null;
+    /**
+     * Side image. WordPress uses the same photo (attachment 579, 11.png) on all three family templates. Empty falls back to the page hero, which is the city marketing graphic — not what WordPress shows.
+     */
+    image?: string | null;
+  };
+  quote?: {
+    heading?: string | null;
+    quote?: string | null;
+    attribution?: string | null;
+    image?: string | null;
+  };
+  /**
+   * "The Prime Difference" section (heading + checklist + reason cards + review logos).
+   */
+  primeDifference?: {
+    eyebrow?: string | null;
+    heading?: string | null;
+    body?: string | null;
+    checklist?:
+      | {
+          text?: string | null;
+          id?: string | null;
+        }[]
+      | null;
+    reasons?:
+      | {
+          title: string;
+          description?: string | null;
+          image?: string | null;
+          id?: string | null;
+        }[]
+      | null;
+  };
+  testimonialCards?: {
+    items?:
+      | {
+          name: string;
+          quote?: string | null;
+          avatar?: string | null;
+          id?: string | null;
+        }[]
+      | null;
+  };
+  siliconValleyLoves?: {
+    eyebrow?: string | null;
+    heading?: string | null;
+    body?: string | null;
+    image?: string | null;
+    stats?:
+      | {
+          value?: string | null;
+          label?: string | null;
+          detail?: string | null;
+          id?: string | null;
+        }[]
+      | null;
+  };
+  /**
    * Legacy WordPress city value; retained for import compatibility.
    */
   city?: string | null;
@@ -1899,83 +2028,6 @@ export interface ServiceLocation {
      * Preview image for social shares. Recommended 1200×630.
      */
     ogImage?: (number | null) | Media;
-  };
-  /**
-   * Video shown on the location page. Use {City} for the city name and {ServiceTitle} for the service name.
-   */
-  locationVideo?: {
-    eyebrow?: string | null;
-    title?: string | null;
-    description?: string | null;
-    tagline?: string | null;
-    videoUrl?: string | null;
-    poster?: string | null;
-  };
-  /**
-   * "Don't Settle for a Mediocre…" intro section. Use {City} and {ServiceTitle} placeholders.
-   */
-  dontSettle?: {
-    eyebrow?: string | null;
-    heading?: string | null;
-    headingAccent?: string | null;
-    body?: string | null;
-    ctaLabel?: string | null;
-    /**
-     * Side image. WordPress uses the same photo (attachment 579, 11.png) on all three family templates. Empty falls back to the page hero, which is the city marketing graphic — not what WordPress shows.
-     */
-    image?: string | null;
-  };
-  /**
-   * "The Prime Difference" section (heading + checklist + reason cards + review logos).
-   */
-  primeDifference?: {
-    eyebrow?: string | null;
-    heading?: string | null;
-    body?: string | null;
-    checklist?:
-      | {
-          text?: string | null;
-          id?: string | null;
-        }[]
-      | null;
-    reasons?:
-      | {
-          title: string;
-          description?: string | null;
-          image?: string | null;
-          id?: string | null;
-        }[]
-      | null;
-  };
-  quote?: {
-    heading?: string | null;
-    quote?: string | null;
-    attribution?: string | null;
-    image?: string | null;
-  };
-  siliconValleyLoves?: {
-    eyebrow?: string | null;
-    heading?: string | null;
-    body?: string | null;
-    image?: string | null;
-    stats?:
-      | {
-          value?: string | null;
-          label?: string | null;
-          detail?: string | null;
-          id?: string | null;
-        }[]
-      | null;
-  };
-  testimonialCards?: {
-    items?:
-      | {
-          name: string;
-          quote?: string | null;
-          avatar?: string | null;
-          id?: string | null;
-        }[]
-      | null;
   };
   updatedAt: string;
   createdAt: string;
@@ -5215,6 +5267,19 @@ export interface ServicesSelect<T extends boolean = true> {
               id?: T;
             };
       };
+  locationHero?:
+    | T
+    | {
+        lede?: T;
+        body?: T;
+        formSubject?: T;
+        blurbs?:
+          | T
+          | {
+              text?: T;
+              id?: T;
+            };
+      };
   quote?:
     | T
     | {
@@ -5431,6 +5496,96 @@ export interface ServiceLocationsSelect<T extends boolean = true> {
   slug?: T;
   service?: T;
   location?: T;
+  locationHero?:
+    | T
+    | {
+        lede?: T;
+        body?: T;
+        formSubject?: T;
+        blurbs?:
+          | T
+          | {
+              text?: T;
+              id?: T;
+            };
+      };
+  locationVideo?:
+    | T
+    | {
+        eyebrow?: T;
+        title?: T;
+        description?: T;
+        tagline?: T;
+        videoUrl?: T;
+        poster?: T;
+      };
+  dontSettle?:
+    | T
+    | {
+        eyebrow?: T;
+        heading?: T;
+        headingAccent?: T;
+        body?: T;
+        ctaLabel?: T;
+        image?: T;
+      };
+  quote?:
+    | T
+    | {
+        heading?: T;
+        quote?: T;
+        attribution?: T;
+        image?: T;
+      };
+  primeDifference?:
+    | T
+    | {
+        eyebrow?: T;
+        heading?: T;
+        body?: T;
+        checklist?:
+          | T
+          | {
+              text?: T;
+              id?: T;
+            };
+        reasons?:
+          | T
+          | {
+              title?: T;
+              description?: T;
+              image?: T;
+              id?: T;
+            };
+      };
+  testimonialCards?:
+    | T
+    | {
+        items?:
+          | T
+          | {
+              name?: T;
+              quote?: T;
+              avatar?: T;
+              id?: T;
+            };
+      };
+  siliconValleyLoves?:
+    | T
+    | {
+        eyebrow?: T;
+        heading?: T;
+        body?: T;
+        image?: T;
+        stats?:
+          | T
+          | {
+              value?: T;
+              label?: T;
+              detail?: T;
+              id?: T;
+            };
+      };
   city?: T;
   featuredImage?: T;
   heroHeading?: T;
@@ -5458,83 +5613,6 @@ export interface ServiceLocationsSelect<T extends boolean = true> {
         ogTitle?: T;
         ogDescription?: T;
         ogImage?: T;
-      };
-  locationVideo?:
-    | T
-    | {
-        eyebrow?: T;
-        title?: T;
-        description?: T;
-        tagline?: T;
-        videoUrl?: T;
-        poster?: T;
-      };
-  dontSettle?:
-    | T
-    | {
-        eyebrow?: T;
-        heading?: T;
-        headingAccent?: T;
-        body?: T;
-        ctaLabel?: T;
-        image?: T;
-      };
-  primeDifference?:
-    | T
-    | {
-        eyebrow?: T;
-        heading?: T;
-        body?: T;
-        checklist?:
-          | T
-          | {
-              text?: T;
-              id?: T;
-            };
-        reasons?:
-          | T
-          | {
-              title?: T;
-              description?: T;
-              image?: T;
-              id?: T;
-            };
-      };
-  quote?:
-    | T
-    | {
-        heading?: T;
-        quote?: T;
-        attribution?: T;
-        image?: T;
-      };
-  siliconValleyLoves?:
-    | T
-    | {
-        eyebrow?: T;
-        heading?: T;
-        body?: T;
-        image?: T;
-        stats?:
-          | T
-          | {
-              value?: T;
-              label?: T;
-              detail?: T;
-              id?: T;
-            };
-      };
-  testimonialCards?:
-    | T
-    | {
-        items?:
-          | T
-          | {
-              name?: T;
-              quote?: T;
-              avatar?: T;
-              id?: T;
-            };
       };
   updatedAt?: T;
   createdAt?: T;
