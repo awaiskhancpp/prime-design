@@ -72,53 +72,43 @@ export function LandscapingDifference({
 
   return (
     <Section className="">
-      {/* Full-bleed: breaks out of Section's Container to span the true
-    viewport width, independent of Container's max-width or padding.
-    `left-1/2` + `-mx-[50vw]` is the standard technique — it only works
-    correctly because this sits inside a horizontally-centered container;
-    it would need a different approach if Section were ever left-aligned
-    instead. The badges themselves stay in an inner, padded, max-width
-    wrapper so the logos don't spread edge-to-edge on very wide screens —
-    only the border and background go full width. */}
-      <div className="relative left-1/2 right-1/2 -mx-[50vw] w-screen border-y border-line">
-        <div className="mx-auto flex max-w-6xl flex-wrap items-center justify-center gap-x-10   py-8">
-          {socialBadges.map((badge) => {
-            const href = socialLinks?.[badge.key]
-            const image = (
-              <Image
-                src={badge.image}
-                alt=""
-                aria-hidden="true"
-                width={badge.width}
-                height={badge.height}
-                className="h-12 w-auto object-contain opacity-90 transition-opacity duration-300 group-hover:opacity-100 sm:h-14"
-              />
-            )
+      <div className="mb-16 flex flex-wrap items-center justify-center gap-x-10 border-y border-line py-8 gap-y-6">
+        {socialBadges.map((badge) => {
+          const href = socialLinks?.[badge.key]
+          const image = (
+            <Image
+              src={badge.image}
+              alt=""
+              aria-hidden="true"
+              width={badge.width}
+              height={badge.height}
+              className="h-12 w-auto object-contain opacity-90 transition-opacity duration-300 group-hover:opacity-100 sm:h-14"
+            />
+          )
 
-            return href ? (
-              <a
-                key={badge.key}
-                href={href}
-                target="_blank"
-                rel="noopener noreferrer"
-                aria-label={`${badge.label} (opens in a new tab)`}
-                className="group inline-flex items-center justify-center focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brass focus-visible:ring-offset-4"
-              >
-                {image}
-              </a>
-            ) : (
-              <span key={badge.key} className="group inline-flex items-center justify-center">
-                {image}
-              </span>
-            )
-          })}
-        </div>
+          return href ? (
+            <a
+              key={badge.key}
+              href={href}
+              target="_blank"
+              rel="noopener noreferrer"
+              aria-label={`${badge.label} (opens in a new tab)`}
+              className="group inline-flex items-center justify-center focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brass focus-visible:ring-offset-4"
+            >
+              {image}
+            </a>
+          ) : (
+            <span key={badge.key} className="group inline-flex items-center justify-center">
+              {image}
+            </span>
+          )
+        })}
       </div>
 
       {/* Heading banner — eyebrow + heading sit above the whole showcase,
           framing it as one story to scroll through rather than a heading
           competing side-by-side with the video for attention. */}
-      <div className="mt-16 mx-auto max-w-2xl text-center">
+      <div className="mx-auto max-w-2xl text-center">
         <p className="text-xs font-semibold uppercase tracking-[0.2em] text-brass-deep">
           {statLine}
         </p>

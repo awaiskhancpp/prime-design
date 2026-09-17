@@ -1,6 +1,6 @@
 import Image from 'next/image'
-import { Check } from 'lucide-react'
-import { Container } from '../ui/Container'
+
+import { Section } from '@/components/ui/Section'
 
 type ChecklistItem = { title: string; description: string }
 
@@ -20,49 +20,81 @@ export function ServiceImageChecklistSection({
   items: ChecklistItem[]
 }) {
   return (
-    <section className="bg-white py-16 md:py-24">
-      <Container>
-        <div className="mx-auto max-w-3xl px-6 text-center">
-          {eyebrow ? <p className="font-display text-lg italic text-ink-2/80">{eyebrow}</p> : null}
-          <h2 className="mt-3 font-display text-3xl font-medium leading-tight tracking-tight text-ink md:text-4xl">
-            {heading}
-          </h2>
-          {description ? (
-            <p className="mt-4 text-base leading-7 text-ink-2/70">{description}</p>
-          ) : null}
+    <Section className=" px-0 py-0">
+      <div className="grid min-h-[640px] lg:grid-cols-2">
+        {/* ── Left: full-bleed image, no frame, no inset ── */}
+        <div className="relative min-h-[360px] lg:min-h-full">
+          {/*
+            `sizes` must describe the source width the CROP needs, not the box
+            width. This is a landscape photo (~1.6:1) covering a box that is
+            proportionally taller (~688x640 at desktop), so object-cover scales
+            by HEIGHT: the pixels needed are height x 1.6 ~= 1030px, not the
+            688px the column occupies. Asking for 50vw picked the 750w variant
+            and upscaled it ~37%, which is what made this read as a low-quality
+            image. The column is capped by the 1440px container, so a fixed
+            1200px covers every desktop width without over-fetching. Below lg
+            the box is wide and short, the crop is width-driven again, and
+            100vw is correct.
+          */}
+          <Image
+            src={image}
+            alt={imageAlt}
+            fill
+            className="object-cover"
+            sizes="(min-width: 1024px) 1200px, 100vw"
+          />
+          {/* Subtle bottom vignette so the image reads into the section below on mobile */}
+          <div
+            className="pointer-events-none absolute inset-x-0 bottom-0 h-24 bg-gradient-to-t from-paper/60 to-transparent lg:hidden"
+            aria-hidden
+          />
         </div>
 
-        <div className=" mt-12 grid  gap-12 px-6 md:grid-cols-2 md:items-center md:gap-16">
-          {/* Offset brass frame — same motif used elsewhere on the site —
-            replacing the one-off dark shadow-box this had before. */}
-          <div className="relative">
-            <div className="relative aspect-[4/3] overflow-hidden">
-              <Image
-                src={image}
-                alt={imageAlt}
-                fill
-                className="object-cover"
-                sizes="(min-width: 768px) 40vw, 100vw"
-              />
-            </div>
+        {/* ── Right: heading + numbered list ── */}
+        <div className="flex flex-col justify-center px-8 py-16 md:px-14 lg:py-20">
+          {/* Header block */}
+          <div className="max-w-md">
+            {eyebrow ? (
+              <p className="text-xs font-semibold uppercase tracking-[0.2em] text-brass-deep">
+                {eyebrow}
+              </p>
+            ) : null}
+            <h2 className="mt-3 font-display text-3xl font-medium leading-tight text-ink md:text-4xl">
+              {heading}
+            </h2>
+            {description ? (
+              <p className="mt-4 text-base leading-7 text-ink-2/65">{description}</p>
+            ) : null}
           </div>
 
-          <ul className="grid gap-6">
-            {items.map(({ title, description }) => (
-              <li key={title}>
-                <div className="flex items-center gap-3">
-                  <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full border border-brass text-brass">
-                    <Check className="h-4 w-4" strokeWidth={2.5} aria-hidden />
+          {/* Checklist */}
+          {items.length ? (
+            <ul className="mt-10 space-y-0">
+              {items.map(({ title, description: itemDesc }, index) => (
+                <li key={title} className="grid grid-cols-[1fr_auto] border-t border-brass/20 py-6">
+                  {/* Text column */}
+                  <div className="pr-6">
+                    <p className="font-display text-lg font-semibold text-ink-2">{title}</p>
+                    {itemDesc ? (
+                      <p className="mt-1.5 text-sm leading-6 text-ink-2/60">{itemDesc}</p>
+                    ) : null}
+                  </div>
+
+                  {/* Number column — decorative, recedes into background */}
+                  <span
+                    className="self-start font-display text-4xl font-semibold leading-none text-brass/20 tabular-nums"
+                    aria-hidden
+                  >
+                    {String(index + 1).padStart(2, '0')}
                   </span>
-                  <p className="font-display text-lg font-semibold text-ink">{title}</p>
-                  <span className="h-px flex-1 bg-brass/60" aria-hidden />
-                </div>
-                <p className="mt-2 pl-10 text-sm leading-6 text-ink-2/70">{description}</p>
-              </li>
-            ))}
-          </ul>
+                </li>
+              ))}
+              {/* Closing border under the last item */}
+              <li className="border-t border-brass/20" aria-hidden />
+            </ul>
+          ) : null}
         </div>
-      </Container>
-    </section>
+      </div>
+    </Section>
   )
 }

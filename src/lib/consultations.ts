@@ -60,6 +60,7 @@ type PayloadMedia = { url?: string | null }
 type PayloadConsultation = Pick<ConsultationType, 'title' | 'slug'> & {
   hero?: { image?: number | PayloadMedia | null } | null
   consultationLabel?: string | null
+  consultationImage?: number | PayloadMedia | null
 }
 
 /**
@@ -116,11 +117,18 @@ export async function resolveConsultations(): Promise<ConsultationType[]> {
       title: item.consultationLabel || `${item.title} Consultation`,
       slug: item.slug,
       duration: '~1 Hour',
+      // WordPress gives each consultation card its own photo, which is NOT the
+      // service hero, so `consultationImage` wins. The hero is the fallback for
+      // services that have no card image set.
       image:
-        typeof item.hero?.image === 'object' && item.hero.image?.url
+        (typeof item.consultationImage === 'object' && item.consultationImage?.url
+          ? item.consultationImage.url
+          : undefined) ||
+        (typeof item.hero?.image === 'object' && item.hero.image?.url
           ? item.hero.image.url
-          : fallbackConsultations.find((fallback) => fallback.slug === item.slug)?.image ||
-            fallbackConsultations[index % fallbackConsultations.length].image,
+          : undefined) ||
+        fallbackConsultations.find((fallback) => fallback.slug === item.slug)?.image ||
+        fallbackConsultations[index % fallbackConsultations.length].image,
       bookingUrl: '#contact',
     }),
   )

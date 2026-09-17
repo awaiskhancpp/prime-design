@@ -22,6 +22,8 @@ export type ServiceDetail = Service & {
   benefits: string[]
   processSteps: string[]
   gallery: string[]
+  /** The three photos beside the hero blurbs on this service's city pages. */
+  locationFeatureImages?: string[]
   introHeading?: string
   heroVideoUrl?: string
   /** Second hero image — when set, the hero renders the two-image crossfade. */
@@ -238,6 +240,7 @@ type PayloadServiceRecord = {
   /** Side image for the "A Client-Centered Approach" section. */
   clientApproachImage?: number | PayloadMedia | null
   galleryImages?: Array<number | PayloadMedia | null> | null
+  locationFeatureImages?: Array<number | PayloadMedia | null> | null
   process?: {
     eyebrow?: string | null
     title?: string | null
@@ -557,6 +560,11 @@ export async function resolveServiceDetail(slug: string): Promise<ServiceDetail 
       ? (record.clientApproach as RichTextValue)
       : undefined,
     clientApproachImage: payloadImageUrl(record.clientApproachImage),
+    // WordPress sets these on the family template (kitchen/bathroom/home), so
+    // they live on the service and every city page in that family shares them.
+    locationFeatureImages: record.locationFeatureImages
+      ?.map(payloadImageUrl)
+      .filter((url): url is string => Boolean(url)),
     gallery: record.galleryImages?.map(payloadImageUrl).filter((url): url is string => Boolean(url))
       .length
       ? (record.galleryImages

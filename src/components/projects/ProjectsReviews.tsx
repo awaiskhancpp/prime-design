@@ -20,8 +20,8 @@ const reviewBadges = [
 ]
 
 const sourceIcon: Record<string, string> = {
-  Google: '/social/Google.png',
-  Yelp: '/social/Yelp.png',
+  Google: '/google.webp',
+  Yelp: '/Yelp.png',
 }
 
 function initials(name: string) {

@@ -830,13 +830,19 @@ function BookingField({
   children: React.ReactNode
 }) {
   return (
-    <div className={cn('grid gap-1.5', className)}>
+    // Same two rules as the site's other forms: `content-start` stops the
+    // control stretching to match a taller neighbour in the two-column grid,
+    // and the message slot is always present at a fixed height so showing or
+    // clearing an error never shifts the layout.
+    <div className={cn('grid content-start gap-1.5', className)}>
       {children}
-      {error ? (
-        <p id={`booking-${name}-error`} role="alert" className="text-xs text-red-600">
-          {error}
-        </p>
-      ) : null}
+      <div className="min-h-4" aria-live="polite">
+        {error ? (
+          <p id={`booking-${name}-error`} role="alert" className="text-xs leading-4 text-red-600">
+            {error}
+          </p>
+        ) : null}
+      </div>
     </div>
   )
 }

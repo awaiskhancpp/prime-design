@@ -280,6 +280,10 @@ export interface Service {
    */
   consultationLabel?: string | null;
   /**
+   * Photo for this service’s card in the Contact consultation list. WordPress used a dedicated image per card, not the service hero — leave empty to fall back to the hero image.
+   */
+  consultationImage?: (number | null) | Media;
+  /**
    * Display order in navigation and menus (lower numbers first)
    */
   sortOrder?: number | null;
@@ -1591,6 +1595,10 @@ export interface Service {
     heading?: string | null;
   };
   /**
+   * The three photos beside the hero blurbs on this service’s city pages. WordPress sets them on the family template (kitchen/bathroom/home), not per city. Empty falls back to the service gallery, which is what made every city page show the wrong photos.
+   */
+  locationFeatureImages?: (number | Media)[] | null;
+  /**
    * Photos shown in the gallery section. Empty falls back to the built-in gallery.
    */
   galleryImages?: (number | Media)[] | null;
@@ -1912,6 +1920,10 @@ export interface ServiceLocation {
     headingAccent?: string | null;
     body?: string | null;
     ctaLabel?: string | null;
+    /**
+     * Side image. WordPress uses the same photo (attachment 579, 11.png) on all three family templates. Empty falls back to the page hero, which is the city marketing graphic — not what WordPress shows.
+     */
+    image?: string | null;
   };
   /**
    * "The Prime Difference" section (heading + checklist + reason cards + review logos).
@@ -4336,6 +4348,7 @@ export interface ServicesSelect<T extends boolean = true> {
   featured?: T;
   showInConsultationForm?: T;
   consultationLabel?: T;
+  consultationImage?: T;
   sortOrder?: T;
   sectionOrder?:
     | T
@@ -5274,6 +5287,7 @@ export interface ServicesSelect<T extends boolean = true> {
     | {
         heading?: T;
       };
+  locationFeatureImages?: T;
   galleryImages?: T;
   hero?:
     | T
@@ -5463,6 +5477,7 @@ export interface ServiceLocationsSelect<T extends boolean = true> {
         headingAccent?: T;
         body?: T;
         ctaLabel?: T;
+        image?: T;
       };
   primeDifference?:
     | T

@@ -53,10 +53,15 @@ const HERO_COPY: Record<
 }
 
 function getLocationFeatures(service: ServiceDetail): LocationFeature[] {
+  // The WordPress family template names three specific photos for these
+  // blurbs. They come from `locationFeatureImages`; the service gallery is the
+  // fallback for any slot the CMS has not filled (the home-remodeling family
+  // still has two unimported originals).
+  const featured = (service.locationFeatureImages ?? []).filter(Boolean)
   const gallery = [...new Set([...service.gallery, service.image])].filter(Boolean)
   const copy = HERO_COPY[service.slug] ?? HERO_COPY['kitchen-remodeling']
   return copy.blurbs.map((blurb, index) => ({
-    image: gallery[index] ?? gallery[0] ?? service.image,
+    image: featured[index] ?? gallery[index] ?? gallery[0] ?? service.image,
     blurb,
   }))
 }
@@ -77,9 +82,7 @@ async function resolveHeroBackground(): Promise<string | undefined> {
       where: { filename: { like: 'Kitchen-And-Bathroom-Images-1920-%1080-px-1.png' } },
       limit: 1,
     })
-    const media = result.docs[0] as
-      | { url?: string | null; sourceUrl?: string | null }
-      | undefined
+    const media = result.docs[0] as { url?: string | null; sourceUrl?: string | null } | undefined
     // Media #424 (the WordPress hero background) now has its blob file, so
     // prefer the local blob copy; the WordPress source URL remains the
     // fallback.
@@ -147,9 +150,7 @@ export async function ServiceLocationHeroForm({
             <h1 className="mt-4 font-display text-4xl font-medium leading-tight tracking-tight text-ink md:text-5xl">
               {service.title} in {location.name}
             </h1>
-            <p className="mt-5 max-w-xl text-base leading-7 text-ink-2/70">
-              {fill(heroCopy.body)}
-            </p>
+            <p className="mt-5 max-w-xl text-base leading-7 text-ink-2/70">{fill(heroCopy.body)}</p>
 
             <div className="mt-8 grid grid-cols-1 gap-4 sm:grid-cols-3">
               {features.map((feature, index) => (
@@ -202,14 +203,29 @@ export async function ServiceLocationHeroForm({
       </Container>
 
       <div className="overflow-hidden border-y border-brass-deep/20 bg-brass py-3">
-        <div className="">
-          {Array.from({ length: 8 }).map((_, index) => (
-            <span
-              key={index}
-              className="text-sm font-semibold uppercase tracking-[0.2em] text-white"
-            >
-              {tickerItem}
-            </span>
+        {/* Real marquee: the content is duplicated exactly once (two
+            identical copies, side by side), and the whole flex row
+            animates translateX(0) -> translateX(-50%). Since the second
+            copy starts at the halfway point, the moment the first copy
+            has scrolled fully offscreen the second is in the exact
+            position the first started in — the loop is invisible. The
+            duplicate copy is aria-hidden so screen readers only hear the
+            ticker text once, not twice. */}
+        <div className="flex w-max animate-marquee gap-3 whitespace-nowrap will-change-transform hover:[animation-play-state:paused]">
+          {[0, 1].map((copy) => (
+            <div key={copy} className="flex shrink-0 items-center gap-3" aria-hidden={copy === 1}>
+              {Array.from({ length: 8 }).map((_, index) => (
+                <span
+                  key={index}
+                  className="flex items-center gap-3 text-sm font-semibold uppercase tracking-[0.2em] text-white"
+                >
+                  {tickerItem}
+                  <span aria-hidden="true" className="text-white/50">
+                    •
+                  </span>
+                </span>
+              ))}
+            </div>
           ))}
         </div>
       </div>

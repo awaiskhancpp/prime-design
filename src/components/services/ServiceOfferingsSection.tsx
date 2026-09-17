@@ -34,10 +34,6 @@ export function ServiceOfferingsSection({
 }: ServiceOfferingsContent & { embedded?: boolean; city?: string }) {
   if (!cards.length) return null
 
-  // WordPress location pages put the city in the section heading, the card
-  // headings and link the cards to #contact ("Custom Kitchen Remodeling in
-  // {City}" — WP template 1495 Feature Section Juliet). The kitchen heading
-  // is rebuilt with the city; the bathroom heading already matches WP.
   const shownTitle =
     city && /kitchen/i.test(title)
       ? `Kitchen Remodeling in ${city} That Reflects Your Unique Style and Vision.`
@@ -52,12 +48,15 @@ export function ServiceOfferingsSection({
 
   const content = (
     <>
-      <SectionHeader
-        align="center"
-        eyebrow={eyebrow}
-        title={shownTitle}
-        description={description}
-      />
+      {/* Header — centered, description capped at max-w-5xl */}
+      <div className="mx-auto max-w-5xl text-center">
+        <SectionHeader
+          align="center"
+          eyebrow={eyebrow}
+          title={shownTitle}
+          description={description}
+        />
+      </div>
 
       {(primaryCta || secondaryCta) && (
         <div className="mt-8 flex flex-wrap items-center justify-center gap-3">
@@ -79,38 +78,60 @@ export function ServiceOfferingsSection({
         </div>
       )}
 
-      <div className=" mt-12 grid  gap-x-8 gap-y-10 sm:grid-cols-3">
+      {/* Cards — portrait ratio, full-bleed image, all content lives inside */}
+      <div className="mt-12 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
         {shownCards.map((card) => (
-          <article key={card.title} className="group flex h-full flex-col">
+          <article key={card.title} className="group relative">
             <Link
               href={card.href}
-              className="relative block aspect-[4/3] overflow-hidden bg-paper-2"
+              className="block focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brass focus-visible:ring-offset-2"
+              aria-label={card.title}
             >
-              <Image
-                src={card.image}
-                alt={card.title}
-                fill
-                className="object-cover transition-transform duration-500 ease-out group-hover:scale-105"
-                sizes="(min-width: 768px) 50vw, 100vw"
-              />
-            </Link>
+              {/* Portrait image — tall enough to feel editorial, not thumbnails */}
+              <div className="relative aspect-[3/4] overflow-hidden bg-paper-2">
+                <Image
+                  src={card.image}
+                  alt={card.title}
+                  fill
+                  className="object-cover transition-transform duration-700 ease-[cubic-bezier(0.25,0.46,0.45,0.94)] group-hover:scale-[1.04]"
+                  // sizes="(min-width: 1024px) 33vw, (min-width: 640px) 50vw, 100vw"
+                />
 
-            <div className="flex flex-1 flex-col pt-5">
-              <h3 className="font-display text-2xl font-medium leading-tight text-ink-2 md:text-3xl">
-                {card.title}
-              </h3>
-              <p className="mt-3 line-clamp-2 text-base leading-7 text-ink-2/70">
-                {card.description}
-              </p>
-              <div className="mt-auto pt-5">
-                <Link
-                  href={card.href}
-                  className="inline-flex items-center gap-2 border border-brass px-4 py-2 text-xs font-semibold uppercase tracking-[0.12em] text-brass-deep transition-colors hover:bg-brass hover:text-white"
-                >
-                  Learn more <ArrowRight />
-                </Link>
+                {/* Persistent bottom gradient — title is always readable */}
+                <div
+                  aria-hidden="true"
+                  className="pointer-events-none absolute inset-x-0 bottom-0 h-2/3 bg-gradient-to-t from-ink/90 via-ink/40 to-transparent transition-opacity duration-500 group-hover:opacity-100"
+                />
+
+                {/* Content pinned inside the image at the bottom */}
+                <div className="absolute inset-x-0 bottom-0 p-5 md:p-6">
+                  {/* Brass rule — grows left→right on hover */}
+                  <div className="mb-4 h-px w-full overflow-hidden">
+                    <div className="h-full w-full -translate-x-full bg-brass transition-transform duration-500 ease-out group-hover:translate-x-0" />
+                  </div>
+
+                  <h3 className="font-display text-xl font-medium leading-tight text-white md:text-2xl">
+                    {card.title}
+                  </h3>
+
+                  {/* Description + CTA — hidden at rest, fade + slide up on hover */}
+                  <div className="grid transition-all duration-500 ease-out [grid-template-rows:0fr] group-hover:[grid-template-rows:1fr]">
+                    <div className="overflow-hidden">
+                      <p className="mt-2 line-clamp-2 text-sm leading-6 text-white/80 opacity-0 transition-opacity delay-100 duration-300 group-hover:opacity-100">
+                        {card.description}
+                      </p>
+                      <span className="mt-3 inline-flex items-center gap-1.5 text-xs font-semibold uppercase tracking-[0.14em] text-brass opacity-0 transition-opacity delay-150 duration-300 group-hover:opacity-100">
+                        Learn More
+                        <ArrowRight
+                          className="h-3 w-3 transition-transform duration-300 group-hover:translate-x-0.5"
+                          aria-hidden
+                        />
+                      </span>
+                    </div>
+                  </div>
+                </div>
               </div>
-            </div>
+            </Link>
           </article>
         ))}
       </div>

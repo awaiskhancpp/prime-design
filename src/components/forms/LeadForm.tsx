@@ -94,8 +94,12 @@ export function LeadForm({
   const [done, setDone] = useState(false)
   const [captchaToken, setCaptchaToken] = useState<string>()
   const [honeypot, setHoneypot] = useState('')
-  // Submissions faster than a couple of seconds after render are bots.
-  const renderedAt = useRef(Date.now())
+  // Submissions faster than a couple of seconds after render are bots. The
+  // clock is read in an effect, not during render — `Date.now()` is impure, so
+  // calling it in the render body is both a lint error and unstable across
+  // re-renders. 0 until mounted, which the endpoint reads as "no timing info"
+  // rather than as an instant submission.
+  const renderedAt = useRef(0)
   useEffect(() => {
     renderedAt.current = Date.now()
   }, [])
@@ -265,14 +269,29 @@ function Field({
   children: React.ReactNode
 }) {
   return (
-    <div className="grid gap-2 text-sm font-medium text-ink-2">
+    // `content-start` keeps the rows at their natural height. Without it the
+    // wrapper stretches to fill a taller neighbouring cell in the two-column
+    // grid, and the extra height lands on the control — so one input grew
+    // taller than the one beside it the moment its partner showed an error.
+    <div className="grid content-start gap-1 text-sm font-medium text-ink-2">
       <label htmlFor={`lead-${name}`}>{label}</label>
       {children}
-      {error ? (
-        <p id={`lead-${name}-error`} role="alert" className="text-xs font-normal text-red-600">
-          {error}
-        </p>
-      ) : null}
+      {/*
+        The message slot is always in the layout and always the same height, so
+        an error appearing or clearing never moves anything. `aria-live` on the
+        permanent wrapper means the text is announced when it changes.
+      */}
+      <div className="min-h-4" aria-live="polite">
+        {error ? (
+          <p
+            id={`lead-${name}-error`}
+            role="alert"
+            className="text-xs font-normal leading-4 text-red-600"
+          >
+            {error}
+          </p>
+        ) : null}
+      </div>
     </div>
   )
 }
