@@ -94,7 +94,11 @@ export function ServiceOfferingsSection({
                   alt={card.title}
                   fill
                   className="object-cover transition-transform duration-700 ease-[cubic-bezier(0.25,0.46,0.45,0.94)] group-hover:scale-[1.04]"
-                  // sizes="(min-width: 1024px) 33vw, (min-width: 640px) 50vw, 100vw"
+                  // Mirrors the grid below: 3 columns >=1024px, 2 columns >=640px,
+                  // 1 column below that. Without this, `fill` falls back to 100vw
+                  // and the srcset runs all the way to w=3840 for a card that is
+                  // never wider than a third of the viewport.
+                  sizes="(min-width: 1024px) 33vw, (min-width: 640px) 50vw, 100vw"
                 />
 
                 {/* Persistent bottom gradient — title is always readable */}

@@ -47,9 +47,6 @@ const fill = (text: string | undefined, serviceTitle: string, city: string) =>
  * back entry → parent-service section (Quote, Silicon Valley Loves,
  * Testimonial Cards — shared with the service pages) → built-in template.
  */
-/** Poster frame for the location video clip (a still from the video itself). */
-const LOCATION_VIDEO_POSTER = '/api/media/file/prime-kitchens-cryer-st-poster.jpg'
-
 export function ServiceLocationPage({
   entry,
 }: {
@@ -74,9 +71,11 @@ export function ServiceLocationPage({
         tagline: fill(locVideo.tagline, serviceTitle, city),
         videoUrl: locVideo.videoUrl,
         // WordPress defines no poster, but the player preloads nothing, so
-        // without one the box renders empty. This is a still from that same
-        // clip, not a marketing image.
-        poster: locVideo.poster ?? LOCATION_VIDEO_POSTER,
+        // without one the box renders empty. A still from that same clip now
+        // lives on the service-locations record (see
+        // scripts/fix-location-video-posters.mjs), so there is no fallback
+        // here — blank in Payload renders blank.
+        poster: locVideo.poster,
       }
     : undefined
 
