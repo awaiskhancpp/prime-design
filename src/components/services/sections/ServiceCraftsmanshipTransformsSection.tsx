@@ -5,7 +5,6 @@ import { RichTextContent } from '@/components/rich-text/RichTextContent'
 import { Button } from '@/components/ui/Button'
 import { Section } from '@/components/ui/Section'
 import type { RichTextValue } from '@/lib/richText'
-import type { ServiceDetail } from '@/lib/services'
 
 export type ServiceCraftsmanshipContent = {
   eyebrow: string
@@ -42,7 +41,10 @@ export function ServiceCraftsmanshipTransformsSection({
     })
     if (h3Index >= 0) {
       const node = children[h3Index] as { children?: Array<{ text?: string }> }
-      const text = (node.children ?? []).map((child) => child.text ?? '').join('').trim()
+      const text = (node.children ?? [])
+        .map((child) => child.text ?? '')
+        .join('')
+        .trim()
       if (text) {
         eyebrowText = text
         children.splice(h3Index, 1)

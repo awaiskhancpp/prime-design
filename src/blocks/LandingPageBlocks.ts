@@ -29,17 +29,66 @@ export const landingPageBlocks: Block[] = [
     text('heading', true),
     description(),
     ...mediaReferenceFields('backgroundMedia'),
+    // The Bricks hero sections play a looping video behind the copy
+    // (`_background.videoUrl`). It used to survive only as a raw WordPress
+    // URL inside `sourceMetadata`, which is provenance, not a field — so the
+    // video could never be changed from the admin. `asset` is the real
+    // uploaded Media document; `sourceUrl` keeps the WordPress origin.
+    ...mediaReferenceFields('backgroundVideo'),
     ...mediaReferenceFields('foregroundMedia'),
     ...buttonGroupFields(),
   ]),
   base('cta', 'CTA', [
     text('eyebrow'),
-    text('heading', true),
+    // Not required: some WordPress CTA sections are a bare button band with
+    // no copy at all (`gyrixo` on home-remodeling-information is just a
+    // "Schedule A Call" button). The import used to satisfy the requirement
+    // by inventing "Ready to get started?" and writing it to the database.
+    text('heading'),
     description(),
     ...mediaReferenceFields(),
     ...buttonGroupFields(),
   ]),
   base('image-text', 'Image and Text', imageTextContentFields()),
+  // The WordPress "Benefits of …" sections (`d1126c` on the siding page): a
+  // section title followed by a staggered row of photo cards, each an image
+  // + its own heading + a line of copy, closing with a decorative graphic.
+  // Imported as `image-text` before this existed, which collapsed all four
+  // cards into one run-on paragraph and kept only an unrelated image.
+  base('benefit-cards', 'Benefits Grid', [
+    text('eyebrow'),
+    text('heading'),
+    description(),
+    {
+      name: 'items',
+      type: 'array' as const,
+      fields: [
+        text('title', true),
+        { name: 'body', type: 'textarea' as const },
+        ...mediaReferenceFields(),
+      ],
+    },
+    ...mediaReferenceFields('decorativeMedia'),
+  ]),
+  // The WordPress "Remodel Your Entire Home With Prime Design & Build"
+  // section (`crempi` on remodeling-information): a three-column editorial
+  // block whose first column carries the eyebrow + heading and one captioned
+  // card, the middle column two standalone photos, and the third a second
+  // card plus a decorative graphic. `items` are the captioned cards,
+  // `images` the uncaptioned photos — they are different things in the
+  // source and collapsing them would lose the card copy.
+  base('craftsmanship', 'Craftsmanship', [
+    text('eyebrow'),
+    text('heading'),
+    description(),
+    {
+      name: 'items',
+      type: 'array' as const,
+      fields: [text('title', true), { name: 'body', type: 'textarea' as const }, ...mediaReferenceFields()],
+    },
+    { name: 'images', type: 'array' as const, fields: mediaReferenceFields() },
+    ...mediaReferenceFields('decorativeMedia'),
+  ]),
   base('video', 'Video', [
     text('heading'),
     description(),
@@ -52,6 +101,10 @@ export const landingPageBlocks: Block[] = [
     ...videoStoryFields(),
   ]),
   base('gallery', 'Gallery', [
+    // The WordPress gallery sections put a small h5 ("Our Gallery") beside
+    // the h2. Without a field for it the line was dropped and the renderer
+    // printed a hardcoded "Our Gallery" instead.
+    text('eyebrow'),
     text('heading'),
     description(),
     { name: 'items', type: 'array' as const, fields: galleryItemFields() },
@@ -150,6 +203,22 @@ export const landingPageBlocks: Block[] = [
       ],
     },
     {
+      name: 'comparisons',
+      type: 'array' as const,
+      admin: {
+        description:
+          'Before/after pairs shown in this section\'s media column. WordPress authors them as an `xbeforeafterimage` in the Bricks section immediately after this one (siding, outdoor hardscape) — the same split the video carousel uses — so they belong here, not in a section of their own.',
+      },
+      fields: [
+        { name: 'beforeMedia', type: 'upload' as const, relationTo: 'media' as const },
+        { name: 'afterMedia', type: 'upload' as const, relationTo: 'media' as const },
+        text('beforeLabel'),
+        text('afterLabel'),
+        text('caption'),
+        text('sourceId'),
+      ],
+    },
+    {
       name: 'videos',
       type: 'array' as const,
       admin: {
@@ -185,6 +254,11 @@ export const landingPageBlocks: Block[] = [
         { name: 'link', type: 'group' as const, fields: linkFields() },
       ],
     },
+    // The WordPress section ends with a state map and its caption
+    // ("California" over `ca-cities.png`). Without these the image and the
+    // heading were dropped on import.
+    text('regionHeading'),
+    ...mediaReferenceFields('mapMedia'),
   ]),
   base('repair-services', 'Repair Services', [
     text('eyebrow'),
@@ -225,19 +299,52 @@ export const landingPageBlocks: Block[] = [
     ...buttonGroupFields(),
   ]),
   base('booking', 'Booking', [
+    // Most WordPress booking sections are a bare scheduler shortcode with no
+    // copy of their own. These stay empty in that case — the section renders
+    // without a heading rather than inventing one.
+    text('eyebrow'),
+    text('heading'),
+    // The Bricks `_cssId` (e.g. `contact_form`). The hero and CTA buttons
+    // link to `#contact_form`, so without this the section has no anchor
+    // and those buttons go nowhere.
+    text('anchorId'),
+    // What the scheduler says is being booked. WordPress keeps this in
+    // LatePoint's own tables (the shortcode only references
+    // `selected_service="7"`), and LatePoint tables are not part of the WXR
+    // export — so there is no source value to migrate and this is filled in
+    // the admin. It is deliberately left empty rather than given a
+    // plausible-sounding default.
+    text('consultationLabel'),
     text('provider'),
     text('shortcode'),
     text('sourceElementId'),
     { name: 'integrationMetadata', type: 'json' as const },
   ]),
   base('contact-form', 'Contact Form', [
+    // The WordPress contact sections carry real copy above the form
+    // ("Contact Info" / "Receive a Free Estimate" / the response-time line).
+    // Without these fields the renderer fell through to the homepage
+    // contact defaults and the page's own copy was lost.
+    text('eyebrow'),
+    text('heading'),
+    description(),
+    // The Bricks `_cssId` of the section the form lives in. On the siding
+    // page the contact form shares the "Find us" root, and that root carries
+    // `contact_form` — the id every "Schedule a Free Consultation" button on
+    // the page links to.
+    text('anchorId'),
     text('provider'),
     text('shortcode'),
     text('sourceElementId'),
     { name: 'integrationMetadata', type: 'json' as const },
   ]),
   base('find-us', 'Find Us', [
+    text('eyebrow'),
     text('heading', true),
+    // Bare values only — no "Call Us" / "Email Now" / "Address" captions.
+    // The section supplies those labels itself, and a stored value that
+    // repeats them renders as "Call Us Call Us (650) 220-9600" and produces
+    // a `mailto:` containing the caption.
     text('phone'),
     text('email'),
     { name: 'address', type: 'textarea' as const },

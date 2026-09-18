@@ -1,29 +1,52 @@
 import { Mail, MapPin, Phone } from 'lucide-react'
 import { Section } from '@/components/ui/Section'
 
+/**
+ * LandingFindUs
+ *
+ * The contact-details band. Every value is a prop with no default: the
+ * previous defaults hardcoded a phone number — `(650) 235-4863` — that did
+ * not even match the WordPress source, so a page with broken CMS wiring
+ * showed a wrong number rather than nothing.
+ *
+ * `phone`, `email` and `address` are the bare values. The "Call Us" /
+ * "Email Now" / "Address" captions are this design's own labels, so the
+ * stored values must not repeat them, or the page renders "Call Us Call Us
+ * (650) 220-9600" and a `mailto:` that includes the caption.
+ */
 export function LandingFindUs({
-  heading = 'Find us',
-  phone = '(650) 235-4863',
-  email = 'office@primedesignandbuild.com',
-  address = '416 East Campbell Ave, Campbell CA 95008\n3 E 3rd Ave Suite 200, San Mateo, CA 94401',
+  eyebrow,
+  heading,
+  phone,
+  email,
+  address,
 }: {
+  eyebrow?: string
   heading?: string
   phone?: string
   email?: string
   address?: string
 }) {
   const items = [
-    { icon: Phone, label: 'Call Us', value: phone, href: `tel:${phone.replace(/[^0-9+]/g, '')}` },
-    { icon: Mail, label: 'Email Now', value: email, href: `mailto:${email}` },
-    { icon: MapPin, label: 'Address', value: address },
-  ]
+    phone
+      ? { icon: Phone, label: 'Call Us', value: phone, href: `tel:${phone.replace(/[^0-9+]/g, '')}` }
+      : undefined,
+    email ? { icon: Mail, label: 'Email Now', value: email, href: `mailto:${email}` } : undefined,
+    address ? { icon: MapPin, label: 'Address', value: address, href: undefined } : undefined,
+  ].filter((item): item is NonNullable<typeof item> => Boolean(item))
+
+  if (!items.length && !heading) return null
 
   return (
     <Section className="">
-      <p className="text-xs font-semibold uppercase tracking-[0.2em] text-brass-deep">
-        Get in touch
-      </p>
-      <h2 className="mt-3 font-display text-3xl font-medium text-ink md:text-4xl">{heading}</h2>
+      {eyebrow ? (
+        <p className="text-xs font-semibold uppercase tracking-[0.2em] text-brass-deep">
+          {eyebrow}
+        </p>
+      ) : null}
+      {heading ? (
+        <h2 className="mt-3 font-display text-3xl font-medium text-ink md:text-4xl">{heading}</h2>
+      ) : null}
 
       <div className="mt-10 grid gap-6 sm:grid-cols-3">
         {items.map(({ icon: Icon, label, value, href }) => (

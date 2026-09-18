@@ -9,25 +9,44 @@ import type { PageHeadingContent } from '@/lib/pageSections'
 import { richTextToPlainText } from '@/lib/richText'
 import { resolveSiteSettings } from '@/lib/siteSettings'
 
-export async function HomeContact({ contactIntro }: { contactIntro?: PageHeadingContent }) {
+/**
+ * `intro` is the plain-text override used by callers whose copy is plain
+ * strings rather than Lexical rich text — the landing pages' `contact-form`
+ * block, which carries the WordPress eyebrow/heading/description verbatim.
+ * When it is supplied it wins over `contactIntro` and over the homepage
+ * defaults, so a landing page renders its own copy instead of the
+ * homepage's.
+ */
+export async function HomeContact({
+  contactIntro,
+  intro,
+  id,
+}: {
+  contactIntro?: PageHeadingContent
+  intro?: { eyebrow?: string; heading?: string; description?: string }
+  /** Anchor id override; defaults to the homepage's `contact`. */
+  id?: string
+}) {
   const settings = await resolveSiteSettings()
   const contactDetails = [
     { icon: Mail, label: settings.email, href: settings.emailLink },
     { icon: Phone, label: settings.phone, href: `tel:${settings.phoneClean}` },
     ...settings.addresses.map((item) => ({ icon: MapPin, label: item.address, href: item.link })),
   ]
-  const description = contactIntro?.body
-    ? richTextToPlainText(contactIntro.body)
-    : "If you have any questions or you'd like to find out more about our services, please get in touch."
+  const description =
+    intro?.description ||
+    (contactIntro?.body
+      ? richTextToPlainText(contactIntro.body)
+      : "If you have any questions or you'd like to find out more about our services, please get in touch.")
   return (
-    <Section id="contact" className="bg-white">
+    <Section id={id || 'contact'} className="bg-white">
       <div className="grid gap-12 border border-line p-8 md:p-12 lg:grid-cols-[0.85fr_1.15fr] lg:gap-20">
         <div>
           <SectionHeader
-            eyebrow={contactIntro?.eyebrow || 'Contact'}
+            eyebrow={intro?.eyebrow || contactIntro?.eyebrow || 'Contact'}
             title={
               <HighlightedText
-                text={contactIntro?.heading || website.contactForm.heading}
+                text={intro?.heading || contactIntro?.heading || website.contactForm.heading}
                 highlight={contactIntro?.headingHighlight}
               />
             }

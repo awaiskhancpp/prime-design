@@ -2,9 +2,23 @@ import Image from 'next/image'
 import Link from 'next/link'
 import { Section } from '@/components/ui/Section'
 
-type Project = { title: string; description?: string; image?: string; link?: string }
+type ServiceCard = { title: string; description?: string; image?: string; link?: string }
 
-export function LandingProjectsSection({
+/**
+ * LandingServicesSection
+ *
+ * The services grid on the Google Ads landing pages — the WordPress
+ * `sub-services` section ("We always provide the best service" / "Services" /
+ * "Need a new kitchen, bathroom, or complete home renovation?" over six
+ * service cards). It was previously called `LandingProjectsSection`, which
+ * read as though it rendered the projects grid; the projects grid is
+ * `LandingProjectGridSection`, a different section.
+ *
+ * Every string comes from the caller. There are no default headings: a
+ * section that supplies its own copy when the CMS field is empty makes it
+ * impossible to tell whether the content is actually wired to Payload.
+ */
+export function LandingServicesSection({
   eyebrow,
   heading,
   description,
@@ -13,23 +27,25 @@ export function LandingProjectsSection({
   eyebrow?: string
   heading?: string
   description?: string
-  items: Project[]
+  items: ServiceCard[]
 }) {
   if (!items.length) return null
   return (
-    <Section className="bg-white">
+    <Section className="bg-white" id="services">
       <div className="grid gap-8 md:grid-cols-[1fr_0.8fr]">
         <div>
-          <p className="text-xs font-semibold uppercase tracking-[0.2em] text-brass">
-            {eyebrow || 'Our Projects'}
-          </p>
-          <h2 className="mt-3 font-display text-3xl font-medium text-ink md:text-5xl">
-            {heading || 'Showcasing our remodeling projects in Silicon Valley'}
-          </h2>
+          {eyebrow ? (
+            <p className="text-xs font-semibold uppercase tracking-[0.2em] text-brass">{eyebrow}</p>
+          ) : null}
+          {heading ? (
+            <h2 className="mt-3 font-display text-3xl font-medium text-ink md:text-5xl">
+              {heading}
+            </h2>
+          ) : null}
         </div>
         {description ? <p className="text-base leading-7 text-ink-2/70">{description}</p> : null}
       </div>
-      <div className="mt-10 grid gap-4 md:grid-cols-2">
+      <div className="mt-10 grid gap-4 md:grid-cols-3">
         {items.map((item) => (
           <article key={item.title} className="border border-line bg-paper-2">
             {item.image ? (
@@ -39,7 +55,9 @@ export function LandingProjectsSection({
                   alt={item.title}
                   fill
                   className="object-cover"
-                  unoptimized={item.image.startsWith('http') || item.image.includes('/api/media/file/')}
+                  unoptimized={
+                    item.image.startsWith('http') || item.image.includes('/api/media/file/')
+                  }
                 />
               </div>
             ) : null}

@@ -20,6 +20,7 @@ export function LandingServiceAreasSection({
   ctaLabel,
   ctaHref,
   areas = [],
+  regionHeading,
 }: {
   eyebrow?: string
   heading?: string
@@ -27,6 +28,12 @@ export function LandingServiceAreasSection({
   ctaLabel?: string
   ctaHref?: string
   areas?: Area[]
+  /**
+   * The state the listed cities belong to ("California" in the source),
+   * shown under the heading. The WordPress section prints this beside a map
+   * graphic; this design deliberately carries the label without the map.
+   */
+  regionHeading?: string
 }) {
   const items = areas.filter((item) => item.label)
   if (!items.length) return null
@@ -42,6 +49,9 @@ export function LandingServiceAreasSection({
             <h2 className="mt-3 max-w-sm font-display text-3xl font-medium leading-tight tracking-tight md:text-4xl">
               {heading}
             </h2>
+          ) : null}
+          {regionHeading ? (
+            <p className="mt-2 font-display text-xl font-medium text-ink">{regionHeading}</p>
           ) : null}
           {description ? (
             <p className="mt-4 max-w-sm text-base text-ink/70">{description}</p>

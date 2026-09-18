@@ -2,8 +2,13 @@ import { Section } from '@/components/ui/Section'
 
 type Feature = { title?: string; description?: string }
 
+/**
+ * Every string comes from the `experience-difference` block. The eyebrow and
+ * heading used to fall back to invented copy, which hid the fact that the
+ * WordPress h2 ("Why choose Prime Design & Build?") was never imported.
+ */
 export function LandingExperienceDifferenceSection({
-  eyebrow = 'Experience the difference',
+  eyebrow,
   heading,
   body,
   features = [],
@@ -19,12 +24,14 @@ export function LandingExperienceDifferenceSection({
   return (
     <Section className="bg-white">
       <div className="mx-auto max-w-3xl text-center">
-        <p className="text-xs font-semibold uppercase tracking-[0.2em] text-brass-deep">
-          {eyebrow}
-        </p>
-        <h2 className="mt-4 font-display text-3xl font-medium text-ink md:text-5xl">
-          {heading || 'Experience the Prime Difference'}
-        </h2>
+        {eyebrow ? (
+          <p className="text-xs font-semibold uppercase tracking-[0.2em] text-brass-deep">
+            {eyebrow}
+          </p>
+        ) : null}
+        {heading ? (
+          <h2 className="mt-4 font-display text-3xl font-medium text-ink md:text-5xl">{heading}</h2>
+        ) : null}
         {body ? <p className="mt-5 text-base leading-7 text-ink-2/70">{body}</p> : null}
       </div>
 

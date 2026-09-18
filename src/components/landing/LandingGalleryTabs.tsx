@@ -13,12 +13,17 @@ type GalleryTab = {
 
 export function LandingGalleryTabs({
   heading,
+  eyebrow,
   description,
   tabs,
+  lightbox = false,
 }: {
   heading?: string
+  eyebrow?: string
   description?: string
   tabs: GalleryTab[]
+  /** Mirrors the source HappyFiles gallery's own `lightbox` setting. */
+  lightbox?: boolean
 }) {
   const usableTabs = tabs.filter((tab) => tab.images.length > 0)
   const [activeIndex, setActiveIndex] = useState(0)
@@ -29,13 +34,17 @@ export function LandingGalleryTabs({
   return (
     <Section className="bg-white">
       <div className="grid gap-6 md:grid-cols-2 md:items-start md:gap-10">
-        <h2 className="font-display text-3xl font-medium text-ink md:text-4xl">
-          {heading || 'A reflection of our remodeling projects in Silicon Valley'}
-        </h2>
-        {description ? (
+        {heading ? (
+          <h2 className="font-display text-3xl font-medium text-ink md:text-4xl">{heading}</h2>
+        ) : null}
+        {eyebrow || description ? (
           <div>
-            <p className="font-display text-lg font-medium text-ink">Our Gallery</p>
-            <p className="mt-2 text-base leading-7 text-ink-2/70">{description}</p>
+            {eyebrow ? (
+              <p className="font-display text-lg font-medium text-ink">{eyebrow}</p>
+            ) : null}
+            {description ? (
+              <p className="mt-2 text-base leading-7 text-ink-2/70">{description}</p>
+            ) : null}
           </div>
         ) : null}
       </div>
@@ -67,7 +76,7 @@ export function LandingGalleryTabs({
       ) : null}
 
       <div key={active.label} className="mt-6 animate-fade-in motion-reduce:animate-none">
-        <GalleryGrid images={active.images} altPrefix={active.label} />
+        <GalleryGrid images={active.images} altPrefix={active.label} lightbox={lightbox} />
       </div>
     </Section>
   )

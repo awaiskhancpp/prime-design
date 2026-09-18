@@ -18,10 +18,27 @@ import type {
   WordPressSource,
 } from '../wordpress-migration/types'
 
+const args = process.argv.slice(2)
+const positional = args.filter((value) => !value.startsWith('--'))
 const xmlPath =
-  process.argv[2] || 'C:/Users/HP/Downloads/primedesignampbuild.WordPress.2026-08-28.xml'
-const uploadsPath = process.argv[3]
-const targetSlugs = [
+  positional[0] || 'C:/Users/HP/Downloads/primedesignampbuild.WordPress.2026-08-28.xml'
+const uploadsPath = positional[1]
+
+/**
+ * `--only=slug[,slug]` re-imports just those pages. A full run takes minutes
+ * and re-resolves every image on all seven pages, which is a lot of waiting
+ * when iterating on one page.
+ */
+const onlyArg = args.find((value) => value.startsWith('--only='))
+const onlySlugs = onlyArg
+  ? onlyArg
+      .slice('--only='.length)
+      .split(',')
+      .map((value) => value.trim())
+      .filter(Boolean)
+  : undefined
+
+const allTargetSlugs = [
   'kitchen-remodeling-information',
   'bathroom-remodeling-information',
   'additions-remodeling-information',
@@ -33,6 +50,16 @@ const targetSlugs = [
   // root URL redirects there via the service resolver.
   'remodeling-information',
 ]
+
+const unknownSlugs = (onlySlugs || []).filter((slug) => !allTargetSlugs.includes(slug))
+if (unknownSlugs.length) {
+  console.error(`Unknown --only slug(s): ${unknownSlugs.join(', ')}`)
+  console.error(`Known slugs: ${allTargetSlugs.join(', ')}`)
+  process.exit(1)
+}
+const targetSlugs = onlySlugs?.length
+  ? allTargetSlugs.filter((slug) => onlySlugs.includes(slug))
+  : allTargetSlugs
 
 const sourcePhone = website.header.phoneCta
 const sourcePhoneClean = sourcePhone.replace(/[^\d+]/g, '')
@@ -148,6 +175,57 @@ function buttonData(section: NormalizedSection, pagesById: Map<number, WordPress
     )
 }
 
+/**
+ * Match a video URL to an already-imported Media document.
+ *
+ * The site's videos live in the Media collection but were imported from the
+ * CDN, so they carry no WordPress attachment id and `resolveMediaId` (which
+ * looks up `wordpressId`, then a local file) can never find them. The same
+ * asset is also addressed by two different URLs: Bricks plays the hero video
+ * from `…/wp-content/uploads/2024/09/Prime-Design-Updated-Home-Video.mp4`
+ * while the Media document records the CDN original,
+ * `…/Prime%20Design%20Updated%20Home%20Video.mp4`.
+ *
+ * Reducing both to a slug of the file's basename makes them the same key, so
+ * the hero and the five Prime Difference videos resolve to real media
+ * documents instead of staying as off-site hotlinks.
+ */
+const videoKey = (url: string) => {
+  const basename = decodeURIComponent(url.split(/[?#]/)[0].split('/').pop() || '')
+  return basename
+    .replace(/\.[a-z0-9]+$/i, '')
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-|-$/g, '')
+}
+
+/**
+ * The real attachment filename behind a Bricks image reference.
+ *
+ * WordPress's WebP plugin rewrites some references to a doubled extension —
+ * `o-55.jpg.webp`, `Prime15-1.jpg.webp` — and those elements carry no
+ * attachment id at all, only the filename. Left as-is they match nothing in
+ * the Media collection, so the image silently imports empty (this is why the
+ * kitchen page's Custom / European / Shaker Kitchen cards had no photos).
+ * Strip the trailing `.webp` only when a real image extension remains.
+ */
+/**
+ * The Prime Design & Build logo (WordPress attachment 2850,
+ * `cropped-Prime-Kitchens-Logo.png`). It is placed inside the hero of every
+ * landing page as a brand mark, so it is never the image a section is
+ * *about* — the hero's own photo is its CSS background.
+ */
+function isBrandLogo(image: { sourceId?: number; filename?: string }) {
+  if (image.sourceId === 2850) return true
+  return /prime-kitchens-logo/i.test(image.filename || '')
+}
+
+function sourceFilename(value: unknown): string | undefined {
+  if (typeof value !== 'string' || !value) return undefined
+  const match = value.match(/^(.+\.(?:jpe?g|png|gif|avif))\.webp$/i)
+  return match ? match[1] : value
+}
+
 function mediaRef(image: { sourceId?: number; filename?: string; url?: string }, mediaId?: number) {
   return {
     asset: mediaId,
@@ -201,7 +279,7 @@ function sourceImages(section: NormalizedSection): NormalizedImage[] {
     return [
       {
         sourceId: typeof image.id === 'number' ? image.id : undefined,
-        filename: typeof image.filename === 'string' ? image.filename : undefined,
+        filename: sourceFilename(image.filename),
         url:
           typeof image.full === 'string'
             ? image.full
@@ -266,7 +344,7 @@ function imageFromTreeNode(node: BricksTreeNode): NormalizedImage | undefined {
   const image = imageNode.settings.image as Record<string, unknown>
   return {
     sourceId: typeof image.id === 'number' ? image.id : undefined,
-    filename: typeof image.filename === 'string' ? image.filename : undefined,
+    filename: sourceFilename(image.filename),
     url:
       typeof image.full === 'string'
         ? image.full
@@ -279,6 +357,446 @@ function imageFromTreeNode(node: BricksTreeNode): NormalizedImage | undefined {
 
 function treeNodesFromNode(node: BricksTreeNode): BricksTreeNode[] {
   return [node, ...node.children.flatMap((child) => treeNodesFromNode(child))]
+}
+
+/** A single styled inline text run. `format: 1` is Lexical's bold bit. */
+const lexicalText = (value: string, bold = false) => ({
+  type: 'text',
+  detail: 0,
+  format: bold ? 1 : 0,
+  mode: 'normal',
+  style: '',
+  text: value,
+  version: 1,
+})
+
+const lexicalParagraph = (value: string) => ({
+  type: 'paragraph',
+  format: '',
+  indent: 0,
+  version: 1,
+  direction: 'ltr',
+  textFormat: 0,
+  children: [lexicalText(value)],
+})
+
+const lexicalBulletList = (items: string[]) => ({
+  type: 'list',
+  listType: 'bullet',
+  start: 1,
+  tag: 'ul',
+  format: '',
+  indent: 0,
+  version: 1,
+  direction: 'ltr',
+  children: items.map((item, index) => ({
+    type: 'listitem',
+    value: index + 1,
+    format: '',
+    indent: 0,
+    version: 1,
+    direction: 'ltr',
+    children: [lexicalText(item)],
+  })),
+})
+
+/**
+ * Build a Lexical document from the parts of a WordPress body.
+ *
+ * `image-text` bodies are structured in the source — a lead-in line such as
+ * "Key Features:" followed by a real `<list>` element — so they are stored as
+ * rich text rather than flattened into a textarea and pattern-matched back
+ * apart at render time.
+ */
+function lexicalDocument(blocks: Array<{ kind: 'paragraph' | 'list'; value: string | string[] }>) {
+  const children: Record<string, unknown>[] = []
+  for (const entry of blocks) {
+    if (entry.kind === 'list') {
+      const items = (entry.value as string[]).filter(Boolean)
+      if (items.length) children.push(lexicalBulletList(items))
+      continue
+    }
+    const value = entry.value as string
+    if (value) children.push(lexicalParagraph(value))
+  }
+  if (!children.length) return undefined
+  return { root: { type: 'root', format: '', indent: 0, version: 1, direction: 'ltr', children } }
+}
+
+/**
+ * The innermost blocks that hold a photo card — an image plus its own
+ * heading. An ancestor block that also satisfies the test is the column, not
+ * the card, so it is excluded.
+ */
+function photoCardRoots(tree: BricksTreeNode) {
+  const isCard = (node: BricksTreeNode) =>
+    treeNodesFromNode(node).some((child) => child.name === 'image') &&
+    treeNodesFromNode(node).some(
+      (child) => child.name === 'heading' && clean(child.settings.text),
+    )
+  return treeNodesFromNode(tree).filter((node) => {
+    if (node.name !== 'block' || !isCard(node)) return false
+    return !node.children.some((child) =>
+      treeNodesFromNode(child).some(
+        (grandchild) => grandchild.name === 'block' && isCard(grandchild),
+      ),
+    )
+  })
+}
+
+/**
+ * The WordPress "craftsmanship" sections (`crempi` on remodeling-information)
+ * are a three-column layout of two captioned photo cards, some standalone
+ * photos, and a decorative graphic. `mapSection` used to have no case for
+ * this type, so the whole section fell through to `default: return undefined`
+ * and vanished from the imported page.
+ *
+ * A card is the innermost block holding both an image and a heading. Every
+ * other image in the section is a standalone photo, except that Bricks marks
+ * the real photographs with a shared global class and leaves the decorative
+ * graphic without one — that is what separates `circle-dots.png` from the
+ * project photos here.
+ */
+function craftsmanshipContent(
+  section: NormalizedSection,
+  mediaIds: Map<number | string, number>,
+) {
+  const sourceTree = dataOf(section).sourceTree as BricksTreeNode | undefined
+  if (!sourceTree) return { items: [], images: [], decorativeMedia: undefined }
+
+  const all = treeNodesFromNode(sourceTree)
+  const cardRoots = all.filter((node) => {
+    if (node.name !== 'block') return false
+    const descendants = treeNodesFromNode(node)
+    const hasBoth =
+      descendants.some((child) => child.name === 'image') &&
+      descendants.some((child) => child.name === 'heading' && clean(child.settings.text))
+    if (!hasBoth) return false
+    // Innermost only — an ancestor block that also satisfies the test is the
+    // column, not the card.
+    return !node.children.some((child) =>
+      treeNodesFromNode(child).some(
+        (grandchild) =>
+          grandchild.name === 'block' &&
+          treeNodesFromNode(grandchild).some((n) => n.name === 'image') &&
+          treeNodesFromNode(grandchild).some(
+            (n) => n.name === 'heading' && clean(n.settings.text),
+          ),
+      ),
+    )
+  })
+
+  const cardNodeIds = new Set(cardRoots.flatMap((card) => treeNodesFromNode(card).map((n) => n.id)))
+
+  const items = cardRoots.flatMap((card) => {
+    const nodes = treeNodesFromNode(card)
+    const title = clean(nodes.find((n) => n.name === 'heading')?.settings.text)
+    if (!title) return []
+    const body = nodes
+      .filter((n) => n.name === 'text-basic')
+      .map((n) => clean(n.settings.text))
+      .filter((value): value is string => Boolean(value))
+      .join('\n\n')
+    const image = imageFromTreeNode(card)
+    return [
+      {
+        title,
+        body: body || undefined,
+        media: image
+          ? mediaRef(image, sourceImageMediaId(image, mediaIds))
+          : undefined,
+      },
+    ]
+  })
+
+  const looseImages = all.filter((node) => node.name === 'image' && !cardNodeIds.has(node.id))
+  const hasPhotoClass = (node: BricksTreeNode) => {
+    const classes = node.settings._cssGlobalClasses
+    return Boolean(classes && typeof classes === 'object' && Object.keys(classes).length)
+  }
+  const photos = looseImages.filter(hasPhotoClass)
+  const decoration = looseImages.find((node) => !hasPhotoClass(node))
+
+  const toRef = (node: BricksTreeNode) => {
+    const image = imageFromTreeNode(node)
+    return image
+      ? mediaRef(image, sourceImageMediaId(image, mediaIds))
+      : undefined
+  }
+
+  return {
+    items,
+    images: (photos.length ? photos : looseImages)
+      .map((node) => ({ media: toRef(node) }))
+      .filter((entry) => entry.media),
+    decorativeMedia: decoration ? toRef(decoration) : undefined,
+  }
+}
+
+/**
+ * Before/after pairs for a Prime Difference section, taken from the
+ * `before-after` section merged into it.
+ *
+ * The labels are real source values: the Bricks `xbeforeafterimage` element
+ * stores them as `beforeText` / `afterText` (both "Before" / "After" on the
+ * pages that use it). They are read rather than assumed so a page that
+ * renames them keeps its own wording.
+ */
+function comparisonItems(section: NormalizedSection, mediaIds: Map<number | string, number>) {
+  const merged = dataOf(section).mergedBeforeAfter as NormalizedSection | undefined
+  if (!merged) return []
+  const images = sourceImages(merged)
+  if (images.length < 2) return []
+
+  const widget = treeNodes(merged).find((node) => node.name === 'xbeforeafterimage')
+  const beforeLabel = clean(widget?.settings.beforeText)
+  const afterLabel = clean(widget?.settings.afterText)
+
+  const pairs: Array<Record<string, unknown>> = []
+  for (let index = 0; index + 1 < images.length; index += 2) {
+    const beforeMedia = sourceImageMediaId(images[index], mediaIds)
+    const afterMedia = sourceImageMediaId(images[index + 1], mediaIds)
+    if (!beforeMedia || !afterMedia) continue
+    pairs.push({
+      beforeMedia,
+      afterMedia,
+      beforeLabel,
+      afterLabel,
+      sourceId: merged.sourceId,
+    })
+  }
+  return pairs
+}
+
+/**
+ * Cards for a "Benefits of …" section (`d1126c`, "Benefits of Siding").
+ *
+ * The section is a row of equal columns, each an image + its own h2 + a line
+ * of copy, closing with a decorative graphic. It types as `image-text`
+ * upstream, which collapsed all four cards into one paragraph and kept only
+ * one unrelated image, so the card shape is detected here instead.
+ */
+function benefitsContent(section: NormalizedSection, mediaIds: Map<number | string, number>) {
+  const tree = dataOf(section).sourceTree as BricksTreeNode | undefined
+  if (!tree) return { items: [], decorativeMedia: undefined }
+  const cardRoots = photoCardRoots(tree)
+  const cardNodeIds = new Set(cardRoots.flatMap((card) => treeNodesFromNode(card).map((n) => n.id)))
+
+  const items = cardRoots.flatMap((card) => {
+    const nodes = treeNodesFromNode(card)
+    const title = clean(nodes.find((n) => n.name === 'heading')?.settings.text)
+    if (!title) return []
+    const body = nodes
+      .filter((n) => n.name === 'text-basic' || n.name === 'text')
+      .map((n) => clean(n.settings.text))
+      .filter((value): value is string => Boolean(value))
+      .join('\n\n')
+    const image = imageFromTreeNode(card)
+    return [
+      {
+        title,
+        body: body || undefined,
+        media: image
+          ? mediaRef(image, sourceImageMediaId(image, mediaIds))
+          : undefined,
+      },
+    ]
+  })
+
+  // Anything left over that is not part of a card is decoration (the shared
+  // `circle-dots.png` graphic).
+  const loose = treeNodesFromNode(tree).find(
+    (node) => node.name === 'image' && !cardNodeIds.has(node.id),
+  )
+  const decoration = loose ? imageFromTreeNode(loose) : undefined
+
+  return {
+    items,
+    decorativeMedia: decoration
+      ? mediaRef(decoration, sourceImageMediaId(decoration, mediaIds))
+      : undefined,
+  }
+}
+
+/**
+ * The intro half of a sub-services section.
+ *
+ * On the newer landing pages (additions, outdoor hardscape, siding) the
+ * services Bricks root holds two unrelated things: an image+text intro — a
+ * heading, a "Key Features:" lead-in, a real bullet `<list>`, a CTA button
+ * and a photo — followed by the grid of six service cards. Imported as a
+ * single `sub-services` block, the whole intro was dropped: the list, the
+ * button and the photo never reached the CMS at all.
+ *
+ * The `<list>` element is what identifies the intro; card containers never
+ * contain one.
+ */
+function subServicesIntro(
+  section: NormalizedSection,
+  mediaIds: Map<number | string, number>,
+  pagesById: Map<number, WordPressPage>,
+) {
+  const tree = dataOf(section).sourceTree as BricksTreeNode | undefined
+  if (!tree) return undefined
+
+  // The intro is the container that carries the section's own copy; the card
+  // containers hold linked service cards (`customTag: li` with a `link`).
+  // Most pages mark the intro with a `<list>` ("Key Features:"), but the
+  // kitchen page's intro is just heading + paragraph + button + photo, so
+  // "has a heading and holds no linked cards" is the general test.
+  const isCardContainer = (node: BricksTreeNode) =>
+    treeNodesFromNode(node).some(
+      (child) =>
+        child.name === 'block' &&
+        (child.settings.customTag === 'li' ||
+          (child.settings.link && typeof child.settings.link === 'object')),
+    )
+  const introContainer = tree.children.find(
+    (child) =>
+      !isCardContainer(child) &&
+      treeNodesFromNode(child).some(
+        (node) => node.name === 'heading' && clean(node.settings.text),
+      ),
+  )
+  if (!introContainer) return undefined
+  // Only split when there really are cards to split away from.
+  if (!tree.children.some(isCardContainer)) return undefined
+  // And only when the intro is a section in its own right — it must bring
+  // its own photo or feature list, not just a heading. On
+  // remodeling-information and home-remodeling the services root opens with
+  // nothing but the grid's own heading ("We always provide the best
+  // service" / "Services"), and splitting that produced an empty image+text
+  // block while stripping the grid of its title.
+  if (
+    !treeNodesFromNode(introContainer).some(
+      (node) =>
+        node.name === 'list' ||
+        (node.name === 'image' && !isBrandLogo({ filename: sourceFilename(
+          (node.settings.image as Record<string, unknown> | undefined)?.filename,
+        ) })),
+    )
+  )
+    return undefined
+
+  const nodes = treeNodesFromNode(introContainer)
+  const headings = nodes.filter((node) => node.name === 'heading')
+  const heading = clean(
+    headings.find((node) => ['h1', 'h2', 'h3'].includes(headingTag(node)))?.settings.text,
+  )
+  if (!heading) return undefined
+
+  // The lead-in above the list ("Key Features:") is a smaller heading.
+  const leadIn = clean(
+    headings.find((node) => node !== headings[0] && node.settings.text !== heading)?.settings.text,
+  )
+
+  const listItems = nodes
+    .filter((node) => node.name === 'list')
+    .flatMap((node) => {
+      const items = node.settings.items
+      if (!items || typeof items !== 'object') return []
+      return Object.values(items as Record<string, unknown>)
+        .map((item) =>
+          item && typeof item === 'object'
+            ? clean((item as Record<string, unknown>).title)
+            : undefined,
+        )
+        .filter((value): value is string => Boolean(value))
+    })
+
+  const paragraphs = nodes
+    .filter((node) => node.name === 'text-basic' || node.name === 'text')
+    .map((node) => clean(node.settings.text))
+    .filter((value): value is string => Boolean(value))
+
+  const description = lexicalDocument([
+    ...paragraphs.map((value) => ({ kind: 'paragraph' as const, value })),
+    ...(leadIn ? [{ kind: 'paragraph' as const, value: leadIn }] : []),
+    { kind: 'list' as const, value: listItems },
+  ])
+
+  const image = imageFromTreeNode(introContainer)
+  const buttons = treeNodesFromNode(introContainer)
+    .filter((node) => node.name === 'button')
+    .map((node) => {
+      const link =
+        node.settings.link && typeof node.settings.link === 'object'
+          ? (node.settings.link as Record<string, unknown>)
+          : undefined
+      const postId = typeof link?.postId === 'string' ? Number(link.postId) : undefined
+      const url =
+        typeof link?.url === 'string'
+          ? link.url
+          : postId && pagesById.get(postId)
+            ? `/${pagesById.get(postId)?.slug}`
+            : undefined
+      const label = clean(node.settings.text)
+      return label && url ? { label, url, variant: 'primary', openInNewTab: false } : undefined
+    })
+    .filter((item): item is NonNullable<typeof item> => Boolean(item))
+
+  return {
+    blockType: 'image-text',
+    ...base(section),
+    sourceId: `${section.sourceId}-intro`,
+    eyebrow: undefined,
+    heading,
+    description,
+    media: image
+      ? mediaRef(image, sourceImageMediaId(image, mediaIds))
+      : undefined,
+    buttons,
+    alignment: 'left',
+  }
+}
+
+/**
+ * The contact-form half of a find-us section.
+ *
+ * On the newer landing pages the "Find us" Bricks root also contains the
+ * page's contact form — an `xfluentform` under its own "Contact Info" /
+ * "Keep In Touch" copy. Typed as a single `find-us` section, the entire
+ * contact block was dropped, so those pages ended with no contact form at
+ * all and the `#contact_form` links had no target.
+ */
+function findUsContactForm(section: NormalizedSection) {
+  const tree = dataOf(section).sourceTree as BricksTreeNode | undefined
+  if (!tree) return undefined
+  const nodes = treeNodesFromNode(tree)
+  const form = nodes.find((node) => FORM_ELEMENT_NAMES.has(node.name))
+  if (!form) return undefined
+
+  const findUsHeading = clean(
+    nodes.find((node) => headingTag(node) === 'h2')?.settings.text,
+  )
+  const headings = nodes.filter((node) => node.name === 'heading')
+  const heading = clean(
+    headings
+      .filter((node) => ['h1', 'h2', 'h3'].includes(headingTag(node)))
+      .map((node) => clean(node.settings.text))
+      .find((value) => value && value !== findUsHeading),
+  )
+  const eyebrow = clean(
+    headings.find((node) => SMALL_HEADING_TAGS.has(headingTag(node)))?.settings.text,
+  )
+  const description = nodes
+    .filter((node) => node.name === 'text-basic' || node.name === 'text')
+    .map((node) => clean(node.settings.text))
+    .find((value): value is string => Boolean(value))
+
+  if (!heading && !description) return undefined
+
+  return {
+    blockType: 'contact-form',
+    ...base(section),
+    sourceId: `${section.sourceId}-form`,
+    eyebrow,
+    heading,
+    description,
+    anchorId: clean(tree.settings?._cssId),
+    provider: form.name,
+    sourceElementId: form.id,
+  }
 }
 
 function subServiceItems(
@@ -410,13 +928,40 @@ function serviceSlugForAreas(section: NormalizedSection, pagesById: Map<number, 
   return parentId ? pagesById.get(parentId)?.slug : undefined
 }
 
+/**
+ * The Find-us details.
+ *
+ * Each detail is a Bricks icon-box whose `content` is an <h4> caption
+ * followed by the value, e.g.
+ *
+ *   <h4>Call Us</h4>\n<a href="tel:6502209600">(650) 220-9600</a>
+ *
+ * Reading the whole thing through `clean()` produced "Call Us (650)
+ * 220-9600", which the section then rendered under its own "Call Us" label —
+ * so the page showed "Call Us Call Us (650) 220-9600" and built a `mailto:`
+ * that included the caption. Drop the caption and keep only the value; the
+ * address's `<br>` becomes a real newline so the two offices stay on
+ * separate lines.
+ */
 function findUsData(section: NormalizedSection) {
   const values: string[] = []
   const mapUrls: string[] = []
 
   for (const node of treeNodes(section)) {
     const settings = node.settings
-    for (const value of [settings.text, settings.content, settings.title, settings.label]) {
+    if (node.name === 'icon-box' && typeof settings.content === 'string') {
+      const withoutCaption = settings.content.replace(/<h[1-6][^>]*>[\s\S]*?<\/h[1-6]>/i, '')
+      const withBreaks = withoutCaption.replace(/<br\s*\/?>/gi, '\n')
+      const value = withBreaks
+        .replace(/<[^>]+>/g, '')
+        .split('\n')
+        .map((line) => line.replace(/\s+/g, ' ').trim())
+        .filter(Boolean)
+        .join('\n')
+      if (value) values.push(value)
+      continue
+    }
+    for (const value of [settings.text, settings.title, settings.label]) {
       const cleaned = clean(value)
       if (cleaned) values.push(cleaned)
     }
@@ -485,15 +1030,77 @@ function headingFromMarkup(value: unknown) {
   return clean(match?.[1])
 }
 
+const headingTag = (node: { name: string; settings: Record<string, unknown> }) =>
+  node.name === 'heading' && typeof node.settings.tag === 'string'
+    ? node.settings.tag.toLowerCase()
+    : ''
+
+const SMALL_HEADING_TAGS = new Set(['h4', 'h5', 'h6'])
+
+/** Bricks elements that render a real form. */
+const FORM_ELEMENT_NAMES = new Set(['xfluentform', 'forminator', 'xproform'])
+
+/**
+ * Service grids that are deliberately NOT imported, by page slug and Bricks
+ * section id. **An accepted divergence from the WordPress export** (CLAUDE.md
+ * §8c), not a migration gap — the source does contain these cards.
+ *
+ * The same six generic cards (Home Remodeling, Kitchen Remodeling, ADU &
+ * Garage Conversions, Home Additions, New Construction, Bathroom Remodeling)
+ * are pasted into the services root of most landing pages. On the pages that
+ * are about remodeling in general they are the point of the section and carry
+ * a heading that introduces them. On a page about one specific trade they are
+ * off-topic cross-links, and because the heading on those pages belongs to the
+ * image+text intro that shares the same Bricks root, the grid renders with no
+ * heading at all — six unrelated cards floating with no context.
+ *
+ * Removing the grid does not remove the intro: they are separate blocks, and
+ * the intro (heading, "Key Features" list, CTA button, photo) still imports.
+ */
+const EXCLUDED_SERVICE_GRIDS: Record<string, string[]> = {
+  'siding-installation-replacement-information': ['63c060'],
+  'kitchen-remodeling-information': ['73aa13'],
+  // Same headingless, off-topic grid on the two remaining trade-specific
+  // pages: a home-additions page listing "Bathroom Remodeling", an
+  // outdoor-hardscape page listing "Kitchen Remodeling".
+  'additions-remodeling-information': ['5ec355'],
+  'outdoor-hardscape-outdoor-kitchen-information': ['c34197'],
+}
+
+/**
+ * The section's real title.
+ *
+ * The normalizer returns headings in document order and takes the first one,
+ * regardless of its tag. Several Bricks sections put the small kicker after
+ * the h2 — on remodeling-information, `olbtqg` is h5 "Experience the "Prime
+ * Difference"" followed by h2 "Why choose Prime Design & Build?" — so the
+ * kicker won and the real h2 was never imported at all. Prefer the largest
+ * heading present, and only fall back to document order when the section has
+ * nothing but small headings.
+ */
+function sectionHeading(section: NormalizedSection) {
+  const nodes = treeNodes(section)
+  const large = nodes
+    .filter((node) => ['h1', 'h2', 'h3'].includes(headingTag(node)))
+    .map((node) => clean(node.settings.text))
+    .find((value): value is string => Boolean(value))
+  if (large) return large
+  const data = dataOf(section)
+  return first([data.heading, ...(Array.isArray(data.headings) ? data.headings : [])])
+}
+
 function sectionEyebrow(section: NormalizedSection) {
   const nodes = treeNodes(section)
-  const data = dataOf(section)
-  const mainHeading = first([data.heading, ...(Array.isArray(data.headings) ? data.headings : [])])
+  const mainHeading = sectionHeading(section)
   const mainHeadingIndex = mainHeading
     ? nodes.findIndex((node) => clean(node.settings.text) === mainHeading)
     : -1
+
   const precedingNodes = mainHeadingIndex >= 0 ? nodes.slice(0, mainHeadingIndex) : nodes
 
+  // Kept ahead of the generic rules below so the established Prime
+  // Difference stat line ("Over 350+ Projects in Silicon Valley") keeps
+  // winning on every page that has one.
   if (section.type === 'prime-difference') {
     const projectCount = nodes
       .filter((node) => node.name === 'icon-box')
@@ -502,19 +1109,23 @@ function sectionEyebrow(section: NormalizedSection) {
     if (projectCount) return projectCount
   }
 
-  const semanticHeading = precedingNodes.find((node) => {
-    if (node.name !== 'heading') return false
-    const tag = typeof node.settings.tag === 'string' ? node.settings.tag.toLowerCase() : ''
-    return tag === 'h4' || tag === 'h5' || tag === 'h6'
-  })
-  const semanticHeadingText = clean(semanticHeading?.settings.text)
-  if (semanticHeadingText) return semanticHeadingText
+  // A small heading (h4/h5/h6) is the section's kicker wherever it sits
+  // relative to the h2. Scoping this to nodes *before* the h2 meant the
+  // "Services" kicker on `wekxhi` and the "Experience the "Prime
+  // Difference"" kicker on `olbtqg` were both dropped, because WordPress
+  // authors them after the big heading.
+  const smallHeading = nodes
+    .filter((node) => SMALL_HEADING_TAGS.has(headingTag(node)))
+    .map((node) => clean(node.settings.text))
+    .find((value): value is string => Boolean(value))
+  if (smallHeading) return smallHeading
 
-  if (section.type === 'luxury-cta') {
-    const kicker = precedingNodes.find((node) => node.name === 'icon-box')
-    const kickerText = headingFromMarkup(kicker?.settings.content)
-    if (kickerText) return kickerText
-  }
+  // Sections whose kicker is an icon-box with an <h4> inside it rather than a
+  // heading element (luxury-cta's "Need a new kitchen…", service-areas' "Our
+  // Service Areas", project-grid's "Our Projects").
+  const kicker = precedingNodes.find((node) => node.name === 'icon-box')
+  const kickerText = headingFromMarkup(kicker?.settings.content)
+  if (kickerText) return kickerText
 
   return precedingNodes
     .filter((node) => node.name === 'text-basic')
@@ -556,10 +1167,31 @@ function dynamicHappyFilesImages(section: NormalizedSection, source: WordPressSo
   const slugs = new Set(folderIds.map((id) => source.happyfilesFolders[id]).filter(Boolean))
   if (slugs.size === 0) return []
 
+  // Deliberately NOT capped here: this list also drives media resolution, and
+  // trimming it first would stop the later attachments from ever being
+  // imported. The widget's `max` is applied once the items are resolved —
+  // see `happyFilesMax`.
   return source.attachments
     .filter((attachment) => attachment.happyfilesCategorySlugs?.some((slug) => slugs.has(slug)))
     .map((attachment) => ({ sourceId: attachment.id, status: 'unresolved' as const }))
 }
+
+/**
+ * How many photos the gallery widget actually shows.
+ *
+ * Ignoring it published the entire folder (26 images on the kitchen page
+ * where WordPress shows 18). It must be applied to the *resolved* items:
+ * the raw attachment list contains files that were never imported into the
+ * Media collection, so slicing before resolution picks a mostly-empty set.
+ */
+function happyFilesMax(nodes: BricksTreeNode[]) {
+  return nodes
+    .filter((node) => node.name === 'happyfiles-gallery' || node.name === 'image-gallery')
+    .map((node) => Number(node.settings.max))
+    .find((value) => Number.isFinite(value) && value > 0)
+}
+
+const capped = <T,>(items: T[], max?: number) => (max ? items.slice(0, max) : items)
 
 function cssClasses(node: BricksTreeNode) {
   const direct = node.settings._cssClasses
@@ -629,8 +1261,16 @@ function dynamicGalleryGroups(
       })
       .filter((id): id is string => Boolean(id))
     const slugs = new Set(folderIds.map((id) => source.happyfilesFolders[id]).filter(Boolean))
-    const items = source.attachments
-      .filter((attachment) => attachment.happyfilesCategorySlugs?.some((slug) => slugs.has(slug)))
+    // Each tab's widget caps its own folder (both tabs on
+    // remodeling-information are `max: 18`). Applied after resolution, for
+    // the same reason as the single-gallery path.
+    const max = happyFilesMax(treeNodesFromNode(root))
+    const items = capped(
+      source.attachments
+        .filter((attachment) => attachment.happyfilesCategorySlugs?.some((slug) => slugs.has(slug)))
+        .filter((attachment) => mediaIds.get(attachment.id)),
+      max,
+    )
       .map((attachment, itemIndex) => ({
         media: mediaIds.get(attachment.id),
         caption: undefined,
@@ -646,6 +1286,19 @@ function dynamicGalleryGroups(
   })
 }
 
+/**
+ * Bricks serialises PHP arrays as objects keyed by index (`{"0":"962",
+ * "1":"2305"}`), so `Array.isArray` is false for every list in a query —
+ * `post__in` included. Reading it with `Array.isArray` silently produced
+ * "no pinned posts" and the project grid fell back to every project on the
+ * site.
+ */
+function bricksArray(value: unknown): unknown[] | undefined {
+  if (Array.isArray(value)) return value
+  if (value && typeof value === 'object') return Object.values(value as Record<string, unknown>)
+  return undefined
+}
+
 function projectQueryProjects(section: NormalizedSection, projects: WordPressProject[]) {
   const projectQueries = treeNodes(section)
     .map((node) => node.settings.query)
@@ -658,13 +1311,21 @@ function projectQueryProjects(section: NormalizedSection, projects: WordPressPro
   const byId = new Map(projects.map((project) => [project.id, project]))
   const result: WordPressProject[] = []
 
-  for (const query of projectQueries) {
+  // A `post__in` is an explicit editorial selection — the kitchen page pins
+  // six projects, the bathroom page two. These sections also carry a second,
+  // unfiltered loop (the card template's own nested query), and unioning the
+  // two put every project on the site back into the grid. When anything on
+  // the section is pinned, the pinned set *is* the section.
+  const pinned = projectQueries.filter((query) => bricksArray(query.post__in)?.length)
+  const activeQueries = pinned.length ? pinned : projectQueries
+
+  for (const query of activeQueries) {
     // Real Bricks project cards scope the loop to project posts. Preserve those
     // post boundaries so the landing page does not flatten every project's
     // nested gallery into one visible image list.
-    const postIn = Array.isArray(query.post__in)
-      ? (query.post__in as unknown[]).map((v) => Number(v)).filter((n) => !Number.isNaN(n))
-      : undefined
+    const postIn = bricksArray(query.post__in)
+      ?.map((v) => Number(v))
+      .filter((n) => !Number.isNaN(n))
     const scopedProjects = postIn
       ? postIn.map((id) => byId.get(id)).filter((p): p is WordPressProject => Boolean(p))
       : projects // no post__in on this query: it really does mean "all projects"
@@ -753,52 +1414,117 @@ function mapSection(
   // are source diagnostics, not visible page sections, and must not be loaded
   // into the frontend as content.
   if (isHiddenSourceSection(section)) return undefined
-  const heading = first([data.heading, ...(Array.isArray(data.headings) ? data.headings : [])])
+  const heading = sectionHeading(section)
+  const eyebrow = sectionEyebrow(section)
   const sourceBody = Array.isArray(data.body)
     ? data.body.map(clean).filter((value): value is string => Boolean(value))
     : []
-  const description = sourceBody.join('\n\n') || first([data.body])
+  // Body text the section's own copy already accounts for — the kicker, and
+  // any paragraph that belongs to a card rather than to the section — must
+  // not be swept into the section description. On `wekxhi` that produced a
+  // description made of the intro line plus all six service-card blurbs.
+  const sectionBody = sourceBody.filter((value) => value !== eyebrow && value !== heading)
+  const description = sectionBody.join('\n\n') || first([data.body])
   const images = section.images
   const primaryImage = data.primaryImage as NormalizedImage | undefined
-  const refImage = primaryImage || images[0]
-  const ref = refImage
-    ? mediaRef(refImage, refImage.sourceId ? mediaIds.get(refImage.sourceId) : undefined)
-    : undefined
+  // A real `<image>` element beats whatever the normalizer picked as the
+  // section's primary image, because that can be a decorative CSS
+  // background — the bathroom page's image+text section rendered
+  // `service-bg.png`, a background texture, instead of its photo `o-81.jpg`.
+  //
+  // With one exception: the brand logo. Every hero embeds it as a foreground
+  // mark, so it is the only `<image>` element a hero has, while the hero's
+  // actual photo is the section background. Treating the logo as content
+  // made every hero render the logo instead of its photo.
+  // The logo is excluded from every candidate, not just the first pass: the
+  // remodeling-information hero has a video background and no photo at all,
+  // so falling through to `images[0]` put the logo back.
+  const refImage = [...sourceImages(section), primaryImage, ...images].find(
+    (image): image is NormalizedImage => Boolean(image) && !isBrandLogo(image!),
+  )
+  const ref = refImage ? mediaRef(refImage, sourceImageMediaId(refImage, mediaIds)) : undefined
   const common = base(section)
 
   switch (section.type) {
-    case 'hero':
+    case 'hero': {
+      // The looping background video (`_background.videoUrl`) is a real
+      // field now, not a note in `sourceMetadata`. `sourceUrl` is the
+      // WordPress origin; `asset` is filled once the file is imported.
+      const heroVideoUrl = sourceVideoUrl(section)
+      const heroVideoAsset = resolveVideoMediaId(heroVideoUrl)
+      if (heroVideoUrl && !heroVideoAsset) unresolvedVideoUrls.add(heroVideoUrl)
       return {
         blockType: 'hero',
         ...common,
-        eyebrow: sectionEyebrow(section),
-        heading: heading || 'Prime Design & Build',
+        eyebrow,
+        heading,
         description,
         backgroundMedia: ref,
+        backgroundVideo: heroVideoUrl
+          ? { sourceUrl: heroVideoUrl, asset: heroVideoAsset, alt: 'Prime Design & Build' }
+          : undefined,
         buttons: buttonData(section, pagesById),
-        sourceMetadata: { ...common.sourceMetadata, backgroundVideoUrl: sourceVideoUrl(section) },
+        sourceMetadata: { ...common.sourceMetadata, backgroundVideoUrl: heroVideoUrl },
       }
+    }
     case 'cta':
       return {
         blockType: 'cta',
         ...common,
-        eyebrow: sectionEyebrow(section),
-        heading: heading || 'Ready to get started?',
+        eyebrow,
+        heading,
         description,
         media: ref,
         buttons: buttonData(section, pagesById),
       }
-    case 'image-text':
+    case 'image-text': {
+      // A row of photo cards ("Benefits of Siding") is not an image+text
+      // section — it only types as one upstream. Two or more cards is the
+      // discriminator; the genuine image+text sections on the other pages
+      // have none.
+      const benefits = benefitsContent(section, mediaIds)
+      if (benefits.items.length >= 2) {
+        return {
+          blockType: 'benefit-cards',
+          ...common,
+          eyebrow,
+          heading,
+          description: undefined,
+          items: benefits.items,
+          decorativeMedia: benefits.decorativeMedia,
+        }
+      }
       return {
         blockType: 'image-text',
         ...common,
-        eyebrow: sectionEyebrow(section),
-        heading: heading || 'Prime Design & Build',
-        description,
+        eyebrow,
+        heading,
+        description: lexicalDocument(
+          sectionBody.map((value) => ({ kind: 'paragraph' as const, value })),
+        ),
         media: ref,
         buttons: buttonData(section, pagesById),
         alignment: 'left',
       }
+    }
+    case 'craftsmanship': {
+      const content = craftsmanshipContent(section, mediaIds)
+      // The kicker here is a `text-basic`, not a heading element, and the
+      // section's title is authored as an untagged <heading>. Take the two
+      // in source order rather than through the generic heading helpers.
+      const nodes = treeNodes(section)
+      const craftEyebrow = clean(
+        nodes.find((node) => node.name === 'text-basic')?.settings.text,
+      )
+      const craftHeading = clean(nodes.find((node) => node.name === 'heading')?.settings.text)
+      return {
+        blockType: 'craftsmanship',
+        ...common,
+        eyebrow: craftEyebrow,
+        heading: craftHeading,
+        ...content,
+      }
+    }
     case 'video': {
       const video = section.videos[0]
       return {
@@ -824,10 +1550,31 @@ function mapSection(
               (value) => !/\{(?:post_title|post_content|featured_image)(?::[^}]+)?\}/i.test(value),
             )
             .join('\n\n') || undefined
+        // The kicker's icon ("Our Projects" sits beside `home.svg`). The
+        // block has always had an `eyebrowIcon` field; nothing ever wrote to
+        // it, so it read as empty on every page.
+        const kickerSvg = treeNodes(section)
+          .filter((node) => node.name === 'icon-box')
+          .map((node) => {
+            const icon = node.settings.icon as Record<string, unknown> | undefined
+            return icon?.svg && typeof icon.svg === 'object'
+              ? (icon.svg as Record<string, unknown>)
+              : undefined
+          })
+          .find(Boolean)
+        const kickerSvgId = typeof kickerSvg?.id === 'number' ? kickerSvg.id : undefined
         return {
           blockType: 'project-grid',
           ...common,
-          eyebrow: sectionEyebrow(section),
+          eyebrow,
+          eyebrowIcon: kickerSvg
+            ? {
+                iconMedia: kickerSvgId ? mediaIds.get(kickerSvgId) : undefined,
+                iconLibrary: 'svg',
+                iconName: typeof kickerSvg.filename === 'string' ? kickerSvg.filename : undefined,
+                sourceSvgUrl: typeof kickerSvg.url === 'string' ? kickerSvg.url : undefined,
+              }
+            : undefined,
           heading,
           description: projectDescription,
           items: projectCards.map((project) => ({
@@ -856,6 +1603,7 @@ function mapSection(
         return {
           blockType: 'gallery',
           ...common,
+          eyebrow,
           heading,
           description,
           items: [],
@@ -886,15 +1634,18 @@ function mapSection(
       // A curated HappyFiles folder (e.g. "Kitchens (GALLERY)") is a specific,
       // hand-picked set of photos for this exact gallery widget — prefer it
       // over the much broader, unscoped "every project on the site" fallback.
-      const happyFilesImages = dynamicHappyFilesImages(section, source)
-        .map((image, index) => ({
-          media: mediaIds.get(image.sourceId!),
-          caption: undefined,
-          alt: `Gallery image ${index + 1}`,
-          sourceOrder: index,
-          sourceAttachmentId: image.sourceId,
-        }))
-        .filter((item) => item.media)
+      const happyFilesImages = capped(
+        dynamicHappyFilesImages(section, source)
+          .map((image, index) => ({
+            media: mediaIds.get(image.sourceId!),
+            caption: undefined,
+            alt: `Gallery image ${index + 1}`,
+            sourceOrder: index,
+            sourceAttachmentId: image.sourceId,
+          }))
+          .filter((item) => item.media),
+        happyFilesMax(treeNodes(section)),
+      )
       const dynamicImages = dynamicProjectImages(section, projects)
         .map((image, index) => ({
           media: mediaIds.get(image.sourceId!),
@@ -907,6 +1658,7 @@ function mapSection(
       return {
         blockType: 'gallery',
         ...common,
+        eyebrow,
         heading,
         description,
         // A HappyFiles widget is an explicit source selection. Prefer its
@@ -938,38 +1690,95 @@ function mapSection(
         afterMedia: sourceImageMediaId(beforeAfterImages[1], mediaIds),
       }
     }
-    case 'sub-services':
+    case 'sub-services': {
+      // Some sections typed `sub-services` are really a benefits card row:
+      // the same staggered image + heading + copy columns closing with the
+      // shared `circle-dots` graphic (kitchen's Custom / European / Shaker
+      // Kitchen, "Benefits of Home Additions", and so on). The service grids
+      // are distinguishable because every one of their cards links to a
+      // service page; benefit cards never link anywhere.
+      const tree = dataOf(section).sourceTree as BricksTreeNode | undefined
+      if (tree) {
+        const cards = photoCardRoots(tree)
+        const anyLinked = cards.some((card) =>
+          treeNodesFromNode(card).some(
+            (node) => node.settings.link && typeof node.settings.link === 'object',
+          ),
+        )
+        if (cards.length >= 2 && !anyLinked) {
+          const benefits = benefitsContent(section, mediaIds)
+          if (benefits.items.length >= 2) {
+            return {
+              blockType: 'benefit-cards',
+              ...common,
+              eyebrow,
+              // The section's own heading, when it has one that is not just
+              // the first card's title.
+              heading: heading === benefits.items[0]?.title ? undefined : heading,
+              description: undefined,
+              items: benefits.items,
+              decorativeMedia: benefits.decorativeMedia,
+            }
+          }
+        }
+      }
+      const items = subServiceItems(section, mediaIds, pagesById)
+      // Each card's blurb belongs to that card, not to the section. Without
+      // this the section description became the intro line followed by all
+      // six service blurbs run together.
+      const cardCopy = new Set(
+        items
+          .map((item) => (item as Record<string, unknown>).description)
+          .filter((value): value is string => typeof value === 'string'),
+      )
+      const intro = sectionBody.filter((value) => !cardCopy.has(value))
       return {
         blockType: 'sub-services',
         ...common,
-        eyebrow: sectionEyebrow(section),
-        heading: heading || 'Our Services',
-        description,
-        items: subServiceItems(section, mediaIds, pagesById),
+        eyebrow,
+        heading,
+        description: intro.join('\n\n') || undefined,
+        items,
       }
+    }
     case 'prime-difference':
       return {
         blockType: 'prime-difference',
         ...common,
-        eyebrow: sectionEyebrow(section),
-        heading: heading || 'The Prime Difference',
+        eyebrow,
+        heading,
         description,
         features: featureItems(section),
-        videos: section.videos.map((video) => ({
-          video: video.attachmentId ? mediaIds.get(video.attachmentId) : undefined,
-          externalUrl: video.sourceUrl,
-          poster: video.poster?.sourceId ? mediaIds.get(video.poster.sourceId) : undefined,
-          caption: undefined,
-          sourceVideoId: video.attachmentId ? String(video.attachmentId) : undefined,
-        })),
+        comparisons: comparisonItems(section, mediaIds),
+        videos: section.videos.map((video) => {
+          // Prefer the imported Media document over the CDN hotlink. These
+          // files are already in the Media collection but carry no
+          // WordPress attachment id, so they only resolve by filename.
+          const asset =
+            (video.attachmentId ? mediaIds.get(video.attachmentId) : undefined) ??
+            resolveVideoMediaId(video.sourceUrl)
+          if (video.sourceUrl && !asset) unresolvedVideoUrls.add(video.sourceUrl)
+          return {
+            video: asset,
+            externalUrl: video.sourceUrl,
+            // The source's own poster wins; otherwise fall back to the
+            // `<video>-poster.jpg` still that ships alongside every imported
+            // video in the Media collection.
+            poster:
+              (video.poster?.sourceId ? mediaIds.get(video.poster.sourceId) : undefined) ??
+              resolveVideoPoster(asset),
+            caption: undefined,
+            sourceVideoId: video.attachmentId ? String(video.attachmentId) : undefined,
+          }
+        }),
         media: ref,
       }
     case 'experience-difference':
       return {
         blockType: 'experience-difference',
         ...common,
-        eyebrow: sectionEyebrow(section),
-        heading: heading || 'Experience the Prime Difference',
+        eyebrow,
+        heading,
         description,
         features: featureItems(section),
         media: ref,
@@ -979,6 +1788,10 @@ function mapSection(
       const areas = treeNodes(section).flatMap((node) => {
         if (node.name !== 'icon-box') return []
         const label = clean(node.settings.content)
+        // The section's own kicker is an icon-box too ("Our Service Areas").
+        // It is the eyebrow, not a city, and was rendering as a chip in the
+        // list of locations.
+        if (label && label === eyebrow) return []
         const citySlug = label
           ?.toLowerCase()
           .replace(/\s+/g, '-')
@@ -989,13 +1802,26 @@ function mapSection(
             : undefined
         return label ? [{ label, link: url ? { label, url, openInNewTab: false } : undefined }] : []
       })
+      // The section closes with a state map and its caption ("California"
+      // over `ca-cities.png`); both were dropped before this.
+      const nodes = treeNodes(section)
+      const regionHeading = nodes
+        .filter((node) => headingTag(node) === 'h3')
+        .map((node) => clean(node.settings.text))
+        .find((value): value is string => Boolean(value))
+      const mapNode = nodes.find((node) => node.name === 'image')
+      const mapImage = mapNode ? imageFromTreeNode(mapNode) : undefined
       return {
         blockType: 'service-areas',
         ...common,
-        eyebrow: sectionEyebrow(section),
-        heading: heading || 'Areas We Service',
+        eyebrow,
+        heading,
         description,
         areas,
+        regionHeading,
+        mapMedia: mapImage
+          ? mediaRef(mapImage, sourceImageMediaId(mapImage, mediaIds))
+          : undefined,
       }
     }
     case 'repair-services':
@@ -1019,7 +1845,7 @@ function mapSection(
               },
             )
             return image
-              ? mediaRef(image, image.sourceId ? mediaIds.get(image.sourceId) : undefined)
+              ? mediaRef(image, sourceImageMediaId(image, mediaIds))
               : undefined
           })(),
           title: clean(category.title) || 'Service',
@@ -1038,8 +1864,8 @@ function mapSection(
       return {
         blockType: 'luxury-cta',
         ...common,
-        eyebrow: sectionEyebrow(section),
-        heading: heading || "Silicon Valley's Luxury Home Contractor",
+        eyebrow,
+        heading,
         description,
         media: ref,
         buttons: buttonData(section, pagesById),
@@ -1049,7 +1875,8 @@ function mapSection(
       return {
         blockType: 'find-us',
         ...common,
-        heading: heading || 'Find us',
+        eyebrow,
+        heading,
         phone: contact.phone,
         email: contact.email,
         address: contact.address,
@@ -1135,9 +1962,22 @@ function mapSection(
     case 'form': {
       const integrations = (data.integrations as Array<Record<string, unknown>> | undefined) || []
       const integration = integrations[0]
+      // These sections carry real copy above the form on most pages
+      // ("Contact Info" / "Receive a Free Estimate" / the response-time
+      // line). It was never imported, so the renderer fell through to the
+      // homepage contact defaults and the page's own words were lost.
+      //
+      // `anchorId` is the Bricks `_cssId`: the hero and CTA buttons link to
+      // `#contact_form`, which is this section's id, so without it those
+      // buttons go nowhere.
+      const sourceTree = data.sourceTree as BricksTreeNode | undefined
+      const anchorId = clean(sourceTree?.settings?._cssId)
       return {
         blockType: section.type === 'booking' ? 'booking' : 'contact-form',
         ...common,
+        eyebrow,
+        heading,
+        ...(section.type === 'booking' ? { anchorId } : { description }),
         provider: clean(integration?.provider),
         shortcode: clean(integration?.shortcode),
         sourceElementId: section.sourceId,
@@ -1195,6 +2035,60 @@ const source = await parseWordPressXmlFile(xmlPath)
 const localFiles = await fileIndex(uploadsPath)
 const attachmentMap = new Map(source.attachments.map((attachment) => [attachment.id, attachment]))
 const mediaCache = new Map<string, number>()
+
+// Video media, keyed by the slug of the source file's basename (see
+// `videoKey`). Both the document's own filename and its recorded `sourceUrl`
+// are indexed, because the hero video is addressed by its WordPress uploads
+// URL in Bricks and by its CDN URL in the Media collection. Where the same
+// asset exists at several qualities the largest wins — that is the closest
+// equivalent of the single file WordPress serves.
+const videoMediaByKey = new Map<string, { id: number; filesize: number }>()
+/** Video media id -> its poster image id (see `posterByKey` below). */
+const posterForVideoId = new Map<number, number>()
+{
+  const videos = await payload.find({
+    collection: 'media',
+    where: { mimeType: { like: 'video' } },
+    limit: 1000,
+    depth: 0,
+  })
+  // Every imported video has a companion still named `<video>-poster.<ext>`.
+  // Nothing linked them, so the Prime Difference carousel showed a black
+  // frame until the visitor pressed play.
+  const posters = await payload.find({
+    collection: 'media',
+    where: { filename: { like: '-poster' } },
+    limit: 1000,
+    depth: 0,
+  })
+  const posterByKey = new Map<string, number>()
+  for (const doc of posters.docs as unknown as Array<Record<string, unknown>>) {
+    const filename = typeof doc.filename === 'string' ? doc.filename : ''
+    const match = filename.match(/^(.*)-poster\.[a-z0-9]+$/i)
+    if (match) posterByKey.set(videoKey(`${match[1]}.x`), Number(doc.id))
+  }
+
+  for (const doc of videos.docs as unknown as Array<Record<string, unknown>>) {
+    const id = Number(doc.id)
+    const filesize = typeof doc.filesize === 'number' ? doc.filesize : 0
+    if (typeof doc.filename === 'string') {
+      const poster = posterByKey.get(videoKey(doc.filename))
+      if (poster) posterForVideoId.set(id, poster)
+    }
+    for (const candidate of [doc.sourceUrl, doc.filename]) {
+      if (typeof candidate !== 'string' || !candidate) continue
+      const key = videoKey(candidate)
+      if (!key) continue
+      const existing = videoMediaByKey.get(key)
+      if (!existing || filesize > existing.filesize) videoMediaByKey.set(key, { id, filesize })
+    }
+  }
+}
+const resolveVideoMediaId = (url?: string) =>
+  url ? videoMediaByKey.get(videoKey(url))?.id : undefined
+const resolveVideoPoster = (assetId?: number) =>
+  assetId === undefined ? undefined : posterForVideoId.get(assetId)
+const unresolvedVideoUrls = new Set<string>()
 const report: Array<{
   page: string
   sections: number
@@ -1224,6 +2118,29 @@ async function resolveMediaId(attachmentId: number | undefined, filename: string
     mediaCache.set(key, id)
     return id
   }
+
+  // Last resort for image references that carry no attachment id: match the
+  // original WordPress path recorded in `sourceUrl`.
+  //
+  // The media library renames files on upload collision, so the document
+  // imported from `o-55.jpg` is stored as `o-93.jpg` and a filename lookup
+  // finds nothing — which is why the kitchen page's Custom / European /
+  // Shaker Kitchen cards and the bathroom page's Custom Bathtubs cards all
+  // imported with no photo. `sourceUrl` still holds the original path, so it
+  // is the only thing these references can be matched on.
+  if (filename) {
+    const bySourceUrl = await payload.find({
+      collection: 'media',
+      where: { sourceUrl: { like: `/${filename}` } },
+      limit: 1,
+    })
+    if (bySourceUrl.docs[0]) {
+      const id = Number(bySourceUrl.docs[0].id)
+      mediaCache.set(key, id)
+      return id
+    }
+  }
+
   const attachment = attachmentId ? attachmentMap.get(attachmentId) : undefined
   const name = filename || attachment?.filename
   const localPath = name ? localFiles.get(name.toLowerCase()) : undefined
@@ -1284,13 +2201,61 @@ for (const slug of targetSlugs) {
   normalized.forEach((section, index) => {
     if (section.type !== 'prime-difference') return
     const next = normalized[index + 1]
-    if (!next || (next.type !== 'video' && next.type !== 'carousel')) return
-    if (!next.videos.length) return
-    section.videos = next.videos
-    mergedFollowOnIds.add(next.sourceId)
+    if (!next) return
+    // The media strip that follows Prime Difference is typed inconsistently
+    // in the source: `carousel` on remodeling-information, `video` on the
+    // kitchen page, and plain `utility` on the bathroom page. What actually
+    // identifies it is that it carries videos and no copy of its own. Keying
+    // on the type alone meant the bathroom page's five videos were reported
+    // as an unsupported section and thrown away.
+    const headings = dataOf(next).headings
+    const hasOwnCopy = Array.isArray(headings) && headings.some((value) => clean(value))
+    if (next.videos.length && !hasOwnCopy) {
+      section.videos = next.videos
+      mergedFollowOnIds.add(next.sourceId)
+      return
+    }
+    // A `before-after` section directly after Prime Difference is the same
+    // split: the siding and outdoor-hardscape pages fill this section's
+    // media column with an `xbeforeafterimage` instead of a video slider.
+    // Rendering it as its own section would both leave Prime Difference
+    // with an empty column and repeat the comparison lower down the page.
+    if (next.type === 'before-after') {
+      dataOf(section).mergedBeforeAfter = next
+      mergedFollowOnIds.add(next.sourceId)
+    }
   })
   const mergedSections = normalized.filter((section) => !mergedFollowOnIds.has(section.sourceId))
-  const allImages = mergedSections.flatMap((section) => [
+  // Icon-box SVGs (the small mark beside a section kicker, e.g. `home.svg`
+  // next to "Our Projects") are not `image` nodes, so they never reached
+  // media resolution and `eyebrowIcon` stayed empty even though the files
+  // were already imported into the Media collection.
+  const iconSvgImages: NormalizedImage[] = mergedSections
+    .flatMap((section) => treeNodes(section))
+    .filter((node) => node.name === 'icon-box')
+    .flatMap((node) => {
+      const icon = node.settings.icon as Record<string, unknown> | undefined
+      const svg = icon?.svg && typeof icon.svg === 'object' ? (icon.svg as Record<string, unknown>) : undefined
+      if (!svg || typeof svg.id !== 'number') return []
+      return [
+        {
+          sourceId: svg.id,
+          filename: typeof svg.filename === 'string' ? svg.filename : undefined,
+          url: typeof svg.url === 'string' ? svg.url : undefined,
+          status: 'unresolved' as const,
+        },
+      ]
+    })
+
+  // Sections merged into another one are filtered out of `mergedSections`,
+  // but their media still has to be resolved — the before/after pair now
+  // lives inside Prime Difference, and leaving it out here means
+  // `sourceImageMediaId` finds nothing and the comparison silently imports
+  // empty.
+  const mergedAwaySections = normalized.filter((section) =>
+    mergedFollowOnIds.has(section.sourceId),
+  )
+  const allImages = [...mergedSections, ...mergedAwaySections].flatMap((section) => [
     ...section.images,
     ...sourceImages(section),
   ])
@@ -1329,17 +2294,54 @@ for (const slug of targetSlugs) {
     ...projectGalleryImages,
     ...happyFilesGalleryImages,
     ...tabbedGalleryImages,
+    ...iconSvgImages,
   ]) {
     const id = await resolveMediaId(image.sourceId, image.filename)
     if (id && image.sourceId) mediaIds.set(image.sourceId, id)
     if (id && image.filename) mediaIds.set(image.filename, id)
   }
   const pagesById = new Map(source.pages.map((item) => [item.id, item]))
-  const sections = mergedSections
-    .map((section) =>
-      mapSection(section, mediaIds, pagesById, source.projects, source.faqs, source),
+  // A few Bricks roots hold two unrelated sections (a services grid behind
+  // an image+text intro; a contact form behind the "Find us" details), so a
+  // source section can produce more than one block. Order follows the
+  // source: the intro precedes its grid, the form follows the details.
+  const sections = mergedSections.flatMap((section) => {
+    const primary = mapSection(
+      section,
+      mediaIds,
+      pagesById,
+      source.projects,
+      source.faqs,
+      source,
     )
-    .filter((section): section is Record<string, unknown> => Boolean(section))
+    if (!primary) return []
+
+    if (primary.blockType === 'sub-services') {
+      const intro = subServicesIntro(section, mediaIds, pagesById)
+      const gridExcluded = (EXCLUDED_SERVICE_GRIDS[slug] || []).includes(section.sourceId)
+      if (intro) {
+        // The heading and body belong to the intro now; leaving them on the
+        // grid too would print the same heading twice.
+        return gridExcluded
+          ? [intro]
+          : [
+              intro,
+              { ...primary, eyebrow: undefined, heading: undefined, description: undefined },
+            ]
+      }
+      if (gridExcluded) return []
+    }
+
+    if (primary.blockType === 'find-us') {
+      const contact = findUsContactForm(section)
+      if (contact) {
+        // The "Contact Info" kicker belongs to the form, not the details.
+        return [{ ...primary, eyebrow: undefined }, contact]
+      }
+    }
+
+    return [primary]
+  })
   const unsupported = mergedSections
     .filter(
       (section) => !mapSection(section, mediaIds, pagesById, source.projects, source.faqs, source),
@@ -1355,6 +2357,27 @@ for (const slug of targetSlugs) {
     where: { slug: { equals: slug } },
     limit: 1,
   })
+
+  // Fields that have no WordPress source and are authored in the admin must
+  // survive a re-import. `booking.consultationLabel` is the case today: the
+  // scheduler's subject line lives in LatePoint's own tables, which the WXR
+  // export does not contain, so the value can only come from an editor. Left
+  // unguarded, every re-run of this script would silently blank it.
+  const preservedByBlock: Record<string, string[]> = { booking: ['consultationLabel'] }
+  const previousSections = (existing.docs[0]?.sections || []) as Array<Record<string, unknown>>
+  for (const section of sections) {
+    const preserve = preservedByBlock[String(section.blockType)]
+    if (!preserve) continue
+    const previous = previousSections.find(
+      (candidate) =>
+        candidate.blockType === section.blockType && candidate.sourceId === section.sourceId,
+    )
+    if (!previous) continue
+    for (const field of preserve) {
+      if (previous[field] && !section[field]) section[field] = previous[field]
+    }
+  }
+
   const record = {
     title: page.title,
     slug,
@@ -1429,5 +2452,12 @@ if (unresolvedAcfTokens.size)
 if (unresolvedDynamicTokens.size)
   console.log(
     `Stripped unresolved dynamic tags (content using these needs its own fix, not just cleanup): ${[...unresolvedDynamicTokens].sort().join(', ')}`,
+  )
+// Videos that stayed as off-site hotlinks because no Media document matched.
+// The block still renders from `externalUrl`, but the migration is not
+// finished for these until the file is imported (CLAUDE.md §7).
+if (unresolvedVideoUrls.size)
+  console.log(
+    `Videos still hotlinked (no Media document matched): ${[...unresolvedVideoUrls].sort().join(', ')}`,
   )
 await payload.destroy()

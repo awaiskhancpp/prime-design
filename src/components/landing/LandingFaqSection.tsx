@@ -8,11 +8,13 @@ type FaqItem = { question: string; answer: string }
 type FaqCategory = { title: string; items: FaqItem[] }
 
 export function LandingFaqSection({
-  heading = 'Frequently asked questions',
+  heading,
+  description,
   items = [],
   categories = [],
 }: {
   heading?: string
+  description?: string
   items?: FaqItem[]
   categories?: FaqCategory[]
 }) {
@@ -23,7 +25,12 @@ export function LandingFaqSection({
   if (!visibleItems.length) return null
   return (
     <Section className="bg-white">
-      <h2 className="font-display text-3xl font-medium text-ink md:text-4xl">{heading}</h2>
+      {heading ? (
+        <h2 className="font-display text-3xl font-medium text-ink md:text-4xl">{heading}</h2>
+      ) : null}
+      {description ? (
+        <p className="mt-4 max-w-3xl text-base leading-7 text-ink-2/70">{description}</p>
+      ) : null}
       {categories.length ? (
         <div className="mt-8 flex flex-wrap gap-2 border-b border-line pb-4">
           {categories.map((category, index) => (

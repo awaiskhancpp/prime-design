@@ -4,11 +4,20 @@ import React, { useRef, useState } from 'react'
 import Image from 'next/image'
 import { ChevronLeft, ChevronRight } from 'lucide-react'
 
+import { cn } from '@/lib/utils'
+
 interface BeforeAfterSliderProps {
   beforeImage: string
   afterImage: string
   beforeAlt: string
   afterAlt: string
+  /**
+   * Frame classes for the comparison box. Defaults to the light-background
+   * framing the homepage uses; the Prime Difference section overrides it so
+   * the frame matches the dark panel and the 16:9 video carousel it sits
+   * alongside. Only the frame is themeable — the slider mechanics are not.
+   */
+  className?: string
 }
 
 /**
@@ -39,6 +48,7 @@ export default function BeforeAfterSlider({
   afterImage,
   beforeAlt,
   afterAlt,
+  className,
 }: BeforeAfterSliderProps) {
   const containerRef = useRef<HTMLDivElement>(null)
   const [position, setPosition] = useState(50)
@@ -76,7 +86,10 @@ export default function BeforeAfterSlider({
   return (
     <div
       ref={containerRef}
-      className="relative aspect-[4/3] w-full touch-none select-none overflow-hidden border border-line"
+      className={cn(
+        'relative w-full touch-none select-none overflow-hidden',
+        className ?? 'aspect-[4/3] border border-line',
+      )}
       onPointerDown={handlePointerDown}
       onPointerMove={handlePointerMove}
       onPointerUp={handlePointerUp}

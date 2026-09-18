@@ -1,8 +1,10 @@
 import Image from 'next/image'
 import { Fragment, type ReactNode } from 'react'
 
+import { RichTextContent } from '@/components/rich-text/RichTextContent'
 import { Button } from '@/components/ui/Button'
 import { Section } from '@/components/ui/Section'
+import { richTextHasContent, type RichTextValue } from '@/lib/richText'
 
 /**
  * Image + text section used for migrated WordPress content (e.g. the
@@ -79,7 +81,17 @@ function RichTextLines({ text }: { text: string }) {
 export type ServiceImageTextContent = {
   eyebrow?: string
   heading: string
+  /**
+   * Plain-text body, kept for the service-page callers that still store one.
+   * `RichTextLines` re-derives labels and bullets from it heuristically.
+   */
   description?: string
+  /**
+   * Lexical rich text from the CMS. Takes precedence over `description`:
+   * where the editor has real structure there is no need to guess it back
+   * out of a flattened string.
+   */
+  body?: RichTextValue
   image?: string
   /** 'left' | 'right' — which side the image sits on. */
   imageSide?: string
@@ -90,10 +102,12 @@ export function ServiceImageTextSection({
   eyebrow,
   heading,
   description,
+  body,
   image,
   imageSide = 'left',
   cta,
 }: ServiceImageTextContent) {
+  const hasRichBody = richTextHasContent(body)
   return (
     <Section className="bg-white">
       <div className="grid gap-10 md:grid-cols-2 md:items-center">
@@ -102,7 +116,13 @@ export function ServiceImageTextSection({
             <p className="text-xs font-semibold uppercase tracking-[0.2em] text-brass">{eyebrow}</p>
           ) : null}
           <h2 className="mt-3 font-display text-3xl font-medium text-ink md:text-5xl">{heading}</h2>
-          {description ? <RichTextLines text={description} /> : null}
+          {hasRichBody ? (
+            <div className="mt-5 text-base leading-7 text-ink-2/75">
+              <RichTextContent data={body} />
+            </div>
+          ) : description ? (
+            <RichTextLines text={description} />
+          ) : null}
           {cta ? (
             <Button href={cta.href} variant="outline" className="mt-6">
               {cta.label}

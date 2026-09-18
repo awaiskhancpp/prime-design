@@ -85,7 +85,12 @@ export const faqCategoryFields = (): Field[] => [
 export const imageTextContentFields = (): Field[] => [
   { name: 'eyebrow', type: 'text' },
   { name: 'heading', type: 'text', required: true },
-  { name: 'description', type: 'textarea' },
+  // Rich text, not a textarea: these sections carry structured WordPress
+  // bodies — a "Key Features:" lead-in followed by a real bullet list — and
+  // flattening them to a paragraph lost the list. The section used to
+  // re-derive bullets by pattern-matching the plain text, which only worked
+  // when the source happened to use bullet characters.
+  { name: 'description', type: 'richText' },
   ...mediaReferenceFields(),
   ...buttonGroupFields(),
   { name: 'alignment', type: 'select', options: ['left', 'right'] },

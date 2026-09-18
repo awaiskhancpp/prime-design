@@ -4,6 +4,7 @@ import { useMemo, useState } from 'react'
 import Image from 'next/image'
 import { ChevronLeft, ChevronRight } from 'lucide-react'
 
+import { Lightbox } from '@/components/gallery/Lightbox'
 import { cn } from '@/lib/utils'
 
 const PAGE_SIZE = 24
@@ -31,13 +32,21 @@ export function GalleryGrid({
   captions,
   altPrefix,
   hoverZoom = false,
+  lightbox = false,
 }: {
   images: string[]
   captions?: Array<string | undefined>
   altPrefix: string
   hoverZoom?: boolean
+  /**
+   * Open the full-size viewer on click. The WordPress galleries this grid
+   * replaces are HappyFiles galleries with `lightbox: true`, so the block's
+   * own `lightbox` field drives this rather than it being assumed either way.
+   */
+  lightbox?: boolean
 }) {
   const [page, setPage] = useState(1)
+  const [lightboxIndex, setLightboxIndex] = useState<number | null>(null)
   const totalPages = Math.max(1, Math.ceil(images.length / PAGE_SIZE))
   const currentPage = Math.min(page, totalPages)
 
@@ -55,10 +64,21 @@ export function GalleryGrid({
       <div className="grid grid-cols-2 gap-3 md:grid-cols-3 lg:grid-cols-4">
         {pageImages.map((image, index) => {
           const globalIndex = (currentPage - 1) * PAGE_SIZE + index
+          const Tile = lightbox ? 'button' : 'div'
           return (
-            <div
+            <Tile
               key={`${image}-${globalIndex}`}
-              className="relative aspect-[4/3] overflow-hidden bg-paper-2"
+              {...(lightbox
+                ? {
+                    type: 'button' as const,
+                    onClick: () => setLightboxIndex(globalIndex),
+                    'aria-label': `Open ${altPrefix} photo ${globalIndex + 1}`,
+                  }
+                : {})}
+              className={cn(
+                'relative aspect-[4/3] overflow-hidden bg-paper-2',
+                lightbox && 'cursor-pointer',
+              )}
             >
               <Image
                 src={image}
@@ -77,10 +97,20 @@ export function GalleryGrid({
                   {captions[globalIndex]}
                 </div>
               ) : null}
-            </div>
+            </Tile>
           )
         })}
       </div>
+
+      {lightbox && lightboxIndex !== null ? (
+        <Lightbox
+          images={images}
+          index={lightboxIndex}
+          alt={altPrefix}
+          onClose={() => setLightboxIndex(null)}
+          onNavigate={setLightboxIndex}
+        />
+      ) : null}
 
       {totalPages > 1 ? (
         <div

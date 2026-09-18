@@ -22,7 +22,8 @@ export function LandingCtaSection({
   image,
 }: {
   eyebrow?: string
-  heading: string
+  /** Optional — some source CTA sections are a bare button band. */
+  heading?: string
   description?: string
   cta?: { label: string; href: string }
   image?: string
@@ -32,14 +33,16 @@ export function LandingCtaSection({
       <div className={`grid gap-8 md:items-start ${image ? 'md:grid-cols-[280px_1fr]' : ''}`}>
         {image ? (
           <div className="relative aspect-[4/3] w-full max-w-[280px] overflow-hidden  bg-ink-2/10">
-            <Image src={image} alt={heading} fill className="object-cover" sizes="280px" />
+            <Image src={image} alt={heading || ''} fill className="object-cover" sizes="280px" />
           </div>
         ) : null}
         <div className="text-left">
           {eyebrow ? (
             <p className="text-xs font-semibold uppercase tracking-[0.2em]">{eyebrow}</p>
           ) : null}
-          <h2 className="mt-3 font-display text-3xl font-medium md:text-5xl">{heading}</h2>
+          {heading ? (
+            <h2 className="mt-3 font-display text-3xl font-medium md:text-5xl">{heading}</h2>
+          ) : null}
           {description ? <p className="mt-4 text-base leading-7">{description}</p> : null}
           {cta ? (
             <Button

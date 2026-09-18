@@ -41,6 +41,11 @@ import * as migration_20260917_150000_service_consultation_image from './2026091
 import * as migration_20260917_160000_locked_documents_contact_submissions from './20260917_160000_locked_documents_contact_submissions';
 import * as migration_20260917_170000_location_dont_settle_image from './20260917_170000_location_dont_settle_image';
 import * as migration_20260917_180000_location_hero_copy from './20260917_180000_location_hero_copy';
+import * as migration_20260917_190000_landing_information_sections from './20260917_190000_landing_information_sections';
+import * as migration_20260917_191000_landing_cta_heading_optional from './20260917_191000_landing_cta_heading_optional';
+import * as migration_20260917_192000_services_shared_landing_blocks from './20260917_192000_services_shared_landing_blocks';
+import * as migration_20260918_100000_prime_difference_comparisons from './20260918_100000_prime_difference_comparisons';
+import * as migration_20260918_110000_benefits_and_richtext_image_text from './20260918_110000_benefits_and_richtext_image_text';
 
 export const migrations = [
   {
@@ -257,5 +262,30 @@ export const migrations = [
     up: migration_20260917_180000_location_hero_copy.up,
     down: migration_20260917_180000_location_hero_copy.down,
     name: '20260917_180000_location_hero_copy',
+  },
+  {
+    up: migration_20260917_190000_landing_information_sections.up,
+    down: migration_20260917_190000_landing_information_sections.down,
+    name: '20260917_190000_landing_information_sections',
+  },
+  {
+    up: migration_20260917_191000_landing_cta_heading_optional.up,
+    down: migration_20260917_191000_landing_cta_heading_optional.down,
+    name: '20260917_191000_landing_cta_heading_optional',
+  },
+  {
+    up: migration_20260917_192000_services_shared_landing_blocks.up,
+    down: migration_20260917_192000_services_shared_landing_blocks.down,
+    name: '20260917_192000_services_shared_landing_blocks',
+  },
+  {
+    up: migration_20260918_100000_prime_difference_comparisons.up,
+    down: migration_20260918_100000_prime_difference_comparisons.down,
+    name: '20260918_100000_prime_difference_comparisons',
+  },
+  {
+    up: migration_20260918_110000_benefits_and_richtext_image_text.up,
+    down: migration_20260918_110000_benefits_and_richtext_image_text.down,
+    name: '20260918_110000_benefits_and_richtext_image_text',
   },
 ];

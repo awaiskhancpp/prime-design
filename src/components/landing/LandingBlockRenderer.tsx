@@ -13,8 +13,10 @@ import { LandingLuxuryCta } from './LandingLuxuryCta'
 import { LandingCtaSection } from './LandingCtaSection'
 import { LandingExperienceDifferenceSection } from './LandingExperienceDifferenceSection'
 import { LandingPrimeDifferenceSection } from './LandingPrimeDifferenceSection'
+import { LandingBenefitsSection } from './LandingBenefitsSection'
+import { LandingCraftsmanshipSection } from './LandingCraftsmanshipSection'
 import { LandingProjectGridSection } from './LandingProjectGridSection'
-import { LandingProjectsSection } from './LandingProjectsSection'
+import { LandingServicesSection } from './LandingServicesSection'
 import { LandingRepairServicesSection } from './LandingRepairServicesSection'
 import { LandingServiceAreasSection } from './LandingServiceAreasSection'
 import { LandingBookingSection } from './LandingBookingSection'
@@ -76,19 +78,72 @@ function UnsupportedLandingBlock({ block }: { block: Block }) {
 
 function HeroBlock({ block }: { block: Block }) {
   const image = mediaUrl(block.backgroundMedia)
-  const metadata = block.sourceMetadata as Record<string, unknown> | undefined
-  const backgroundVideo = text(metadata?.backgroundVideoUrl)
+  // The looping hero video is a real field now (`backgroundVideo.asset`, with
+  // `sourceUrl` as WordPress provenance). It used to be readable only out of
+  // `sourceMetadata.backgroundVideoUrl`, which meant it could not be changed
+  // from the admin at all.
+  const backgroundVideo = mediaUrl(block.backgroundVideo)
   if ((!image && !backgroundVideo) || !text(block.heading))
     return <UnsupportedLandingBlock block={block} />
   return (
     <PageHero
-      eyebrow={text(block.eyebrow) || 'Prime Design & Build'}
+      eyebrow={text(block.eyebrow)}
       title={text(block.heading) || ''}
       description={text(block.description)}
       image={image}
       backgroundVideo={backgroundVideo}
-      imageAlt={text(block.heading) || 'Prime Design & Build'}
+      imageAlt={text(block.heading) || ''}
       cta={button(block.buttons)}
+    />
+  )
+}
+
+function BenefitsBlock({ block }: { block: Block }) {
+  const items = Array.isArray(block.items)
+    ? block.items
+        .map((item) => item as Record<string, unknown>)
+        .map((item) => ({
+          title: text(item.title) || '',
+          body: text(item.body),
+          image: mediaUrl(item.media),
+        }))
+        .filter((item) => item.title)
+    : []
+  return (
+    <LandingBenefitsSection
+      eyebrow={text(block.eyebrow)}
+      heading={text(block.heading)}
+      description={text(block.description)}
+      items={items}
+      decorativeImage={mediaUrl(block.decorativeMedia)}
+    />
+  )
+}
+
+function CraftsmanshipBlock({ block }: { block: Block }) {
+  const cards = Array.isArray(block.items)
+    ? block.items
+        .map((item) => item as Record<string, unknown>)
+        .map((item) => ({
+          title: text(item.title) || '',
+          body: text(item.body),
+          image: mediaUrl(item.media),
+        }))
+        .filter((item) => item.title)
+    : []
+  const images = Array.isArray(block.images)
+    ? block.images
+        .map((item) => mediaUrl((item as Record<string, unknown>)?.media))
+        .filter((value): value is string => Boolean(value))
+    : []
+  return (
+    <LandingCraftsmanshipSection
+      eyebrow={text(block.eyebrow)}
+      heading={text(block.heading)}
+      description={text(block.description)}
+      cards={cards}
+      images={images}
+      decorativeImage={mediaUrl(block.decorativeMedia)}
     />
   )
 }
@@ -100,7 +155,9 @@ function ImageTextBlock({ block }: { block: Block }) {
     <ServiceImageTextSection
       eyebrow={text(block.eyebrow)}
       heading={heading}
-      description={text(block.description)}
+      // `description` is rich text on this block now, so pass it as the
+      // structured body rather than as a flattened string.
+      body={block.description as RichTextValue}
       image={mediaUrl(block.media)}
       imageSide={text(block.alignment)}
       cta={button(block.buttons)}
@@ -147,8 +204,12 @@ function GalleryBlock({ block }: { block: Block }) {
     return (
       <LandingGalleryTabs
         heading={text(block.heading)}
+        eyebrow={text(block.eyebrow)}
         description={text(block.description)}
         tabs={groups}
+        // The WordPress HappyFiles galleries these replace set
+        // `lightbox: true`; the block mirrors that, so honour it.
+        lightbox={block.lightbox !== false}
       />
     )
   }
@@ -172,7 +233,13 @@ function GalleryBlock({ block }: { block: Block }) {
         }))
     : []
   return galleryItems.length ? (
-    <LandingGallerySection heading={text(block.heading)} items={galleryItems} />
+    <LandingGallerySection
+      eyebrow={text(block.eyebrow)}
+      heading={text(block.heading)}
+      description={text(block.description)}
+      items={galleryItems}
+      lightbox={block.lightbox !== false}
+    />
   ) : (
     <Section className="bg-white">
       {text(block.heading) ? (
@@ -202,9 +269,16 @@ function ProjectGridBlock({ block }: { block: Block }) {
         .filter((item) => item.title)
     : []
 
+  // The block stores the WordPress icon-box's SVG (`home.svg` beside "Our
+  // Projects"). The section has always had a slot for it; it simply was
+  // never passed, so a populated CMS field rendered as nothing.
+  const icon = block.eyebrowIcon as Record<string, unknown> | undefined
+  const eyebrowIcon = mediaUrl(icon?.iconMedia) || text(icon?.sourceSvgUrl)
+
   return (
     <LandingProjectGridSection
       eyebrow={text(block.eyebrow)}
+      eyebrowIcon={eyebrowIcon}
       heading={text(block.heading)}
       description={text(block.description)}
       items={items}
@@ -246,7 +320,7 @@ function SubServicesBlock({ block }: { block: Block }) {
         .filter((item) => item.title)
     : []
   return items.length ? (
-    <LandingProjectsSection
+    <LandingServicesSection
       eyebrow={text(block.eyebrow)}
       heading={text(block.heading)}
       description={text(block.description)}
@@ -281,7 +355,13 @@ function FaqBlock({ block }: { block: Block }) {
         }
       })
     : []
-  return <LandingFaqBlockSection heading={text(block.heading)} categories={categories} />
+  return (
+    <LandingFaqBlockSection
+      heading={text(block.heading)}
+      description={text(block.description)}
+      categories={categories}
+    />
+  )
 }
 
 function VideoCarouselBlock({ block }: { block: Block }) {
@@ -429,13 +509,15 @@ export const landingBlockRegistry: Record<string, Renderer> = {
   cta: ({ block }) => (
     <LandingCtaSection
       eyebrow={text(block.eyebrow)}
-      heading={text(block.heading) || ''}
+      heading={text(block.heading)}
       description={text(block.description)}
       cta={button(block.buttons)}
       image={mediaUrl(block.media)}
     />
   ),
   'image-text': ImageTextBlock,
+  craftsmanship: CraftsmanshipBlock,
+  'benefit-cards': BenefitsBlock,
   video: VideoBlock,
   gallery: GalleryBlock,
   'project-grid': ProjectGridBlock,
@@ -456,7 +538,10 @@ export const landingBlockRegistry: Record<string, Renderer> = {
       ? block.videos
           .map((item) => item as Record<string, unknown>)
           .map((item) => ({
-            url: text(item.externalUrl) || mediaUrl(item.video),
+            // The imported Media document wins over `externalUrl`: the
+            // latter is the WordPress/CDN origin kept for provenance, and
+            // serving it hotlinks off-site for every visitor.
+            url: mediaUrl(item.video) || text(item.externalUrl),
             poster: mediaUrl(item.poster),
             caption: text(item.caption),
           }))
@@ -468,6 +553,28 @@ export const landingBlockRegistry: Record<string, Renderer> = {
           }))
       : []
 
+    // Before/after pairs merged in from the WordPress section that follows
+    // this one; they are this section's media column, not a section of
+    // their own.
+    const comparisons = Array.isArray(block.comparisons)
+      ? block.comparisons
+          .map((item) => item as Record<string, unknown>)
+          .flatMap((item) => {
+            const before = mediaUrl(item.beforeMedia)
+            const after = mediaUrl(item.afterMedia)
+            if (!before || !after) return []
+            return [
+              {
+                before,
+                after,
+                beforeLabel: text(item.beforeLabel),
+                afterLabel: text(item.afterLabel),
+                caption: text(item.caption),
+              },
+            ]
+          })
+      : []
+
     return (
       <LandingPrimeDifferenceSection
         eyebrow={text(block.eyebrow)}
@@ -475,6 +582,7 @@ export const landingBlockRegistry: Record<string, Renderer> = {
         body={text(block.description)}
         checklist={features}
         videos={videos}
+        comparisons={comparisons}
       />
     )
   },
@@ -499,6 +607,8 @@ export const landingBlockRegistry: Record<string, Renderer> = {
     <LandingServiceAreasSection
       eyebrow={text(block.eyebrow)}
       heading={text(block.heading)}
+      description={text(block.description)}
+      regionHeading={text(block.regionHeading)}
       areas={
         Array.isArray(block.areas)
           ? block.areas.map((area) => {
@@ -536,6 +646,7 @@ export const landingBlockRegistry: Record<string, Renderer> = {
   ),
   'find-us': ({ block }) => (
     <LandingFindUs
+      eyebrow={text(block.eyebrow)}
       heading={text(block.heading)}
       phone={text(block.phone)}
       email={text(block.email)}
@@ -583,9 +694,24 @@ export const landingBlockRegistry: Record<string, Renderer> = {
     return <TestimonialsSpotlightSection heading={text(block.heading) || undefined} />
   },
   booking: ({ block }) => (
-    <LandingBookingSection heading={text(block.heading) || 'Request an Estimate Appointment'} />
+    <LandingBookingSection
+      eyebrow={text(block.eyebrow)}
+      heading={text(block.heading)}
+      consultationLabel={text(block.consultationLabel)}
+      // The WordPress hero and CTA buttons link to `#contact_form`, which is
+      // the booking section's own Bricks CSS id. Without it those buttons
+      // are dead links on an ads landing page.
+      id={text(block.anchorId)}
+    />
   ),
-  'contact-form': () => <LandingContact />,
+  'contact-form': ({ block }) => (
+    <LandingContact
+      eyebrow={text(block.eyebrow)}
+      heading={text(block.heading)}
+      description={text(block.description)}
+      id={text(block.anchorId)}
+    />
+  ),
   'video-carousel': VideoCarouselBlock,
   'gallery-carousel': GalleryCarouselBlock,
 }

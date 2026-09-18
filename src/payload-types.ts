@@ -489,6 +489,13 @@ export interface Service {
               sourceAttachmentId?: number | null;
               sourceUrl?: string | null;
             };
+            backgroundVideo?: {
+              asset?: (number | null) | Media;
+              alt?: string | null;
+              caption?: string | null;
+              sourceAttachmentId?: number | null;
+              sourceUrl?: string | null;
+            };
             foregroundMedia?: {
               asset?: (number | null) | Media;
               alt?: string | null;
@@ -523,7 +530,7 @@ export interface Service {
           }
         | {
             eyebrow?: string | null;
-            heading: string;
+            heading?: string | null;
             description?: string | null;
             media?: {
               asset?: (number | null) | Media;
@@ -560,7 +567,21 @@ export interface Service {
         | {
             eyebrow?: string | null;
             heading: string;
-            description?: string | null;
+            description?: {
+              root: {
+                type: string;
+                children: {
+                  type: any;
+                  version: number;
+                  [k: string]: unknown;
+                }[];
+                direction: ('ltr' | 'rtl') | null;
+                format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+                indent: number;
+                version: number;
+              };
+              [k: string]: unknown;
+            } | null;
             media?: {
               asset?: (number | null) | Media;
               alt?: string | null;
@@ -593,6 +614,100 @@ export interface Service {
             id?: string | null;
             blockName?: string | null;
             blockType: 'image-text';
+          }
+        | {
+            eyebrow?: string | null;
+            heading?: string | null;
+            description?: string | null;
+            items?:
+              | {
+                  title: string;
+                  body?: string | null;
+                  media?: {
+                    asset?: (number | null) | Media;
+                    alt?: string | null;
+                    caption?: string | null;
+                    sourceAttachmentId?: number | null;
+                    sourceUrl?: string | null;
+                  };
+                  id?: string | null;
+                }[]
+              | null;
+            decorativeMedia?: {
+              asset?: (number | null) | Media;
+              alt?: string | null;
+              caption?: string | null;
+              sourceAttachmentId?: number | null;
+              sourceUrl?: string | null;
+            };
+            sourceId?: string | null;
+            sourceElementType?: string | null;
+            sourceAttachmentId?: number | null;
+            sourceMetadata?:
+              | {
+                  [k: string]: unknown;
+                }
+              | unknown[]
+              | string
+              | number
+              | boolean
+              | null;
+            id?: string | null;
+            blockName?: string | null;
+            blockType: 'benefit-cards';
+          }
+        | {
+            eyebrow?: string | null;
+            heading?: string | null;
+            description?: string | null;
+            items?:
+              | {
+                  title: string;
+                  body?: string | null;
+                  media?: {
+                    asset?: (number | null) | Media;
+                    alt?: string | null;
+                    caption?: string | null;
+                    sourceAttachmentId?: number | null;
+                    sourceUrl?: string | null;
+                  };
+                  id?: string | null;
+                }[]
+              | null;
+            images?:
+              | {
+                  media?: {
+                    asset?: (number | null) | Media;
+                    alt?: string | null;
+                    caption?: string | null;
+                    sourceAttachmentId?: number | null;
+                    sourceUrl?: string | null;
+                  };
+                  id?: string | null;
+                }[]
+              | null;
+            decorativeMedia?: {
+              asset?: (number | null) | Media;
+              alt?: string | null;
+              caption?: string | null;
+              sourceAttachmentId?: number | null;
+              sourceUrl?: string | null;
+            };
+            sourceId?: string | null;
+            sourceElementType?: string | null;
+            sourceAttachmentId?: number | null;
+            sourceMetadata?:
+              | {
+                  [k: string]: unknown;
+                }
+              | unknown[]
+              | string
+              | number
+              | boolean
+              | null;
+            id?: string | null;
+            blockName?: string | null;
+            blockType: 'craftsmanship';
           }
         | {
             heading?: string | null;
@@ -646,6 +761,7 @@ export interface Service {
             blockType: 'video';
           }
         | {
+            eyebrow?: string | null;
             heading?: string | null;
             description?: string | null;
             items?:
@@ -870,6 +986,20 @@ export interface Service {
                 }[]
               | null;
             /**
+             * Before/after pairs shown in this section's media column. WordPress authors them as an `xbeforeafterimage` in the Bricks section immediately after this one (siding, outdoor hardscape) — the same split the video carousel uses — so they belong here, not in a section of their own.
+             */
+            comparisons?:
+              | {
+                  beforeMedia?: (number | null) | Media;
+                  afterMedia?: (number | null) | Media;
+                  beforeLabel?: string | null;
+                  afterLabel?: string | null;
+                  caption?: string | null;
+                  sourceId?: string | null;
+                  id?: string | null;
+                }[]
+              | null;
+            /**
              * Ordered videos embedded in the WordPress Prime Difference section.
              */
             videos?:
@@ -973,6 +1103,14 @@ export interface Service {
                   id?: string | null;
                 }[]
               | null;
+            regionHeading?: string | null;
+            mapMedia?: {
+              asset?: (number | null) | Media;
+              alt?: string | null;
+              caption?: string | null;
+              sourceAttachmentId?: number | null;
+              sourceUrl?: string | null;
+            };
             sourceId?: string | null;
             sourceElementType?: string | null;
             sourceAttachmentId?: number | null;
@@ -1098,6 +1236,10 @@ export interface Service {
             blockType: 'luxury-cta';
           }
         | {
+            eyebrow?: string | null;
+            heading?: string | null;
+            anchorId?: string | null;
+            consultationLabel?: string | null;
             provider?: string | null;
             shortcode?: string | null;
             sourceElementId?: string | null;
@@ -1127,6 +1269,10 @@ export interface Service {
             blockType: 'booking';
           }
         | {
+            eyebrow?: string | null;
+            heading?: string | null;
+            description?: string | null;
+            anchorId?: string | null;
             provider?: string | null;
             shortcode?: string | null;
             sourceElementId?: string | null;
@@ -1156,6 +1302,7 @@ export interface Service {
             blockType: 'contact-form';
           }
         | {
+            eyebrow?: string | null;
             heading: string;
             phone?: string | null;
             email?: string | null;
@@ -3188,6 +3335,13 @@ export interface LandingPage {
           sourceAttachmentId?: number | null;
           sourceUrl?: string | null;
         };
+        backgroundVideo?: {
+          asset?: (number | null) | Media;
+          alt?: string | null;
+          caption?: string | null;
+          sourceAttachmentId?: number | null;
+          sourceUrl?: string | null;
+        };
         foregroundMedia?: {
           asset?: (number | null) | Media;
           alt?: string | null;
@@ -3222,7 +3376,7 @@ export interface LandingPage {
       }
     | {
         eyebrow?: string | null;
-        heading: string;
+        heading?: string | null;
         description?: string | null;
         media?: {
           asset?: (number | null) | Media;
@@ -3259,7 +3413,21 @@ export interface LandingPage {
     | {
         eyebrow?: string | null;
         heading: string;
-        description?: string | null;
+        description?: {
+          root: {
+            type: string;
+            children: {
+              type: any;
+              version: number;
+              [k: string]: unknown;
+            }[];
+            direction: ('ltr' | 'rtl') | null;
+            format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+            indent: number;
+            version: number;
+          };
+          [k: string]: unknown;
+        } | null;
         media?: {
           asset?: (number | null) | Media;
           alt?: string | null;
@@ -3292,6 +3460,100 @@ export interface LandingPage {
         id?: string | null;
         blockName?: string | null;
         blockType: 'image-text';
+      }
+    | {
+        eyebrow?: string | null;
+        heading?: string | null;
+        description?: string | null;
+        items?:
+          | {
+              title: string;
+              body?: string | null;
+              media?: {
+                asset?: (number | null) | Media;
+                alt?: string | null;
+                caption?: string | null;
+                sourceAttachmentId?: number | null;
+                sourceUrl?: string | null;
+              };
+              id?: string | null;
+            }[]
+          | null;
+        decorativeMedia?: {
+          asset?: (number | null) | Media;
+          alt?: string | null;
+          caption?: string | null;
+          sourceAttachmentId?: number | null;
+          sourceUrl?: string | null;
+        };
+        sourceId?: string | null;
+        sourceElementType?: string | null;
+        sourceAttachmentId?: number | null;
+        sourceMetadata?:
+          | {
+              [k: string]: unknown;
+            }
+          | unknown[]
+          | string
+          | number
+          | boolean
+          | null;
+        id?: string | null;
+        blockName?: string | null;
+        blockType: 'benefit-cards';
+      }
+    | {
+        eyebrow?: string | null;
+        heading?: string | null;
+        description?: string | null;
+        items?:
+          | {
+              title: string;
+              body?: string | null;
+              media?: {
+                asset?: (number | null) | Media;
+                alt?: string | null;
+                caption?: string | null;
+                sourceAttachmentId?: number | null;
+                sourceUrl?: string | null;
+              };
+              id?: string | null;
+            }[]
+          | null;
+        images?:
+          | {
+              media?: {
+                asset?: (number | null) | Media;
+                alt?: string | null;
+                caption?: string | null;
+                sourceAttachmentId?: number | null;
+                sourceUrl?: string | null;
+              };
+              id?: string | null;
+            }[]
+          | null;
+        decorativeMedia?: {
+          asset?: (number | null) | Media;
+          alt?: string | null;
+          caption?: string | null;
+          sourceAttachmentId?: number | null;
+          sourceUrl?: string | null;
+        };
+        sourceId?: string | null;
+        sourceElementType?: string | null;
+        sourceAttachmentId?: number | null;
+        sourceMetadata?:
+          | {
+              [k: string]: unknown;
+            }
+          | unknown[]
+          | string
+          | number
+          | boolean
+          | null;
+        id?: string | null;
+        blockName?: string | null;
+        blockType: 'craftsmanship';
       }
     | {
         heading?: string | null;
@@ -3345,6 +3607,7 @@ export interface LandingPage {
         blockType: 'video';
       }
     | {
+        eyebrow?: string | null;
         heading?: string | null;
         description?: string | null;
         items?:
@@ -3569,6 +3832,20 @@ export interface LandingPage {
             }[]
           | null;
         /**
+         * Before/after pairs shown in this section's media column. WordPress authors them as an `xbeforeafterimage` in the Bricks section immediately after this one (siding, outdoor hardscape) — the same split the video carousel uses — so they belong here, not in a section of their own.
+         */
+        comparisons?:
+          | {
+              beforeMedia?: (number | null) | Media;
+              afterMedia?: (number | null) | Media;
+              beforeLabel?: string | null;
+              afterLabel?: string | null;
+              caption?: string | null;
+              sourceId?: string | null;
+              id?: string | null;
+            }[]
+          | null;
+        /**
          * Ordered videos embedded in the WordPress Prime Difference section.
          */
         videos?:
@@ -3672,6 +3949,14 @@ export interface LandingPage {
               id?: string | null;
             }[]
           | null;
+        regionHeading?: string | null;
+        mapMedia?: {
+          asset?: (number | null) | Media;
+          alt?: string | null;
+          caption?: string | null;
+          sourceAttachmentId?: number | null;
+          sourceUrl?: string | null;
+        };
         sourceId?: string | null;
         sourceElementType?: string | null;
         sourceAttachmentId?: number | null;
@@ -3797,6 +4082,10 @@ export interface LandingPage {
         blockType: 'luxury-cta';
       }
     | {
+        eyebrow?: string | null;
+        heading?: string | null;
+        anchorId?: string | null;
+        consultationLabel?: string | null;
         provider?: string | null;
         shortcode?: string | null;
         sourceElementId?: string | null;
@@ -3826,6 +4115,10 @@ export interface LandingPage {
         blockType: 'booking';
       }
     | {
+        eyebrow?: string | null;
+        heading?: string | null;
+        description?: string | null;
+        anchorId?: string | null;
         provider?: string | null;
         shortcode?: string | null;
         sourceElementId?: string | null;
@@ -3855,6 +4148,7 @@ export interface LandingPage {
         blockType: 'contact-form';
       }
     | {
+        eyebrow?: string | null;
         heading: string;
         phone?: string | null;
         email?: string | null;
@@ -4572,6 +4866,15 @@ export interface ServicesSelect<T extends boolean = true> {
                     sourceAttachmentId?: T;
                     sourceUrl?: T;
                   };
+              backgroundVideo?:
+                | T
+                | {
+                    asset?: T;
+                    alt?: T;
+                    caption?: T;
+                    sourceAttachmentId?: T;
+                    sourceUrl?: T;
+                  };
               foregroundMedia?:
                 | T
                 | {
@@ -4660,6 +4963,96 @@ export interface ServicesSelect<T extends boolean = true> {
               id?: T;
               blockName?: T;
             };
+        'benefit-cards'?:
+          | T
+          | {
+              eyebrow?: T;
+              heading?: T;
+              description?: T;
+              items?:
+                | T
+                | {
+                    title?: T;
+                    body?: T;
+                    media?:
+                      | T
+                      | {
+                          asset?: T;
+                          alt?: T;
+                          caption?: T;
+                          sourceAttachmentId?: T;
+                          sourceUrl?: T;
+                        };
+                    id?: T;
+                  };
+              decorativeMedia?:
+                | T
+                | {
+                    asset?: T;
+                    alt?: T;
+                    caption?: T;
+                    sourceAttachmentId?: T;
+                    sourceUrl?: T;
+                  };
+              sourceId?: T;
+              sourceElementType?: T;
+              sourceAttachmentId?: T;
+              sourceMetadata?: T;
+              id?: T;
+              blockName?: T;
+            };
+        craftsmanship?:
+          | T
+          | {
+              eyebrow?: T;
+              heading?: T;
+              description?: T;
+              items?:
+                | T
+                | {
+                    title?: T;
+                    body?: T;
+                    media?:
+                      | T
+                      | {
+                          asset?: T;
+                          alt?: T;
+                          caption?: T;
+                          sourceAttachmentId?: T;
+                          sourceUrl?: T;
+                        };
+                    id?: T;
+                  };
+              images?:
+                | T
+                | {
+                    media?:
+                      | T
+                      | {
+                          asset?: T;
+                          alt?: T;
+                          caption?: T;
+                          sourceAttachmentId?: T;
+                          sourceUrl?: T;
+                        };
+                    id?: T;
+                  };
+              decorativeMedia?:
+                | T
+                | {
+                    asset?: T;
+                    alt?: T;
+                    caption?: T;
+                    sourceAttachmentId?: T;
+                    sourceUrl?: T;
+                  };
+              sourceId?: T;
+              sourceElementType?: T;
+              sourceAttachmentId?: T;
+              sourceMetadata?: T;
+              id?: T;
+              blockName?: T;
+            };
         video?:
           | T
           | {
@@ -4684,6 +5077,7 @@ export interface ServicesSelect<T extends boolean = true> {
         gallery?:
           | T
           | {
+              eyebrow?: T;
               heading?: T;
               description?: T;
               items?:
@@ -4878,6 +5272,17 @@ export interface ServicesSelect<T extends boolean = true> {
                     url?: T;
                     id?: T;
                   };
+              comparisons?:
+                | T
+                | {
+                    beforeMedia?: T;
+                    afterMedia?: T;
+                    beforeLabel?: T;
+                    afterLabel?: T;
+                    caption?: T;
+                    sourceId?: T;
+                    id?: T;
+                  };
               videos?:
                 | T
                 | {
@@ -4977,6 +5382,16 @@ export interface ServicesSelect<T extends boolean = true> {
                         };
                     id?: T;
                   };
+              regionHeading?: T;
+              mapMedia?:
+                | T
+                | {
+                    asset?: T;
+                    alt?: T;
+                    caption?: T;
+                    sourceAttachmentId?: T;
+                    sourceUrl?: T;
+                  };
               sourceId?: T;
               sourceElementType?: T;
               sourceAttachmentId?: T;
@@ -5057,6 +5472,10 @@ export interface ServicesSelect<T extends boolean = true> {
         booking?:
           | T
           | {
+              eyebrow?: T;
+              heading?: T;
+              anchorId?: T;
+              consultationLabel?: T;
               provider?: T;
               shortcode?: T;
               sourceElementId?: T;
@@ -5071,6 +5490,10 @@ export interface ServicesSelect<T extends boolean = true> {
         'contact-form'?:
           | T
           | {
+              eyebrow?: T;
+              heading?: T;
+              description?: T;
+              anchorId?: T;
               provider?: T;
               shortcode?: T;
               sourceElementId?: T;
@@ -5085,6 +5508,7 @@ export interface ServicesSelect<T extends boolean = true> {
         'find-us'?:
           | T
           | {
+              eyebrow?: T;
               heading?: T;
               phone?: T;
               email?: T;
@@ -6225,6 +6649,15 @@ export interface LandingPagesSelect<T extends boolean = true> {
                     sourceAttachmentId?: T;
                     sourceUrl?: T;
                   };
+              backgroundVideo?:
+                | T
+                | {
+                    asset?: T;
+                    alt?: T;
+                    caption?: T;
+                    sourceAttachmentId?: T;
+                    sourceUrl?: T;
+                  };
               foregroundMedia?:
                 | T
                 | {
@@ -6313,6 +6746,96 @@ export interface LandingPagesSelect<T extends boolean = true> {
               id?: T;
               blockName?: T;
             };
+        'benefit-cards'?:
+          | T
+          | {
+              eyebrow?: T;
+              heading?: T;
+              description?: T;
+              items?:
+                | T
+                | {
+                    title?: T;
+                    body?: T;
+                    media?:
+                      | T
+                      | {
+                          asset?: T;
+                          alt?: T;
+                          caption?: T;
+                          sourceAttachmentId?: T;
+                          sourceUrl?: T;
+                        };
+                    id?: T;
+                  };
+              decorativeMedia?:
+                | T
+                | {
+                    asset?: T;
+                    alt?: T;
+                    caption?: T;
+                    sourceAttachmentId?: T;
+                    sourceUrl?: T;
+                  };
+              sourceId?: T;
+              sourceElementType?: T;
+              sourceAttachmentId?: T;
+              sourceMetadata?: T;
+              id?: T;
+              blockName?: T;
+            };
+        craftsmanship?:
+          | T
+          | {
+              eyebrow?: T;
+              heading?: T;
+              description?: T;
+              items?:
+                | T
+                | {
+                    title?: T;
+                    body?: T;
+                    media?:
+                      | T
+                      | {
+                          asset?: T;
+                          alt?: T;
+                          caption?: T;
+                          sourceAttachmentId?: T;
+                          sourceUrl?: T;
+                        };
+                    id?: T;
+                  };
+              images?:
+                | T
+                | {
+                    media?:
+                      | T
+                      | {
+                          asset?: T;
+                          alt?: T;
+                          caption?: T;
+                          sourceAttachmentId?: T;
+                          sourceUrl?: T;
+                        };
+                    id?: T;
+                  };
+              decorativeMedia?:
+                | T
+                | {
+                    asset?: T;
+                    alt?: T;
+                    caption?: T;
+                    sourceAttachmentId?: T;
+                    sourceUrl?: T;
+                  };
+              sourceId?: T;
+              sourceElementType?: T;
+              sourceAttachmentId?: T;
+              sourceMetadata?: T;
+              id?: T;
+              blockName?: T;
+            };
         video?:
           | T
           | {
@@ -6337,6 +6860,7 @@ export interface LandingPagesSelect<T extends boolean = true> {
         gallery?:
           | T
           | {
+              eyebrow?: T;
               heading?: T;
               description?: T;
               items?:
@@ -6531,6 +7055,17 @@ export interface LandingPagesSelect<T extends boolean = true> {
                     url?: T;
                     id?: T;
                   };
+              comparisons?:
+                | T
+                | {
+                    beforeMedia?: T;
+                    afterMedia?: T;
+                    beforeLabel?: T;
+                    afterLabel?: T;
+                    caption?: T;
+                    sourceId?: T;
+                    id?: T;
+                  };
               videos?:
                 | T
                 | {
@@ -6630,6 +7165,16 @@ export interface LandingPagesSelect<T extends boolean = true> {
                         };
                     id?: T;
                   };
+              regionHeading?: T;
+              mapMedia?:
+                | T
+                | {
+                    asset?: T;
+                    alt?: T;
+                    caption?: T;
+                    sourceAttachmentId?: T;
+                    sourceUrl?: T;
+                  };
               sourceId?: T;
               sourceElementType?: T;
               sourceAttachmentId?: T;
@@ -6710,6 +7255,10 @@ export interface LandingPagesSelect<T extends boolean = true> {
         booking?:
           | T
           | {
+              eyebrow?: T;
+              heading?: T;
+              anchorId?: T;
+              consultationLabel?: T;
               provider?: T;
               shortcode?: T;
               sourceElementId?: T;
@@ -6724,6 +7273,10 @@ export interface LandingPagesSelect<T extends boolean = true> {
         'contact-form'?:
           | T
           | {
+              eyebrow?: T;
+              heading?: T;
+              description?: T;
+              anchorId?: T;
               provider?: T;
               shortcode?: T;
               sourceElementId?: T;
@@ -6738,6 +7291,7 @@ export interface LandingPagesSelect<T extends boolean = true> {
         'find-us'?:
           | T
           | {
+              eyebrow?: T;
               heading?: T;
               phone?: T;
               email?: T;

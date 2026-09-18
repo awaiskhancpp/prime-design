@@ -18,9 +18,11 @@ type ResolvedCategory = { title: string; items: Array<{ question: string; answer
  */
 export async function LandingFaqBlockSection({
   heading,
+  description,
   categories,
 }: {
   heading?: string
+  description?: string
   categories: ResolvedCategory[]
 }) {
   const resolved = await Promise.all(
@@ -42,6 +44,7 @@ export async function LandingFaqBlockSection({
   return (
     <LandingFaqSection
       heading={heading}
+      description={description}
       categories={resolved.filter((category) => category.items.length)}
     />
   )
