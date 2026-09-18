@@ -297,8 +297,8 @@ function AppointmentCalendar({
 export function AppointmentScheduler({
   consultation,
   onDone,
-  phone = '(650) 220-9600',
-  phoneClean = '6502209600',
+  phone = '(650) 235-4863',
+  phoneClean = '6502354863',
 }: {
   consultation: string
   onDone?: () => void

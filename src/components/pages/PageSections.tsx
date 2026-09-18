@@ -13,9 +13,11 @@ import { HomeServices } from '@/components/blocks/HomeServices'
 import { LandscapingDifference } from '@/components/blocks/LandscapingDifference'
 import { LandscapingIntro } from '@/components/blocks/LandscapingIntro'
 import { RichTextContent } from '@/components/rich-text/RichTextContent'
+import { richTextHasContent } from '@/lib/richText'
 import { AboutFaq } from '@/components/about/AboutFaq'
 import { CoreValues } from '@/components/about/CoreValues'
 import { ExpertsSection } from '@/components/about/ExpertsSection'
+import { SocialProofSection } from '@/components/about/SocialProofSection'
 import { GuidingPrinciple } from '@/components/about/GuidingPrinciple'
 import { TeamSection } from '@/components/about/TeamSection'
 import { Contact } from '@/components/gallery/Contact'
@@ -97,6 +99,9 @@ function PageSectionNode({
     case 'hero':
       return <SectionHero hero={section.content} />
 
+    case 'social-proof':
+      return <SocialProofSection content={section.content} socialLinks={context.socialLinks} />
+
     case 'intro':
       return (
         <LandscapingIntro
@@ -151,15 +156,14 @@ function PageSectionNode({
           }
         />
       )
+    case 'experts':
+      return <ExpertsSection experts={section.content} />
 
     case 'guiding-principle':
       return <GuidingPrinciple guidingPrinciple={section.content} />
 
     case 'core-values':
       return <CoreValues coreValues={section.content} />
-
-    case 'experts':
-      return <ExpertsSection experts={section.content} />
 
     case 'faq':
       return <AboutFaq phone={context.phone} faqIntro={section.content} />
@@ -323,10 +327,10 @@ function PageSectionNode({
           <h2 className="font-display text-3xl font-semibold text-ink">
             {section.content.heading}
           </h2>
-          {section.content.body ? (
-            <p className="mt-4 max-w-2xl text-base leading-8 text-ink-2/75">
-              {section.content.body}
-            </p>
+          {richTextHasContent(section.content.body) ? (
+            <div className="mt-4 max-w-2xl text-base leading-8 text-ink-2/75 [&_a]:font-semibold [&_a]:text-brass-deep [&_a]:underline [&_a]:underline-offset-2">
+              <RichTextContent data={section.content.body} />
+            </div>
           ) : null}
           {section.content.label && section.content.href ? (
             <Button href={section.content.href} className="mt-6">

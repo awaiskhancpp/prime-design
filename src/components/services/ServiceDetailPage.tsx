@@ -790,7 +790,19 @@ export function ServiceTemplate({ service }: { service: ServiceDetail }) {
 
   const rank = (key: string) => {
     const index = order.indexOf(key)
-    if (index >= 0) return index
+    if (index >= 0) {
+      // The "Areas we service" strip closes a service page — it is the last
+      // entry in every order below. A section this page's order does not
+      // name ranks `order.length` (see the end of this function), which
+      // would otherwise place it *after* that closer: that is what pushed
+      // "Why Choose Prime Design & Build?" below the city strip on the home-
+      // and bathroom-remodeling pages. Promoted only when the order already
+      // ends with it, so a CMS `sectionOrder` that deliberately puts the
+      // strip mid-page is left exactly where it asks.
+      return key === 'areas-we-service' && index === order.length - 1
+        ? order.length + 1
+        : index
+    }
     if (key === 'cms-body') {
       const introIndex = order.indexOf('intro')
       return introIndex < 0 ? 1 : introIndex + 0.5

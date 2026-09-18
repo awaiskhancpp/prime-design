@@ -56,7 +56,10 @@ export const landingPageBlocks: Block[] = [
     // "Schedule A Call" button). The import used to satisfy the requirement
     // by inventing "Ready to get started?" and writing it to the database.
     text('heading'),
-    description(),
+    // Rich text, not a textarea: the free-estimate band's copy is
+    // "Contact us here or reach us at (650) 235-4863" — two links in one
+    // sentence, which plain text cannot carry.
+    { name: 'description', type: 'richText' as const },
     ...mediaReferenceFields(),
     ...buttonGroupFields(),
   ]),
@@ -354,7 +357,7 @@ export const landingPageBlocks: Block[] = [
     text('heading', true),
     // Bare values only — no "Call Us" / "Email Now" / "Address" captions.
     // The section supplies those labels itself, and a stored value that
-    // repeats them renders as "Call Us Call Us (650) 220-9600" and produces
+    // repeats them renders as "Call Us Call Us (650) 235-4863" and produces
     // a `mailto:` containing the caption.
     text('phone'),
     text('email'),

@@ -301,6 +301,23 @@ export const expertsBlock: Block = {
   ],
 }
 
+/**
+ * The review-platform row — Yelp, Google and Houzz.
+ *
+ * Only the copy lives here. The three profile URLs come from Site Settings →
+ * Social Links, which the homepage badge row already reads, so a changed
+ * profile link updates both places instead of drifting between them.
+ */
+export const socialProofBlock: Block = {
+  slug: 'social-proof',
+  labels: { singular: 'Social proof (review platforms)', plural: 'Social proof (review platforms)' },
+  fields: [
+    { name: 'eyebrow', type: 'text' },
+    { name: 'heading', type: 'text' },
+    { name: 'description', type: 'textarea' },
+  ],
+}
+
 export const faqIntroBlock: Block = {
   slug: 'faq',
   labels: { singular: 'FAQ Intro', plural: 'FAQ Intros' },
@@ -570,6 +587,7 @@ export const sectionBlocks: Block[] = [
   guidingPrincipleBlock,
   coreValuesBlock,
   expertsBlock,
+  socialProofBlock,
   faqIntroBlock,
   galleryTabsBlock,
   whyChooseUsBlock,

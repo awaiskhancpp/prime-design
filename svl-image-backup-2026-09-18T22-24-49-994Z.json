@@ -1,0 +1,32 @@
+[
+  {
+    "table": "site_settings",
+    "column": "trust_intro_image_id",
+    "id": 1,
+    "was": 658
+  },
+  {
+    "table": "services",
+    "column": "silicon_valley_loves_image_id",
+    "id": 3,
+    "was": 658
+  },
+  {
+    "table": "services",
+    "column": "silicon_valley_loves_image_id",
+    "id": 5,
+    "was": 658
+  },
+  {
+    "table": "services",
+    "column": "silicon_valley_loves_image_id",
+    "id": 2,
+    "was": 658
+  },
+  {
+    "table": "services",
+    "column": "silicon_valley_loves_image_id",
+    "id": 1,
+    "was": 658
+  }
+]

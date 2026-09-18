@@ -5,14 +5,13 @@ import { Section } from '@/components/ui/Section'
  * LandingFindUs
  *
  * The contact-details band. Every value is a prop with no default: the
- * previous defaults hardcoded a phone number — `(650) 235-4863` — that did
- * not even match the WordPress source, so a page with broken CMS wiring
+ * previous defaults hardcoded a phone number, so a page with broken CMS wiring
  * showed a wrong number rather than nothing.
  *
  * `phone`, `email` and `address` are the bare values. The "Call Us" /
  * "Email Now" / "Address" captions are this design's own labels, so the
  * stored values must not repeat them, or the page renders "Call Us Call Us
- * (650) 220-9600" and a `mailto:` that includes the caption.
+ * (650) 235-4863" and a `mailto:` that includes the caption.
  */
 export function LandingFindUs({
   eyebrow,

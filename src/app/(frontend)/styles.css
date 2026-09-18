@@ -55,6 +55,14 @@
 
 html {
   scroll-behavior: smooth;
+
+  /*
+   * Reserve the vertical scrollbar's width whether or not it is showing, so
+   * a page that grows past the viewport — an FAQ answer opening, a filter
+   * widening a list — cannot take ~15px of width away from the layout as the
+   * scrollbar appears. Without it every fluid column reflows at that moment.
+   */
+  scrollbar-gutter: stable;
 }
 
 body {

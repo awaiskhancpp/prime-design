@@ -24,6 +24,7 @@ import { ServiceSiliconValleyLovesSection } from './sections/ServiceSiliconValle
 import { ServiceLicensedInsuredSection } from './sections/ServiceLicensedInsuredSection'
 import { ServiceFinanceCtaSection } from './sections/ServiceFinanceCtaSection'
 import { mediaUrl, sharedSectionRegistry, text } from '@/components/landing/LandingBlockRenderer'
+import { RichTextContent } from '@/components/rich-text/RichTextContent'
 import { richTextHasContent, richTextToPlainText, type RichTextValue } from '@/lib/richText'
 import type { ServiceContentStep } from '@/lib/services'
 import type { CarouselVideo } from '@/components/landing/VideoCarousel'
@@ -379,7 +380,8 @@ function renderFinanceCta(block: RawBlock): RenderedSection {
     node: (
       <ServiceFinanceCtaSection
         heading={str(block.heading)}
-        description={str(block.description) || undefined}
+        // `description` is rich text now; `str()` returns '' for jsonb.
+        description={descriptionText(block) || undefined}
         image={mediaUrl(block.media)}
         cta={
           ctaButton
@@ -636,7 +638,15 @@ export function renderSection(
       node: (
         <ServiceEstimateCta
           heading={headingText || undefined}
-          description={str(block.description) || undefined}
+          // `description` is rich text now — read it with the same helpers
+          // the other blocks use rather than `str()`, which returned '' for a
+          // jsonb value and silently blanked the copy.
+          body={
+            descriptionRich(block) ? (
+              <RichTextContent data={descriptionRich(block) as RichTextValue} tone="light" />
+            ) : undefined
+          }
+          description={descriptionRich(block) ? undefined : descriptionText(block) || undefined}
         />
       ),
     }

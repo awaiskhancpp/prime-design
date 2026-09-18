@@ -1,0 +1,56 @@
+[
+  {
+    "table": "site_settings",
+    "column": "company_phone",
+    "id": 1,
+    "was": "(650) 220-9600"
+  },
+  {
+    "table": "site_settings",
+    "column": "company_phone_clean",
+    "id": 1,
+    "was": "6502209600"
+  },
+  {
+    "table": "landing_pages_blocks_find_us",
+    "column": "phone",
+    "id": "6aac8069e879e96f8c05b44f",
+    "was": "(650) 220-9600"
+  },
+  {
+    "table": "landing_pages_blocks_find_us",
+    "column": "phone",
+    "id": "6aac809de879e96f8c05b51a",
+    "was": "(650) 220-9600"
+  },
+  {
+    "table": "landing_pages_blocks_find_us",
+    "column": "phone",
+    "id": "6aac80b3e879e96f8c05b5cd",
+    "was": "(650) 220-9600"
+  },
+  {
+    "table": "landing_pages_blocks_find_us",
+    "column": "phone",
+    "id": "6aac80efe879e96f8c05b5f5",
+    "was": "(650) 235-4869"
+  },
+  {
+    "table": "landing_pages_blocks_find_us",
+    "column": "phone",
+    "id": "6aac8102e879e96f8c05b6aa",
+    "was": "(650) 220-9600"
+  },
+  {
+    "table": "landing_pages_blocks_find_us",
+    "column": "phone",
+    "id": "6aac8117e879e96f8c05b75b",
+    "was": "(650) 220-9600"
+  },
+  {
+    "table": "landing_pages_blocks_find_us",
+    "column": "phone",
+    "id": "6aac818fe879e96f8c05b87b",
+    "was": "(650) 220-9600"
+  }
+]

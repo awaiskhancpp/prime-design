@@ -61,7 +61,7 @@ export function ServiceCraftsmanshipTransformsSection({
       <div className="grid items-center gap-14 lg:grid-cols-[0.85fr_1fr] lg:gap-20">
         {photos.length ? (
           <div className="relative mb-14 w-full lg:mx-0">
-            <div className="relative aspect-[16/10] w-full overflow-hidden bg-paper-2 shadow-xl shadow-ink/10">
+            <div className="relative aspect-[16/10] w-full overflow-hidden shadow-xl shadow-ink/10">
               <Image
                 src={photos[0]}
                 alt=""
@@ -72,8 +72,8 @@ export function ServiceCraftsmanshipTransformsSection({
             </div>
 
             {photos[1] ? (
-              <div className="absolute -bottom-10 left-4 w-2/5 border-5 border-paper bg-paper shadow-2xl shadow-ink/20 sm:-left-3">
-                <div className="relative aspect-[4/3] overflow-hidden bg-paper-2">
+              <div className="absolute -bottom-10 left-4 w-2/5 border-5 border-white shadow-2xl shadow-ink/20 sm:-left-3">
+                <div className="relative aspect-[4/3] overflow-hidden ">
                   <Image
                     src={photos[1]}
                     alt=""
@@ -98,10 +98,7 @@ export function ServiceCraftsmanshipTransformsSection({
           ) : (
             <>
               <h2 className="mt-3 font-display text-4xl font-medium leading-tight tracking-tight text-ink md:text-5xl">
-                {heading}{' '}
-                <span className="text-brass">
-                  {headingAccent}
-                </span>
+                {heading} <span className="text-brass">{headingAccent}</span>
               </h2>
 
               <div className="mt-6 grid gap-4">

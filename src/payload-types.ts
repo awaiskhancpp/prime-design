@@ -531,7 +531,21 @@ export interface Service {
         | {
             eyebrow?: string | null;
             heading?: string | null;
-            description?: string | null;
+            description?: {
+              root: {
+                type: string;
+                children: {
+                  type: any;
+                  version: number;
+                  [k: string]: unknown;
+                }[];
+                direction: ('ltr' | 'rtl') | null;
+                format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+                indent: number;
+                version: number;
+              };
+              [k: string]: unknown;
+            } | null;
             media?: {
               asset?: (number | null) | Media;
               alt?: string | null;
@@ -2536,6 +2550,14 @@ export interface Page {
             blockType: 'experts';
           }
         | {
+            eyebrow?: string | null;
+            heading?: string | null;
+            description?: string | null;
+            id?: string | null;
+            blockName?: string | null;
+            blockType: 'social-proof';
+          }
+        | {
             heading?: string | null;
             description?: string | null;
             id?: string | null;
@@ -2786,7 +2808,21 @@ export interface Page {
           }
         | {
             heading: string;
-            body?: string | null;
+            body?: {
+              root: {
+                type: string;
+                children: {
+                  type: any;
+                  version: number;
+                  [k: string]: unknown;
+                }[];
+                direction: ('ltr' | 'rtl') | null;
+                format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+                indent: number;
+                version: number;
+              };
+              [k: string]: unknown;
+            } | null;
             label?: string | null;
             href?: string | null;
             id?: string | null;
@@ -3299,7 +3335,21 @@ export interface LandingPage {
     | {
         eyebrow?: string | null;
         heading?: string | null;
-        description?: string | null;
+        description?: {
+          root: {
+            type: string;
+            children: {
+              type: any;
+              version: number;
+              [k: string]: unknown;
+            }[];
+            direction: ('ltr' | 'rtl') | null;
+            format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+            indent: number;
+            version: number;
+          };
+          [k: string]: unknown;
+        } | null;
         media?: {
           asset?: (number | null) | Media;
           alt?: string | null;
@@ -6069,6 +6119,15 @@ export interface PagesSelect<T extends boolean = true> {
               summary?: T;
               speakerName?: T;
               speakerRole?: T;
+              id?: T;
+              blockName?: T;
+            };
+        'social-proof'?:
+          | T
+          | {
+              eyebrow?: T;
+              heading?: T;
+              description?: T;
               id?: T;
               blockName?: T;
             };

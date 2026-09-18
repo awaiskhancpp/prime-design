@@ -1,6 +1,6 @@
 import { PageSections, type PageSectionContext } from '@/components/pages/PageSections'
 import { resolvePageBySlug } from '@/lib/pages'
-import { resolveFeaturedTestimonials } from '@/lib/testimonialsCollection.server'
+import { resolveAllTestimonials } from '@/lib/testimonialsCollection.server'
 
 /**
  * Testimonials page. Its sections live in the Pages collection (record
@@ -15,7 +15,9 @@ import { resolveFeaturedTestimonials } from '@/lib/testimonialsCollection.server
  */
 export async function TestimonialsPage() {
   const page = await resolvePageBySlug('testimonials')
-  const testimonials = await resolveFeaturedTestimonials()
+  // The whole set, not just the featured 14: the review wall pages through
+  // all of them, 20 at a time.
+  const testimonials = await resolveAllTestimonials()
 
   const context: PageSectionContext = { testimonials }
 

@@ -3,6 +3,8 @@ import { LandscapingServiceAreas } from '@/components/blocks/LandscapingServiceA
 import { PageHero } from '@/components/layout/PageHero'
 import { Section } from '@/components/ui/Section'
 import { resolveBlogPosts } from '@/lib/blog'
+import { richTextHasContent } from '@/lib/richText'
+import { RichTextContent } from '@/components/rich-text/RichTextContent'
 import { resolvePageBySlug } from '@/lib/pages'
 import type { PageSection } from '@/lib/pageSections'
 import { BlogCard } from './BlogCard'
@@ -58,7 +60,19 @@ export async function BlogPage() {
       </Section>
       <ServiceEstimateCta
         heading={estimateBlock?.content.heading || 'Ready to schedule your free estimate?'}
-        description={estimateBlock?.content.body || 'Contact us here or reach us at (650) 235-4863'}
+        // The CMS body is rich text — the copy carries the contact link and
+        // the phone number. The plain string stays as the no-database
+        // fallback only.
+        body={
+          estimateBlock && richTextHasContent(estimateBlock.content.body) ? (
+            <RichTextContent data={estimateBlock.content.body} tone="light" />
+          ) : undefined
+        }
+        description={
+          richTextHasContent(estimateBlock?.content.body)
+            ? undefined
+            : 'Contact us here or reach us at (650) 235-4863'
+        }
       />
       <ProjectsReviews />
       <LandscapingServiceAreas />

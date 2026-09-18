@@ -11,7 +11,7 @@ import { SectionHeader } from '@/components/ui/SectionHeader'
 import type { PageFaqIntroContent } from '@/lib/pageSections'
 
 export function AboutFaq({
-  phone = '(650) 220-9600',
+  phone = '(650) 235-4863',
   faqIntro,
 }: {
   phone?: string

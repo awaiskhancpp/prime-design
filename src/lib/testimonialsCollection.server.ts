@@ -41,6 +41,44 @@ const imageUrl = (value: TestimonialDoc['image']) =>
  * featured — the sections then render their own copy with no cards rather than
  * falling back to hardcoded reviews.
  */
+/**
+ * Every published review, featured or not — the testimonials page's review
+ * wall pages through the whole set.
+ *
+ * `resolveFeaturedTestimonials` is deliberately left alone: the spotlight
+ * carousel and the homepage strip want the curated 14, not all 125.
+ *
+ * Featured records sort first so the hand-picked reviews are the ones on the
+ * first page of the wall, then `sortOrder` as everywhere else.
+ */
+export async function resolveAllTestimonials(limit = 300): Promise<CollectionTestimonial[]> {
+  if (!process.env.DATABASE_URL) return []
+  try {
+    const payload = await getPayload({ config: configPromise })
+    const result = await payload.find({
+      collection: 'testimonials',
+      sort: ['-featured', 'sortOrder'],
+      depth: 1,
+      limit,
+    })
+    return (result.docs as TestimonialDoc[])
+      .filter((doc) => doc.name && doc.quote)
+      .map((doc) => ({
+        id: doc.id,
+        name: doc.name as string,
+        quote: doc.quote as string,
+        rating: doc.rating ?? undefined,
+        source: doc.source ?? undefined,
+        timeAgo: doc.timeAgo ?? undefined,
+        location: doc.location ?? undefined,
+        image: imageUrl(doc.image),
+      }))
+  } catch (error) {
+    console.error('resolveAllTestimonials: could not load testimonials', error)
+    return []
+  }
+}
+
 export async function resolveFeaturedTestimonials(limit = 50): Promise<CollectionTestimonial[]> {
   if (!process.env.DATABASE_URL) return []
   try {

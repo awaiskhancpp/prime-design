@@ -156,7 +156,9 @@ const SERVICE_PAGE_LAYOUTS: Record<string, ServicePageSections> = {
     estimate: true,
     siliconValleyLoves: true,
     reviews: true,
-    contact: true,
+    // No `contact` here: the Gallery Contact band was removed from this page
+    // on request. Other service pages keep theirs.
+    contact: false,
   },
 
   // Bathroom remodeling.

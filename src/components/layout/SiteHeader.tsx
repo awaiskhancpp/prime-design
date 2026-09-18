@@ -299,7 +299,7 @@ function DesktopPhone({ tone }: { tone: 'dark' | 'light' }) {
       <a
         href={`tel:${phoneClean}`}
         className={cn(
-          'text-sm font-semibold tracking-wide transition-colors hover:text-brass',
+          'text-lg font-semibold tracking-wide transition-colors hover:text-brass',
           isLight ? 'text-ink-2' : 'text-white',
         )}
       >

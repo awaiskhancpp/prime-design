@@ -48,6 +48,8 @@ import * as migration_20260918_100000_prime_difference_comparisons from './20260
 import * as migration_20260918_110000_benefits_and_richtext_image_text from './20260918_110000_benefits_and_richtext_image_text';
 import * as migration_20260919_100000_service_cards_and_project_dates from './20260919_100000_service_cards_and_project_dates';
 import * as migration_20260919_110000_project_excerpt from './20260919_110000_project_excerpt';
+import * as migration_20260919_120000_page_social_proof_block from './20260919_120000_page_social_proof_block';
+import * as migration_20260919_130000_cta_body_rich_text from './20260919_130000_cta_body_rich_text';
 
 export const migrations = [
   {
@@ -299,5 +301,15 @@ export const migrations = [
     up: migration_20260919_110000_project_excerpt.up,
     down: migration_20260919_110000_project_excerpt.down,
     name: '20260919_110000_project_excerpt',
+  },
+  {
+    up: migration_20260919_120000_page_social_proof_block.up,
+    down: migration_20260919_120000_page_social_proof_block.down,
+    name: '20260919_120000_page_social_proof_block',
+  },
+  {
+    up: migration_20260919_130000_cta_body_rich_text.up,
+    down: migration_20260919_130000_cta_body_rich_text.down,
+    name: '20260919_130000_cta_body_rich_text',
   },
 ];

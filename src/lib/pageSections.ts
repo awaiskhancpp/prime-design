@@ -36,6 +36,13 @@ export type PageIntroContent = {
   image?: string
 }
 
+/** Review-platform row. The profile URLs come from Site Settings. */
+export type PageSocialProofContent = {
+  eyebrow?: string
+  heading?: string
+  description?: string
+}
+
 export type PageHeadingContent = {
   eyebrow?: string
   heading: string
@@ -138,7 +145,8 @@ export type PageGalleryContent = { heading?: string; images: string[] }
 
 export type PageCtaContent = {
   heading: string
-  body?: string
+  /** Rich text — this band's copy carries links. */
+  body?: RichTextValue
   label?: string
   href?: string
 }
@@ -189,6 +197,7 @@ export type PageConsultationsContent = {
 
 export type PageSection =
   | { type: 'hero'; content: PageHeroContent }
+  | { type: 'social-proof'; content: PageSocialProofContent }
   | { type: 'intro'; content: PageIntroContent }
   | { type: 'difference'; content: PageDifferenceContent }
   | { type: 'projects'; content: PageHeadingContent }
@@ -373,6 +382,15 @@ export function toPageSection(block: PageBlock): PageSection | undefined {
             })),
         },
       }
+    case 'social-proof':
+      return {
+        type: 'social-proof',
+        content: {
+          eyebrow: optionalText(block.eyebrow),
+          heading: optionalText(block.heading),
+          description: optionalText(block.description),
+        },
+      }
     case 'experts':
       return {
         type: 'experts',
@@ -549,7 +567,9 @@ export function toPageSection(block: PageBlock): PageSection | undefined {
         type: 'cta',
         content: {
           heading: text(block.heading),
-          body: optionalText(block.body),
+          // Rich text since `20260919_130000_cta_body_rich_text` — the band's
+          // copy carries links.
+          body: rich(block.body),
           label: optionalText(block.label),
           href: optionalText(block.href),
         },

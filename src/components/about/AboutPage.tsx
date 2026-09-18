@@ -13,7 +13,13 @@ export async function AboutPage() {
   const settings = await resolveSiteSettings()
   const members = await resolveTeamMembers()
 
-  const context: PageSectionContext = { members, phone: settings.phone }
+  // `socialLinks` is needed by the review-platform section; it comes from
+  // Site Settings so the links match the homepage badge row.
+  const context: PageSectionContext = {
+    members,
+    phone: settings.phone,
+    socialLinks: settings.socialLinks,
+  }
 
   return (
     <div className="min-h-screen ">
