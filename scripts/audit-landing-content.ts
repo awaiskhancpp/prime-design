@@ -34,6 +34,38 @@ const verbose = args.includes('--verbose')
 const onlyArg = args.find((value) => value.startsWith('--only='))
 const onlySlugs = onlyArg ? onlyArg.slice('--only='.length).split(',').map((s) => s.trim()) : undefined
 
+/**
+ * Content the pages deliberately do not carry — accepted divergences
+ * (CLAUDE.md §8c), not gaps. Reported separately so they stay visible
+ * without drowning the real findings.
+ *
+ *  - the brand logo and the section background textures are chrome, never
+ *    section content (`isBrandLogo` in the importer)
+ *  - the six generic service cards were removed from the trade-specific
+ *    pages at the owner's instruction (`EXCLUDED_SERVICE_GRIDS`)
+ */
+const EXPECTED_ABSENT_MEDIA = new Set([
+  'cropped-prime-kitchens-logo', 'service-bg', 'vector', 'pattern',
+  'whatsapp-image-2024-03-04-at-10-17-43-pm', 'whatsapp-image-2023-10-01-at-9-19-14-pm',
+  'adu-priem', 'whatsapp-image-2023-07-10-at-10-01-42-pm',
+  'whatsapp-image-2023-10-01-at-9-17-46-pm', 'whatsapp-image-2023-05-31-at-11-47-52-pm',
+])
+
+const EXPECTED_ABSENT_COPY = [
+  'transform your home from ground up with our full home remodeling services.',
+  'experience the transformation of your home with our kitchen remodeling service.',
+  'adu & garage conversions',
+  'our team specializes in creating versatile and functional adus that provide.',
+  'our home addition services are tailored to help you expand and enhance your living space without the hassle of moving.',
+  'new construction / complete renovation',
+  'our experienced team is dedicated to creating custom-built homes that reflect your unique style.',
+  'breathe new life into your bathroom with our bathroom remodeling service.',
+  'home remodeling',
+  'kitchen remodeling',
+  'home additions',
+  'bathroom remodeling',
+]
+
 const SLUGS = [
   'kitchen-remodeling-information',
   'bathroom-remodeling-information',
@@ -108,7 +140,20 @@ function wordpressContent(section: NormalizedSection) {
 
     for (const field of ['text', 'textBasic', 'content', 'heading', 'title', 'label']) {
       const value = s[field]
-      if (typeof value === 'string' && key(value)) copy.push(value)
+      if (typeof value !== 'string' || !key(value)) continue
+      // An icon-box packs a caption and its body into one `content` string
+      // ("<h4>Attention to Detail</h4>We meticulously plan…", "<h4>Call
+      // Us</h4><a>(650) 220-9600</a>"). Payload stores the two halves in
+      // separate fields — deliberately, since re-rendering the caption is
+      // what produced "Call Us Call Us (650) 220-9600" — so compare the
+      // halves, not the concatenation.
+      const captioned = value.match(/<h[1-6][^>]*>([\s\S]*?)<\/h[1-6]>([\s\S]*)$/i)
+      if (captioned) {
+        if (key(captioned[1])) copy.push(captioned[1])
+        if (key(captioned[2])) copy.push(captioned[2])
+        continue
+      }
+      copy.push(value)
     }
 
     // Bricks list widgets hold their lines in `items`.
@@ -231,24 +276,44 @@ for (const slug of SLUGS) {
     wp.videos.push(...part.videos)
   }
 
+  // Blocks whose copy is resolved from a collection rather than the Bricks
+  // source — WordPress renders these through query loops and stores only
+  // `{post_title}` / `{post_content}` placeholders, so every resolved FAQ
+  // answer, project title and review would otherwise be reported as copy
+  // that "isn't in the source". They are excluded from the extra-copy check
+  // only; their media is still compared.
+  const DYNAMIC_BLOCKS = new Set([
+    'faq', 'landing-testimonials', 'testimonials', 'project-grid', 'gallery',
+    'gallery-carousel', 'service-areas', 'booking', 'contact-form', 'find-us',
+  ])
+  const blocks = (doc.sections || []) as Array<Record<string, unknown>>
+  const authored = blocks.filter((block) => !DYNAMIC_BLOCKS.has(String(block.blockType)))
+
   const out: PayloadHarvest = { copy: [], media: [], videos: [] }
   harvestPayload(doc.sections, out)
   harvestPayload(doc.hero, out)
+  // Separate harvest for the "did we invent copy?" question.
+  const authoredOut: PayloadHarvest = { copy: [], media: [], videos: [] }
+  harvestPayload(authored, authoredOut)
 
   const haystack = out.copy.map(key).join('  ')
   const wpHaystack = wp.copy.map(key).join('  ')
   const mediaSet = new Set(out.media)
   const videoSet = new Set(out.videos)
 
-  const missingCopy = [...new Set(wp.copy.map(key))].filter(
+  const allMissingCopy = [...new Set(wp.copy.map(key))].filter(
     (line) => line.length > 3 && !haystack.includes(line),
   )
-  const extraCopy = [...new Set(out.copy.map(key))].filter(
+  const missingCopy = allMissingCopy.filter((line) => !EXPECTED_ABSENT_COPY.includes(line))
+  const acceptedCopy = allMissingCopy.filter((line) => EXPECTED_ABSENT_COPY.includes(line))
+  const extraCopy = [...new Set(authoredOut.copy.map(key))].filter(
     (line) => line.length > 12 && !wpHaystack.includes(line),
   )
-  const missingImages = [...new Set(wp.images.map(mediaKey))].filter(
+  const allMissingImages = [...new Set(wp.images.map(mediaKey))].filter(
     (id) => id && !mediaSet.has(id),
   )
+  const missingImages = allMissingImages.filter((id) => !EXPECTED_ABSENT_MEDIA.has(id))
+  const acceptedImages = allMissingImages.filter((id) => EXPECTED_ABSENT_MEDIA.has(id))
   const missingVideos = [...new Set(wp.videos.map(mediaKey))].filter(
     (id) => id && !videoSet.has(id),
   )
@@ -286,6 +351,10 @@ for (const slug of SLUGS) {
     if (!verbose && extraCopy.length > 8)
       console.log(`      … ${extraCopy.length - 8} more (--verbose)`)
   }
+  if (acceptedCopy.length || acceptedImages.length)
+    console.log(
+      `    (accepted: ${acceptedCopy.length} copy lines, ${acceptedImages.length} images — removed service grid / chrome)`,
+    )
   if (!missingCopy.length && !missingImages.length && !missingVideos.length && !extraCopy.length)
     console.log('    OK — no differences')
 }

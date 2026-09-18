@@ -24,7 +24,7 @@ import { ServiceSiliconValleyLovesSection } from './sections/ServiceSiliconValle
 import { ServiceLicensedInsuredSection } from './sections/ServiceLicensedInsuredSection'
 import { ServiceFinanceCtaSection } from './sections/ServiceFinanceCtaSection'
 import { mediaUrl, sharedSectionRegistry, text } from '@/components/landing/LandingBlockRenderer'
-import type { RichTextValue } from '@/lib/richText'
+import { richTextHasContent, richTextToPlainText, type RichTextValue } from '@/lib/richText'
 import type { ServiceContentStep } from '@/lib/services'
 import type { CarouselVideo } from '@/components/landing/VideoCarousel'
 import type { ComponentType } from 'react'
@@ -351,7 +351,8 @@ function renderFinanceHub(block: RawBlock): RenderedSection {
     node: (
       <ServiceImageTextSection
         heading={str(block.heading)}
-        description={str(block.description) || undefined}
+        body={descriptionRich(block)}
+        description={descriptionText(block) || undefined}
         image={mediaUrl(block.media)}
         imageSide="right"
         cta={
@@ -398,9 +399,26 @@ function renderFinanceCta(block: RawBlock): RenderedSection {
  * the site's step-by-step process design, with the phone image as its side
  * image.
  */
+
+/**
+ * The shared `image-text` block stores its body as rich text now (it carries
+ * structured WordPress copy — "Key Features:" over a real bullet list). Every
+ * reader here previously assumed a plain string, and `typeof raw === 'string'`
+ * silently became false: the Finance "Renovation financing, simplified."
+ * section parsed zero steps and rendered `null`, disappearing from the page.
+ */
+const descriptionText = (block: RawBlock): string =>
+  typeof block.description === 'string'
+    ? block.description
+    : richTextToPlainText(block.description)
+
+const descriptionRich = (block: RawBlock): RichTextValue | undefined =>
+  richTextHasContent(block.description as RichTextValue)
+    ? (block.description as RichTextValue)
+    : undefined
+
 function renderFinanceProcess(block: RawBlock): RenderedSection {
-  const raw = block.description
-  const text = typeof raw === 'string' ? raw : ''
+  const text = descriptionText(block)
 
   // Intro: everything before the first step label.
   const labelRe = /(?:^|(?<=[.!?])\s+)([A-Z][^:]{2,60}):\s+/g
@@ -498,6 +516,13 @@ export function renderSection(
     return null
   }
 
+  // A `prime-difference` block that asks "Why choose …" is the Why Choose Us
+  // section, not the Prime Difference one — the bathroom page's block is
+  // typed `prime-difference` upstream but its heading and its four feature
+  // cards are the Why Choose Us content, and the Prime Difference design
+  // (checklist beside a video carousel) does not fit it.
+  if (blockType === 'prime-difference' && headingLower.includes('why choose'))
+    return renderWhyChooseUs(block, headingText)
   if (blockType === 'prime-difference') return renderPrimeDifference(block, headingText)
 
   if (blockType === 'experience-difference' && service.slug === 'finance') {
@@ -529,7 +554,7 @@ export function renderSection(
           content={{
             eyebrow: str(block.eyebrow) || undefined,
             heading: headingText || undefined,
-            body: str(block.description) || undefined,
+            body: descriptionText(block) || undefined,
             image: mediaUrl(block.media) || mediaUrl(block.image) || undefined,
           }}
         />
@@ -567,7 +592,8 @@ export function renderSection(
         <ServiceImageTextSection
           eyebrow={str(block.eyebrow) || undefined}
           heading={headingText}
-          description={str(block.description) || undefined}
+          body={descriptionRich(block)}
+          description={descriptionText(block) || undefined}
           image={image}
           imageSide={str(block.alignment) || undefined}
           cta={

@@ -1,3 +1,5 @@
+import Image from 'next/image'
+
 import { RichText, type JSXConvertersFunction } from '@payloadcms/richtext-lexical/react'
 import type { RichTextValue } from '@/lib/richText'
 
@@ -10,15 +12,42 @@ import type { RichTextValue } from '@/lib/richText'
  *   - numbered list items get the brass "1." marker instead of native
  *     numbers
  *   - paragraphs, headings and quotes use the site's type scale
+ *   - uploaded images render as figures, sized to the article column
  *
  * Usage: `<RichTextContent data={record.someRichTextField} />`. Render
  * nothing (null) when the field is empty — pair with
  * `richTextHasContent()` when a fallback is needed.
  */
 
+/** The populated media document behind an `upload` node. */
+type UploadDoc = {
+  url?: string | null
+  filename?: string | null
+  mimeType?: string | null
+  alt?: string | null
+  caption?: string | null
+  width?: number | null
+  height?: number | null
+}
+
+/**
+ * Whether an upload should render as a picture.
+ *
+ * Payload's own converter tests `mimeType.startsWith('image')` and nothing
+ * else. A large batch of migrated WordPress media was imported without a
+ * mime type and stored as `application/octet-stream`, so that test failed
+ * and every one of those images rendered as a bare link showing its
+ * filename — which is what blog posts were displaying instead of photos.
+ * The extension is checked as well so the rendering no longer depends on
+ * that field being right.
+ */
+const isImageUpload = (doc: UploadDoc) =>
+  doc.mimeType?.startsWith('image/') ||
+  /\.(jpe?g|png|gif|webp|avif|svg)$/i.test(doc.filename || '')
+
 /**
  * Site-styled JSX converters. Everything not overridden here (bold,
- * italic, links, tables, uploads, ...) uses Payload's default converters.
+ * italic, links, tables, ...) uses Payload's default converters.
  * `tone` selects the paragraph styling: `lead` is the larger intro copy
  * used right under blog titles, `body` the regular article copy.
  */
@@ -90,6 +119,45 @@ const siteConverters =
         default:
           return <h3 className="font-display text-xl font-medium text-ink-2">{children}</h3>
       }
+    },
+
+    // Uploaded images — full article width, with the WordPress caption
+    // underneath when the media document carries one.
+    upload: ({ node }) => {
+      const doc = (node as { value?: unknown }).value
+      if (!doc || typeof doc !== 'object') return null
+      const media = doc as UploadDoc
+      const url = media.url
+      if (!url) return null
+
+      if (!isImageUpload(media))
+        return (
+          <a href={url} rel="noopener noreferrer" className="text-brass-deep underline">
+            {media.filename}
+          </a>
+        )
+
+      const caption = media.caption?.trim()
+      return (
+        <figure className="mt-8 md:mt-10">
+          <div className="relative overflow-hidden bg-paper-2">
+            <Image
+              src={url}
+              alt={media.alt || caption || ''}
+              // Migrated rows are missing their dimensions, so a 3:2 frame
+              // stands in to reserve space; `h-auto` keeps the real photo
+              // undistorted whichever way it turns out.
+              width={media.width || 1600}
+              height={media.height || 1067}
+              className="h-auto w-full object-cover"
+              sizes="(min-width: 1024px) 960px, 100vw"
+            />
+          </div>
+          {caption ? (
+            <figcaption className="mt-3 text-sm leading-6 text-ink-2/60">{caption}</figcaption>
+          ) : null}
+        </figure>
+      )
     },
 
     // Quotes — same look as the site's editorial pull-quotes.

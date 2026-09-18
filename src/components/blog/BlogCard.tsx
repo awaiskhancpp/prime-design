@@ -5,7 +5,7 @@ import { Badge } from '@/components/ui/Badge'
 import type { BlogPost } from '@/lib/blog'
 
 export function BlogCard({ post }: { post: BlogPost }) {
-  const visibleCategories = post.categories.slice(0, 2)
+  const visibleCategories = post.categories.slice(0, 3)
   const hiddenCount = post.categories.length - visibleCategories.length
 
   return (
@@ -26,7 +26,7 @@ export function BlogCard({ post }: { post: BlogPost }) {
       <div className="flex flex-1 flex-col pt-5">
         {/* Fixed to a single row so every card's heading starts at the same
             height, regardless of how many categories a post has. */}
-        <div className="flex items-center gap-2 overflow-hidden">
+        <div className="flex items-center gap-1 overflow-hidden">
           {visibleCategories.map((category) => (
             <Badge key={category} className="shrink-0">
               {category}

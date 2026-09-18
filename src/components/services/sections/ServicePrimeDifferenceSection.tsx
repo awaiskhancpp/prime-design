@@ -106,14 +106,6 @@ const reasons = [
   },
 ]
 
-const checklist = [
-  'Experts on-site for accurate solutions',
-  'Wide range of construction and remodel services',
-  'Customer satisfaction is a priority',
-  'Competitive pricing for our services',
-  'Quick response for customer satisfaction',
-]
-
 export function ServicePrimeDifferenceSection({
   eyebrow,
   heading,

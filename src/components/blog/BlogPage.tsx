@@ -13,8 +13,9 @@ export async function BlogPage() {
 
   // The hero comes from the pages collection record "blog" (seeded from
   // WordPress page 1670); the hardcoded values below are only a fallback
-  // for local runs without a database. The WordPress hero has no image,
-  // so no dummy image is substituted.
+  // for local runs without a database. WordPress has no hero image here,
+  // so `hero.image` was set in Payload to a photo from the blog itself
+  // (see `scripts/set-blog-hero-image.ts`) and stays editable there.
   const page = await resolvePageBySlug('blog')
   const hero = page?.hero
 

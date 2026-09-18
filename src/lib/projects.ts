@@ -14,6 +14,22 @@ export type ProjectVideo = {
   speakerRole?: string
 }
 
+/**
+ * Where the project was built.
+ *
+ * WordPress stores this in the ACF Google Map field `address`, and the
+ * migration copied that object into the `address` column verbatim as JSON.
+ * 17 of the 18 projects carry one.
+ */
+export type ProjectMap = {
+  /** The address as WordPress recorded it, e.g. "Atherton, CA, USA". */
+  address: string
+  lat: number
+  lng: number
+  /** Zoom level chosen in WordPress; 14 on every project so far. */
+  zoom: number
+}
+
 export type Project = {
   slug: string
   title: string
@@ -24,6 +40,8 @@ export type Project = {
   heroImage: string
   gallery: string[]
   video?: ProjectVideo
+  /** Project location map — only on projects WordPress has coordinates for. */
+  map?: ProjectMap
   /** Payload "Featured on homepage" checkbox. */
   featured?: boolean
   /** Migrated WordPress (Rank Math) SEO metadata. */
@@ -277,6 +295,8 @@ type PayloadProject = {
   description?: string | null
   featuredImage?: number | PayloadMedia | null
   gallery?: Array<number | PayloadMedia> | null
+  /** Raw ACF Google Map JSON, as the migration wrote it. */
+  address?: string | null
   videoUrl?: string | null
   videoSummary?: RichTextValue | null
   videoSpeakerName?: string | null
@@ -291,6 +311,32 @@ type PayloadProject = {
     ogDescription?: string | null
     ogImage?: PayloadMedia | number | null
   } | null
+}
+
+/**
+ * Read the ACF map object out of the `address` column.
+ *
+ * The column is a textarea holding the serialized ACF field, so anything
+ * that is not parseable JSON with usable coordinates is treated as "this
+ * project has no map" rather than throwing — one project (the San Rafael
+ * decking job) has no address at all.
+ */
+function parseMap(value: string | null | undefined): ProjectMap | undefined {
+  if (!value) return undefined
+  try {
+    const parsed = JSON.parse(value) as Record<string, unknown>
+    const lat = Number(parsed.lat)
+    const lng = Number(parsed.lng)
+    if (!Number.isFinite(lat) || !Number.isFinite(lng)) return undefined
+    return {
+      address: typeof parsed.address === 'string' ? parsed.address : '',
+      lat,
+      lng,
+      zoom: Number.isFinite(Number(parsed.zoom)) ? Number(parsed.zoom) : 14,
+    }
+  } catch {
+    return undefined
+  }
 }
 
 const payloadMediaUrl = (value: unknown) =>
@@ -311,6 +357,7 @@ function normalizeProject(project: PayloadProject): Project {
     description: project.description || fallback?.description || '',
     heroImage: payloadMediaUrl(project.featuredImage) || fallback?.heroImage || home,
     gallery: gallery?.length ? gallery : fallback?.gallery || [],
+    map: parseMap(project.address),
     // When the payload video URL matches the static entry, keep the richer
     // static caption (title + project manager) that was authored for it; the
     // CMS summary and attribution always win when they're filled in.

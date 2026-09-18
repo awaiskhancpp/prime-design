@@ -6,6 +6,7 @@ import { Container } from '@/components/ui/Container'
 import { Section } from '@/components/ui/Section'
 import type { Project } from '@/lib/projects'
 import { ProjectGallery } from './ProjectGallery'
+import { ProjectLocationMap } from './ProjectLocationMap'
 
 export function ProjectDetailPage({ project }: { project: Project }) {
   return (
@@ -47,30 +48,52 @@ export function ProjectDetailPage({ project }: { project: Project }) {
         </div>
       </Section>
 
-      {/* Video walkthrough — only rendered when this specific project has
-          one attached. Most don't, so this section simply doesn't exist
-          in the DOM for them rather than showing an empty placeholder. */}
-      {project.video && (
+      {/* Walkthrough and location. Both are optional and independent: some
+          projects have a video, more have a map, one has neither. When both
+          exist they share a row, with the video taking the larger share;
+          alone, each takes the full width. A project with neither has no
+          section in the DOM at all rather than an empty placeholder. */}
+      {(project.video || project.map) && (
         <Section className="bg-white pt-0">
-          <div className="relative aspect-video overflow-hidden bg-ink">
-            <video
-              controls
-              preload="none"
-              poster={project.heroImage}
-              className="h-full w-full object-cover"
-            >
-              <source src={project.video.url} type="video/mp4" />
-            </video>
+          <div
+            className={
+              project.video && project.map
+                ? 'grid gap-6 lg:grid-cols-[1.55fr_1fr] lg:gap-8'
+                : ''
+            }
+          >
+            {project.video ? (
+              <div className="min-w-0">
+                <div className="relative aspect-video overflow-hidden bg-ink">
+                  <video
+                    controls
+                    preload="none"
+                    poster={project.heroImage}
+                    className="h-full w-full object-cover"
+                  >
+                    <source src={project.video.url} type="video/mp4" />
+                  </video>
+                </div>
+                {(project.video.title || project.video.projectManager) && (
+                  <p className="mt-4 text-sm text-ink-2/60">
+                    {project.video.title}
+                    {project.video.projectManager}
+                  </p>
+                )}
+              </div>
+            ) : null}
+
+            {project.map ? (
+              <ProjectLocationMap
+                map={project.map}
+                title={project.title}
+                variant={project.video ? 'panel' : 'wide'}
+              />
+            ) : null}
           </div>
-          {(project.video.title || project.video.projectManager) && (
-            <p className="mt-4 text-sm text-ink-2/60">
-              {project.video.title}
-              {project.video.projectManager}
-            </p>
-          )}
 
           {/* What the video says — optional CMS summary + attribution. */}
-          {project.video.summary ? (
+          {project.video?.summary ? (
             <div className="mt-6 max-w-3xl border-l-2 border-brass/60 pl-5">
               <div className="text-sm leading-7 text-ink-2/75">
                 <RichTextContent data={project.video.summary} />

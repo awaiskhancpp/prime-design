@@ -53,6 +53,7 @@ node_modules/
 /blob-report/
 /playwright/.cache/
 
-# Large WordPress export used by migration/audit scripts (kept out of Git).
+# Large WordPress exports used by migration/audit scripts (kept out of Git).
 primedesignampbuild.WordPress.2026-08-28.xml
+primedesignampbuild.WordPress.2026-09-18-media.xml
 .env*

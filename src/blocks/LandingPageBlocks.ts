@@ -23,6 +23,17 @@ const base = (slug: string, singular: string, fields: Block['fields']): Block =>
 const text = (name: string, required = false) => ({ name, type: 'text' as const, required })
 const description = (name = 'description') => ({ name, type: 'textarea' as const })
 
+/**
+ * Blocks that exist only for the Google Ads landing pages.
+ *
+ * `landingPageBlocks` is shared with the Services collection's page builder,
+ * so anything added to it also appears in every service page's "Add Block"
+ * list. These two are landing-page shapes — and `benefit-cards` would sit
+ * next to the Services collection's own "Benefits" block, two entries with
+ * near-identical names — so they are kept out of `servicePageBlocks` below.
+ */
+const LANDING_ONLY_BLOCK_SLUGS = new Set(['benefit-cards', 'craftsmanship'])
+
 export const landingPageBlocks: Block[] = [
   base('hero', 'Hero', [
     text('eyebrow'),
@@ -425,3 +436,13 @@ export const landingPageBlocks: Block[] = [
     { name: 'settings', type: 'json' as const },
   ]),
 ]
+
+/**
+ * The block palette offered on service pages: everything the landing pages
+ * have, minus the landing-only shapes. Keeping this a filtered view (rather
+ * than a second hand-maintained list) means a block added for landing pages
+ * never silently appears in the Services admin again.
+ */
+export const servicePageBlocks: Block[] = landingPageBlocks.filter(
+  (block) => !LANDING_ONLY_BLOCK_SLUGS.has(block.slug),
+)

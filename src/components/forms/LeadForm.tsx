@@ -184,7 +184,7 @@ export function LeadForm({
   })
 
   return (
-    <form className={cn('grid gap-3', className)} onSubmit={submit} noValidate>
+    <form className={cn('grid ', className)} onSubmit={submit} noValidate>
       <div className="grid gap-5 sm:grid-cols-2">
         <Field label="First Name*" name="firstName" error={errors.firstName}>
           <Input autoComplete="given-name" {...field('firstName')} />
@@ -281,7 +281,7 @@ function Field({
         an error appearing or clearing never moves anything. `aria-live` on the
         permanent wrapper means the text is announced when it changes.
       */}
-      <div className="min-h-4" aria-live="polite">
+      <div className="min-h-3" aria-live="polite">
         {error ? (
           <p
             id={`lead-${name}-error`}

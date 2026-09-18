@@ -63,30 +63,6 @@ export async function Contact({ city, poster }: { city?: string; poster?: string
             within 2-3 hours on business days.
           </p>
 
-          <div className="grid gap-3 pt-6 sm:grid-cols-1">
-            {contactDetails.map(({ icon: Icon, label, href }) =>
-              href ? (
-                <a
-                  key={label}
-                  href={href}
-                  className="flex items-center gap-3 text-sm text-ink-2/75 transition-colors hover:text-brass-deep"
-                >
-                  <span className="flex h-8 w-8 items-center justify-center ">
-                    <Icon className="h-4 w-4 shrink-0 text-brass" aria-hidden />
-                  </span>
-                  {label}
-                </a>
-              ) : (
-                <span key={label} className="flex items-center gap-3 text-sm text-ink-2/75">
-                  <span className="flex h-8 w-8 items-center justify-center ">
-                    <Icon className="h-4 w-4 shrink-0 text-brass" aria-hidden />
-                  </span>
-                  {label}
-                </span>
-              ),
-            )}
-          </div>
-
           <LeadForm
             className="mt-10 gap-6 bg-white p-8 shadow-sm border border-black/5"
             inputClassName="mt-1"

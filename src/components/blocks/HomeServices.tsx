@@ -51,15 +51,21 @@ export function HomeServices({
 
       <Swiper
         modules={[Navigation]}
-        loop={true}
+        loop={services.length > 3}
+        loopAdditionalSlides={services.length}
+        loopPreventsSliding={false}
         onBeforeInit={(swiper) => {
           swiperRef.current = swiper
         }}
         spaceBetween={32}
         slidesPerView={1}
         breakpoints={{
-          768: { slidesPerView: 2 },
-          1024: { slidesPerView: 3 },
+          768: {
+            slidesPerView: 2,
+          },
+          1024: {
+            slidesPerView: 3,
+          },
         }}
         className="mt-10 [&_.swiper-slide]:h-auto"
       >
@@ -81,9 +87,6 @@ export function HomeServices({
                     us" cards elsewhere on the site, so this carousel reads
                     as part of the same design system rather than a
                     one-off template. */}
-                <span className="absolute left-4 top-4 flex h-9 w-9 items-center justify-center border border-brass bg-paper/90 font-display text-sm font-medium text-brass-deep backdrop-blur-sm">
-                  {String(index + 1).padStart(2, '0')}
-                </span>
               </div>
 
               <div className="flex flex-1 flex-col p-6">

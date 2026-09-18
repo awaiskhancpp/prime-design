@@ -42,9 +42,12 @@ export async function ServicesPage() {
                     aria-label={service.title}
                     className="block focus-visible:outline-2 focus-visible:outline-brass"
                   >
-                    {/* Image container — fixed ratio, overflow hidden for both
-                        the zoom and the ink overlay that rises from inside it */}
-                    <div className="relative aspect-[4/3] overflow-hidden bg-paper-2">
+                    {/* Image container — portrait, matching the offerings
+                        cards, so the card is tall enough for the overlay to
+                        carry the full card description without clamping it.
+                        Overflow hidden serves both the zoom and the ink
+                        overlay that rises from inside it. */}
+                    <div className="relative aspect-[3/4] overflow-hidden bg-paper-2">
                       <Image
                         src={service.image}
                         alt={service.title}
@@ -59,9 +62,11 @@ export async function ServicesPage() {
                           at rest and fades in as the overlay arrives. */}
                       <div
                         aria-hidden="true"
-                        className="absolute inset-x-0 bottom-0 translate-y-full bg-ink/90 px-5 pb-5 pt-4 transition-transform duration-500 ease-out group-hover:translate-y-0 group-focus-within:translate-y-0"
+                        className="absolute inset-x-0 bottom-0 max-h-full translate-y-full overflow-y-auto bg-ink/90 px-5 pb-5 pt-4 transition-transform duration-500 ease-out group-hover:translate-y-0 group-focus-within:translate-y-0"
                       >
-                        <p className="line-clamp-2 text-sm leading-6 text-white/85 opacity-0 transition-opacity delay-150 duration-300 group-hover:opacity-100 group-focus-within:opacity-100">
+                        {/* No clamp — the WordPress card copy runs to a full
+                            paragraph and is meant to be read in full. */}
+                        <p className="text-sm leading-6 text-white/85 opacity-0 transition-opacity delay-150 duration-300 group-hover:opacity-100 group-focus-within:opacity-100">
                           {service.shortDescription || service.description}
                         </p>
                         <span className="mt-3 inline-flex items-center gap-1.5 text-xs font-semibold uppercase tracking-[0.12em] text-brass opacity-0 transition-opacity delay-200 duration-300 group-hover:opacity-100 group-focus-within:opacity-100">

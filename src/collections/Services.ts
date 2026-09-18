@@ -1,7 +1,7 @@
 import type { Block, CollectionConfig, CollectionSlug } from 'payload'
 import { SEOFields } from './fields/SEO'
 import { videoStoryFields } from './fields/videoStory'
-import { landingPageBlocks } from '../blocks/LandingPageBlocks'
+import { servicePageBlocks } from '../blocks/LandingPageBlocks'
 
 const textItems = (name = 'items') => ({
   name,
@@ -297,7 +297,11 @@ export const Services: CollectionConfig = {
             {
               name: 'sections',
               type: 'blocks',
-              blocks: landingPageBlocks,
+              // Not `landingPageBlocks` — that palette includes landing-only
+              // shapes (Benefits Grid, Craftsmanship) which have no place on
+              // a service page, and "Benefits Grid" sat confusingly beside
+              // this collection's own "Benefits" block.
+              blocks: servicePageBlocks,
               admin: {
                 description:
                   'Visual page blocks. Click "Add Block" below to compose your page.',
