@@ -8,7 +8,21 @@ export type Service = {
   description: string
   /** Card summary for the services listing (WordPress index-page copy). */
   shortDescription?: string
+  /**
+   * The shorter one-liner WordPress uses on the homepage "Our Services"
+   * cards. Genuinely different copy from `shortDescription`, not a truncation
+   * of it, so the two are stored separately.
+   */
+  excerpt?: string
   image: string
+  /**
+   * Photo for this service shown as a card. WordPress picks a different
+   * image here from the page hero, so this is its own field; falls back to
+   * `image` when the CMS has none.
+   */
+  cardImage?: string
+  /** Payload "Featured on homepage" checkbox. */
+  featured?: boolean
   showInConsultationForm?: boolean
   sectionOrder?: string[]
 }
@@ -230,6 +244,9 @@ type PayloadServiceRecord = {
   slug: string
   description?: string | null
   shortDescription?: string | null
+  excerpt?: string | null
+  featuredImage?: PayloadMedia | number | null
+  featured?: boolean | null
   /** Rich text overview fields (Key Features / Benefits / Process steps). */
   overview?: {
     keyFeatures?: unknown
@@ -760,7 +777,11 @@ export async function resolveServices(): Promise<Service[]> {
     description: record.description || record.shortDescription || '',
     // Card summary for the services listing — WordPress index-page copy.
     shortDescription: record.shortDescription || undefined,
+    // Homepage card copy — the shorter WordPress one-liner.
+    excerpt: record.excerpt || undefined,
     image: payloadImageUrl(record.hero?.image) || '',
+    cardImage: payloadImageUrl(record.featuredImage) || undefined,
+    featured: Boolean(record.featured),
     showInConsultationForm: record.showInConsultationForm ?? true,
   }))
 }

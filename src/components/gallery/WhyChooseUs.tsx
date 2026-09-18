@@ -21,7 +21,7 @@ export function WhyChooseUs({
         <p className="font-display text-lg italic text-ink-2/70">
           {eyebrow}{' '}
           {eyebrowAccent ? (
-            <span className="bg-gradient-to-r from-brass to-brass-deep bg-clip-text font-semibold text-transparent">
+            <span className="font-semibold text-brass">
               {eyebrowAccent}
             </span>
           ) : null}

@@ -126,7 +126,7 @@ export function ServicePrimeDifferenceSection({
             {heading}
             {headingAccent ? ' ' : null}
             {headingAccent ? (
-              <span className="bg-gradient-to-r from-brass to-brass-deep bg-clip-text text-transparent">
+              <span className="text-brass">
                 {headingAccent}
               </span>
             ) : null}

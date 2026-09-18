@@ -268,7 +268,7 @@ export interface Service {
    */
   parentService?: (number | null) | Service;
   /**
-   * Highlight this service in featured sections and navigation
+   * Checked services appear in the homepage "Our Services" carousel, ordered by Sort Order. WordPress features six there; the rest of the catalogue still appears on /services.
    */
   featured?: boolean | null;
   /**
@@ -1426,9 +1426,17 @@ export interface Service {
       )[]
     | null;
   /**
-   * Brief summary displayed in service cards, search, and megamenu.
+   * The services-index card paragraph — the full WordPress copy shown on /services, in search and in the megamenu.
    */
   shortDescription?: string | null;
+  /**
+   * The shorter one-line summary WordPress uses on the homepage "Our Services" cards. Distinct copy from Short Description, not an abbreviation of it.
+   */
+  excerpt?: string | null;
+  /**
+   * The photo used when this service is shown as a card (homepage "Our Services"). WordPress picks a different image here from the page hero; falls back to the hero image when empty.
+   */
+  featuredImage?: (number | null) | Media;
   /**
    * Full overview text describing this service.
    */
@@ -2835,6 +2843,10 @@ export interface Project {
   title: string;
   slug: string;
   summary?: string | null;
+  /**
+   * One or two lines describing this project, shown on the homepage project cards. Card copy — distinct from Summary, which is the longer paragraph on the project page.
+   */
+  excerpt?: string | null;
   description?: string | null;
   content?: {
     root: {
@@ -2851,6 +2863,10 @@ export interface Project {
     };
     [k: string]: unknown;
   } | null;
+  /**
+   * WordPress publish date. /our-projects lists newest first on this field, which is how the WordPress archive orders it.
+   */
+  publishedDate?: string | null;
   location?: string | null;
   category?: string | null;
   featuredImage?: (number | null) | Media;
@@ -5473,6 +5489,8 @@ export interface ServicesSelect<T extends boolean = true> {
             };
       };
   shortDescription?: T;
+  excerpt?: T;
+  featuredImage?: T;
   description?: T;
   overview?:
     | T
@@ -6260,8 +6278,10 @@ export interface ProjectsSelect<T extends boolean = true> {
   title?: T;
   slug?: T;
   summary?: T;
+  excerpt?: T;
   description?: T;
   content?: T;
+  publishedDate?: T;
   location?: T;
   category?: T;
   featuredImage?: T;

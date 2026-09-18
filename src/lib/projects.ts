@@ -36,12 +36,16 @@ export type Project = {
   location: string
   category: string
   summary: string
+  /** Short card copy for the homepage project tiles. */
+  excerpt?: string
   description: string
   heroImage: string
   gallery: string[]
   video?: ProjectVideo
   /** Project location map — only on projects WordPress has coordinates for. */
   map?: ProjectMap
+  /** WordPress publish date — what `/our-projects` is ordered by. */
+  publishedDate?: string
   /** Payload "Featured on homepage" checkbox. */
   featured?: boolean
   /** Migrated WordPress (Rank Math) SEO metadata. */
@@ -292,9 +296,11 @@ type PayloadProject = {
   location?: string | null
   category?: string | null
   summary?: string | null
+  excerpt?: string | null
   description?: string | null
   featuredImage?: number | PayloadMedia | null
   gallery?: Array<number | PayloadMedia> | null
+  publishedDate?: string | null
   /** Raw ACF Google Map JSON, as the migration wrote it. */
   address?: string | null
   videoUrl?: string | null
@@ -354,10 +360,12 @@ function normalizeProject(project: PayloadProject): Project {
     location: project.location || fallback?.location || '',
     category: project.category || fallback?.category || '',
     summary: project.summary || fallback?.summary || '',
+    excerpt: project.excerpt || undefined,
     description: project.description || fallback?.description || '',
     heroImage: payloadMediaUrl(project.featuredImage) || fallback?.heroImage || home,
     gallery: gallery?.length ? gallery : fallback?.gallery || [],
     map: parseMap(project.address),
+    publishedDate: project.publishedDate || undefined,
     // When the payload video URL matches the static entry, keep the richer
     // static caption (title + project manager) that was authored for it; the
     // CMS summary and attribution always win when they're filled in.
@@ -394,7 +402,12 @@ export async function resolveProjects(): Promise<Project[]> {
   const payload = await getPayload({ config: configPromise })
   const result = await payload.find({
     collection: 'projects',
-    sort: '-createdAt',
+    // WordPress orders this archive by publish date, newest first (every
+    // project's `menu_order` is 0). Sorting on `createdAt` — migration
+    // insertion time — listed them in exactly the reverse order.
+    // `createdAt` stays as the tiebreaker for any project added in Payload
+    // without a date.
+    sort: ['-publishedDate', '-createdAt'],
     depth: 2,
     limit: 100,
   })

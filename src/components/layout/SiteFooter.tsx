@@ -35,9 +35,7 @@ function FooterLink({ href, children }: { href: string; children: ReactNode }) {
 function ColumnHeading({ children }: { children: ReactNode }) {
   return (
     <div>
-      <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-brass">
-        {children}
-      </p>
+      <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-brass">{children}</p>
       <span className="mt-4 block h-px w-8 bg-brass/40" aria-hidden="true" />
     </div>
   )
@@ -52,22 +50,22 @@ export async function SiteFooter() {
   const siteSettings = await resolveSiteSettings()
 
   return (
-    <footer className="relative isolate overflow-hidden bg-ink text-white">
+    <footer className="relative isolate overflow-hidden bg-ink-2 text-white">
       <Image
         src={WAVE_BACKGROUND}
         alt=""
         aria-hidden="true"
         fill
         sizes="100vw"
-        className="scale-y-[-1] object-cover object-bottom opacity-45"
+        className="scale-y-[-1] object-cover object-bottom opacity-20"
       />
       <div
-        className="absolute inset-0 bg-gradient-to-b from-ink via-ink/85 to-ink"
+        className="absolute inset-0 bg-gradient-to-b from-ink-2/95 via-ink-2/80 to-ink-2"
         aria-hidden="true"
       />
 
       <span
-        className="relative block h-px w-full bg-gradient-to-r from-transparent via-brass/40 to-transparent"
+        className="relative block h-px w-full bg-gradient-to-r from-transparent via-brass/70 to-transparent"
         aria-hidden="true"
       />
 

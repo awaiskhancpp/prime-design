@@ -96,14 +96,14 @@ export function ServiceHomeRepairCategoriesSection({
             <div>
               {category.eyebrow ? (
                 <>
-                  <p className="bg-gradient-to-r from-ink-2 to-brass bg-clip-text font-display text-2xl font-medium text-transparent">
+                  <p className="font-display text-2xl font-medium text-brass">
                     {category.eyebrow}
                   </p>
                   <h3 className="font-display text-3xl font-semibold text-ink">{category.title}</h3>
                 </>
               ) : (
                 <>
-                  <p className="bg-gradient-to-r from-ink-2 to-brass bg-clip-text font-display text-2xl font-medium text-transparent">
+                  <p className="font-display text-2xl font-medium text-brass">
                     {firstWord}
                   </p>
                   <h3 className="font-display text-3xl font-semibold text-ink">{rest.join(' ')}</h3>

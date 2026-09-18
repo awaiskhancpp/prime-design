@@ -76,8 +76,11 @@ export function HomeServices({
               className="group flex h-full flex-col border border-line transition-colors duration-300 hover:border-brass"
             >
               <div className="relative aspect-[4/3] overflow-hidden bg-line">
+                {/* WordPress gives the homepage cards their own photo,
+                    different from the service page hero — that is
+                    `featuredImage`. The hero is the fallback. */}
                 <Image
-                  src={service.image}
+                  src={service.cardImage || service.image}
                   alt={service.title}
                   width={640}
                   height={480}
@@ -93,8 +96,11 @@ export function HomeServices({
                 <h3 className="font-display text-xl font-medium text-ink-2 transition-colors group-hover:text-brass-deep">
                   {service.title}
                 </h3>
+                {/* `excerpt` is the one-line summary WordPress writes for
+                    these cards; `shortDescription` is the longer
+                    services-index paragraph and stands in when it is empty. */}
                 <p className="mt-2 flex-1 text-sm leading-7 text-ink-2/70 line-clamp-2">
-                  {service.shortDescription || service.description}
+                  {service.excerpt || service.shortDescription || service.description}
                 </p>
 
                 <span className="mt-5 inline-flex items-center gap-2 border-t border-line pt-4 text-xs font-semibold uppercase tracking-[0.14em] text-brass-deep">

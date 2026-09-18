@@ -43,7 +43,7 @@ export async function Contact({ city, poster }: { city?: string; poster?: string
           </p>
           <h2 className="font-display text-4xl font-medium leading-tight tracking-tight text-ink md:text-5xl">
             Ready to discuss{' '}
-            <span className="bg-gradient-to-r from-brass to-brass-deep bg-clip-text text-transparent">
+            <span className="text-brass">
               your needs?
             </span>
           </h2>

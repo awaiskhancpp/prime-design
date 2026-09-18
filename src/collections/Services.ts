@@ -197,9 +197,11 @@ export const Services: CollectionConfig = {
       name: 'featured',
       type: 'checkbox',
       defaultValue: false,
+      label: 'Featured on homepage',
       admin: {
         position: 'sidebar',
-        description: 'Highlight this service in featured sections and navigation',
+        description:
+          'Checked services appear in the homepage "Our Services" carousel, ordered by Sort Order. WordPress features six there; the rest of the catalogue still appears on /services.',
       },
     },
     {
@@ -318,7 +320,26 @@ export const Services: CollectionConfig = {
               name: 'shortDescription',
               type: 'textarea',
               admin: {
-                description: 'Brief summary displayed in service cards, search, and megamenu.',
+                description:
+                  'The services-index card paragraph — the full WordPress copy shown on /services, in search and in the megamenu.',
+              },
+            },
+            {
+              name: 'excerpt',
+              type: 'textarea',
+              admin: {
+                description:
+                  'The shorter one-line summary WordPress uses on the homepage "Our Services" cards. Distinct copy from Short Description, not an abbreviation of it.',
+              },
+            },
+            {
+              name: 'featuredImage',
+              type: 'upload',
+              relationTo: 'media',
+              label: 'Featured image',
+              admin: {
+                description:
+                  'The photo used when this service is shown as a card (homepage "Our Services"). WordPress picks a different image here from the page hero; falls back to the hero image when empty.',
               },
             },
             {

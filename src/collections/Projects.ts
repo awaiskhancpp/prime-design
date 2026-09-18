@@ -13,8 +13,26 @@ export const Projects: CollectionConfig = {
     { name: 'title', type: 'text', required: true },
     { name: 'slug', type: 'text', required: true, unique: true, index: true },
     { name: 'summary', type: 'textarea' },
+    {
+      name: 'excerpt',
+      type: 'textarea',
+      admin: {
+        description:
+          'One or two lines describing this project, shown on the homepage project cards. Card copy — distinct from Summary, which is the longer paragraph on the project page.',
+      },
+    },
     { name: 'description', type: 'textarea' },
     { name: 'content', type: 'richText' },
+    {
+      name: 'publishedDate',
+      type: 'date',
+      index: true,
+      admin: {
+        position: 'sidebar',
+        description:
+          'WordPress publish date. /our-projects lists newest first on this field, which is how the WordPress archive orders it.',
+      },
+    },
     { name: 'location', type: 'text' },
     { name: 'category', type: 'text' },
     { name: 'featuredImage', type: 'upload', relationTo: 'media' },

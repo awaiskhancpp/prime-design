@@ -46,6 +46,8 @@ import * as migration_20260917_191000_landing_cta_heading_optional from './20260
 import * as migration_20260917_192000_services_shared_landing_blocks from './20260917_192000_services_shared_landing_blocks';
 import * as migration_20260918_100000_prime_difference_comparisons from './20260918_100000_prime_difference_comparisons';
 import * as migration_20260918_110000_benefits_and_richtext_image_text from './20260918_110000_benefits_and_richtext_image_text';
+import * as migration_20260919_100000_service_cards_and_project_dates from './20260919_100000_service_cards_and_project_dates';
+import * as migration_20260919_110000_project_excerpt from './20260919_110000_project_excerpt';
 
 export const migrations = [
   {
@@ -287,5 +289,15 @@ export const migrations = [
     up: migration_20260918_110000_benefits_and_richtext_image_text.up,
     down: migration_20260918_110000_benefits_and_richtext_image_text.down,
     name: '20260918_110000_benefits_and_richtext_image_text',
+  },
+  {
+    up: migration_20260919_100000_service_cards_and_project_dates.up,
+    down: migration_20260919_100000_service_cards_and_project_dates.down,
+    name: '20260919_100000_service_cards_and_project_dates',
+  },
+  {
+    up: migration_20260919_110000_project_excerpt.up,
+    down: migration_20260919_110000_project_excerpt.down,
+    name: '20260919_110000_project_excerpt',
   },
 ];

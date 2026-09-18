@@ -164,7 +164,10 @@ export function PageHero({
           HERO CONTENT
           ========================================================= */}
 
-      <Container className="relative z-10 w-full max-w-none">
+      {/* No `max-w-none` here: the hero copy lines up with the 1440px
+          column every other section uses, instead of starting at the
+          viewport edge on wide screens. */}
+      <Container className="relative z-10 w-full">
         <div className={isCentered ? 'mx-auto max-w-5xl text-center' : 'max-w-5xl'}>
           {/* Eyebrow */}
           {eyebrow ? (

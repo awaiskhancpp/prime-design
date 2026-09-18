@@ -1,3 +1,5 @@
+import { Container } from '@/components/ui/Container'
+
 export function ServiceWhyChooseUsSection({
   heading = '',
   items = [],
@@ -9,7 +11,10 @@ export function ServiceWhyChooseUsSection({
   if (!items.length) return null
   return (
     <section className="py-16 text-ink md:py-20">
-      <div className="mx-auto max-w-5xl px-6">
+      {/* Container, not a hand-rolled wrapper: this was the one section on
+          the site with its own width and its own `px-6`, so it sat narrower
+          and its edges did not line up with anything around it. */}
+      <Container className="max-w-5xl">
         <h2 className="text-center font-display text-3xl font-medium tracking-tight md:text-4xl">
           {heading}
         </h2>
@@ -29,7 +34,7 @@ export function ServiceWhyChooseUsSection({
             </div>
           ))}
         </div>
-      </div>
+      </Container>
     </section>
   )
 }

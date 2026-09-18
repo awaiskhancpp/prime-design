@@ -49,11 +49,23 @@ export function SectionHero({ hero }: { hero: PageHeroContent }) {
       imageAlt={hero.heading || 'Prime Design & Build'}
     >
       {cta ? (
-        <div className={hero.align === 'center' ? 'mt-6 flex flex-wrap justify-center gap-2' : ''}>
+        // The top margin used to hang off `align === 'center'`, and the only
+        // other thing providing space was an `mt-8` that applied solely to
+        // outlined buttons — so a left-aligned solid CTA (the homepage, About)
+        // sat flush against the description. It now uses the same rhythm as
+        // PageHero's own CTA, at every alignment.
+        <div
+          className={[
+            'mt-5 sm:mt-6 md:mt-8',
+            hero.align === 'center' ? 'flex flex-wrap justify-center gap-2' : '',
+          ]
+            .filter(Boolean)
+            .join(' ')}
+        >
           <Button
             href={cta.href}
             variant={cta.style === 'outlined' ? 'outline' : 'primary'}
-            className={cta.style === 'outlined' ? 'mt-8 text-white' : undefined}
+            className={cta.style === 'outlined' ? 'text-white' : undefined}
           >
             {cta.showCalendarIcon ? <CalendarDays /> : null} {cta.label} <ArrowRight />
           </Button>

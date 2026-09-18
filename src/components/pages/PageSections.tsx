@@ -115,8 +115,20 @@ function PageSectionNode({
     case 'projects':
       return <HomeProjects heading={section.content.heading} />
 
-    case 'services':
-      return <HomeServices heading={section.content.heading} services={context.services ?? []} />
+    case 'services': {
+      // WordPress features six of the eleven services on the homepage. The
+      // "Featured on homepage" checkbox on each service decides which; when
+      // none are checked the whole catalogue is shown, matching the same
+      // convention the projects grid uses for its `featured` flag.
+      const all = context.services ?? []
+      const featured = all.filter((service) => service.featured)
+      return (
+        <HomeServices
+          heading={section.content.heading}
+          services={featured.length ? featured : all}
+        />
+      )
+    }
 
     case 'feature-blocks':
       return <HomeFeatureBlocks featureBlocks={section.content} />
