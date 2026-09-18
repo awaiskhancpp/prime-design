@@ -238,6 +238,35 @@ export const servicePathAliases: Record<string, string> = {
   financing: 'finance',
 }
 
+/**
+ * The three kitchen style pages live one level deeper, under
+ * `/services/kitchen-remodeling/…`. The root catch-all route already treats
+ * that as their canonical URL.
+ */
+const KITCHEN_SUBPAGE_SLUGS = [
+  'european-kitchen-silicon-valley',
+  'shaker-kitchen-silicon-valley',
+  'custom-kitchen-silicon-valley',
+]
+
+/**
+ * The canonical, redirect-free URL for a service slug.
+ *
+ * `/services/[serviceSlug]` 308s any slug in `servicePathAliases` to its
+ * target, so linking to a raw slug meant the address bar changed under the
+ * visitor: a search result for European Kitchen pointed at
+ * `/services/european-kitchen` and landed on
+ * `/services/european-kitchen-silicon-valley`. Callers use this instead of
+ * building `/services/${slug}` by hand, so links go straight to the final
+ * URL and no second slug-mapping table is needed alongside this one.
+ */
+export function serviceHref(slug: string) {
+  const target = servicePathAliases[slug] || slug
+  return KITCHEN_SUBPAGE_SLUGS.includes(target)
+    ? `/services/kitchen-remodeling/${target}`
+    : `/services/${target}`
+}
+
 type PayloadMedia = { url?: string | null; source_url?: string | null }
 type PayloadServiceRecord = {
   title: string

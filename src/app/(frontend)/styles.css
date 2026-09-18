@@ -68,3 +68,25 @@ input,
 textarea {
   font: inherit;
 }
+
+/*
+ * White utility pages that the site header overlays.
+ *
+ * `SiteHeader` is absolutely positioned at the top of the page and is
+ * `text-white` on a transparent background, because every normal page opens
+ * with a dark hero behind it. The template picks the ink tone by pathname,
+ * which cannot work for the 404: it renders at whatever URL was requested.
+ * A direct request to a missing URL gets no chrome at all, but a client-side
+ * navigation carries the previous page's header across, leaving white text on
+ * the white 404.
+ *
+ * So the page declares itself instead of the template guessing: any page
+ * marked `data-light-chrome` recolours the header that sits over it. Only the
+ * `color` of the header element is set, so descendants that carry their own
+ * colour — the brass CTA, the dark mobile drawer — are left alone and only
+ * the inherited text follows.
+ */
+div:has([data-light-chrome]) > header {
+  color: var(--color-ink-2);
+  border-color: var(--color-line);
+}

@@ -1,5 +1,5 @@
 import { listPublishedLandingPageSlugs, resolveLandingPage } from './landingPages'
-import { resolveServices } from './services'
+import { resolveServices, serviceHref } from './services'
 import { resolveProjects } from './projects'
 import { resolveBlogPosts } from './blog'
 
@@ -8,6 +8,8 @@ export type SearchResult = {
   url: string
   excerpt?: string
   section: string
+  /** Thumbnail, where the result is something with a photo. */
+  image?: string
 }
 
 // Fixed routes that always exist — zero DB dependency, so search never comes
@@ -111,9 +113,12 @@ async function serviceResults(): Promise<SearchResult[]> {
     const services = await resolveServices()
     return services.map((s) => ({
       title: s.title,
-      url: `/services/${s.slug}`,
-      excerpt: s.description,
+      // `serviceHref`, not `/services/${slug}`: the raw slug 308s for the
+      // kitchen style pages, so the URL changed after the visitor clicked.
+      url: serviceHref(s.slug),
+      excerpt: s.excerpt || s.shortDescription || s.description,
       section: 'Services',
+      image: s.cardImage || s.image || undefined,
     }))
   } catch (error) {
     console.error('searchSite: could not load services', error)
@@ -127,8 +132,9 @@ async function projectResults(): Promise<SearchResult[]> {
     return projects.map((p) => ({
       title: p.title,
       url: `/project/${p.slug}`,
-      excerpt: p.summary || p.description,
+      excerpt: p.excerpt || p.summary || p.description,
       section: 'Projects',
+      image: p.heroImage || undefined,
     }))
   } catch (error) {
     console.error('searchSite: could not load projects', error)
@@ -144,6 +150,7 @@ async function blogResults(): Promise<SearchResult[]> {
       url: `/blog/${p.slug}`,
       excerpt: p.excerpt,
       section: 'Blog',
+      image: p.heroImage || undefined,
     }))
   } catch (error) {
     console.error('searchSite: could not load blog posts', error)

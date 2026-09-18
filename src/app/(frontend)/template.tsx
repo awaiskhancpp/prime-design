@@ -51,12 +51,14 @@ export default async function FrontendTemplate({ children }: { children: React.R
 
   if (bare) return <>{children}</>
 
-  // The two light-header pages keep their existing light tone; every other
-  // page opens with a dark hero the white header overlays.
+  // Pages that open on a white hero need the ink header; every other page
+  // opens with a dark hero that the white header overlays. `thank-you` joined
+  // this list when its hero moved to `UtilityHero`, which is white — the
+  // desktop header is `text-white` in the dark tone and would have been
+  // invisible against it.
+  const lightChromePaths = ['team', 'search', 'thank-you', 'not-found']
   const headerTone =
-    segments.length === 1 && (segments[0] === 'team' || segments[0] === 'search')
-      ? 'light'
-      : 'dark'
+    segments.length === 1 && lightChromePaths.includes(segments[0]) ? 'light' : 'dark'
 
   return (
     <>

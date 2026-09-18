@@ -5,17 +5,7 @@ import { ArrowRight } from 'lucide-react'
 import { LandscapingServiceAreas } from '@/components/blocks/LandscapingServiceAreas'
 import { PageHero } from '@/components/layout/PageHero'
 import { Section } from '@/components/ui/Section'
-import { resolveServices } from '@/lib/services'
-
-const kitchenSubpageHrefs: Record<string, string> = {
-  'european-kitchen': '/services/kitchen-remodeling/european-kitchen-silicon-valley',
-  'shaker-kitchens': '/services/kitchen-remodeling/shaker-kitchen-silicon-valley',
-  'custom-kitchens': '/services/kitchen-remodeling/custom-kitchen-silicon-valley',
-}
-
-function serviceHref(slug: string) {
-  return kitchenSubpageHrefs[slug] || `/services/${slug}`
-}
+import { resolveServices, serviceHref } from '@/lib/services'
 
 export async function ServicesPage() {
   const services = await resolveServices()
