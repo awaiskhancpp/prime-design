@@ -69,10 +69,12 @@ export function FaqExplorer({
    * every later section and the observer must be watching the current nodes.
    */
   useEffect(() => {
-    if (activeCategory !== ALL) {
-      setCurrentCategory(null)
-      return
-    }
+    // No `setCurrentCategory(null)` here: a synchronous setState in an effect
+    // body triggers a cascading render, and it was redundant anyway — the
+    // rail already gates the indicator on `activeCategory === ALL`, so a
+    // stale value is never read. The observer below re-runs and refreshes it
+    // whenever the view returns to All.
+    if (activeCategory !== ALL) return
     const nodes = [...sectionRefs.current.entries()]
     if (!nodes.length || typeof IntersectionObserver === 'undefined') return
 

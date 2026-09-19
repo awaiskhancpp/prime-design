@@ -1,4 +1,5 @@
 import 'dotenv/config'
+import { writeFile } from 'node:fs/promises'
 import { createRequire } from 'node:module'
 
 /**
@@ -30,6 +31,14 @@ const LINKS: Array<{ slug: string; video: string; note: string }> = [
     video: '/api/media/file/josef-bluebonnet-morgan-hill.mp4',
     note: 'clip 4 — Josef; identified by the project owner',
   },
+  {
+    slug: 'bathroom-home-remodel-in-san-jose',
+    video: '/api/media/file/first-floor-renovation.mp4',
+    // This project already had `showcase-video-1.mp4`. A project holds one
+    // video, so linking the carousel clip replaces it — the previous value
+    // goes to the backup file below.
+    note: 'clip 5 — Sondra & Mark; identified by the project owner (replaces an existing video)',
+  },
 ]
 
 type PgClient = {
@@ -43,6 +52,9 @@ const { Client } = createRequire(import.meta.url)('pg') as {
 
 const client = new Client({ connectionString: process.env.DATABASE_URL })
 await client.connect()
+
+/** Only non-null values that get overwritten — those are the losable ones. */
+const replaced: Array<{ slug: string; was: string }> = []
 
 for (const { slug, video, note } of LINKS) {
   const found = await client.query<{ video_url: string | null }>(
@@ -60,7 +72,15 @@ for (const { slug, video, note } of LINKS) {
   }
   console.log(`${dryRun ? '~' : '+'} ${slug}  (${note})`)
   console.log(`    ${JSON.stringify(current)} -> ${JSON.stringify(video)}`)
+  if (current) replaced.push({ slug, was: current })
   if (!dryRun) await client.query(`update projects set video_url = $2 where slug = $1`, [slug, video])
+}
+
+if (!dryRun && replaced.length) {
+  const file = `project-video-backup-${new Date().toISOString().replace(/[:.]/g, '-')}.json`
+  await writeFile(file, JSON.stringify(replaced, null, 2))
+  console.log(`
+replaced a video that was already set — previous values in ${file}`)
 }
 
 await client.end()

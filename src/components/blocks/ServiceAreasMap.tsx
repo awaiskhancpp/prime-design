@@ -65,12 +65,30 @@ function popupHtml(name: string, href: string) {
 export function ServiceAreasMap({ markers }: { markers: MapMarker[] }) {
   const containerRef = useRef<HTMLDivElement>(null)
   const mapRef = useRef<import('leaflet').Map | null>(null)
+  const markerKey = markers.map((marker) => `${marker.lat},${marker.lng}`).join('|')
 
   useEffect(() => {
-    if (!containerRef.current || mapRef.current) return
+    const container = containerRef.current
+    if (!container || mapRef.current) return
+
+    /**
+     * The import is async, and the cleanup below is not. Under StrictMode
+     * React mounts, unmounts and remounts: the first run starts the import,
+     * the cleanup fires while `mapRef` is still null so it has nothing to
+     * remove, the second run starts a second import, and both promises then
+     * call `L.map()` on the same node — which is the "Map container is
+     * already initialized" error.
+     *
+     * This flag is what the cleanup can set synchronously, so a resolution
+     * that belongs to a torn-down run bails instead of building a map.
+     */
+    let cancelled = false
 
     // Dynamic import keeps Leaflet out of the SSR bundle entirely.
     import('leaflet').then((L) => {
+      // Belongs to a run that has already been cleaned up, or another run
+      // won the race and initialised the node first.
+      if (cancelled || mapRef.current || !containerRef.current) return
       // Fix Leaflet's default icon path issue in bundlers.
       // We're using custom icons so this is a no-op guard.
       const icon = makeBrassIcon(L)
@@ -115,11 +133,17 @@ export function ServiceAreasMap({ markers }: { markers: MapMarker[] }) {
     })
 
     return () => {
-      // Clean up on unmount (hot reload / StrictMode).
+      // Clean up on unmount (hot reload / StrictMode). `cancelled` covers the
+      // window where the import is still in flight and there is no map yet.
+      cancelled = true
       mapRef.current?.remove()
       mapRef.current = null
     }
-  }, [markers])
+    // Keyed on the markers' coordinates rather than the array identity: a
+    // parent re-render that rebuilds the array would otherwise tear the map
+    // down and reinitialise it on every render.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [markerKey])
 
   return (
     <>
