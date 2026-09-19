@@ -15,9 +15,17 @@ export function SectionHeader({
 }) {
   return (
     <div className={cn('max-w-2xl space-y-4', align === 'center' && 'mx-auto text-center')}>
-      {eyebrow && <p className="text-xs font-semibold uppercase tracking-[0.2em] text-brass-deep">{eyebrow}</p>}
-      <h2 className="font-display text-3xl font-medium leading-tight text-ink-2 md:text-4xl">{title}</h2>
-      {description && <p className="max-w-xl text-base leading-[1.7] text-ink-2/70">{description}</p>}
+      {eyebrow && (
+        <p className="text-xs font-semibold uppercase tracking-[0.2em] text-brass-deep">
+          {eyebrow}
+        </p>
+      )}
+      <h2 className="font-display text-3xl font-medium leading-tight text-ink-2 md:text-4xl">
+        {title}
+      </h2>
+      {description && (
+        <p className="mx-auto max-w-xl text-base leading-[1.7] text-ink-2/70">{description}</p>
+      )}
     </div>
   )
 }
