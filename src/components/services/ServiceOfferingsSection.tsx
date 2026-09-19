@@ -58,14 +58,37 @@ export function ServiceOfferingsSection({
 
   const content = (
     <>
-      {/* Header — centered, description capped at max-w-5xl */}
-      <div className="mx-auto max-w-5xl text-center">
-        <SectionHeader
-          align="center"
-          eyebrow={eyebrow}
-          title={shownTitle}
-          description={description}
-        />
+      {/* Header — copy on the left, the section's two calls to action on the
+          right, sharing one baseline. `items-end` rather than `items-center`
+          so the buttons sit on the last line of the copy instead of floating
+          against the middle of a three-line heading. Below `lg` the pair
+          drops under the copy and aligns left with it, because a right-hand
+          column has nothing to align to once the row is stacked. */}
+      <div className="flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between lg:gap-12">
+        <SectionHeader eyebrow={eyebrow} title={shownTitle} description={description} />
+
+        {primaryCta || secondaryCta ? (
+          <div className="flex shrink-0 flex-wrap items-center gap-3 lg:justify-end lg:pb-1">
+            {primaryCta && (
+              <Button
+                href={primaryCta.href}
+                size="md"
+                className="border-brass bg-brass text-white hover:border-brass-deep hover:bg-brass-deep"
+              >
+                {primaryCta.label}
+              </Button>
+            )}
+            {secondaryCta && (
+              <Button href={secondaryCta.href} variant="outline" size="md" className="group">
+                {secondaryCta.label}
+                <ArrowRight
+                  className="h-4 w-4 transition-transform duration-300 group-hover:translate-x-1"
+                  aria-hidden
+                />
+              </Button>
+            )}
+          </div>
+        ) : null}
       </div>
 
       {image ? (
@@ -80,25 +103,6 @@ export function ServiceOfferingsSection({
         </div>
       ) : null}
 
-      {(primaryCta || secondaryCta) && (
-        <div className="mt-8 flex flex-wrap items-center justify-center gap-3">
-          {primaryCta && (
-            <Button
-              href={primaryCta.href}
-              size="md"
-              className="border-brass bg-brass text-white hover:border-brass-deep hover:bg-brass-deep"
-            >
-              {primaryCta.label}
-            </Button>
-          )}
-          {secondaryCta && (
-            <Button href={secondaryCta.href} variant="outline" size="md">
-              {secondaryCta.label}
-              <ArrowRight className="h-4 w-4" aria-hidden />
-            </Button>
-          )}
-        </div>
-      )}
 
       {/* Cards — portrait ratio, full-bleed image, all content lives inside */}
       <div className="mt-12 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">

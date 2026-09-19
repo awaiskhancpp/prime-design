@@ -251,6 +251,8 @@ function renderOfferings(
         title={headingText || 'Our Services'}
         description={str(block.description)}
         cards={cards}
+        primaryCta={cta(block.primaryCta)}
+        secondaryCta={cta(block.secondaryCta)}
       />
     ),
   }
@@ -409,6 +411,13 @@ function renderFinanceCta(block: RawBlock): RenderedSection {
  * silently became false: the Finance "Renovation financing, simplified."
  * section parsed zero steps and rendered `null`, disappearing from the page.
  */
+/** A `{ label, href }` group, or undefined when the label is empty. */
+const cta = (value: unknown): { label: string; href: string } | undefined => {
+  const group = (value || {}) as RawBlock
+  const label = str(group.label)
+  return label ? { label, href: str(group.href) || '/contact' } : undefined
+}
+
 const descriptionText = (block: RawBlock): string =>
   typeof block.description === 'string'
     ? block.description

@@ -814,6 +814,14 @@ export interface Service {
             eyebrow?: string | null;
             heading?: string | null;
             description?: string | null;
+            primaryCta?: {
+              label?: string | null;
+              href?: string | null;
+            };
+            secondaryCta?: {
+              label?: string | null;
+              href?: string | null;
+            };
             items?:
               | {
                   title: string;
@@ -3712,6 +3720,14 @@ export interface LandingPage {
         eyebrow?: string | null;
         heading?: string | null;
         description?: string | null;
+        primaryCta?: {
+          label?: string | null;
+          href?: string | null;
+        };
+        secondaryCta?: {
+          label?: string | null;
+          href?: string | null;
+        };
         items?:
           | {
               title: string;
@@ -5066,6 +5082,18 @@ export interface ServicesSelect<T extends boolean = true> {
               eyebrow?: T;
               heading?: T;
               description?: T;
+              primaryCta?:
+                | T
+                | {
+                    label?: T;
+                    href?: T;
+                  };
+              secondaryCta?:
+                | T
+                | {
+                    label?: T;
+                    href?: T;
+                  };
               items?:
                 | T
                 | {
@@ -6862,6 +6890,18 @@ export interface LandingPagesSelect<T extends boolean = true> {
               eyebrow?: T;
               heading?: T;
               description?: T;
+              primaryCta?:
+                | T
+                | {
+                    label?: T;
+                    href?: T;
+                  };
+              secondaryCta?:
+                | T
+                | {
+                    label?: T;
+                    href?: T;
+                  };
               items?:
                 | T
                 | {

@@ -168,6 +168,23 @@ export const landingPageBlocks: Block[] = [
     // heading is the title of the first card. Do not require or invent one.
     text('heading'),
     description(),
+    // The pair of calls to action beside the heading. WordPress puts two
+    // buttons on these sections ("View our gallery" / "Talk to an expert")
+    // and the block had nowhere to keep them, so they never rendered.
+    // Two named slots rather than a repeatable array: the section's layout
+    // is a primary and a secondary action, not an open-ended row.
+    {
+      name: 'primaryCta',
+      type: 'group' as const,
+      label: 'Primary button',
+      fields: [text('label'), text('href')],
+    },
+    {
+      name: 'secondaryCta',
+      type: 'group' as const,
+      label: 'Secondary button',
+      fields: [text('label'), text('href')],
+    },
     {
       name: 'items',
       type: 'array' as const,

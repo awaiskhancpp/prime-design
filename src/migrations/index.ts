@@ -50,6 +50,7 @@ import * as migration_20260919_100000_service_cards_and_project_dates from './20
 import * as migration_20260919_110000_project_excerpt from './20260919_110000_project_excerpt';
 import * as migration_20260919_120000_page_social_proof_block from './20260919_120000_page_social_proof_block';
 import * as migration_20260919_130000_cta_body_rich_text from './20260919_130000_cta_body_rich_text';
+import * as migration_20260919_140000_sub_services_buttons from './20260919_140000_sub_services_buttons';
 
 export const migrations = [
   {
@@ -311,5 +312,10 @@ export const migrations = [
     up: migration_20260919_130000_cta_body_rich_text.up,
     down: migration_20260919_130000_cta_body_rich_text.down,
     name: '20260919_130000_cta_body_rich_text',
+  },
+  {
+    up: migration_20260919_140000_sub_services_buttons.up,
+    down: migration_20260919_140000_sub_services_buttons.down,
+    name: '20260919_140000_sub_services_buttons',
   },
 ];
