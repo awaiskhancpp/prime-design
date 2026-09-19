@@ -1,24 +1,11 @@
 'use client'
 
-import { useEffect, useRef, useState, type ReactNode } from 'react'
+import type { ReactNode } from 'react'
 import Image from 'next/image'
 
 import { Container } from '@/components/ui/Container'
 import type { PageIntroContent } from '@/lib/pageSections'
-import { cn } from '@/lib/utils'
 
-/**
- * CMS-driven intro (Homepage global). The rich-text body is rendered by the
- * server (RichTextContent) and passed in as `bodyContent` because this
- * component stays client-side for the reveal animation.
- *
- * Design note: this sits directly beneath the full-bleed photo hero, so the
- * image here is deliberately *contained* — a second edge-to-edge photo reads
- * as one broken collage rather than two sections. Separation instead comes
- * from a tonal step (warm `paper` against the hero's dark and the white
- * sections that follow), an asymmetric 5/7 grid, and layered depth behind
- * the photo.
- */
 export function LandscapingIntro({
   intro,
   bodyContent,
@@ -29,51 +16,64 @@ export function LandscapingIntro({
   const heading = intro?.heading ?? ''
   const image = intro?.image
 
-  return (
-    <section className="relative overflow-hidden py-20 md:py-28">
-      {/* Brass dot grid — the same motif the original site uses as a
-          decorative accent. Desktop only: on mobile everything stacks and it
-          would sit behind the copy. */}
-      <svg
-        className="pointer-events-none absolute -left-16 bottom-0 hidden h-72 w-72 text-brass/25 lg:block"
-        aria-hidden
-      >
-        <pattern id="intro-dot-grid" width="20" height="20" patternUnits="userSpaceOnUse">
-          <circle cx="2" cy="2" r="2" fill="currentColor" />
-        </pattern>
-        <rect width="100%" height="100%" fill="url(#intro-dot-grid)" />
-      </svg>
+  const stats = [
+    { num: '350', suffix: '+', label: 'Projects Completed' },
+    { num: '15', suffix: '+', label: 'Years in Silicon Valley' },
+    { num: '4.9', suffix: '★', label: 'Google Rating' },
+    { num: '98', suffix: '%', label: 'Client Satisfaction' },
+  ]
 
-      <Container className="relative">
-        <div className="grid items-center gap-12 lg:grid-cols-12 lg:gap-12">
-          <div className={cn(image ? 'lg:col-span-5' : 'lg:col-span-8')}>
-            <span className="block h-1 w-16 bg-brass" aria-hidden />
-            <h2 className="mt-6 font-display text-3xl font-medium leading-tight text-ink-2 md:text-4xl lg:text-[2.5rem] lg:leading-[3rem]">
+  return (
+    <section className=" py-20 md:py-28">
+      <Container>
+        {/* Stat strip — anchors the transition from the dark hero above */}
+        <div className="mb-16 flex border border-line">
+          {stats.map((stat, index) => (
+            <div
+              key={stat.label}
+              className="flex flex-1 flex-col items-center justify-center border-r border-line py-5 text-center last:border-r-0"
+            >
+              <span className="font-display text-3xl font-medium leading-none text-ink-2">
+                {stat.num}
+                <span className="text-xl text-brass">{stat.suffix}</span>
+              </span>
+              <span className="mt-2 text-[11px] font-semibold uppercase tracking-[0.12em] text-ink-2/40">
+                {stat.label}
+              </span>
+            </div>
+          ))}
+        </div>
+
+        {/* Body */}
+        <div className="grid items-center gap-12 lg:grid-cols-2 lg:gap-20">
+          {/* Text */}
+          <div>
+            <p className="text-xs font-semibold uppercase tracking-[0.2em] text-brass-deep">
+              {intro?.eyebrow ?? "Silicon Valley's Design-Build Team"}
+            </p>
+            <span aria-hidden className="mt-4 block h-0.5 w-10 bg-brass" />
+            <h2 className="mt-4 font-display text-3xl font-medium leading-tight text-ink-2 md:text-4xl">
               {heading}
             </h2>
-
-            <div className="mt-6">
-              <div className="space-y-4 text-base leading-relaxed text-ink-2/75 md:text-lg">
-                {bodyContent}
-              </div>
+            <div className="mt-6 space-y-4 text-base leading-relaxed text-ink-2/70">
+              {bodyContent}
             </div>
           </div>
 
+          {/* Single image with brass offset frame */}
           {image ? (
-            <div className="lg:col-span-7">
-              <div className="relative">
-                {/* Offset layer behind the photo: adds depth and a brass
-                    accent without putting a frame/border on the image. */}
+            <div className="relative">
+              {/* Brass accent block — sits behind and offset top-left,
+                  creates depth without a second image or background */}
 
-                <div className="relative aspect-[4/3] overflow-hidden shadow-2xl shadow-ink/20">
-                  <Image
-                    src={image}
-                    alt={intro?.heading || 'Prime Design & Build project'}
-                    fill
-                    className="object-cover"
-                    sizes="(min-width: 1024px) 58vw, 100vw"
-                  />
-                </div>
+              <div className="relative aspect-[4/3] w-full overflow-hidden shadow-2xl shadow-ink/15">
+                <Image
+                  src={image}
+                  alt={intro?.heading || 'Prime Design & Build project'}
+                  fill
+                  className="object-cover"
+                  sizes="(min-width: 1024px) 50vw, 100vw"
+                />
               </div>
             </div>
           ) : null}

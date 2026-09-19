@@ -50,6 +50,8 @@ export type PageSectionContext = {
   galleryCategories?: GalleryCategory[]
   phone?: string
   socialLinks?: SiteSettingsValue['socialLinks']
+  /** Video filename -> project URL, for the walkthrough carousel's button. */
+  projectHrefByVideo?: Record<string, string>
   /**
    * Testimonials collection records, for the sections that show reviews. They
    * are passed in rather than stored on the page, mirroring the WordPress
@@ -114,7 +116,11 @@ function PageSectionNode({
 
     case 'difference':
       return (
-        <LandscapingDifference difference={section.content} socialLinks={context.socialLinks} />
+        <LandscapingDifference
+          difference={section.content}
+          socialLinks={context.socialLinks}
+          projectHrefByVideo={context.projectHrefByVideo}
+        />
       )
 
     case 'projects':

@@ -396,6 +396,42 @@ function normalizeProject(project: PayloadProject): Project {
   }
 }
 
+/**
+ * Compare video URLs by filename, ignoring host, query and case.
+ *
+ * Returns nothing for a URL with no media filename — a YouTube watch link
+ * (`youtube.com/watch?v=…`) would otherwise key the map under "watch" and
+ * match any file of that name.
+ */
+const videoKey = (url: string) => {
+  const name = (url.split(/[?#]/)[0].split('/').pop() || '').toLowerCase()
+  return /\.(mp4|webm|mov|m4v)$/.test(name) ? name : ''
+}
+
+/**
+ * Which project each project video belongs to, keyed by the video's filename.
+ *
+ * The homepage's walkthrough carousel stores its own copy of the clips on the
+ * `difference` block rather than relating to the Projects collection, so the
+ * link between the two is the file itself. Keying on the filename rather than
+ * the whole URL means a clip referenced as `/api/media/file/x.mp4` in one
+ * place and as an absolute URL in another still matches.
+ *
+ * A video with no matching project simply gets no entry — the company intro
+ * clip is not a project, and the caller renders no button for it.
+ */
+export async function resolveProjectHrefByVideo(): Promise<Record<string, string>> {
+  const projects = await resolveProjects()
+  const map: Record<string, string> = {}
+  for (const project of projects) {
+    const url = project.video?.url
+    if (!url) continue
+    const key = videoKey(url)
+    if (key && !map[key]) map[key] = `/project/${project.slug}`
+  }
+  return map
+}
+
 export async function resolveProjects(): Promise<Project[]> {
   if (!process.env.DATABASE_URL) return shouldUseLocalFallback() ? projects : []
 

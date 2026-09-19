@@ -8,7 +8,8 @@ import type { PageDifferenceContent } from '@/lib/pageSections'
 import { RichTextContent } from '@/components/rich-text/RichTextContent'
 import type { SiteSettingsValue } from '@/lib/siteSettings'
 import { cn } from '@/lib/utils'
-import { Check, ChevronLeft, ChevronRight, Play } from 'lucide-react'
+import { ArrowRight, Check, ChevronLeft, ChevronRight, Play } from 'lucide-react'
+import Link from 'next/link'
 import Image from 'next/image'
 
 /**
@@ -40,30 +41,39 @@ const socialBadges = [
 export function LandscapingDifference({
   difference,
   socialLinks,
+  projectHrefByVideo,
 }: {
   difference?: PageDifferenceContent
   /** Review-profile URLs from Site Settings (Google / Yelp / Houzz / BBB). */
   socialLinks?: SiteSettingsValue['socialLinks']
+  /** Video filename -> project URL, resolved from the Projects collection. */
+  projectHrefByVideo?: Record<string, string>
 }) {
   // The project videos come from the section's `videos` array in Payload.
   const projectVideos = difference?.videos?.length ? difference.videos : []
 
   const [index, setIndex] = useState(0)
   const active = projectVideos[index]
-  const canGoPrev = index > 0
+  /** Matched on filename, so the URL's host and query do not matter. */
+  const activeProjectHref = active
+    ? projectHrefByVideo?.[(active.url.split(/[?#]/)[0].split('/').pop() || '').toLowerCase()]
+    : undefined
+  // Only used to stop auto-advance at the end; the arrows always work.
   const canGoNext = index < projectVideos.length - 1
 
-  // Bounded, not infinite: clamped, never wraps past either end — same rule
-  // for the manual arrows and for auto-advance on a video ending.
+  // Wraps in both directions: from the first clip, Previous goes to the last,
+  // and from the last, Next returns to the first. Auto-advance on a video
+  // ending deliberately does NOT wrap — looping the whole set unprompted
+  // would restart playback on a visitor who has watched to the end.
+  const total = projectVideos.length
   function goPrev() {
-    setIndex((current) => Math.max(0, current - 1))
+    setIndex((current) => (current - 1 + total) % total)
   }
   function goNext() {
-    setIndex((current) => Math.min(projectVideos.length - 1, current + 1))
+    setIndex((current) => (current + 1) % total)
   }
   function handleEnded() {
     if (canGoNext) goNext()
-    // On the last video, it just ends — no loop back to the first.
   }
 
   const statLine = difference?.eyebrow
@@ -151,38 +161,30 @@ export function LandscapingDifference({
               It previously also wrapped the thumbnail strip below, so the
               arrows' `top-1/2` centred against video + summary + thumbnails
               combined — which read as noticeably below the video's centre. */}
-          <div className="relative mx-auto max-w-7xl">
+          <div className="relative mx-auto max-w-7xl sm:px-16">
             {/* One prev/next pair spans the whole video+summary row — not
                 per-side arrows — since moving to a different video always
-                changes both columns together. Click-to-play with
-                auto-advance on end is the way through the set; the arrows
-                are the manual override, and neither one wraps past either
-                end. */}
+                changes both columns together. Both wrap, so neither is ever
+                disabled.
+
+                They sit fully outside the row rather than straddling its
+                edge: at `-translate-x-1/2` half the button overlapped the
+                summary column and landed on the text. The row keeps a matching
+                horizontal margin at the widths where the arrows are shown, so
+                pushing them out cannot clip them off-screen. */}
             <button
               type="button"
               onClick={goPrev}
-              disabled={!canGoPrev}
               aria-label="Previous video"
-              className={cn(
-                'absolute left-0 top-1/2 z-10 flex h-10 w-10 -translate-x-1/2 -translate-y-1/2 items-center justify-center border bg-white text-ink-2 shadow-sm transition-colors',
-                canGoPrev
-                  ? 'border-line hover:border-brass hover:text-brass-deep'
-                  : 'cursor-not-allowed border-line/50 text-ink-2/30',
-              )}
+              className="absolute -left-14 top-1/2 z-10 hidden h-10 w-10 -translate-y-1/2 items-center justify-center border border-line bg-white text-ink-2 shadow-sm transition-colors hover:border-brass hover:text-brass-deep sm:flex"
             >
               <ChevronLeft className="h-4 w-4" aria-hidden />
             </button>
             <button
               type="button"
               onClick={goNext}
-              disabled={!canGoNext}
               aria-label="Next video"
-              className={cn(
-                'absolute right-0 top-1/2 z-10 flex h-10 w-10 -translate-y-1/2 translate-x-1/2 items-center justify-center border bg-white text-ink-2 shadow-sm transition-colors',
-                canGoNext
-                  ? 'border-line hover:border-brass hover:text-brass-deep'
-                  : 'cursor-not-allowed border-line/50 text-ink-2/30',
-              )}
+              className="absolute -right-14 top-1/2 z-10 hidden h-10 w-10 -translate-y-1/2 items-center justify-center border border-line bg-white text-ink-2 shadow-sm transition-colors hover:border-brass hover:text-brass-deep sm:flex"
             >
               <ChevronRight className="h-4 w-4" aria-hidden />
             </button>
@@ -221,6 +223,21 @@ export function LandscapingDifference({
                         {active.speakerName}
                         {active.speakerRole ? ` — ${active.speakerRole}` : ''}
                       </p>
+                    ) : null}
+
+                    {/* Only when this clip is a project's video. The company
+                        intro clip is not a project and gets no button. */}
+                    {activeProjectHref ? (
+                      <Link
+                        href={activeProjectHref}
+                        className="group mt-5 inline-flex items-center gap-2 border border-ink/25 px-5 py-2.5 text-xs font-semibold uppercase tracking-[0.14em] text-ink-2 transition-colors hover:border-brass hover:text-brass-deep"
+                      >
+                        View this project
+                        <ArrowRight
+                          className="h-3.5 w-3.5 transition-transform duration-300 group-hover:translate-x-1"
+                          aria-hidden
+                        />
+                      </Link>
                     ) : null}
                   </div>
                 ) : null}

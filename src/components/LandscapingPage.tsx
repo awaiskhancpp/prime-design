@@ -1,6 +1,7 @@
 import { PageSections, type PageSectionContext } from '@/components/pages/PageSections'
 import { resolvePageBySlug } from '@/lib/pages'
 import { resolveServices } from '@/lib/services'
+import { resolveProjectHrefByVideo } from '@/lib/projects'
 import { resolveSiteSettings } from '@/lib/siteSettings'
 
 // WordPress homepage card order (the six main services; kitchen style
@@ -29,7 +30,15 @@ export async function LandscapingPage() {
     (a, b) => HOMEPAGE_SERVICE_SLUGS.indexOf(a.slug) - HOMEPAGE_SERVICE_SLUGS.indexOf(b.slug),
   )
 
-  const context: PageSectionContext = { services, socialLinks: settings.socialLinks }
+  // Each walkthrough clip in the difference carousel is a project video; the
+  // map lets that section link straight to the project it was filmed on.
+  const projectHrefByVideo = await resolveProjectHrefByVideo()
+
+  const context: PageSectionContext = {
+    services,
+    socialLinks: settings.socialLinks,
+    projectHrefByVideo,
+  }
 
   return (
     <div className="min-h-screen bg-white">
