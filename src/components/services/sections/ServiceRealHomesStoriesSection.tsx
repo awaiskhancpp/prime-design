@@ -2,6 +2,7 @@ import { ArrowRight } from 'lucide-react'
 
 import { Button } from '@/components/ui/Button'
 import { Section } from '@/components/ui/Section'
+import { SectionHeader } from '@/components/ui/SectionHeader'
 import type { ServiceDetail } from '@/lib/services'
 
 export type ServiceRealHomesContent = {
@@ -47,16 +48,17 @@ export function ServiceRealHomesStoriesSection({
   return (
     <Section className="">
       <div className="mx-auto max-w-5xl text-center">
-        <p className="text-xs font-semibold uppercase tracking-[0.2em] text-brass-deep">
-          {eyebrow}
-        </p>
-        <h2 className="mt-3 font-display text-4xl font-medium leading-tight tracking-tight text-ink md:text-5xl">
-          {heading}{' '}
-          <span className="text-brass">
-            {headingAccent}
-          </span>
-        </h2>
-        <p className="mt-5 text-base leading-7  text-ink-2/70">{description}</p>
+        <SectionHeader
+          align="center"
+          size="lg"
+          eyebrow={eyebrow}
+          title={
+            <>
+              {heading} <span className="text-brass">{headingAccent}</span>
+            </>
+          }
+          description={description}
+        />
       </div>
 
       <div className="mt-14 grid gap-6 md:grid-cols-3">

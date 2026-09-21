@@ -1,0 +1,236 @@
+[
+  {
+    "table": "gallery_2",
+    "slug": "kitchen-remodeling",
+    "field": "eyebrow",
+    "value": "Our work"
+  },
+  {
+    "table": "gallery_2",
+    "slug": "bathroom-remodeling",
+    "field": "eyebrow",
+    "value": "Our work"
+  },
+  {
+    "table": "gallery_2",
+    "slug": "home-remodeling",
+    "field": "eyebrow",
+    "value": "Our work"
+  },
+  {
+    "table": "sub_services_2",
+    "slug": "bathroom-remodeling",
+    "field": "eyebrow",
+    "value": "What we build"
+  },
+  {
+    "table": "sub_services_2",
+    "slug": "kitchen-remodeling",
+    "field": "eyebrow",
+    "value": "What we build"
+  },
+  {
+    "table": "sub_services_2",
+    "slug": "shaker-kitchen",
+    "field": "eyebrow",
+    "value": "What we build"
+  },
+  {
+    "table": "checklist",
+    "slug": "additions",
+    "field": "eyebrow",
+    "value": "What's included"
+  },
+  {
+    "table": "checklist",
+    "slug": "complete-renovation",
+    "field": "eyebrow",
+    "value": "What's included"
+  },
+  {
+    "table": "checklist",
+    "slug": "adu",
+    "field": "eyebrow",
+    "value": "What's included"
+  },
+  {
+    "table": "experience_difference",
+    "slug": "finance",
+    "field": "eyebrow",
+    "value": "Why us"
+  },
+  {
+    "table": "experience_difference",
+    "slug": "comprehensive-home-repair-installation-services-in-silicon-valley",
+    "field": "eyebrow",
+    "value": "Why us"
+  },
+  {
+    "table": "repair_services",
+    "slug": "comprehensive-home-repair-installation-services-in-silicon-valley",
+    "field": "eyebrow",
+    "value": "Services"
+  },
+  {
+    "table": "cta",
+    "slug": "shaker-kitchen",
+    "field": "eyebrow",
+    "value": "Free estimate"
+  },
+  {
+    "table": "cta",
+    "slug": "custom-kitchen",
+    "field": "eyebrow",
+    "value": "Free estimate"
+  },
+  {
+    "table": "cta",
+    "slug": "home-remodeling",
+    "field": "eyebrow",
+    "value": "Free estimate"
+  },
+  {
+    "table": "cta",
+    "slug": "adu",
+    "field": "eyebrow",
+    "value": "Free estimate"
+  },
+  {
+    "table": "cta",
+    "slug": "additions",
+    "field": "eyebrow",
+    "value": "Free estimate"
+  },
+  {
+    "table": "cta",
+    "slug": "complete-renovation",
+    "field": "eyebrow",
+    "value": "Free estimate"
+  },
+  {
+    "table": "cta",
+    "slug": "bathroom-remodeling",
+    "field": "eyebrow",
+    "value": "Free estimate"
+  },
+  {
+    "table": "cta",
+    "slug": "european-kitchen",
+    "field": "eyebrow",
+    "value": "Free estimate"
+  },
+  {
+    "table": "cta",
+    "slug": "kitchen-remodeling",
+    "field": "eyebrow",
+    "value": "Free estimate"
+  },
+  {
+    "table": "cta",
+    "slug": "finance",
+    "field": "eyebrow",
+    "value": "Financing"
+  },
+  {
+    "table": "cta",
+    "slug": "finance",
+    "field": "eyebrow",
+    "value": "Financing"
+  },
+  {
+    "table": "image_text_2",
+    "slug": "finance",
+    "field": "eyebrow",
+    "value": "Financing"
+  },
+  {
+    "table": "hero",
+    "slug": "additions",
+    "field": "eyebrow",
+    "value": "Room additions"
+  },
+  {
+    "table": "hero",
+    "slug": "adu",
+    "field": "eyebrow",
+    "value": "ADU & garage conversions"
+  },
+  {
+    "table": "hero",
+    "slug": "complete-renovation",
+    "field": "eyebrow",
+    "value": "Complete renovation"
+  },
+  {
+    "table": "hero",
+    "slug": "bathroom-remodeling",
+    "field": "eyebrow",
+    "value": "Bathroom remodeling"
+  },
+  {
+    "table": "hero",
+    "slug": "kitchen-remodeling",
+    "field": "eyebrow",
+    "value": "Kitchen remodeling"
+  },
+  {
+    "table": "hero",
+    "slug": "home-remodeling",
+    "field": "eyebrow",
+    "value": "Home remodeling"
+  },
+  {
+    "table": "hero",
+    "slug": "comprehensive-home-repair-installation-services-in-silicon-valley",
+    "field": "eyebrow",
+    "value": "Repair & installation"
+  },
+  {
+    "table": "hero",
+    "slug": "finance",
+    "field": "eyebrow",
+    "value": "Financing"
+  },
+  {
+    "table": "checklist",
+    "slug": "additions",
+    "field": "description",
+    "value": "What a room addition covers, from the first drawings through to the finished space."
+  },
+  {
+    "table": "checklist",
+    "slug": "adu",
+    "field": "description",
+    "value": "What an ADU or garage conversion covers, from permitting through to the finished unit."
+  },
+  {
+    "table": "checklist",
+    "slug": "complete-renovation",
+    "field": "description",
+    "value": "What a whole-home renovation covers, room by room."
+  },
+  {
+    "table": "prime_difference",
+    "slug": "bathroom-remodeling",
+    "field": "description",
+    "value": "The things that stay the same on every bathroom we build."
+  },
+  {
+    "table": "prime_difference",
+    "slug": "home-remodeling",
+    "field": "description",
+    "value": "The things that stay the same on every home we remodel."
+  },
+  {
+    "table": "experience_difference",
+    "slug": "comprehensive-home-repair-installation-services-in-silicon-valley",
+    "field": "description",
+    "value": "Licensed, insured, and accountable for every repair we take on."
+  },
+  {
+    "table": "faq",
+    "slug": "finance",
+    "field": "description",
+    "value": "Common questions about financing a remodel with Prime Design & Build."
+  }
+]

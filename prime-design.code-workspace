@@ -1,0 +1,12 @@
+{
+	"folders": [
+		{
+			"name": "prime-design",
+			"path": "."
+		}
+	],
+	"settings": {
+		"js/ts.tsdk.path": "node_modules/typescript/lib",
+		"js/ts.tsdk.promptToUseWorkspaceVersion": true
+	}
+}

@@ -4,6 +4,7 @@ import { ArrowRight } from 'lucide-react'
 import { RichTextContent } from '@/components/rich-text/RichTextContent'
 import { Button } from '@/components/ui/Button'
 import { Section } from '@/components/ui/Section'
+import { SectionHeader } from '@/components/ui/SectionHeader'
 import type { RichTextValue } from '@/lib/richText'
 
 export type ServiceCraftsmanshipContent = {
@@ -97,17 +98,21 @@ export function ServiceCraftsmanshipTransformsSection({
             <RichTextContent data={contentToRender} />
           ) : (
             <>
-              <h2 className="mt-3 font-display text-4xl font-medium leading-tight tracking-tight text-ink md:text-5xl">
-                {heading} <span className="text-brass">{headingAccent}</span>
-              </h2>
-
-              <div className="mt-6 grid gap-4">
-                {body.map((paragraph) => (
-                  <p key={paragraph} className="text-base leading-7 text-ink-2/70">
-                    {paragraph}
-                  </p>
-                ))}
-              </div>
+              <SectionHeader
+                size="lg"
+                title={
+                  <>
+                    {heading} <span className="text-brass">{headingAccent}</span>
+                  </>
+                }
+                description={
+                  <div className="grid gap-4">
+                    {body.map((paragraph) => (
+                      <p key={paragraph}>{paragraph}</p>
+                    ))}
+                  </div>
+                }
+              />
             </>
           )}
 

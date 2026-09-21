@@ -3,6 +3,7 @@ import { ArrowRight } from 'lucide-react'
 
 import { Button } from '@/components/ui/Button'
 import { Section } from '@/components/ui/Section'
+import { SectionHeader } from '@/components/ui/SectionHeader'
 import type { ServiceDetail } from '@/lib/services'
 import type { Location } from '@/lib/serviceLocations'
 
@@ -45,16 +46,16 @@ export function ServiceDontSettleSection({
         </div>
 
         <div>
-          <p className="text-xs font-semibold uppercase tracking-[0.2em] text-brass-deep">
-            {eyebrow}
-          </p>
-          <h2 className="mt-3 font-display text-4xl font-medium leading-tight tracking-tight text-ink md:text-5xl">
-            {heading}{' '}
-            <span className="text-brass">
-              {headingAccent}
-            </span>
-          </h2>
-          <p className="mt-6 text-base leading-8 text-ink-2/75">{body}</p>
+          <SectionHeader
+            eyebrow={eyebrow}
+            size="lg"
+            title={
+              <>
+                {heading} <span className="text-brass">{headingAccent}</span>
+              </>
+            }
+            description={body}
+          />
           <div className="mt-9">
             <Button href={cta.href} variant="outline" size="lg">
               {cta.label}
