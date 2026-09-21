@@ -29,6 +29,7 @@ export async function ServiceAreasSection({ service }: { service: ServiceDetail 
     <Section className="bg-white">
       <SectionHeader
         align="center"
+        eyebrow="Service Areas"
         // WordPress 3261: "We offer top {post_title} in the following areas".
         title={`We offer top ${service.title} in the following areas`}
       />

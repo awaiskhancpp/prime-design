@@ -1,6 +1,7 @@
 import Image from 'next/image'
 
 import { Section } from '@/components/ui/Section'
+import { SectionHeader } from '@/components/ui/SectionHeader'
 
 export type WhyChooseUsContent = {
   eyebrow?: string
@@ -17,18 +18,14 @@ export function WhyChooseUs({
 }: WhyChooseUsContent) {
   return (
     <Section className="">
-      <div className="mx-auto max-w-2xl text-center">
-        <p className="font-display text-lg italic text-ink-2/70">
-          {eyebrow}{' '}
-          {eyebrowAccent ? (
-            <span className="font-semibold text-brass">
-              {eyebrowAccent}
-            </span>
-          ) : null}
-        </p>
-        <h2 className="mt-3 font-display text-4xl font-medium leading-tight tracking-tight text-ink md:text-5xl">
-          {heading}
-        </h2>
+      <div className="mx-auto max-w-2xl">
+        <SectionHeader
+          eyebrow={eyebrowAccent ? `${eyebrow} ${eyebrowAccent}`.trim() : eyebrow}
+          title={heading || ''}
+          align="center"
+          size="lg"
+          className="max-w-none"
+        />
       </div>
 
       <div className="mt-14 grid gap-6 sm:grid-cols-2 lg:grid-cols-4">

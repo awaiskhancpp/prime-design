@@ -1,6 +1,7 @@
 import Image from 'next/image'
 import { Clock, Heart, KeyRound, Ruler, Sparkles, type LucideIcon } from 'lucide-react'
 import { Container } from '../ui/Container'
+import { SectionHeader } from '../ui/SectionHeader'
 
 type ChecklistItem = {
   /** Icon name from the WordPress source (themify), mapped to a Lucide icon. */
@@ -140,12 +141,7 @@ export function ServiceIconChecklistGallerySection({
       <Container>
         <div className="grid gap-14 md:grid-cols-[1.05fr_0.95fr] md:items-start md:gap-16">
           <div>
-            {eyebrow ? (
-              <p className="font-display text-lg italic text-ink-2/80">{eyebrow}</p>
-            ) : null}
-            <h2 className="mt-3 font-display text-3xl font-medium leading-tight tracking-tight text-ink md:text-4xl">
-              {heading}
-            </h2>
+            <SectionHeader eyebrow={eyebrow} title={heading} className="max-w-none" />
             {/* Short brass rule — same header anchor used by the sibling
                 section, so the pair reads as one family. */}
             <span className="mt-7 block h-px w-16 bg-brass" aria-hidden />

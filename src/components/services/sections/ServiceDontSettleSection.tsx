@@ -48,13 +48,11 @@ export function ServiceDontSettleSection({
         <div>
           <SectionHeader
             eyebrow={eyebrow}
-            size="lg"
-            title={
-              <>
-                {heading} <span className="text-brass">{headingAccent}</span>
-              </>
-            }
+            title={`${heading} ${headingAccent}`.trim()}
+            titleHighlight={headingAccent}
             description={body}
+            size="lg"
+            className="max-w-none"
           />
           <div className="mt-9">
             <Button href={cta.href} variant="outline" size="lg">

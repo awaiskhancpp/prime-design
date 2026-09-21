@@ -1,6 +1,7 @@
 import type { ReactNode } from 'react'
 
 import { Section } from '@/components/ui/Section'
+import { SectionHeader } from '@/components/ui/SectionHeader'
 import type { Location } from '@/lib/serviceLocations'
 
 // All hosted in the company blob (optimized 1080p H.264 cuts — see
@@ -93,22 +94,18 @@ export function ServiceVideoSection({
 
   const content = (
     <>
-      <div className="mx-auto max-w-4xl space-y-4 text-center">
-        {eyebrow ? (
-          <p className="text-xs font-semibold uppercase tracking-[0.2em] text-brass-deep">
-            {eyebrow}
-          </p>
-        ) : null}
+      <div className="mx-auto max-w-4xl">
         {title ? (
-          <h2 className="font-display text-3xl font-medium leading-tight text-ink-2 md:text-4xl">
-            {title}
-          </h2>
-        ) : null}
-        {description ? (
-          <p className="mx-auto max-w-xl text-base leading-[1.7] text-ink-2/70">{description}</p>
+          <SectionHeader
+            eyebrow={eyebrow}
+            title={title}
+            description={description}
+            align="center"
+            className="max-w-none"
+          />
         ) : null}
         {tagline ? (
-          <p className="mx-auto max-w-xl text-base leading-[1.7] text-ink-2/70">{tagline}</p>
+          <p className="mx-auto mt-4 max-w-xl text-base leading-[1.7] text-ink-2/70">{tagline}</p>
         ) : null}
       </div>
 

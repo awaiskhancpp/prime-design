@@ -1,6 +1,7 @@
 import Image from 'next/image'
 
 import { Section } from '@/components/ui/Section'
+import { SectionHeader } from '@/components/ui/SectionHeader'
 import type { ServiceDetail } from '@/lib/services'
 import { VideoCarousel, type CarouselVideo } from '@/components/landing/VideoCarousel'
 
@@ -121,16 +122,13 @@ export function ServicePrimeDifferenceSection({
     <Section className="bg-white">
       <div className="grid gap-14 lg:grid-cols-[0.9fr_1.1fr] lg:gap-16 lg:items-center">
         <div>
-          {eyebrow ? <p className="font-display text-lg italic text-ink-2/70">{eyebrow}</p> : null}
-          <h2 className="mt-3 font-display text-4xl font-medium leading-tight tracking-tight text-ink md:text-5xl">
-            {heading}
-            {headingAccent ? ' ' : null}
-            {headingAccent ? (
-              <span className="text-brass">
-                {headingAccent}
-              </span>
-            ) : null}
-          </h2>
+          <SectionHeader
+            eyebrow={eyebrow}
+            title={headingAccent ? `${heading} ${headingAccent}` : heading}
+            titleHighlight={headingAccent}
+            size="lg"
+            className="max-w-none"
+          />
           {body ? <p className="mt-6 text-base leading-7 text-ink-2/75">{body}</p> : null}
 
           {checklist?.length ? (

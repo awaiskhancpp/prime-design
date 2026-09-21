@@ -15,7 +15,10 @@ import { ServiceQuoteSection } from './ServiceQuoteSection'
 import { ServiceCraftsmanshipTransformsSection } from './sections/ServiceCraftsmanshipTransformsSection'
 import { ServiceHomeRepairCategoriesSection, type HomeRepairCategory } from './sections/ServiceHomeRepairCategoriesSection'
 import { ServiceWhyChooseUsSection } from './sections/ServiceWhyChooseUsSection'
-import { ServiceRealHomesStoriesSection } from './sections/ServiceRealHomesStoriesSection'
+import {
+  ServiceRealHomesStoriesSection,
+  stripHeadingAccent,
+} from './sections/ServiceRealHomesStoriesSection'
 import {
   getWordPressDifferenceContent,
   ServicePrimeDifferenceSection,
@@ -90,7 +93,12 @@ function renderWhyChooseUs(block: RawBlock, headingText: string): RenderedSectio
   return {
     key: 'why-choose-us',
     node: (
-      <ServiceWhyChooseUsSection heading={headingText || ''} items={features} />
+      <ServiceWhyChooseUsSection
+        eyebrow={str(block.eyebrow)}
+        heading={headingText || ''}
+        description={str(block.description)}
+        items={features}
+      />
     ),
   }
 }
@@ -299,13 +307,14 @@ function renderTestimonials(
     .slice(0, 3)
 
   if (testimonials.length) {
+    const headingAccent = 'Real Stories'
     return {
       key: 'real-homes',
       node: (
         <ServiceRealHomesStoriesSection
           eyebrow={str(block.eyebrow) || '#1 Home Remodeling Company in Silicon Valley'}
-          heading={headingText || 'Real Homes,'}
-          headingAccent="Real Stories"
+          heading={stripHeadingAccent(headingText || 'Real Homes,', headingAccent)}
+          headingAccent={headingAccent}
           description={
             str(block.description) ||
             'Explore the success stories of homeowners who entrusted Prime Design & Build.'

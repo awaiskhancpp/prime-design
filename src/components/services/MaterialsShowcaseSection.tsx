@@ -1,6 +1,7 @@
 import Image from 'next/image'
 
 import { Section } from '@/components/ui/Section'
+import { SectionHeader } from '@/components/ui/SectionHeader'
 
 export type MaterialShowcaseItem = {
   title: string
@@ -58,20 +59,15 @@ export function MaterialsShowcaseSection({
   return (
     <Section className="bg-white">
       {(eyebrow || heading || description) && (
-        <div className="mx-auto max-w-2xl text-center">
-          {eyebrow ? (
-            <p className="font-display text-lg italic text-brass-deep">{eyebrow}</p>
-          ) : null}
-          {heading ? (
-            <h2 className="mt-3 font-display text-4xl font-medium leading-tight text-ink md:text-5xl">
-              {heading}
-            </h2>
-          ) : null}
-          {description ? (
-            <p className="mt-5 text-base leading-7 text-ink-2/75">
-              {descriptionWithEmphasis(description, boldTerms)}
-            </p>
-          ) : null}
+        <div className="mx-auto max-w-2xl">
+          <SectionHeader
+            eyebrow={eyebrow}
+            title={heading || ''}
+            description={description ? descriptionWithEmphasis(description, boldTerms) : undefined}
+            align="center"
+            size="lg"
+            className="max-w-none"
+          />
         </div>
       )}
 

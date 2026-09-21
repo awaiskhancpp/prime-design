@@ -4,6 +4,7 @@ import { Fragment, type ReactNode } from 'react'
 import { RichTextContent } from '@/components/rich-text/RichTextContent'
 import { Button } from '@/components/ui/Button'
 import { Section } from '@/components/ui/Section'
+import { SectionHeader } from '@/components/ui/SectionHeader'
 import { richTextHasContent, type RichTextValue } from '@/lib/richText'
 
 /**
@@ -112,10 +113,7 @@ export function ServiceImageTextSection({
     <Section className="bg-white">
       <div className="grid gap-10 md:grid-cols-2 md:items-center">
         <div className={imageSide === 'right' ? 'md:order-2' : undefined}>
-          {eyebrow ? (
-            <p className="text-xs font-semibold uppercase tracking-[0.2em] text-brass">{eyebrow}</p>
-          ) : null}
-          <h2 className="mt-3 font-display text-3xl font-medium text-ink md:text-5xl">{heading}</h2>
+          <SectionHeader eyebrow={eyebrow} title={heading} size="lg" className="max-w-none" />
           {hasRichBody ? (
             <div className="mt-5 text-base leading-7 text-ink-2/75">
               <RichTextContent data={body} />

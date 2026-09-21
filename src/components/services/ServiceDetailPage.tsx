@@ -363,6 +363,7 @@ export function ServiceTemplate({ service }: { service: ServiceDetail }) {
             service.whyChooseUs?.items?.length ? (
               // Payload "Why Choose Us" group — renders only CMS content.
               <ServiceWhyChooseUsSection
+                eyebrow={service.whyChooseUs.eyebrow}
                 heading={service.whyChooseUs.heading}
                 items={service.whyChooseUs.items.map((item) => ({
                   title: item.title,

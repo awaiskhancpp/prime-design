@@ -3,6 +3,7 @@ import { Mail, MapPin, Phone } from 'lucide-react'
 import website from '../../../website.json'
 import { LeadForm } from '@/components/forms/LeadForm'
 import { Section } from '@/components/ui/Section'
+import { SectionHeader } from '@/components/ui/SectionHeader'
 import { resolveSiteSettings } from '@/lib/siteSettings'
 
 // WordPress contact-section walkthrough (template 1495/1584/1639) — the
@@ -36,32 +37,33 @@ export async function Contact({ city, poster }: { city?: string; poster?: string
       <div className="grid gap-14 lg:grid-cols-[1fr_1fr] lg:gap-20 items-start">
         {/* Left Column: Form & Details */}
         <div className="flex flex-col">
-          <p className="mb-4 font-display text-lg italic text-brass-deep">
-            {city
-              ? `Start Crafting Your Dream Project in ${city} Today`
-              : 'Start crafting your dream project today'}
-          </p>
-          <h2 className="font-display text-4xl font-medium leading-tight tracking-tight text-ink md:text-5xl">
-            Ready to discuss{' '}
-            <span className="text-brass">
-              your needs?
-            </span>
-          </h2>
+          <SectionHeader
+            eyebrow={
+              city ? `Start Crafting Your Dream Project in ${city} Today` : 'Start crafting your dream project today'
+            }
+            title="Ready to discuss your needs?"
+            titleHighlight="your needs?"
+            size="lg"
+            className="max-w-none"
+            description={
+              <>
+                <p className="max-w-md text-sm leading-6 text-ink-2/65">
+                  Give us a call at{' '}
+                  <a
+                    href={`tel:${settings.phoneClean}`}
+                    className="font-semibold text-brass-deep underline decoration-brass/40 underline-offset-4 hover:text-brass"
+                  >
+                    {settings.phoneClean}
+                  </a>
+                </p>
 
-          <p className="mt-3 max-w-md text-sm leading-6 text-ink-2/65">
-            Give us a call at{' '}
-            <a
-              href={`tel:${settings.phoneClean}`}
-              className="font-semibold text-brass-deep underline decoration-brass/40 underline-offset-4 hover:text-brass"
-            >
-              {settings.phoneClean}
-            </a>
-          </p>
-
-          <p className="mt-3 max-w-md text-sm leading-6 text-ink-2/65">
-            To get in touch, simply fill out the form on this page and we will get back to you
-            within 2-3 hours on business days.
-          </p>
+                <p className="mt-3 max-w-md text-sm leading-6 text-ink-2/65">
+                  To get in touch, simply fill out the form on this page and we will get back to
+                  you within 2-3 hours on business days.
+                </p>
+              </>
+            }
+          />
 
           <LeadForm
             className="mt-10 gap-6 bg-white p-8 shadow-sm border border-black/5"

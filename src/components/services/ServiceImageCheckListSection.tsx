@@ -1,6 +1,7 @@
 import Image from 'next/image'
 
 import { Section } from '@/components/ui/Section'
+import { SectionHeader } from '@/components/ui/SectionHeader'
 
 type ChecklistItem = { title: string; description: string }
 
@@ -53,19 +54,7 @@ export function ServiceImageChecklistSection({
         {/* ── Right: heading + numbered list ── */}
         <div className="flex flex-col justify-center px-8 py-16 md:px-14 lg:py-20">
           {/* Header block */}
-          <div className="max-w-md">
-            {eyebrow ? (
-              <p className="text-xs font-semibold uppercase tracking-[0.2em] text-brass-deep">
-                {eyebrow}
-              </p>
-            ) : null}
-            <h2 className="mt-3 font-display text-3xl font-medium leading-tight text-ink md:text-4xl">
-              {heading}
-            </h2>
-            {description ? (
-              <p className="mt-4 text-base leading-7 text-ink-2/65">{description}</p>
-            ) : null}
-          </div>
+          <SectionHeader eyebrow={eyebrow} title={heading} description={description} className="max-w-md" />
 
           {/* Checklist */}
           {items.length ? (

@@ -14,17 +14,22 @@ export type ServiceRealHomesContent = {
   cta: { label: string; href: string }
 }
 
+/**
+ * WordPress stores the gradient span flattened into the heading ("Real
+ * Homes, Real Stories") — strip a trailing `accent` from `heading` so the
+ * caller can render heading + accent once instead of the accent twice.
+ */
+export function stripHeadingAccent(heading: string, accent: string): string {
+  if (!heading.trim().endsWith(accent)) return heading
+  return `${heading.slice(0, -accent.length).replace(/[\s,]+$/, '')},`
+}
+
 export function getRealHomesContent(service: ServiceDetail): ServiceRealHomesContent | undefined {
   const content = service.realHomes
   // Content comes from Payload only — render nothing without CMS data.
   if (!content?.testimonials?.length) return undefined
   const headingAccent = content.headingAccent || 'Real Stories'
-  // WordPress stores the gradient span flattened into the heading
-  // ("Real Homes, Real Stories"); render it as heading + accent once.
-  let heading = content.heading || 'Real Homes,'
-  if (heading.trim().endsWith(headingAccent)) {
-    heading = `${heading.slice(0, -headingAccent.length).replace(/[\s,]+$/, '')},`
-  }
+  const heading = stripHeadingAccent(content.heading || 'Real Homes,', headingAccent)
   return {
     eyebrow: content.eyebrow || '',
     heading,
@@ -47,17 +52,15 @@ export function ServiceRealHomesStoriesSection({
 }: ServiceRealHomesContent) {
   return (
     <Section className="">
-      <div className="mx-auto max-w-5xl text-center">
+      <div className="mx-auto max-w-5xl">
         <SectionHeader
+          eyebrow={eyebrow}
+          title={`${heading} ${headingAccent}`.trim()}
+          titleHighlight={headingAccent}
+          description={description}
           align="center"
           size="lg"
-          eyebrow={eyebrow}
-          title={
-            <>
-              {heading} <span className="text-brass">{headingAccent}</span>
-            </>
-          }
-          description={description}
+          className="max-w-none"
         />
       </div>
 

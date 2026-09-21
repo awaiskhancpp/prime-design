@@ -1,10 +1,15 @@
 import { Container } from '@/components/ui/Container'
+import { SectionHeader } from '@/components/ui/SectionHeader'
 
 export function ServiceWhyChooseUsSection({
+  eyebrow,
   heading = '',
+  description,
   items = [],
 }: {
+  eyebrow?: string
   heading?: string
+  description?: string
   items?: Array<{ title: string; description?: string }>
 }) {
   // Content comes from Payload only — render nothing without items.
@@ -15,9 +20,13 @@ export function ServiceWhyChooseUsSection({
           the site with its own width and its own `px-6`, so it sat narrower
           and its edges did not line up with anything around it. */}
       <Container className="max-w-5xl">
-        <h2 className="text-center font-display text-3xl font-medium tracking-tight md:text-4xl">
-          {heading}
-        </h2>
+        <SectionHeader
+          eyebrow={eyebrow}
+          title={heading}
+          description={description}
+          align="center"
+          className="mx-auto"
+        />
 
         <div className="mt-12 grid gap-x-16 gap-y-8 sm:grid-cols-2">
           {items.map((item, index) => (
