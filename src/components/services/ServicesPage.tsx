@@ -6,16 +6,30 @@ import { LandscapingServiceAreas } from '@/components/blocks/LandscapingServiceA
 import { PageHero } from '@/components/layout/PageHero'
 import { Section } from '@/components/ui/Section'
 import { resolveServices, serviceHref } from '@/lib/services'
+import { resolvePageBySlug } from '@/lib/pages'
 
 export async function ServicesPage() {
   const services = await resolveServices()
+
+  // The hero comes from the pages collection record "services" — same
+  // mechanism as `/our-projects`, `/gallery`, `/contact`, etc. (`lib/pages.ts`
+  // → `resolvePageBySlug`). No record exists for this slug yet, so `hero` is
+  // undefined and every field below falls back to the previous hardcoded
+  // copy; once one is created in the admin, this page picks it up with no
+  // further code change.
+  const page = await resolvePageBySlug('services')
+  const hero = page?.hero
+
   return (
     <div className="min-h-screen bg-white">
       <PageHero
-        eyebrow="Our services"
-        title="Take charge of your remodeling experience"
-        description="Now is the perfect time to choose the area in your home that deserves a remarkable transformation."
-        image="/services/home-remodeling.jpeg"
+        eyebrow={hero?.eyebrow || 'Our services'}
+        title={hero?.heading || 'Take charge of your remodeling experience'}
+        description={
+          hero?.description ??
+          'Now is the perfect time to choose the area in your home that deserves a remarkable transformation.'
+        }
+        image={hero?.image || '/services/home-remodeling.jpeg'}
         imageAlt="Home remodeling project by Prime Design & Build"
       />
 

@@ -56,7 +56,14 @@ export default async function FrontendTemplate({ children }: { children: React.R
   // this list when its hero moved to `UtilityHero`, which is white — the
   // desktop header is `text-white` in the dark tone and would have been
   // invisible against it.
-  const lightChromePaths = ['team', 'search', 'thank-you', 'not-found']
+  //
+  // `not-found` is deliberately NOT in this list. `notFound()` renders at
+  // whatever URL was actually requested — there is no real request whose path
+  // is literally `/not-found` — so a segment match against it can never fire.
+  // NotFoundPage instead marks itself with `data-light-chrome`, which the
+  // `styles.css` override recolours regardless of the (necessarily wrong)
+  // tone guessed here. See the comment there.
+  const lightChromePaths = ['team', 'search', 'thank-you']
   const headerTone =
     segments.length === 1 && lightChromePaths.includes(segments[0]) ? 'light' : 'dark'
 

@@ -12,12 +12,15 @@ import { cn } from '@/lib/utils'
 
 export function ServiceFaq({
   items,
+  heading,
   description,
 }: {
   items?: FaqItem[]
+  heading?: string
   description?: string
 }) {
   const shownItems = items ?? []
+  const title = heading || 'Frequently Asked Questions'
   const desc = description ?? ''
   // Initialize with 0 instead of null so the first question renders open.
   const [openIndex, setOpenIndex] = useState<number | null>(0)
@@ -29,7 +32,7 @@ export function ServiceFaq({
       <div className="grid gap-12 lg:grid-cols-[0.7fr_1.3fr] lg:gap-24">
         <div>
           <SectionHeader
-            title="Frequently Asked Questions"
+            title={title}
             description={desc}
           />
           <Button href="/contact" variant="outline" size="md" className="mt-7">

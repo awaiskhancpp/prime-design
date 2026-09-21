@@ -109,9 +109,18 @@ export function ServiceLocationPage({
         eyebrow: String((subServicesBlock as { eyebrow?: string }).eyebrow || ''),
         title: String((subServicesBlock as { heading?: string }).heading || ''),
         description: String((subServicesBlock as { description?: string }).description || ''),
-        // WordPress binds this section's image to `{featured_image}`, which on
-        // a city page is that city's own marketing graphic.
-        image: service.image,
+        // Location pages carry only the one CTA — "Talk to an expert" — not
+        // the parent service page's pair. Location pages are a different
+        // template from the parent service page, not a copy of it: do not
+        // pull `primaryCta`/`secondaryCta` off the same sub-services record,
+        // even though the fields are right there, because that record's
+        // buttons are for the parent page, not this one.
+        primaryCta: { label: 'Talk to an expert', href: '#contact' },
+        // No `image` here on purpose — WordPress bound this section's banner
+        // to `{featured_image}`, but the real page only ever showed the 3
+        // sub-service cards; the standalone banner was this component
+        // rendering the city's marketing graphic a second time, right above
+        // the cards that already carry their own images. Removed, cards kept.
         cards: (Array.isArray((subServicesBlock as { items?: unknown[] }).items)
           ? ((subServicesBlock as unknown as { items: unknown[] }).items as Record<string, unknown>[])
           : []

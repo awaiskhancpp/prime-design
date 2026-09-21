@@ -77,7 +77,12 @@ export async function LandscapingServiceAreas({
   const { heading, cities, trailingLabel, trailingHref } = website.serviceAreas
   const configuredAreas = await resolveSiteAreas()
   const prefix = locationPrefix(serviceSlug)
-  const hrefFor = (city: string) => `/services/${prefix}/${prefix}-in-${citySlug(city)}`
+  // NOT under `/services/` — that two-level path is reserved for kitchen
+  // style sub-pages (`/services/kitchen-remodeling/shaker-kitchen`) and 404s
+  // for anything else. Service-location pages live at the WordPress-style
+  // root path (`/{service}/{service}-in-{city}`); see the same note in
+  // `sitemap.ts` and `ServiceAreasStrip.tsx`, which build this href correctly.
+  const hrefFor = (city: string) => `/${prefix}/${prefix}-in-${citySlug(city)}`
 
   let areaNames: string[] = []
   if (serviceSlug) {

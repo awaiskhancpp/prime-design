@@ -82,19 +82,34 @@ textarea {
  *
  * `SiteHeader` is absolutely positioned at the top of the page and is
  * `text-white` on a transparent background, because every normal page opens
- * with a dark hero behind it. The template picks the ink tone by pathname,
- * which cannot work for the 404: it renders at whatever URL was requested.
- * A direct request to a missing URL gets no chrome at all, but a client-side
- * navigation carries the previous page's header across, leaving white text on
- * the white 404.
+ * with a dark hero behind it. `FrontendTemplate` picks the header's `tone`
+ * prop by pathname, which cannot work for the 404: `notFound()` renders at
+ * whatever URL was actually requested, so a check like
+ * `segments[0] === 'not-found'` can never match — there is no real request
+ * whose path is literally `/not-found`. A direct request to a missing URL
+ * therefore always gets `tone="dark"`, and a client-side navigation can also
+ * carry the previous page's tone across.
  *
  * So the page declares itself instead of the template guessing: any page
- * marked `data-light-chrome` recolours the header that sits over it. Only the
- * `color` of the header element is set, so descendants that carry their own
- * colour — the brass CTA, the dark mobile drawer — are left alone and only
- * the inherited text follows.
+ * marked `data-light-chrome` recolours the header that sits over it,
+ * regardless of what `tone` it was actually given.
+ *
+ * This has to reach every element inside `<header>`, not just the header
+ * element's own inherited color. `SiteHeader` does not rely on inheritance —
+ * its mobile bar, desktop nav links, phone number and Contact button each set
+ * `text-white`/`border-white/*` directly on themselves via the `tone` ternary
+ * (see `linkClassName`, `DesktopPhone`, the `outline-light` button variant),
+ * so overriding only `header`'s own color left all of that untouched — which
+ * is the entire visible top bar. Hence the descendant selector below rather
+ * than a single one on `header` itself.
+ *
+ * This is safe to make broad: the two things inside `SiteHeader` that must
+ * NOT follow this override — the mobile drawer's white-on-`#29344F` menu, and
+ * its brass "Request a Quote" button — are both siblings of `<header>` in the
+ * markup, not descendants of it, so `header *` never reaches them.
  */
-div:has([data-light-chrome]) > header {
+div:has([data-light-chrome]) > header,
+div:has([data-light-chrome]) > header * {
   color: var(--color-ink-2);
   border-color: var(--color-line);
 }

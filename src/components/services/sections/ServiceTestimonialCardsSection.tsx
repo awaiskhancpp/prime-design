@@ -173,7 +173,7 @@ export function ServiceTestimonialCardsSection({ items }: { items: TestimonialCa
   return (
     <Section className="">
       <div className="mx-auto max-w-6xl">
-        <div className="grid gap-5 lg:grid-cols-[1.15fr_1fr]">
+        <div className="grid items-start gap-5 lg:grid-cols-[1.15fr_1fr]">
           <div className="lg:row-span-2">
             <PrimaryCard testimonial={primary} />
           </div>

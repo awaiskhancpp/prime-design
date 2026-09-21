@@ -45,7 +45,11 @@ export async function ThankYouPage() {
   const phone = settings.phone
 
   return (
-    <div className="min-h-screen bg-white">
+    // `data-light-chrome`: plain white page, no dark hero — recolours the
+    // overlaid header, including `SiteHeader`'s mobile bar, which ignores the
+    // `tone` prop `FrontendTemplate` otherwise gets right for `/thank-you`.
+    // See the CSS rule in `styles.css`.
+    <div data-light-chrome className="min-h-screen bg-white">
       <UtilityHero
         eyebrow="Message received"
         display={

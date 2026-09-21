@@ -685,7 +685,16 @@ export function renderSection(
   if (blockType === 'faq') {
     if (singletonKeys.has('service-faq')) return null
     singletonKeys.add('service-faq')
-    return { key: 'service-faq', node: <ServiceFaqLoader slug={service.slug} /> }
+    return {
+      key: 'service-faq',
+      node: (
+        <ServiceFaqLoader
+          slug={service.slug}
+          heading={headingText || undefined}
+          description={descriptionText(block) || undefined}
+        />
+      ),
+    }
   }
 
   if (blockType === 'service-areas') {
