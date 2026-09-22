@@ -6,46 +6,16 @@ import { Section } from '@/components/ui/Section'
 import { HighlightedText } from '@/components/ui/HighlightedText'
 import type { PageDifferenceContent } from '@/lib/pageSections'
 import { RichTextContent } from '@/components/rich-text/RichTextContent'
-import type { SiteSettingsValue } from '@/lib/siteSettings'
 import { cn } from '@/lib/utils'
 import { ArrowRight, Check, ChevronLeft, ChevronRight, Play } from 'lucide-react'
 import Link from 'next/link'
 import Image from 'next/image'
 
-/**
- * WordPress homepage review badges (Bricks image elements whose `link` is the
- * matching ACF option: `{acf_yelp}`, `{acf_google_business_link}`,
- * `{acf_houzz}`, `{acf_bbb}`). The URLs come from Site Settings; the `key`
- * maps each badge to its link field. `width`/`height` are each file's real
- * pixel size — the row is sized by height so nothing gets squashed.
- */
-const socialBadges = [
-  { key: 'yelp', image: '/social/Yelp.png', label: 'Yelp reviews', width: 300, height: 158 },
-  {
-    key: 'googleBusiness',
-    image: '/social/Google.png',
-    label: 'Google reviews',
-    width: 300,
-    height: 158,
-  },
-  { key: 'houzz', image: '/social/houzz.png', label: 'Houzz profile', width: 300, height: 158 },
-  {
-    key: 'bbb',
-    image: '/social/BB-ACCREDITED.jpeg',
-    label: 'Better Business Bureau accredited business',
-    width: 300,
-    height: 114,
-  },
-] as const
-
 export function LandscapingDifference({
   difference,
-  socialLinks,
   projectHrefByVideo,
 }: {
   difference?: PageDifferenceContent
-  /** Review-profile URLs from Site Settings (Google / Yelp / Houzz / BBB). */
-  socialLinks?: SiteSettingsValue['socialLinks']
   /** Video filename -> project URL, resolved from the Projects collection. */
   projectHrefByVideo?: Record<string, string>
 }) {
@@ -81,40 +51,9 @@ export function LandscapingDifference({
   const checklist = difference?.checklist ?? []
 
   return (
+    // No review badges here any more: they moved into the proof band at the
+    // top of `LandscapingIntro`, beside the stats they corroborate.
     <Section className="">
-      <div className="mb-16 flex flex-wrap items-center justify-center gap-x-10 border-y border-line py-8 gap-y-6">
-        {socialBadges.map((badge) => {
-          const href = socialLinks?.[badge.key]
-          const image = (
-            <Image
-              src={badge.image}
-              alt=""
-              aria-hidden="true"
-              width={badge.width}
-              height={badge.height}
-              className="h-12 w-auto object-contain opacity-90 transition-opacity duration-300 group-hover:opacity-100 sm:h-14"
-            />
-          )
-
-          return href ? (
-            <a
-              key={badge.key}
-              href={href}
-              target="_blank"
-              rel="noopener noreferrer"
-              aria-label={`${badge.label} (opens in a new tab)`}
-              className="group inline-flex items-center justify-center focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brass focus-visible:ring-offset-4"
-            >
-              {image}
-            </a>
-          ) : (
-            <span key={badge.key} className="group inline-flex items-center justify-center">
-              {image}
-            </span>
-          )
-        })}
-      </div>
-
       {/* Heading banner — eyebrow + heading sit above the whole showcase,
           framing it as one story to scroll through rather than a heading
           competing side-by-side with the video for attention. */}

@@ -108,6 +108,7 @@ function PageSectionNode({
       return (
         <LandscapingIntro
           intro={section.content}
+          socialLinks={context.socialLinks}
           bodyContent={
             section.content.body ? <RichTextContent data={section.content.body} /> : undefined
           }
@@ -118,7 +119,6 @@ function PageSectionNode({
       return (
         <LandscapingDifference
           difference={section.content}
-          socialLinks={context.socialLinks}
           projectHrefByVideo={context.projectHrefByVideo}
         />
       )
