@@ -3,7 +3,7 @@ import { ArrowUpRight } from 'lucide-react'
 
 import { Button } from '@/components/ui/Button'
 import { Section } from '@/components/ui/Section'
-import { HighlightedText } from '@/components/ui/HighlightedText'
+import { SectionHeader } from '@/components/ui/SectionHeader'
 import { RichTextContent } from '@/components/rich-text/RichTextContent'
 import type { PageGuidingPrincipleContent as AboutGuidingPrincipleValue } from '@/lib/pageSections'
 
@@ -27,12 +27,15 @@ export function GuidingPrinciple({
   return (
     <Section className="bg-white">
       <div className="grid gap-10 lg:grid-cols-[0.9fr_1.1fr] lg:gap-12">
-        <div>
-          <p className="text-xs font-semibold uppercase tracking-[0.24em] text-brass">{eyebrow}</p>
-          <h2 className="mt-5 max-w-xl font-display text-4xl font-medium leading-tight tracking-tight text-ink-2 md:text-6xl">
-            <HighlightedText text={heading} highlight={guidingPrinciple?.headingHighlight} />
-          </h2>
-        </div>
+        {/* Heading column. The brass phrases are the CMS `headingHighlight`
+            value, now applied through the shared header rather than by this
+            section reaching for `HighlightedText` itself. */}
+        <SectionHeader
+          size="lg"
+          eyebrow={eyebrow}
+          title={heading}
+          titleHighlight={guidingPrinciple?.headingHighlight}
+        />
 
         <div className="max-w-2xl text-base leading-8 text-ink-2/75 md:text-lg">
           {guidingPrinciple?.body ? <RichTextContent data={guidingPrinciple.body} /> : null}

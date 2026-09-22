@@ -1,6 +1,7 @@
 import Image from 'next/image'
 
 import { Section } from '@/components/ui/Section'
+import { SectionHeader } from '@/components/ui/SectionHeader'
 import { RichTextContent } from '@/components/rich-text/RichTextContent'
 import type { PageCoreValuesContent as AboutCoreValuesValue } from '@/lib/pageSections'
 
@@ -15,16 +16,11 @@ export function CoreValues({ coreValues }: { coreValues?: AboutCoreValuesValue }
 
   return (
     <Section className="bg-white text-ink-2">
-      <div className="mx-auto max-w-3xl">
-        <h2 className="mx-auto mt-4 max-w-xl text-center font-display text-4xl font-medium leading-tight tracking-tight text-ink-2 md:text-6xl">
-          {heading}
-        </h2>
-        {description ? (
-          <p className="mx-auto mt-6 max-w-3xl text-center text-base leading-7 text-ink-2/75 md:text-lg">
-            {description}
-          </p>
-        ) : null}
-      </div>
+      {/* Centered header over a grid — the `lg` set-piece size, with the
+          standing "Our values" label. The heading and description are the
+          migrated WordPress strings, untouched; the eyebrow is the only
+          addition, and there is no CMS field for it yet. */}
+      <SectionHeader align="center" size="lg" eyebrow="Our values" title={heading} description={description} />
 
       <div className="mt-14 grid gap-px bg-line md:grid-cols-2 lg:grid-cols-3">
         {values.map((value) => {

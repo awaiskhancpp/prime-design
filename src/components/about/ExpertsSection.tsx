@@ -2,6 +2,7 @@ import Image from 'next/image'
 import { ArrowRight } from 'lucide-react'
 
 import { Section } from '@/components/ui/Section'
+import { SectionHeader } from '@/components/ui/SectionHeader'
 import { Button } from '@/components/ui/Button'
 import { RichTextContent } from '@/components/rich-text/RichTextContent'
 import type { PageExpertsContent as AboutExpertsValue } from '@/lib/pageSections'
@@ -27,12 +28,9 @@ export function ExpertsSection({ experts }: { experts?: AboutExpertsValue }) {
 
   return (
     <Section className="bg-white">
-      <div className="flex flex-col items-center text-center">
-        <p className="text-xs font-semibold uppercase tracking-[0.24em] text-brass">{eyebrow}</p>
-        <h2 className="mt-4 max-w-3xl font-display text-4xl font-medium leading-tight tracking-tight text-ink-2 md:text-6xl">
-          {heading}
-        </h2>
-      </div>
+      {/* The section's own eyebrow and heading come from the CMS; the body
+          rich text keeps its place in the left column below. */}
+      <SectionHeader align="center" size="lg" eyebrow={eyebrow} title={heading} />
 
       <div className="mt-14 grid grid-cols-1 gap-12 lg:grid-cols-12 lg:gap-16">
         <div className="flex flex-col justify-center lg:col-span-5">

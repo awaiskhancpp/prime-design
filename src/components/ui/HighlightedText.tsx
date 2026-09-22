@@ -10,9 +10,13 @@ import { Fragment } from 'react'
 export function HighlightedText({
   text,
   highlight,
+  className = 'text-brass',
 }: {
   text: string
   highlight?: string | null
+  /** Accent class for the matched phrases — overridden on dark bands, where
+   *  brass-on-ink loses the contrast the accent is there to provide. */
+  className?: string
 }) {
   const phrases = (highlight || '')
     .split('|')
@@ -31,7 +35,7 @@ export function HighlightedText({
     <>
       {parts.map((part, index) =>
         isHighlight(part) ? (
-          <span key={`${part}-${index}`} className="text-brass">
+          <span key={`${part}-${index}`} className={className}>
             {part}
           </span>
         ) : (

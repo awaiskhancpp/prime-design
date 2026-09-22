@@ -1,6 +1,7 @@
 import Image from 'next/image'
 import { ArrowUpRight } from 'lucide-react'
 
+import { SectionHeader } from '@/components/ui/SectionHeader'
 import { Container } from '@/components/ui/Container'
 import type { PageSocialProofContent } from '@/lib/pageSections'
 import type { SiteSettingsValue } from '@/lib/siteSettings'
@@ -59,22 +60,17 @@ export function SocialProofSection({
   return (
     <section className=" py-14 md:py-20">
       <Container>
-        {content?.eyebrow || content?.heading || content?.description ? (
-          <div className="mx-auto max-w-2xl text-center">
-            {content.eyebrow ? (
-              <p className="text-[11px] font-semibold uppercase tracking-[0.24em] text-brass">
-                {content.eyebrow}
-              </p>
-            ) : null}
-            {content.heading ? (
-              <h2 className="mt-3 font-display text-2xl font-medium leading-tight text-ink-2 md:text-3xl">
-                {content.heading}
-              </h2>
-            ) : null}
-            {content.description ? (
-              <p className="mt-3 text-base leading-7 text-ink-2/65">{content.description}</p>
-            ) : null}
-          </div>
+        {/* A strip of review-platform links, so its header is the `sm` size:
+            it introduces the cards without competing with the page's own
+            section headings. */}
+        {content?.heading ? (
+          <SectionHeader
+            align="center"
+            size="sm"
+            eyebrow={content.eyebrow}
+            title={content.heading}
+            description={content.description}
+          />
         ) : null}
 
         {/* One column per platform actually shown, so a missing link leaves
