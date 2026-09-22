@@ -4,7 +4,7 @@ import { getPayload } from 'payload'
 
 import configPromise from '@payload-config'
 import { dispatchLeadIntegrations } from '@/lib/leadIntegrations'
-import { verifyRecaptcha } from '@/lib/recaptcha'
+import { verifyCaptcha } from '@/lib/captcha'
 import {
   email as emailRule,
   minWords,
@@ -104,11 +104,16 @@ export async function POST(request: Request) {
     return NextResponse.json({ ok: true }, { status: 200 })
   }
 
-  // ---- spam gate 3: reCAPTCHA ------------------------------------------
-  // Inert until RECAPTCHA_SECRET_KEY exists; enforcing the moment it does.
+  // ---- spam gate 3: captcha --------------------------------------------
+  // Cloudflare Turnstile when TURNSTILE_SECRET_KEY is set, reCAPTCHA when only
+  // that pair is, inert when neither — `lib/captcha.ts` decides, and the
+  // request body has no say in it. `recaptchaToken` is still accepted so a
+  // page served before this change, still open in someone's browser, does not
+  // have its submission rejected.
   const forwarded = request.headers.get('x-forwarded-for') ?? ''
   const ip = forwarded.split(',')[0]?.trim() || ''
-  const captcha = await verifyRecaptcha(str(body.recaptchaToken, 4000) || undefined, ip)
+  const token = str(body.captchaToken, 4000) || str(body.recaptchaToken, 4000) || undefined
+  const captcha = await verifyCaptcha(token, ip)
   if (captcha.error) {
     return NextResponse.json({ error: captcha.error }, { status: 400 })
   }
@@ -160,6 +165,9 @@ export async function POST(request: Request) {
         source,
         status: 'new',
         sourceUrl: str(body.sourceUrl, 500) || undefined,
+        // Provider-neutral in meaning despite the name: the stored column
+        // predates Turnstile and renaming it needs a migration, which §8b of
+        // CLAUDE.md blocks. Turnstile never sets a score.
         recaptchaStatus: captcha.status,
         recaptchaScore: captcha.score,
         notificationStatus: 'pending',

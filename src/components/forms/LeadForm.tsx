@@ -1,12 +1,12 @@
 'use client'
 
-import { useCallback, useEffect, useRef, useState, type FormEvent } from 'react'
+import { useEffect, useRef, useState, type FormEvent } from 'react'
 
 import { Button } from '@/components/ui/Button'
 import { Input } from '@/components/ui/Input'
 import { Textarea } from '@/components/ui/Textarea'
 import { cn } from '@/lib/utils'
-import { Recaptcha, recaptchaEnabled } from './Recaptcha'
+import { Captcha, captchaEnabled, type CaptchaHandle } from './Captcha'
 import {
   email as emailRule,
   minWords,
@@ -92,8 +92,12 @@ export function LeadForm({
   const [sending, setSending] = useState(false)
   const [formError, setFormError] = useState<string>()
   const [done, setDone] = useState(false)
-  const [captchaToken, setCaptchaToken] = useState<string>()
   const [honeypot, setHoneypot] = useState('')
+  // Captcha tokens are single-use and time-limited, so the token is read from
+  // the widget at submit time rather than mirrored into React state when the
+  // challenge is solved — a person who solves it and then spends a few minutes
+  // writing their message would otherwise post an expired token.
+  const captcha = useRef<CaptchaHandle>(null)
   // Submissions faster than a couple of seconds after render are bots. The
   // clock is read in an effect, not during render — `Date.now()` is impure, so
   // calling it in the render body is both a lint error and unstable across
@@ -103,7 +107,6 @@ export function LeadForm({
   useEffect(() => {
     renderedAt.current = Date.now()
   }, [])
-  const handleToken = useCallback((token: string | undefined) => setCaptchaToken(token), [])
 
   const setValue = (name: FieldName, value: string) => {
     setValues((previous) => ({ ...previous, [name]: value }))
@@ -130,7 +133,8 @@ export function LeadForm({
       document.getElementById(`lead-${firstInvalid}`)?.focus()
       return
     }
-    if (recaptchaEnabled() && !captchaToken) {
+    const captchaToken = captcha.current?.getToken()
+    if (captchaEnabled() && !captchaToken) {
       setFormError('Please complete the captcha.')
       return
     }
@@ -145,7 +149,7 @@ export function LeadForm({
           ...values,
           source,
           sourceUrl: typeof window === 'undefined' ? undefined : window.location.href,
-          recaptchaToken: captchaToken,
+          captchaToken,
           renderedAt: renderedAt.current,
           // Honeypot — a real person never fills this in.
           company: honeypot,
@@ -164,11 +168,14 @@ export function LeadForm({
       setValues(EMPTY)
       setTouched({})
       setSubmitted(false)
-      setCaptchaToken(undefined)
     } catch {
       setFormError('Could not reach the server. Please try again or call us.')
     } finally {
       setSending(false)
+      // The token was spent the moment the server checked it, and a rejected
+      // one is spent too — re-arm the widget either way, or a second attempt
+      // after a validation error fails on a used token.
+      captcha.current?.reset()
     }
   }
 
@@ -232,7 +239,7 @@ export function LeadForm({
         />
       </div>
 
-      <Recaptcha onToken={handleToken} />
+      <Captcha ref={captcha} />
 
       {formError ? (
         <p role="alert" className="text-sm text-red-600">
