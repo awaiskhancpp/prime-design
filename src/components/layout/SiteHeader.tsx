@@ -3,7 +3,7 @@
 import { ChevronDown, ChevronRight, Menu, X } from 'lucide-react'
 import Image from 'next/image'
 import Link from 'next/link'
-import { useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 
 import website from '../../../website.json'
 import { Button } from '@/components/ui/Button'
@@ -14,6 +14,13 @@ import { BrandMark } from './BrandMark'
 
 // Client component (mobile drawer state); server data arrives via props.
 
+/**
+ * Fallback pin threshold, used only when the header could not be measured —
+ * a page restored mid-scroll, say. Roughly the banner (38px) plus the mobile
+ * bar (84px); the measured value replaces it as soon as the page is at rest.
+ */
+const FALLBACK_PIN_AFTER = 122
+
 export function SiteHeader({
   tone = 'dark',
   variant = 'full',
@@ -23,7 +30,52 @@ export function SiteHeader({
 }) {
   const [isMenuOpen, setIsMenuOpen] = useState(false)
 
-  const isLight = tone === 'light'
+  /**
+   * The header rests over the hero and pins to the top once it has scrolled
+   * past its resting place.
+   *
+   * The TopBanner above it is deliberately NOT pinned. It carries the address,
+   * email, opening hours and phone — reference details you read once on
+   * arrival, not while scrolling — and pinning both would cost about 122px of
+   * every viewport permanently, which on a phone is a sixth of the screen for
+   * the whole visit. Its one actionable item, the phone number, is already in
+   * the pinned bar (`DesktopPhone` on desktop, the Request a Quote action on
+   * mobile), so nothing becomes unreachable when it scrolls away.
+   */
+  const headerRef = useRef<HTMLElement | null>(null)
+  const [pinned, setPinned] = useState(false)
+
+  useEffect(() => {
+    // Measured rather than hardcoded: the banner can be switched off in the
+    // CMS, and the bar's height differs between the mobile and desktop
+    // layouts, so the point at which the header leaves the viewport is not a
+    // constant. Measuring is only valid from the resting position, so it is
+    // taken while the page is scrolled to the top.
+    let restingBottom = 0
+    const measure = () => {
+      const element = headerRef.current
+      if (element && window.scrollY === 0) {
+        restingBottom = element.getBoundingClientRect().bottom
+      }
+    }
+    const sync = () => setPinned(window.scrollY > (restingBottom || FALLBACK_PIN_AFTER))
+
+    measure()
+    sync()
+    window.addEventListener('scroll', sync, { passive: true })
+    window.addEventListener('resize', measure)
+    return () => {
+      window.removeEventListener('scroll', sync)
+      window.removeEventListener('resize', measure)
+    }
+  }, [])
+
+  // Pinned, the bar sits on solid ink over whatever section happens to be
+  // passing beneath it, so the light treatment — dark text, meant for a white
+  // hero — would be unreadable. Resolving the tone once here keeps the nav
+  // links, the phone and the Contact button from having to each know that.
+  const effectiveTone = pinned ? 'dark' : tone
+  const isLight = effectiveTone === 'light'
   const isMinimal = variant === 'minimal'
 
   const primaryLinks = website.nav.filter(({ label }) =>
@@ -35,14 +87,23 @@ export function SiteHeader({
   return (
     <>
       <header
+        ref={headerRef}
+        data-pinned={pinned ? 'true' : undefined}
         className={cn(
-          'absolute inset-x-0 top-0 z-40 border-b transition-colors duration-200',
+          'inset-x-0 top-0 border-b transition-colors duration-200',
 
-          // Mobile and tablet: transparent
-          'border-white/10 bg-transparent text-white',
-
-          // Desktop tone
-          isLight ? 'lg:border-line lg:text-ink-2' : 'lg:border-white/20 lg:text-white',
+          pinned
+            ? // Pinned: out of flow at the top of the viewport, on solid ink so
+              // the links stay legible over any section scrolling under it.
+              // `animate-header-drop` slides it in rather than letting it
+              // appear from nowhere the instant the threshold is crossed.
+              'fixed z-50 animate-header-drop border-white/10 bg-ink text-white shadow-lg shadow-ink/20 lg:border-white/15 lg:text-white'
+            : cn(
+                // At rest: exactly as before — overlaying the hero, taking no
+                // space in the flow, so no page's hero moves.
+                'absolute z-40 border-white/10 bg-transparent text-white',
+                isLight ? 'lg:border-line lg:text-ink-2' : 'lg:border-white/20 lg:text-white',
+              ),
         )}
       >
         {/* =========================
@@ -176,7 +237,7 @@ export function SiteHeader({
             ) : null}
 
             <div className="flex items-center gap-5">
-              <DesktopPhone tone={tone} />
+              <DesktopPhone tone={effectiveTone} />
 
               <Button
                 href={isMinimal ? '#contact' : '/contact'}

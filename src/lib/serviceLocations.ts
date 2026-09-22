@@ -7,7 +7,13 @@ import type {
   ServiceLocation as PayloadServiceLocation,
 } from '@/payload-types'
 
-export type Location = { name: string; slug: string }
+export type Location = {
+  name: string
+  slug: string
+  /** Coverage-map pin. Optional — see `SiteArea` in `lib/siteSettings`. */
+  latitude?: number
+  longitude?: number
+}
 export type ServiceLocation = {
   serviceSlug: string
   location: Location

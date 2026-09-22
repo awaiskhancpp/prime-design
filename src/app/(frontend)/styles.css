@@ -14,6 +14,7 @@
   /* --animate-blink-slow: blink-slow 2.6s ease-in-out infinite; */
   --animate-fade-in: fade-in 0.4s ease-out;
    --animate-marquee: marquee 48s linear infinite;
+  --animate-header-drop: header-drop 0.28s ease-out;
 }
 
 /* @keyframes blink-slow {
@@ -38,6 +39,16 @@
   }
 }
  
+/* The sticky header sliding in when it pins to the top of the viewport. */
+@keyframes header-drop {
+  from {
+    transform: translateY(-100%);
+  }
+  to {
+    transform: translateY(0);
+  }
+}
+
 @keyframes fade-in {
   from {
     opacity: 0;
@@ -112,4 +123,18 @@ div:has([data-light-chrome]) > header,
 div:has([data-light-chrome]) > header * {
   color: var(--color-ink-2);
   border-color: var(--color-line);
+}
+
+/*
+ * ...except once the header has pinned. Pinned it sits on solid ink rather
+ * than over the page, so the dark-on-white treatment above would be dark on
+ * dark. This has to repeat the `div:has(...)` part to outweigh that rule
+ * rather than merely follow it: both select `header *`, so specificity, not
+ * source order, decides which wins for the nav links and phone number that
+ * set their own colour.
+ */
+div:has([data-light-chrome]) > header[data-pinned],
+div:has([data-light-chrome]) > header[data-pinned] * {
+  color: #fff;
+  border-color: color-mix(in srgb, #fff 15%, transparent);
 }

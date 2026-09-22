@@ -51,6 +51,7 @@ import * as migration_20260919_110000_project_excerpt from './20260919_110000_pr
 import * as migration_20260919_120000_page_social_proof_block from './20260919_120000_page_social_proof_block';
 import * as migration_20260919_130000_cta_body_rich_text from './20260919_130000_cta_body_rich_text';
 import * as migration_20260919_140000_sub_services_buttons from './20260919_140000_sub_services_buttons';
+import * as migration_20260922_170000_location_coordinates from './20260922_170000_location_coordinates';
 
 export const migrations = [
   {
@@ -317,5 +318,10 @@ export const migrations = [
     up: migration_20260919_140000_sub_services_buttons.up,
     down: migration_20260919_140000_sub_services_buttons.down,
     name: '20260919_140000_sub_services_buttons',
+  },
+  {
+    up: migration_20260922_170000_location_coordinates.up,
+    down: migration_20260922_170000_location_coordinates.down,
+    name: '20260922_170000_location_coordinates',
   },
 ];

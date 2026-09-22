@@ -1884,6 +1884,14 @@ export interface Location {
   name: string;
   slug: string;
   seoDescription?: string | null;
+  /**
+   * Decimal degrees, north positive. Silicon Valley is around 37.4.
+   */
+  latitude?: number | null;
+  /**
+   * Decimal degrees, east positive — so west of Greenwich is negative (-122.0).
+   */
+  longitude?: number | null;
   featuredImage?: (number | null) | Media;
   /**
    * Search-engine and social-share metadata. Titles and descriptions are migrated from the WordPress Rank Math data — keep them unique per page.
@@ -5808,6 +5816,8 @@ export interface LocationsSelect<T extends boolean = true> {
   name?: T;
   slug?: T;
   seoDescription?: T;
+  latitude?: T;
+  longitude?: T;
   featuredImage?: T;
   seo?:
     | T

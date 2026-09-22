@@ -1,8 +1,5 @@
-import { LandscapingCta } from '@/components/blocks/LandscapingCta'
 import { LandscapingServiceAreas } from '@/components/blocks/LandscapingServiceAreas'
 import { PageHero } from '@/components/layout/PageHero'
-import { SiteFooter } from '@/components/layout/SiteFooter'
-import { SiteHeader } from '@/components/layout/SiteHeader'
 import type { Page } from '@/lib/pages'
 import { resolveServices } from '@/lib/services'
 import { resolveSiteSettings } from '@/lib/siteSettings'
@@ -12,12 +9,17 @@ import { PageSections, type PageSectionContext } from './PageSections'
  * Generic page renderer. It renders the same section blocks as the homepage,
  * About and Gallery pages, so any section can be used on any page. Pages that
  * also have a bespoke route (home/about/gallery) are rendered by that route.
+ *
+ * It renders no site chrome of its own. `FrontendTemplate` is the single place
+ * that decides whether a page gets the banner, header, CTA and footer, and it
+ * excludes Google Ads pages. This component used to re-add `SiteHeader`,
+ * `LandscapingCta` and `SiteFooter` for exactly those pages, which cancelled
+ * the exclusion out: an ads page was stripped of the chrome by the template
+ * and then handed it straight back here. Two components rendering the same
+ * chrome is how they drift apart — the copy here never received the `tone`
+ * the template works out, so it was always the dark variant.
  */
 export async function PayloadPage({ page }: { page: Page }) {
-  // Google Ads pages are excluded from the shared layout chrome, so they
-  // keep rendering their own header, CTA and footer here. Regular pages
-  // get all of that from the layout instead.
-  const isAdsPage = page.isGoogleAdsPage
   const settings = await resolveSiteSettings()
   const services = await resolveServices()
 
@@ -33,8 +35,6 @@ export async function PayloadPage({ page }: { page: Page }) {
 
   return (
     <div className="min-h-screen bg-white">
-      {isAdsPage ? <SiteHeader /> : null}
-
       {!hasHeroSection ? (
         <PageHero
           eyebrow={page.hero?.eyebrow}
@@ -55,12 +55,6 @@ export async function PayloadPage({ page }: { page: Page }) {
       </main>
 
       <LandscapingServiceAreas />
-      {isAdsPage ? (
-        <>
-          <LandscapingCta />
-          <SiteFooter />
-        </>
-      ) : null}
     </div>
   )
 }

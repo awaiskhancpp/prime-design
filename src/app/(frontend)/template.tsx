@@ -32,11 +32,33 @@ import { getServiceLocation } from '@/lib/serviceLocations'
  * here because the decision is data-dependent (is this slug a landing page? a
  * service-location?) and cannot be expressed as a static route group — the
  * same dynamic routes serve both bare and chromed pages.
+ *
+ * This is the ONLY place the chrome is rendered. A page component must never
+ * render its own `SiteHeader`/`LandscapingCta`/`SiteFooter`: `PayloadPage` did
+ * exactly that for Google Ads pages, handing back the very chrome this file
+ * had just withheld from them.
+ *
+ * The whole decision rests on `x-pathname`, set by `src/proxy.ts`. If that
+ * header ever goes missing the pathname is empty, no branch matches, `bare`
+ * stays false and every landing and service-location page silently grows the
+ * chrome back. That is a failure worth shouting about rather than absorbing,
+ * so it is logged below instead of being quietly treated as a normal page.
  */
 export default async function FrontendTemplate({ children }: { children: React.ReactNode }) {
   const headersList = await headers()
   const pathname = headersList.get('x-pathname') || headersList.get('x-url') || ''
   const segments = pathname.split('/').filter(Boolean)
+
+  if (!pathname) {
+    // Not recoverable here — without a path there is nothing to look up — but
+    // it must not be silent. Every bare page is about to be given the chrome.
+    console.error(
+      '[FrontendTemplate] no `x-pathname` header on this request, so no page can be ' +
+        'identified as a Google Ads landing page or a service-location page, and all of ' +
+        'them will render the shared chrome. Check that src/proxy.ts is running and that ' +
+        'its matcher covers this path.',
+    )
+  }
 
   let bare = false
   if (segments.length === 2) {

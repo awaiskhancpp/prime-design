@@ -54,7 +54,10 @@ export type SiteSettingsValue = {
   }
 }
 
-export type SiteArea = { name: string; slug: string }
+/** `latitude`/`longitude` drive this area's pin on the coverage map. They are
+ *  optional because a location record can exist before anyone sets them; the
+ *  map reports any area it cannot place rather than dropping it silently. */
+export type SiteArea = { name: string; slug: string; latitude?: number; longitude?: number }
 
 // Canonical fallback values (harvested from the live WordPress site; the
 // ACF option values WordPress did not export).
@@ -111,7 +114,17 @@ type PayloadSiteSettings = {
     houzz?: string | null
     bbb?: string | null
   } | null
-  serviceAreas?: Array<{ location?: { name?: string | null; slug?: string | null } } | number> | null
+  serviceAreas?: Array<
+    | {
+        location?: {
+          name?: string | null
+          slug?: string | null
+          latitude?: number | null
+          longitude?: number | null
+        }
+      }
+    | number
+  > | null
   trustIntro?: {
     eyebrow?: string | null
     heading?: string | null
@@ -120,6 +133,13 @@ type PayloadSiteSettings = {
     stats?: Array<{ value?: string | null; label?: string | null; showStars?: boolean | null }> | null
     buttons?: Array<{ label?: string | null; url?: string | null; variant?: string | null }> | null
   } | null
+}
+
+/** Payload stores a `number` field as Postgres `numeric`, which comes back as
+ *  a string through some driver paths — coerce rather than trust the type. */
+const numberOr = (value: number | string | null | undefined) => {
+  const parsed = typeof value === 'string' ? Number(value) : value
+  return typeof parsed === 'number' && Number.isFinite(parsed) ? parsed : undefined
 }
 
 const textOr = (value: string | null | undefined) =>
@@ -135,12 +155,23 @@ export async function resolveSiteAreas(): Promise<SiteArea[]> {
   const payload = await getPayload({ config: configPromise })
   const settings = (await payload.findGlobal({ slug: 'site-settings', depth: 1 })) as PayloadSiteSettings
   const areas = settings.serviceAreas
-    ?.filter((area): area is { location?: { name?: string | null; slug?: string | null } } =>
-      typeof area === 'object',
+    ?.filter(
+      (
+        area,
+      ): area is {
+        location?: {
+          name?: string | null
+          slug?: string | null
+          latitude?: number | null
+          longitude?: number | null
+        }
+      } => typeof area === 'object',
     )
     .map((area) => ({
       name: area.location?.name || '',
       slug: area.location?.slug || area.location?.name?.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '') || '',
+      latitude: numberOr(area.location?.latitude),
+      longitude: numberOr(area.location?.longitude),
     }))
     .filter((area) => area.name)
 

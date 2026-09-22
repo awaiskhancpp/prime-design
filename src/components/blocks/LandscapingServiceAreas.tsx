@@ -1,18 +1,25 @@
 /**
- * LandscapingServiceAreas — with interactive Leaflet map
+ * LandscapingServiceAreas — the "Areas we service" section.
  *
- * Map library: vanilla Leaflet loaded dynamically (avoids SSR hydration
- * mismatch that plagues react-leaflet in Next.js App Router).
+ * The left column lists every service area as a linked badge; the right is the
+ * coverage map (`ServiceAreasMap`), which is built directly on the Google Maps
+ * JavaScript API — no Leaflet, no map wrapper package. See that file for the
+ * basemap and pin design.
  *
- * Tiles: CartoDB Positron — minimal, near-white, no API key required.
- * Markers: brass-coloured SVG circles, pulse-ring on hover.
+ * ── Where the pins come from ──────────────────────────────────────────────
  *
- * Install once:
- *   npm install leaflet
- *   npm install --save-dev @types/leaflet
+ * Each area's pin position is a Payload field: `locations.latitude` /
+ * `locations.longitude`, editable per location in the admin. `CITY_COORDS`
+ * below is the no-database fallback only.
  *
- * Add to next.config.ts transpilePackages if needed:
- *   transpilePackages: ['leaflet']
+ * This used to be the other way round — `CITY_COORDS` was the source of truth
+ * and the marker list was built with `.filter((city) => CITY_COORDS[city])`,
+ * which dropped any area the hardcoded table did not happen to have a row
+ * for. SiteSettings lists 15 service areas; the table knew 14 of them; so
+ * "Silicon Valley" showed as a badge but never as a pin, and the section drew
+ * 15 badges beside 14 markers with nothing reporting the mismatch. Anything
+ * that still cannot be placed is now named in a server warning instead of
+ * vanishing.
  */
 
 import { ArrowUpRight } from 'lucide-react'
@@ -22,7 +29,7 @@ import { Section } from '@/components/ui/Section'
 import { getServiceAreas } from '@/lib/serviceAreas.server'
 import { resolveSiteAreas } from '@/lib/siteSettings'
 import { Button } from '../ui/Button'
-import { ServiceAreasMap } from './ServiceAreasMap'
+import { ServiceAreasMap, type MapMarker } from './ServiceAreasMap'
 import { Badge } from '../ui/Badge'
 
 const citySlug = (city: string) =>
@@ -35,8 +42,16 @@ const LOCATION_SERVICES = ['kitchen-remodeling', 'bathroom-remodeling', 'home-re
 const locationPrefix = (serviceSlug?: string) =>
   serviceSlug && LOCATION_SERVICES.includes(serviceSlug) ? serviceSlug : 'kitchen-remodeling'
 
-// Silicon Valley city coordinates — add / extend as location pages grow.
-// These are the cities Prime Design & Build actually services.
+/**
+ * No-database fallback for the map pins, used when `DATABASE_URL` is unset so
+ * the section still renders while working offline. Payload's
+ * `locations.latitude` / `locations.longitude` are the source of truth — never
+ * add a new area's coordinates only here, or it will be absent from the real
+ * site. Seeded into Payload by `scripts/set-location-coordinates.ts`.
+ *
+ * "Silicon Valley" is in this table too: it is a service area but not a city,
+ * so it had no entry and was the one area the old name lookup could not place.
+ */
 export const CITY_COORDS: Record<string, [number, number]> = {
   'San Jose': [37.3382, -121.8863],
   'Santa Clara': [37.3541, -121.9552],
@@ -68,6 +83,11 @@ export const CITY_COORDS: Record<string, [number, number]> = {
   Woodside: [37.4291, -122.2538],
   'Los Altos Hills': [37.358, -122.1469],
   'Monte Sereno': [37.2344, -121.9919],
+  // The region, not a city. Moffett Park — the most central point in the
+  // footprint that still clears every city pin by 6km, so the marker reads as
+  // its own rather than stacking on Sunnyvale (which the true centroid of the
+  // other pins, 37.3788/-122.0352, sits 1.1km from).
+  'Silicon Valley': [37.4224, -122.0252],
 }
 
 export async function LandscapingServiceAreas({
@@ -84,29 +104,52 @@ export async function LandscapingServiceAreas({
   // `sitemap.ts` and `ServiceAreasStrip.tsx`, which build this href correctly.
   const hrefFor = (city: string) => `/${prefix}/${prefix}-in-${citySlug(city)}`
 
-  let areaNames: string[] = []
+  // The badge list and the map are built from one list, so a badge can never
+  // again exist without the map having been given the chance to place it.
+  type Area = { name: string; latitude?: number; longitude?: number }
+  const fromCities = (names: string[]): Area[] => names.map((name) => ({ name }))
+
+  let areas: Area[] = []
   if (serviceSlug) {
-    const areas = await getServiceAreas(serviceSlug)
-    areaNames = areas.length
-      ? areas.map((a) => a.location.name)
+    const serviceAreas = await getServiceAreas(serviceSlug)
+    areas = serviceAreas.length
+      ? serviceAreas.map((a) => ({
+          name: a.location.name,
+          latitude: a.location.latitude,
+          longitude: a.location.longitude,
+        }))
       : configuredAreas.length
-        ? configuredAreas.map((a) => a.name)
-        : cities
+        ? configuredAreas
+        : fromCities(cities)
   } else {
-    areaNames = configuredAreas.length ? configuredAreas.map((a) => a.name) : cities
+    areas = configuredAreas.length ? configuredAreas : fromCities(cities)
   }
 
+  const areaNames = areas.map((area) => area.name)
   const headingText = headingProp || heading
 
-  // Build the marker list for the map — only cities we have coordinates for.
-  const markers = areaNames
-    .filter((city) => CITY_COORDS[city])
-    .map((city) => ({
-      name: city,
-      lat: CITY_COORDS[city][0],
-      lng: CITY_COORDS[city][1],
-      href: hrefFor(city),
-    }))
+  // Payload first, the offline table second, and a named report if neither can
+  // place an area — the silent `.filter()` this replaces is exactly how the
+  // section came to show one fewer pin than it had badges.
+  const markers: MapMarker[] = []
+  const unplaceable: string[] = []
+  for (const area of areas) {
+    const fallback = CITY_COORDS[area.name]
+    const lat = area.latitude ?? fallback?.[0]
+    const lng = area.longitude ?? fallback?.[1]
+    if (typeof lat !== 'number' || typeof lng !== 'number') {
+      unplaceable.push(area.name)
+      continue
+    }
+    markers.push({ name: area.name, lat, lng, href: hrefFor(area.name) })
+  }
+  if (unplaceable.length) {
+    console.warn(
+      `[LandscapingServiceAreas] ${unplaceable.length} of ${areas.length} service areas have no ` +
+        `coordinates and are missing from the map: ${unplaceable.join(', ')}. ` +
+        `Set latitude/longitude on the location in Payload.`,
+    )
+  }
 
   return (
     <Section className="bg-white px-0 pb-0 pt-16 md:pt-24">
@@ -126,7 +169,7 @@ export async function LandscapingServiceAreas({
 
           {/* City name list — compact, readable, linked */}
           <div className="mt-8 flex flex-wrap gap-x-2 gap-y-2">
-            {areaNames.map((city, i) => (
+            {areaNames.map((city) => (
               <span key={city} className="text-sm text-ink-2/70">
                 <a href={hrefFor(city)} className="transition-colors hover:text-brass-deep">
                   <Badge>{city}</Badge>

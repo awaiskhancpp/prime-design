@@ -69,7 +69,7 @@ export async function HomeProjects({ heading }: { heading?: string }) {
                 moves underneath it. */}
             <div
               aria-hidden="true"
-              className="absolute inset-0 bg-gradient-to-t from-ink via-ink/55 to-transparent opacity-85 transition-opacity duration-500 group-hover:opacity-100"
+              className="absolute inset-0 bg-gradient-to-t from-ink via-ink/35 to-transparent opacity-55 transition-opacity duration-500 group-hover:opacity-100"
             />
 
             <div className="relative p-5 md:p-6">

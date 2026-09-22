@@ -11,6 +11,12 @@ const cityOrder = [
   'Campbell', 'Redwood City', 'Cupertino',
 ]
 
+/** `numeric` columns can arrive as strings through some driver paths. */
+const numberOr = (value: number | string | null | undefined) => {
+  const parsed = typeof value === 'string' ? Number(value) : value
+  return typeof parsed === 'number' && Number.isFinite(parsed) ? parsed : undefined
+}
+
 /**
  * Server-side fetch of a service's city pages from Payload. The cities are
  * real `service-locations` records that link a `service` to a `location`, so
@@ -52,7 +58,15 @@ export async function getServiceAreas(serviceSlug: string): Promise<ServiceLocat
         const raw = doc as {
           slug?: string
           city?: string | null
-          location?: { name?: string | null; slug?: string | null } | number | null
+          location?:
+            | {
+                name?: string | null
+                slug?: string | null
+                latitude?: number | null
+                longitude?: number | null
+              }
+            | number
+            | null
           featuredImage?: { url?: string | null } | number | null
         }
         const location =
@@ -68,7 +82,14 @@ export async function getServiceAreas(serviceSlug: string): Promise<ServiceLocat
             : undefined
         return {
           serviceSlug,
-          location: { name, slug: location?.slug || '' },
+          location: {
+            name,
+            slug: location?.slug || '',
+            // Carried through so the coverage map can place this city from
+            // Payload rather than a hardcoded name lookup.
+            latitude: numberOr(location?.latitude),
+            longitude: numberOr(location?.longitude),
+          },
           slug: raw.slug || '',
           featuredImage,
         } as ServiceLocation
