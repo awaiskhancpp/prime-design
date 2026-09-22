@@ -15,6 +15,43 @@ import { SectionHeader } from '@/components/ui/SectionHeader'
 import 'swiper/css'
 import 'swiper/css/navigation'
 
+/** The largest `slidesPerView` in the breakpoints below. */
+const MAX_SLIDES_PER_VIEW = 3
+
+/**
+ * Loop mode needs comfortably more slides than fit on screen at once —
+ * strictly more than twice `slidesPerView`, not merely twice.
+ *
+ * This is what silently broke the carousel: six featured services against
+ * `slidesPerView: 3` is exactly twice, so Swiper 14 refused loop mode,
+ * logged "The number of slides is not enough for loop mode" to the console
+ * and fell back to a finite track. The carousel then dead-ended on the
+ * fourth card with the Next button doing nothing, even though `loop` was
+ * set and looked correct in the source.
+ */
+const MIN_SLIDES_FOR_LOOP = MAX_SLIDES_PER_VIEW * 2 + 1
+
+/**
+ * Repeat the services until there are enough slides for Swiper to loop.
+ *
+ * Padding the track is the fix Swiper's own warning recommends ("add more
+ * slides (or make duplicates)"). The alternatives were worse: lowering
+ * `slidesPerView` changes the layout, and showing all eleven services
+ * instead of the six would override the "Featured on homepage" checkboxes,
+ * which are a content decision.
+ *
+ * A repeat is invisible in use — a looping carousel shows the first card
+ * again after the last one anyway, which is the whole point.
+ */
+function padForLoop(services: Service[]): Service[] {
+  // One service cannot loop against itself, and zero would spin forever.
+  if (services.length < 2 || services.length >= MIN_SLIDES_FOR_LOOP) return services
+
+  const padded: Service[] = []
+  while (padded.length < MIN_SLIDES_FOR_LOOP) padded.push(...services)
+  return padded
+}
+
 export function HomeServices({
   heading,
   services = [],
@@ -24,6 +61,8 @@ export function HomeServices({
   services?: Service[]
 }) {
   const swiperRef = useRef<SwiperType | null>(null)
+  const slides = padForLoop(services)
+  const canLoop = services.length > 1
 
   return (
     <Section className="">
@@ -51,8 +90,8 @@ export function HomeServices({
 
       <Swiper
         modules={[Navigation]}
-        loop={services.length > 3}
-        loopAdditionalSlides={services.length}
+        loop={canLoop}
+        loopAdditionalSlides={MAX_SLIDES_PER_VIEW}
         loopPreventsSliding={false}
         onBeforeInit={(swiper) => {
           swiperRef.current = swiper
@@ -69,8 +108,10 @@ export function HomeServices({
         }}
         className="mt-10 [&_.swiper-slide]:h-auto"
       >
-        {services.map((service, index) => (
-          <SwiperSlide key={service.slug}>
+        {slides.map((service, index) => (
+          // `slides` can repeat a service to reach the loop minimum, so the
+          // slug alone is not unique here.
+          <SwiperSlide key={`${service.slug}-${index}`}>
             <Link
               href={`/services/${service.slug}`}
               className="group flex h-full flex-col border border-line transition-colors duration-300 hover:border-brass"

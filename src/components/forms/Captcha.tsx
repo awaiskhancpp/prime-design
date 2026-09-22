@@ -27,9 +27,8 @@ export type CaptchaHandle = {
   reset: () => void
 }
 
-/** Turnstile's own floor: no widget renders narrower than this. */
-const MIN_WIDTH = 300
-/** What the `flexible` widget measures at, used to reclaim the scaled-off gap. */
+/** Turnstile's natural size at `size: 'normal'`. */
+const WIDGET_WIDTH = 300
 const WIDGET_HEIGHT = 65
 
 const turnstileSiteKey = () => process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY
@@ -55,11 +54,16 @@ export function Captcha({
   // callback rather than an imperative getter.
   const [recaptchaToken, setRecaptchaToken] = useState<string>()
 
-  // The lead form's column is narrower than Turnstile's 300px floor on a phone
-  // — 237px at a 320px viewport — so the widget is scaled down to fit. Scaling
-  // rather than switching to the `compact` size on a breakpoint is deliberate:
-  // changing a render option re-mounts the widget, which would throw away a
-  // token the person had already earned if they so much as rotated the device.
+  // The widget renders at its own 300x65 and is left where it lands — it is a
+  // third-party control with its own internal layout, not a form field, so
+  // stretching it across the form only made it look like one.
+  //
+  // It still has to be scaled down on a phone, where the form column is
+  // narrower than 300px (237px at a 320px viewport) and the widget would
+  // otherwise be clipped. Scaling rather than switching to the `compact` size
+  // on a breakpoint is deliberate: changing a render option re-mounts the
+  // widget, which would throw away a token the person had already earned if
+  // they so much as rotated the device.
   const column = useRef<HTMLDivElement>(null)
   const [scale, setScale] = useState(1)
   useEffect(() => {
@@ -67,7 +71,7 @@ export function Captcha({
     if (!element || !siteKey) return
     const observer = new ResizeObserver(([entry]) => {
       const width = entry.contentRect.width
-      setScale(width >= MIN_WIDTH ? 1 : Math.max(width / MIN_WIDTH, 0.6))
+      setScale(width >= WIDGET_WIDTH ? 1 : Math.max(width / WIDGET_WIDTH, 0.6))
     })
     observer.observe(element)
     return () => observer.disconnect()
@@ -90,7 +94,7 @@ export function Captcha({
   return (
     <div
       ref={column}
-      // `min-w-0` matters: without it this grid item's 300px floor widens the
+      // `min-w-0` matters: without it this grid item's 300px width widens the
       // whole form on a phone instead of the widget scaling down inside it.
       // `mt-1` keeps the placement the reCAPTCHA widget had; `mb-3` matches the
       // 12px error-message slot the fields above space themselves with.
@@ -103,17 +107,17 @@ export function Captcha({
       <div
         style={
           scale < 1
-            ? { width: MIN_WIDTH, transform: `scale(${scale})`, transformOrigin: 'left top' }
+            ? { width: WIDGET_WIDTH, transform: `scale(${scale})`, transformOrigin: 'left top' }
             : undefined
         }
       >
         <Turnstile
           ref={widget}
           siteKey={siteKey}
-          // `flexible` fills the column wherever there is room for it, so the
-          // widget lines up with the inputs above it instead of sitting in a
-          // fixed 300px box inside a wider form.
-          options={{ theme, size: 'flexible' }}
+          // `normal` is Turnstile's own 300x65. Not `flexible`, which stretches
+          // the widget to whatever width it is given — across a full-width form
+          // that blew it up into a wide grey band.
+          options={{ theme, size: 'normal' }}
           // A token that expires while the form is still open silently becomes
           // unusable; fetch a fresh one rather than let the person discover it
           // when they submit.
