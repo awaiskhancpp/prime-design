@@ -3,6 +3,7 @@ import { Mail, MapPin, Phone } from 'lucide-react'
 import website from '../../../website.json'
 import { LeadForm } from '@/components/forms/LeadForm'
 import { Section } from '@/components/ui/Section'
+import { VideoPlayer } from '@/components/ui/VideoPlayer'
 import { SectionHeader } from '@/components/ui/SectionHeader'
 import { resolveSiteSettings } from '@/lib/siteSettings'
 
@@ -82,15 +83,12 @@ export async function Contact({ city, poster }: { city?: string; poster?: string
             {/* The implemented brass offset frame from your comments */}
 
             <div className="relative  w-full overflow-hidden  bg-ink z-10">
-              <video
-                className="h-full w-full object-cover"
-                controls
-                playsInline
-                preload="none"
+              <VideoPlayer
+                src={CONTACT_VIDEO}
                 poster={poster ?? CONTACT_VIDEO_POSTER}
-              >
-                <source src={CONTACT_VIDEO} type="video/mp4" />
-              </video>
+                label="the walkthrough"
+                className="h-full w-full"
+              />
             </div>
           </div>
         </div>

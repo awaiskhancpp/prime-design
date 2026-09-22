@@ -1,4 +1,4 @@
-import Image from 'next/image'
+import Image from '@/components/ui/Image'
 
 import { LandscapingServiceAreas } from '@/components/blocks/LandscapingServiceAreas'
 import { Section } from '@/components/ui/Section'

@@ -1,6 +1,6 @@
 'use client'
 
-import Image from 'next/image'
+import Image from '@/components/ui/Image'
 import { useState } from 'react'
 import { ChevronLeft, ChevronRight } from 'lucide-react'
 

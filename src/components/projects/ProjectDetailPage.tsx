@@ -1,4 +1,5 @@
-import Image from 'next/image'
+import Image from '@/components/ui/Image'
+import { VideoPlayer } from '@/components/ui/VideoPlayer'
 
 import { LandscapingServiceAreas } from '@/components/blocks/LandscapingServiceAreas'
 import { RichTextContent } from '@/components/rich-text/RichTextContent'
@@ -65,14 +66,12 @@ export function ProjectDetailPage({ project }: { project: Project }) {
             {project.video ? (
               <div className="min-w-0">
                 <div className="relative aspect-video overflow-hidden bg-ink">
-                  <video
-                    controls
-                    preload="none"
+                  <VideoPlayer
+                    src={project.video.url}
                     poster={project.heroImage}
-                    className="h-full w-full object-cover"
-                  >
-                    <source src={project.video.url} type="video/mp4" />
-                  </video>
+                    label={project.video.title || 'project video'}
+                    className="h-full w-full"
+                  />
                 </div>
                 {(project.video.title || project.video.projectManager) && (
                   <p className="mt-4 text-sm text-ink-2/60">

@@ -1,4 +1,5 @@
-import Image from 'next/image'
+import Image from '@/components/ui/Image'
+import { VideoPlayer } from '@/components/ui/VideoPlayer'
 import { ArrowRight } from 'lucide-react'
 
 import { Section } from '@/components/ui/Section'
@@ -69,17 +70,14 @@ export function ExpertsSection({ experts }: { experts?: AboutExpertsValue }) {
 
         <div className="lg:col-span-7">
           <div className="overflow-hidden bg-ink">
-            <video
-              className="aspect-video h-full w-full object-cover"
-              controls
-              loop
-              playsInline
-              poster={experts?.poster}
-              preload="none"
-            >
-              {videoUrl ? <source src={videoUrl} type="video/mp4" /> : null}
-              Your browser does not support the video tag.
-            </video>
+            {videoUrl ? (
+              <VideoPlayer
+                src={videoUrl}
+                poster={experts?.poster}
+                loop
+                className="aspect-video h-full w-full"
+              />
+            ) : null}
           </div>
 
           {/* What the video says — optional CMS summary + attribution. */}

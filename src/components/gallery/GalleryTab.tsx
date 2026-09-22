@@ -1,7 +1,7 @@
 'use client'
 
 import { useMemo, useState } from 'react'
-import Image from 'next/image'
+import Image from '@/components/ui/Image'
 
 import { Section } from '@/components/ui/Section'
 import { cn } from '@/lib/utils'

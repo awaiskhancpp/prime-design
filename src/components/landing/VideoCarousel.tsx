@@ -1,9 +1,10 @@
 'use client'
 
-import { useRef, useState } from 'react'
-import { ChevronLeft, ChevronRight, Pause, Play } from 'lucide-react'
+import { useState } from 'react'
+import { ChevronLeft, ChevronRight } from 'lucide-react'
 
 import { cn } from '@/lib/utils'
+import { VideoPlayer } from '@/components/ui/VideoPlayer'
 
 export type CarouselVideo = {
   url: string
@@ -19,28 +20,11 @@ export function VideoCarousel({
   dark?: boolean
 }) {
   const [index, setIndex] = useState(0)
-  const [playing, setPlaying] = useState(false)
-  const videoRef = useRef<HTMLVideoElement>(null)
   const active = videos[index]
 
   if (!active) return null
 
-  function goTo(nextIndex: number) {
-    setIndex(nextIndex)
-    setPlaying(false)
-  }
-
-  function togglePlay() {
-    const el = videoRef.current
-    if (!el) return
-    if (el.paused) {
-      el.play()
-      setPlaying(true)
-    } else {
-      el.pause()
-      setPlaying(false)
-    }
-  }
+  const goTo = (nextIndex: number) => setIndex(nextIndex)
 
   const controlButtonClass = cn(
     'flex h-9 w-9 items-center justify-center border transition-colors',
@@ -51,54 +35,21 @@ export function VideoCarousel({
 
   return (
     <div>
-      <div
-        className={cn(
-          'relative aspect-video w-full overflow-hidden border bg-black',
-          dark ? 'border-white/10' : 'border-line',
-        )}
-      >
-        <video
-          key={active.url}
-          ref={videoRef}
-          className="h-full w-full object-cover"
-          playsInline
-          preload="none"
-          poster={active.poster}
-          onEnded={() => setPlaying(false)}
-        >
-          <source src={active.url} type="video/mp4" />
-          Your browser does not support the video tag.
-        </video>
+      {/* The picture and its play/pause belong to `VideoPlayer`, so this
+          carousel is not a second implementation of the same control — it
+          only owns moving between clips. Keyed on the url so switching clip
+          remounts the element rather than swapping the source underneath a
+          player that still thinks it is mid-playback. */}
+      <VideoPlayer
+        key={active.url}
+        src={active.url}
+        poster={active.poster}
+        label={active.caption || 'video'}
+        className={cn('aspect-video w-full border', dark ? 'border-white/10' : 'border-line')}
+      />
 
-        <button
-          type="button"
-          onClick={togglePlay}
-          aria-label={playing ? 'Pause video' : 'Play video'}
-          className="absolute inset-0 flex items-center justify-center bg-black/0 transition-colors hover:bg-black/10"
-        >
-          {!playing && (
-            <span className="flex h-14 w-14 items-center justify-center rounded-full bg-white/90 text-ink shadow-lg">
-              <Play className="ml-0.5 h-5 w-5 fill-current" aria-hidden />
-            </span>
-          )}
-        </button>
-      </div>
-
-      {/* Single control bar: play/pause, prev, numbered tabs, next. */}
+      {/* Carousel chrome only: prev, numbered tabs, next. */}
       <div className="mt-4 flex items-center justify-center gap-2">
-        <button
-          type="button"
-          onClick={togglePlay}
-          aria-label={playing ? 'Pause video' : 'Play video'}
-          className={controlButtonClass}
-        >
-          {playing ? (
-            <Pause className="h-4 w-4 fill-current" aria-hidden />
-          ) : (
-            <Play className="ml-0.5 h-4 w-4 fill-current" aria-hidden />
-          )}
-        </button>
-
         {videos.length > 1 && (
           <>
             <button

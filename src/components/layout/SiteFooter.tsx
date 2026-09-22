@@ -1,4 +1,4 @@
-import Image from 'next/image'
+import Image from '@/components/ui/Image'
 import Link from 'next/link'
 import type { ReactNode } from 'react'
 import { Clock, Mail, MapPin, Phone } from 'lucide-react'

@@ -1,4 +1,4 @@
-import Image from 'next/image'
+import Image from '@/components/ui/Image'
 
 import { RichText, type JSXConvertersFunction } from '@payloadcms/richtext-lexical/react'
 import type { RichTextValue } from '@/lib/richText'

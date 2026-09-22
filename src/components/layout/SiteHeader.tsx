@@ -1,7 +1,7 @@
 'use client'
 
 import { ChevronDown, ChevronRight, Menu, X } from 'lucide-react'
-import Image from 'next/image'
+import Image from '@/components/ui/Image'
 import Link from 'next/link'
 import { useEffect, useRef, useState } from 'react'
 

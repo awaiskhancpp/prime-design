@@ -93,7 +93,30 @@ export const CITY_COORDS: Record<string, [number, number]> = {
 export async function LandscapingServiceAreas({
   serviceSlug,
   heading: headingProp,
-}: { serviceSlug?: string; heading?: string } = {}) {
+  eyebrow: eyebrowProp,
+  description: descriptionProp,
+  regionHeading,
+  areas: areasProp,
+}: {
+  serviceSlug?: string
+  heading?: string
+  /** Overrides the standing "Service areas" label. */
+  eyebrow?: string
+  /** Overrides the standing lede under the heading. */
+  description?: string
+  /**
+   * The state the listed cities belong to ("California" in the WordPress
+   * source), printed under the heading.
+   */
+  regionHeading?: string
+  /**
+   * An explicit list of areas, with the href each badge links to. Supplied by
+   * the landing pages' `service-areas` block, which carries its own cities
+   * rather than the site-wide list. When it is given it replaces the derived
+   * list entirely, and the caller owns the link targets.
+   */
+  areas?: Array<{ label?: string; href?: string }>
+} = {}) {
   const { heading, cities, trailingLabel, trailingHref } = website.serviceAreas
   const configuredAreas = await resolveSiteAreas()
   const prefix = locationPrefix(serviceSlug)
@@ -106,11 +129,18 @@ export async function LandscapingServiceAreas({
 
   // The badge list and the map are built from one list, so a badge can never
   // again exist without the map having been given the chance to place it.
-  type Area = { name: string; latitude?: number; longitude?: number }
+  type Area = { name: string; latitude?: number; longitude?: number; href?: string }
   const fromCities = (names: string[]): Area[] => names.map((name) => ({ name }))
 
+  // A caller-supplied list wins outright: a landing page's `service-areas`
+  // block names its own cities, and silently swapping them for the site-wide
+  // list would drop real CMS content.
+  const supplied = areasProp?.filter((area) => area.label) ?? []
+
   let areas: Area[] = []
-  if (serviceSlug) {
+  if (supplied.length) {
+    areas = supplied.map((area) => ({ name: area.label as string, href: area.href }))
+  } else if (serviceSlug) {
     const serviceAreas = await getServiceAreas(serviceSlug)
     areas = serviceAreas.length
       ? serviceAreas.map((a) => ({
@@ -125,8 +155,8 @@ export async function LandscapingServiceAreas({
     areas = configuredAreas.length ? configuredAreas : fromCities(cities)
   }
 
-  const areaNames = areas.map((area) => area.name)
   const headingText = headingProp || heading
+  const linkFor = (area: Area) => area.href ?? hrefFor(area.name)
 
   // Payload first, the offline table second, and a named report if neither can
   // place an area — the silent `.filter()` this replaces is exactly how the
@@ -141,9 +171,13 @@ export async function LandscapingServiceAreas({
       unplaceable.push(area.name)
       continue
     }
-    markers.push({ name: area.name, lat, lng, href: hrefFor(area.name) })
+    markers.push({ name: area.name, lat, lng, href: linkFor(area) })
   }
-  if (unplaceable.length) {
+  // Only worth reporting for the derived list. A caller-supplied list owns its
+  // own entries and legitimately contains things that are not cities — the
+  // landing block's trailing "And surrounding cities!" pill, for one — so a
+  // missing pin there is not a gap in the data.
+  if (unplaceable.length && !supplied.length) {
     console.warn(
       `[LandscapingServiceAreas] ${unplaceable.length} of ${areas.length} service areas have no ` +
         `coordinates and are missing from the map: ${unplaceable.join(', ')}. ` +
@@ -157,22 +191,25 @@ export async function LandscapingServiceAreas({
         {/* ── Left column: heading, city list, CTA ── */}
         <div className="flex flex-col justify-start pr-6 pb-16 md:pr-10 lg:pr-14">
           <p className="text-xs font-semibold uppercase tracking-[0.2em] text-brass-deep">
-            Service areas
+            {eyebrowProp || 'Service areas'}
           </p>
           <h2 className="mt-3 max-w-sm font-display text-3xl font-medium leading-tight tracking-tight text-ink md:text-4xl">
             {headingText}
           </h2>
+          {regionHeading ? (
+            <p className="mt-2 font-display text-xl font-medium text-ink">{regionHeading}</p>
+          ) : null}
           <p className="mt-4 max-w-xs text-sm leading-6 text-ink-2/60">
-            We serve homeowners across the entire Silicon Valley — from San Jose to Palo Alto and
-            everywhere in between.
+            {descriptionProp ||
+              'We serve homeowners across the entire Silicon Valley — from San Jose to Palo Alto and everywhere in between.'}
           </p>
 
           {/* City name list — compact, readable, linked */}
           <div className="mt-8 flex flex-wrap gap-x-2 gap-y-2">
-            {areaNames.map((city) => (
-              <span key={city} className="text-sm text-ink-2/70">
-                <a href={hrefFor(city)} className="transition-colors hover:text-brass-deep">
-                  <Badge>{city}</Badge>
+            {areas.map((area) => (
+              <span key={area.name} className="text-sm text-ink-2/70">
+                <a href={linkFor(area)} className="transition-colors hover:text-brass-deep">
+                  <Badge>{area.name}</Badge>
                 </a>
               </span>
             ))}

@@ -1,7 +1,7 @@
 'use client'
 
 import type { ReactNode } from 'react'
-import Image from 'next/image'
+import Image from '@/components/ui/Image'
 import { Star } from 'lucide-react'
 
 import { Container } from '@/components/ui/Container'
@@ -20,6 +20,7 @@ import type { SiteSettingsValue } from '@/lib/siteSettings'
  * `border-y` band of their own. They belong here instead: see `ProofBand`.
  */
 const socialBadges = [
+  { key: 'yelp', image: '/social/Yelp.png', label: 'Yelp reviews', width: 300, height: 158 },
   {
     key: 'googleBusiness',
     image: '/social/Google.png',
@@ -27,7 +28,6 @@ const socialBadges = [
     width: 300,
     height: 158,
   },
-  { key: 'yelp', image: '/social/Yelp.png', label: 'Yelp reviews', width: 300, height: 158 },
   { key: 'houzz', image: '/social/houzz.png', label: 'Houzz profile', width: 300, height: 158 },
   {
     key: 'bbb',

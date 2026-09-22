@@ -1,6 +1,7 @@
 import type { ReactNode } from 'react'
 
 import { Section } from '@/components/ui/Section'
+import { VideoPlayer } from '@/components/ui/VideoPlayer'
 import { SectionHeader } from '@/components/ui/SectionHeader'
 import type { Location } from '@/lib/serviceLocations'
 
@@ -110,16 +111,7 @@ export function ServiceVideoSection({
       </div>
 
       <div className="mx-auto mt-10 max-w-5xl overflow-hidden bg-ink">
-        <video
-          className="aspect-video h-auto w-full object-cover"
-          controls
-          playsInline
-          preload="none"
-          poster={poster}
-        >
-          <source src={videoUrl} type="video/mp4" />
-          Your browser does not support the video tag.
-        </video>
+        <VideoPlayer src={videoUrl} poster={poster} className="aspect-video w-full" />
       </div>
 
       {summary ? (

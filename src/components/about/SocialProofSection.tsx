@@ -1,4 +1,4 @@
-import Image from 'next/image'
+import Image from '@/components/ui/Image'
 import { ArrowUpRight } from 'lucide-react'
 
 import { SectionHeader } from '@/components/ui/SectionHeader'

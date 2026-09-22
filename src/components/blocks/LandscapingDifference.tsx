@@ -3,13 +3,14 @@
 import { useState } from 'react'
 
 import { Section } from '@/components/ui/Section'
+import { VideoPlayer } from '@/components/ui/VideoPlayer'
 import { HighlightedText } from '@/components/ui/HighlightedText'
 import type { PageDifferenceContent } from '@/lib/pageSections'
 import { RichTextContent } from '@/components/rich-text/RichTextContent'
 import { cn } from '@/lib/utils'
 import { ArrowRight, Check, ChevronLeft, ChevronRight, Play } from 'lucide-react'
 import Link from 'next/link'
-import Image from 'next/image'
+import Image from '@/components/ui/Image'
 
 export function LandscapingDifference({
   difference,
@@ -136,18 +137,14 @@ export function LandscapingDifference({
             <div className="grid gap-8 lg:grid-cols-12 lg:items-center lg:gap-8">
               <div className="lg:col-span-7">
                 <div className="relative aspect-video overflow-hidden bg-ink">
-                  <video
+                  <VideoPlayer
                     key={active.url}
-                    className="h-full w-full object-cover"
-                    controls
-                    playsInline
-                    preload="none"
+                    src={active.url}
                     poster={active.poster}
+                    label={active.speakerName || 'project video'}
                     onEnded={handleEnded}
-                  >
-                    <source src={active.url} type="video/mp4" />
-                    Your browser does not support the video tag.
-                  </video>
+                    className="h-full w-full"
+                  />
                 </div>
               </div>
 

@@ -1,6 +1,6 @@
 'use client'
 
-import Image from 'next/image'
+import Image from '@/components/ui/Image'
 import { Star } from 'lucide-react'
 import { useCallback, useEffect, useId, useRef, useState } from 'react'
 

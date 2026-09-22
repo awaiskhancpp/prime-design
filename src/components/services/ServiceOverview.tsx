@@ -1,4 +1,4 @@
-import Image from 'next/image'
+import Image from '@/components/ui/Image'
 import type { ServiceDetail } from '@/lib/services'
 import { RichTextContent } from '@/components/rich-text/RichTextContent'
 

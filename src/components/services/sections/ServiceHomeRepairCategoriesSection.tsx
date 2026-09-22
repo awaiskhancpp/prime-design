@@ -1,4 +1,4 @@
-import Image from 'next/image'
+import Image from '@/components/ui/Image'
 
 import { RichTextContent } from '@/components/rich-text/RichTextContent'
 import type { RichTextValue } from '@/lib/richText'

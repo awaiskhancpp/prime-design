@@ -1,5 +1,5 @@
 import { Star } from 'lucide-react'
-import Image from 'next/image'
+import Image from '@/components/ui/Image'
 
 import { Button } from '@/components/ui/Button'
 import { Section } from '@/components/ui/Section'

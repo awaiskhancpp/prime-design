@@ -15,6 +15,7 @@
   --animate-fade-in: fade-in 0.4s ease-out;
    --animate-marquee: marquee 48s linear infinite;
   --animate-header-drop: header-drop 0.28s ease-out;
+  --animate-buffer-sweep: buffer-sweep 1.1s ease-in-out infinite;
 }
 
 /* @keyframes blink-slow {
@@ -39,6 +40,21 @@
   }
 }
  
+/*
+ * The indeterminate bar along the bottom of a video that is buffering. It
+ * sweeps rather than fills because the browser reports no progress figure for
+ * a fetch it has not finished negotiating, and a fake percentage would be a
+ * lie about something the visitor is actively waiting on.
+ */
+@keyframes buffer-sweep {
+  0% {
+    transform: translateX(-100%);
+  }
+  100% {
+    transform: translateX(400%);
+  }
+}
+
 /* The sticky header sliding in when it pins to the top of the viewport. */
 @keyframes header-drop {
   from {

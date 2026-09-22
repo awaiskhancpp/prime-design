@@ -1,7 +1,7 @@
 'use client'
 
 import { useEffect } from 'react'
-import Image from 'next/image'
+import Image from '@/components/ui/Image'
 import { ChevronLeft, ChevronRight, X } from 'lucide-react'
 
 export function Lightbox({

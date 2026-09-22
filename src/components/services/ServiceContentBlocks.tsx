@@ -1,5 +1,5 @@
 import { Check } from 'lucide-react'
-import Image from 'next/image'
+import Image from '@/components/ui/Image'
 import type { ReactNode } from 'react'
 import { RichTextContent } from '@/components/rich-text/RichTextContent'
 import { richTextHasContent } from '@/lib/richText'

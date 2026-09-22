@@ -1,4 +1,5 @@
 import { Section } from '@/components/ui/Section'
+import { VideoPlayer } from '@/components/ui/VideoPlayer'
 import { SectionHeader } from '@/components/ui/SectionHeader'
 import type { PageTestimonialVideosContent } from '@/lib/pageSections'
 
@@ -37,16 +38,12 @@ export function TestimonialVideos({ content }: { content: PageTestimonialVideosC
               aria-hidden="true"
             />
 
-            <video
-              className="aspect-video h-auto w-full object-cover"
-              controls
-              playsInline
-              preload="none"
+            <VideoPlayer
+              src={video.url}
               poster={video.poster}
-            >
-              <source src={video.url} type="video/mp4" />
-              Your browser does not support the video tag.
-            </video>
+              label={video.title || 'testimonial'}
+              className="aspect-video w-full"
+            />
 
             {video.title || video.speaker ? (
               <figcaption className="border-t border-line px-5 py-4">

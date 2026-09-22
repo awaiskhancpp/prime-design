@@ -1,8 +1,11 @@
 import Link from 'next/link'
 import type { ReactNode } from 'react'
 
+import { LandscapingServiceAreas } from '@/components/blocks/LandscapingServiceAreas'
+
 import { PageHero } from '@/components/layout/PageHero'
 import { Section } from '@/components/ui/Section'
+import { VideoPlayer } from '@/components/ui/VideoPlayer'
 import { ServiceVideoSection } from '@/components/services/ServiceVideoSection'
 import { ServiceImageTextSection } from '@/components/services/sections/ServiceImageTextSection'
 import BeforeAfterSlider from '@/components/blocks/BeforeAfterSlider'
@@ -18,7 +21,6 @@ import { LandingCraftsmanshipSection } from './LandingCraftsmanshipSection'
 import { LandingProjectGridSection } from './LandingProjectGridSection'
 import { LandingServicesSection } from './LandingServicesSection'
 import { LandingRepairServicesSection } from './LandingRepairServicesSection'
-import { LandingServiceAreasSection } from './LandingServiceAreasSection'
 import { LandingBookingSection } from './LandingBookingSection'
 import { LandingContact } from './Contact'
 import { TestimonialsSpotlightSection } from '@/components/testimonials/TestimonialsSpotlightSection'
@@ -92,6 +94,12 @@ function HeroBlock({ block }: { block: Block }) {
       description={text(block.description)}
       image={image}
       backgroundVideo={backgroundVideo}
+      // The background image doubles as the video's poster — the same
+      // convention the homepage hero block documents. Without this the hero
+      // video was the one `<video>` on the whole site with no poster at all,
+      // so a landing page opened on an empty black box until the clip had
+      // buffered enough to paint its first frame.
+      videoPoster={image}
       imageAlt={text(block.heading) || ''}
       cta={button(block.buttons)}
     />
@@ -373,16 +381,12 @@ function VideoCarouselBlock({ block }: { block: Block }) {
           const value = item as Record<string, unknown>
           const url = text(value.externalUrl) || mediaUrl(value.video)
           return url ? (
-            <video
+            <VideoPlayer
               key={text(value.sourceId) || index}
-              className="aspect-video w-full object-cover"
-              controls
-              playsInline
-              preload="none"
+              src={url}
               poster={mediaUrl(value.poster)}
-            >
-              <source src={url} />
-            </video>
+              className="aspect-video w-full"
+            />
           ) : null
         })}
       </div>
@@ -604,7 +608,7 @@ export const landingBlockRegistry: Record<string, Renderer> = {
     />
   ),
   'service-areas': ({ block }) => (
-    <LandingServiceAreasSection
+    <LandscapingServiceAreas
       eyebrow={text(block.eyebrow)}
       heading={text(block.heading)}
       description={text(block.description)}
@@ -667,8 +671,7 @@ export const landingBlockRegistry: Record<string, Renderer> = {
         name: text(provider.name) || '',
         reviewUrl: text(provider.reviewUrl),
         rating: typeof provider.rating === 'number' ? provider.rating : undefined,
-        reviewCount:
-          typeof provider.reviewCount === 'number' ? provider.reviewCount : undefined,
+        reviewCount: typeof provider.reviewCount === 'number' ? provider.reviewCount : undefined,
         reviews: (Array.isArray(provider.reviews) ? provider.reviews : [])
           .map((review) => review as Record<string, unknown>)
           .filter((review) => text(review.body))

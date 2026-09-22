@@ -135,8 +135,8 @@ export function ServiceTemplate({ service }: { service: ServiceDetail }) {
   const hasCmsBlocks = Boolean(service.contentBlocks?.length)
   const hasOverviewRich = Boolean(
     service.overviewRich?.keyFeatures ||
-      service.overviewRich?.benefits ||
-      service.overviewRich?.process,
+    service.overviewRich?.benefits ||
+    service.overviewRich?.process,
   )
   const cmsQuote = service.contentBlocks?.find((block) => block.blockType === 'quote')
   const cmsVideos = service.contentBlocks?.filter((block) => block.blockType === 'video') ?? []
@@ -205,18 +205,18 @@ export function ServiceTemplate({ service }: { service: ServiceDetail }) {
   }
 
   // Video section: only CMS 'video' blocks (Payload).
-  const legacyVideoSection = cmsVideos.length ? (
-    cmsVideos.map((block, index) =>
-      block.blockType === 'video' ? (
-        <ServiceVideoSection
-          key={`video-${index}`}
-          title={block.heading || ''}
-          videoUrl={block.videoUrl}
-          poster={block.poster}
-        />
-      ) : null,
-    )
-  ) : null
+  const legacyVideoSection = cmsVideos.length
+    ? cmsVideos.map((block, index) =>
+        block.blockType === 'video' ? (
+          <ServiceVideoSection
+            key={`video-${index}`}
+            title={block.heading || ''}
+            videoUrl={block.videoUrl}
+            poster={block.poster}
+          />
+        ) : null,
+      )
+    : null
   const videoSection = cmsSlotNodes.get('video') ?? legacyVideoSection
 
   // ---- 3. Build one node per section slot -------------------------------
@@ -227,33 +227,35 @@ export function ServiceTemplate({ service }: { service: ServiceDetail }) {
       // The Custom Kitchen and Shaker Kitchen pages have no overview/intro
       // section on WordPress — their content is the CMS sections, so the
       // static Key Features / Benefits overview never renders for them.
-      node:
-        slugMatches('custom-kitchen', 'shaker-kitchen') ? null : !sections.homeRepairCategories && hasOverviewRich ? (
-          // Rich-text overview lists (Key Features / Benefits / Process) from
-          // Payload take priority over both the legacy checklist blocks and
-          // the built-in static arrays.
-          <Section>
-            <ServiceOverview
-              service={service}
-              showInlineProcess={sections.inlineProcess}
-              hasVisualProcess={sections.visualProcess}
-            />
-          </Section>
-        ) : !sections.homeRepairCategories && contentBlocks?.length ? (
-          <Section>
-            <ServiceContentBlocks service={service} blocks={contentBlocks} />
-          </Section>
-        ) : !sections.homeRepairCategories &&
-          !hasCmsBlocks &&
-          !(hasCmsSections && cmsHas('image-text', 'sub-services', 'prime-difference')) ? (
-          <Section>
-            <ServiceOverview
-              service={service}
-              showInlineProcess={sections.inlineProcess}
-              hasVisualProcess={sections.visualProcess}
-            />
-          </Section>
-        ) : null,
+      node: slugMatches(
+        'custom-kitchen',
+        'shaker-kitchen',
+      ) ? null : !sections.homeRepairCategories && hasOverviewRich ? (
+        // Rich-text overview lists (Key Features / Benefits / Process) from
+        // Payload take priority over both the legacy checklist blocks and
+        // the built-in static arrays.
+        <Section>
+          <ServiceOverview
+            service={service}
+            showInlineProcess={sections.inlineProcess}
+            hasVisualProcess={sections.visualProcess}
+          />
+        </Section>
+      ) : !sections.homeRepairCategories && contentBlocks?.length ? (
+        <Section>
+          <ServiceContentBlocks service={service} blocks={contentBlocks} />
+        </Section>
+      ) : !sections.homeRepairCategories &&
+        !hasCmsBlocks &&
+        !(hasCmsSections && cmsHas('image-text', 'sub-services', 'prime-difference')) ? (
+        <Section>
+          <ServiceOverview
+            service={service}
+            showInlineProcess={sections.inlineProcess}
+            hasVisualProcess={sections.visualProcess}
+          />
+        </Section>
+      ) : null,
     },
     {
       key: 'home-repair-categories',
@@ -378,9 +380,9 @@ export function ServiceTemplate({ service }: { service: ServiceDetail }) {
       key: 'real-homes',
       node:
         cmsSlotNodes.get('real-homes') ??
-        (sections.realHomes && service.realHomes?.testimonials?.length
-          ? <ServiceRealHomesStoriesSection {...getRealHomesContent(service)!} />
-          : null),
+        (sections.realHomes && service.realHomes?.testimonials?.length ? (
+          <ServiceRealHomesStoriesSection {...getRealHomesContent(service)!} />
+        ) : null),
     },
     {
       key: 'video',
@@ -487,22 +489,22 @@ export function ServiceTemplate({ service }: { service: ServiceDetail }) {
     },
     {
       key: 'service-areas',
-      // The comprehensive home repair and European Kitchen pages keep only
-      // the city-pill strip (LandingServiceAreasSection, rendered by the
-      // `areas-we-service` slot) — no "Service areas" cards section.
-      node:
-        slugMatches(
-          'comprehensive-home-repair-installation-services-in-silicon-valley',
-          'european-kitchen',
-          'custom-kitchen',
-          'shaker-kitchen',
-          'adu',
-          'finance',
-        ) ? null : slugMatches('additions', 'complete-renovation') ? (
-          <LandscapingServiceAreas serviceSlug={service.slug} />
-        ) : (
-          (cmsSlotNodes.get('service-areas') ?? <ServiceAreasSection service={service} />)
-        ),
+      // The comprehensive home repair and European Kitchen pages get their
+      // service areas from the `areas-we-service` slot below instead — no
+      // "Service areas" cards section. The two slot lists are mutually
+      // exclusive, so no page renders the areas section twice.
+      node: slugMatches(
+        'comprehensive-home-repair-installation-services-in-silicon-valley',
+        'european-kitchen',
+        'custom-kitchen',
+        'shaker-kitchen',
+        'adu',
+        'finance',
+      ) ? null : slugMatches('additions', 'complete-renovation') ? (
+        <LandscapingServiceAreas serviceSlug={service.slug} />
+      ) : (
+        (cmsSlotNodes.get('service-areas') ?? <ServiceAreasSection service={service} />)
+      ),
     },
     {
       key: 'areas-we-service',
@@ -785,9 +787,8 @@ export function ServiceTemplate({ service }: { service: ServiceDetail }) {
   const order: string[] = service.sectionOrder?.length
     ? service.sectionOrder
     : (PAGE_SECTION_ORDERS[service.slug] ??
-        PAGE_SECTION_ORDERS[slugKey] ??
-        PAGE_SECTION_ORDERS[`${slugKey}-silicon-valley`] ??
-        [...FALLBACK_SECTION_ORDER])
+      PAGE_SECTION_ORDERS[slugKey] ??
+      PAGE_SECTION_ORDERS[`${slugKey}-silicon-valley`] ?? [...FALLBACK_SECTION_ORDER])
 
   const rank = (key: string) => {
     const index = order.indexOf(key)
@@ -800,9 +801,7 @@ export function ServiceTemplate({ service }: { service: ServiceDetail }) {
       // and bathroom-remodeling pages. Promoted only when the order already
       // ends with it, so a CMS `sectionOrder` that deliberately puts the
       // strip mid-page is left exactly where it asks.
-      return key === 'areas-we-service' && index === order.length - 1
-        ? order.length + 1
-        : index
+      return key === 'areas-we-service' && index === order.length - 1 ? order.length + 1 : index
     }
     if (key === 'cms-body') {
       const introIndex = order.indexOf('intro')
