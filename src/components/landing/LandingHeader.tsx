@@ -31,7 +31,7 @@ export async function LandingHeader() {
   return (
     <header className="absolute inset-x-0 top-0 z-40 text-white">
       <Container>
-        <div className="flex min-h-20 items-center justify-between gap-4 border-b border-white/10">
+        <div className="flex min-h-20 items-center justify-between gap-4">
           {/* Brand — the one element that says who this is. */}
           <BrandMark />
 
@@ -44,7 +44,7 @@ export async function LandingHeader() {
               aria-label={`Call Prime Design & Build at ${phone}`}
             >
               <span
-                className="flex h-9 w-9 items-center justify-center rounded-full border border-brass/40 text-brass transition-colors duration-200 group-hover:border-brass group-hover:bg-brass/10"
+                className="flex h-9 w-9 items-center justify-center  text-brass "
                 aria-hidden="true"
               >
                 <Phone className="h-4 w-4" />
@@ -58,7 +58,7 @@ export async function LandingHeader() {
             <a
               href={`tel:${phoneClean}`}
               aria-label={`Call Prime Design & Build at ${phone}`}
-              className="flex h-10 w-10 items-center justify-center   text-brass transition-colors duration-200 hover:border-brass hover:bg-brass/10 md:hidden"
+              className="flex h-10 w-10 items-center justify-center   text-brass  md:hidden"
             >
               <Phone className="h-4 w-4" aria-hidden="true" />
             </a>
@@ -74,6 +74,10 @@ export async function LandingHeader() {
           </div>
         </div>
       </Container>
+      <div
+        aria-hidden="true"
+        className="pointer-events-none absolute inset-x-0 bottom-0 border-b border-white/10"
+      />
     </header>
   )
 }

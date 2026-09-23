@@ -337,6 +337,7 @@ export function AppointmentScheduler({
   const [sending, setSending] = useState(false)
   const [submitError, setSubmitError] = useState<string>()
   const captcha = useRef<CaptchaHandle>(null)
+  const captchaToken = useRef<string | undefined>(undefined)
   // Honeypot + timing, same anti-spam gates the other lead forms send. A bot
   // fills the hidden field, and a submission faster than a couple of seconds
   // after render is a script, not a person. `renderedAt` starts 0 — the
@@ -399,9 +400,10 @@ export function AppointmentScheduler({
    * the confirmation screen can be matched to the stored record.
    */
   async function submitBooking() {
-    const token = captcha.current?.getToken()
+    const token = captchaToken.current
     if (captchaEnabled() && !token) {
       setSubmitError('Please complete the captcha.')
+      setStep(2)
       return
     }
 
@@ -436,14 +438,19 @@ export function AppointmentScheduler({
       const result = (await response.json().catch(() => ({}))) as { error?: string }
       if (!response.ok) {
         setSubmitError(result.error ?? 'Something went wrong. Please try again or call us.')
+        captchaToken.current = undefined
+        setStep(2)
         return
       }
       setStep(4)
     } catch {
       setSubmitError('Could not reach the server. Please try again or call us.')
+      captchaToken.current = undefined
+      setStep(2)
     } finally {
       setSending(false)
       // The token is spent whether or not the booking was accepted.
+      captchaToken.current = undefined
       captcha.current?.reset()
     }
   }
@@ -453,11 +460,16 @@ export function AppointmentScheduler({
   }
 
   function back() {
+    if (step === 3) {
+      captchaToken.current = undefined
+      setSubmitError(undefined)
+    }
     setStep((current) => Math.max(current - 1, 1))
   }
 
   function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault()
+    setSubmitError(undefined)
     const form = event.currentTarget
     const data = new FormData(form)
     const values = {
@@ -482,6 +494,13 @@ export function AppointmentScheduler({
       return
     }
 
+    const token = captcha.current?.getToken()
+    if (captchaEnabled() && !token) {
+      setSubmitError('Please complete the captcha.')
+      return
+    }
+
+    captchaToken.current = token
     setCustomer(values)
     setStep(3)
   }
@@ -594,7 +613,7 @@ export function AppointmentScheduler({
             </aside>
             <div className="px-8 py-8 md:px-12">
               <h3 className="font-display text-3xl font-medium text-ink">Customer Information</h3>
-              <div className="mt-8 grid gap-2 sm:grid-cols-2">
+              <div className="mt-8 grid gap-3 sm:grid-cols-2">
                 <BookingField name="firstName" error={fieldErrors.firstName}>
                   <Input
                     name="firstName"
@@ -685,6 +704,12 @@ export function AppointmentScheduler({
                   onChange={(event) => setHoneypot(event.target.value)}
                 />
               </div>
+              <Captcha ref={captcha} className="mt-4" />
+              {submitError ? (
+                <p role="alert" className="mt-3 text-sm text-red-600">
+                  {submitError}
+                </p>
+              ) : null}
               <div className="mt-8 flex justify-between">
                 <Button type="button" variant="outline" onClick={back}>
                   ← Back
@@ -748,8 +773,6 @@ export function AppointmentScheduler({
                   </p>
                 </div>
               )}
-              <Captcha ref={captcha} className="mt-8" />
-
               {submitError ? (
                 <p role="alert" className="mt-3 text-sm text-red-600">
                   {submitError}
@@ -987,7 +1010,7 @@ function BookingField({
     // clearing an error never shifts the layout.
     <div className={cn('grid content-start gap-1', className)}>
       {children}
-      <div className="min-h-3" aria-live="polite">
+      <div className="min-h-4" aria-live="polite">
         {error ? (
           <p id={`booking-${name}-error`} role="alert" className="text-xs leading-4 text-red-600">
             {error}
