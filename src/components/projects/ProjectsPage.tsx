@@ -31,7 +31,16 @@ export async function ProjectsPage() {
       />
 
       <Section className="bg-white pt-10 ">
-        <div className="grid max-w-[1440px]  gap-x-4 gap-y-6 sm:grid-cols-3">
+        {/*
+          Two up until `xl`, not `sm`. The grid went straight from one column
+          to three at 640px, which left each card about 230px wide through the
+          whole tablet range and pushed most titles past four lines — the other
+          half of why this grid looked ragged. Three up at 1024 was not much
+          better: 330px columns put two thirds of the excerpts over their two
+          lines. From 1280 the columns are wide enough that titles sit on one
+          line and excerpts land on two.
+        */}
+        <div className="grid max-w-[1440px] gap-x-4 gap-y-6 sm:grid-cols-2 xl:grid-cols-3">
           {projects.map((project) => (
             <ProjectCard key={project.slug} project={project} />
           ))}

@@ -609,6 +609,8 @@ export const landingBlockRegistry: Record<string, Renderer> = {
   ),
   'service-areas': ({ block }) => (
     <LandscapingServiceAreas
+      // Same coverage map, nothing clickable: see the `linked` prop there.
+      linked={false}
       eyebrow={text(block.eyebrow)}
       heading={text(block.heading)}
       description={text(block.description)}

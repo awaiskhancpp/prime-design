@@ -1,22 +1,44 @@
 import Image from '@/components/ui/Image'
 
 import { Section } from '@/components/ui/Section'
+import { SectionHeader } from '@/components/ui/SectionHeader'
 
 /**
  * LandingCraftsmanshipSection
  *
  * The WordPress "Remodel Your Entire Home With Prime Design & Build" section
- * (`crempi` on remodeling-information). The source is a three-column Bricks
- * layout with deliberate vertical offsets:
+ * (`crempi` on remodeling-information): a heading, two cards that each carry a
+ * photograph, a title and two paragraphs, and two standalone photographs.
  *
- *   column 1  eyebrow + heading, a 240px spacer, then the first photo card
- *   column 2  a 140px spacer, then two standalone photos
- *   column 3  the second photo card, then a decorative graphic
+ * ── The layout ────────────────────────────────────────────────────────────
  *
- * That stagger is the whole character of the section, so it is preserved
- * here rather than flattened into an even grid. Everything else — type
- * scale, brass accents, the Section wrapper — follows this project's design
- * language instead of the Bricks styling.
+ * The source was a three-column Bricks layout staggered with a 240px spacer in
+ * the first column and a 140px one in the second, and that stagger used to be
+ * reproduced here. On a Google Ads landing page it read as breakage rather
+ * than rhythm: the heading column carried a screen's worth of white space
+ * above its card, the third column trailed off under its copy, and the
+ * decorative graphic floated in the gap between them.
+ *
+ * It is now two equal columns, each one complete: a card, and beneath it the
+ * standalone photograph paired with it by position. The bodies differ by
+ * about sixty characters, so the photographs are pushed down by `mt-auto`
+ * rather than following the text — both columns then end on the same line,
+ * which is the part read as alignment, while the copy above stays its natural
+ * length instead of being padded to match.
+ *
+ * ── The card ──────────────────────────────────────────────────────────────
+ *
+ * Photograph, then a rule that starts brass and runs out in `line` to the
+ * column edge, then the title and the copy. The brass-into-hairline rule is
+ * this site's own accent idiom, and it deliberately avoids both of the card
+ * treatments already in use — the projects card's paper plate and the
+ * services card's full border — because this is neither a project nor a
+ * service, but a description of how the work is done.
+ *
+ * `decorativeImage` is still accepted and deliberately not rendered. The
+ * WordPress graphic is a ring of dots that had nothing to sit against once
+ * the stagger went, and dropping the prop would silently discard a populated
+ * CMS field.
  *
  * Every string and image is a prop. There are no defaults: a field the CMS
  * has not filled renders as nothing, so a broken wiring is visible rather
@@ -36,26 +58,35 @@ const paragraphs = (body?: string) =>
     .map((paragraph) => paragraph.trim())
     .filter(Boolean)
 
+const isRemote = (src: string) => src.startsWith('http') || src.includes('/api/media/file/')
+
 function PhotoCard({ card, priority = false }: { card: CraftsmanshipCard; priority?: boolean }) {
   return (
-    <article>
+    <article className="flex flex-col">
       {card.image ? (
-        <div className="relative aspect-[4/3] w-full overflow-hidden bg-paper-2 shadow-lg shadow-ink/10">
+        <div className="relative aspect-[3/2] w-full overflow-hidden bg-paper-2">
           <Image
             src={card.image}
             alt={card.title}
             fill
             priority={priority}
             className="object-cover"
-            sizes="(min-width: 1024px) 30vw, 100vw"
-            unoptimized={card.image.startsWith('http') || card.image.includes('/api/media/file/')}
+            sizes="(min-width: 1024px) 45vw, 100vw"
+            unoptimized={isRemote(card.image)}
           />
         </div>
       ) : null}
-      <h3 className="mt-6 font-display text-2xl font-medium leading-tight text-ink md:text-3xl">
+
+      {/* Brass into hairline, out to the column edge. */}
+      <span aria-hidden className="mt-6 flex items-center">
+        <span className="h-0.5 w-10 bg-brass" />
+        <span className="h-px flex-1 bg-line" />
+      </span>
+
+      <h3 className="mt-5 font-display text-2xl font-medium leading-tight text-ink md:text-[1.75rem]">
         {card.title}
       </h3>
-      <span aria-hidden className="mt-4 block h-px w-12 bg-brass" />
+
       {paragraphs(card.body).map((paragraph) => (
         <p key={paragraph} className="mt-4 text-base leading-7 text-ink-2/70">
           {paragraph}
@@ -73,14 +104,14 @@ function PhotoCard({ card, priority = false }: { card: CraftsmanshipCard; priori
  */
 function Photo({ src }: { src: string }) {
   return (
-    <div className="relative aspect-[4/3] w-full overflow-hidden bg-paper-2 shadow-lg shadow-ink/10">
+    <div className="relative aspect-[3/2] w-full overflow-hidden bg-paper-2">
       <Image
         src={src}
         alt=""
         fill
         className="object-cover"
-        sizes="(min-width: 1024px) 30vw, 100vw"
-        unoptimized={src.startsWith('http') || src.includes('/api/media/file/')}
+        sizes="(min-width: 1024px) 45vw, 100vw"
+        unoptimized={isRemote(src)}
       />
     </div>
   )
@@ -92,75 +123,64 @@ export function LandingCraftsmanshipSection({
   description,
   cards = [],
   images = [],
-  decorativeImage,
+  // Bound to an underscore because it is deliberately unused: the prop stays
+  // in the signature so the CMS field is not silently dropped, but nothing
+  // renders it. See the note above.
+  decorativeImage: _decorativeImage,
 }: {
   eyebrow?: string
   heading?: string
   description?: string
   cards?: CraftsmanshipCard[]
   images?: string[]
+  /**
+   * Accepted so the CMS field is not silently dropped, and intentionally not
+   * rendered — see the note above.
+   */
   decorativeImage?: string
 }) {
   const usableCards = cards.filter((card) => card.title)
   const usablePhotos = images.filter(Boolean)
   if (!eyebrow && !heading && !usableCards.length && !usablePhotos.length) return null
 
-  const [firstCard, secondCard] = usableCards
+  // One column per card, each paired with the photograph in the same position.
+  // A photograph with no card of its own still gets a column, so nothing in
+  // the block goes unrendered.
+  const columns = Math.max(usableCards.length, usablePhotos.length)
 
   return (
     <Section className="bg-white">
-      <div className="grid gap-x-10 gap-y-12 lg:grid-cols-3 lg:gap-x-12">
-        {/* Column 1 — the section's copy, with its card pushed below it. */}
-        <div className="flex flex-col">
-          {eyebrow ? (
-            <p className="max-w-[270px] text-xs font-semibold uppercase tracking-[0.2em] text-brass-deep">
-              {eyebrow}
-            </p>
-          ) : null}
-          {heading ? (
-            <h2 className="mt-5 font-display text-2xl font-medium leading-snug tracking-tight text-ink md:text-[1.75rem]">
-              {heading}
-            </h2>
-          ) : null}
-          {description ? (
-            <p className="mt-5 text-base leading-7 text-ink-2/70">{description}</p>
-          ) : null}
-          {firstCard ? (
-            <div className="mt-10 lg:mt-auto lg:pt-24">
-              <PhotoCard card={firstCard} priority />
-            </div>
-          ) : null}
-        </div>
+      {heading || eyebrow ? (
+        <SectionHeader
+          align="center"
+          size="sm"
+          eyebrow={eyebrow}
+          title={heading ?? ''}
+          description={description}
+        />
+      ) : null}
 
-        {/* Column 2 — standalone photos, offset to break the baseline. */}
-        {usablePhotos.length ? (
-          <div className="grid content-start gap-10 lg:pt-36">
-            {usablePhotos.map((src) => (
-              <Photo key={src} src={src} />
-            ))}
-          </div>
-        ) : null}
-
-        {/* Column 3 — the second card, then the decorative graphic. */}
-        <div className="flex flex-col">
-          {secondCard ? <PhotoCard card={secondCard} /> : null}
-          {decorativeImage ? (
-            <div className="relative mt-10 hidden h-28 w-1/2 self-start lg:block">
-              <Image
-                src={decorativeImage}
-                alt=""
-                fill
-                aria-hidden
-                className="object-contain object-left"
-                sizes="20vw"
-                unoptimized={
-                  decorativeImage.startsWith('http') ||
-                  decorativeImage.includes('/api/media/file/')
-                }
-              />
+      <div
+        className={
+          columns > 1
+            ? 'mt-12 grid gap-x-10 gap-y-8 lg:grid-cols-2 lg:gap-x-12'
+            : 'mt-12 grid gap-8'
+        }
+      >
+        {Array.from({ length: columns }, (_, index) => {
+          const card = usableCards[index]
+          const photo = usablePhotos[index]
+          return (
+            <div key={card?.title ?? photo ?? index} className="flex h-full flex-col">
+              {card ? <PhotoCard card={card} priority={index === 0} /> : null}
+              {photo ? (
+                <div className={card ? 'mt-auto pt-8' : ''}>
+                  <Photo src={photo} />
+                </div>
+              ) : null}
             </div>
-          ) : null}
-        </div>
+          )
+        })}
       </div>
     </Section>
   )

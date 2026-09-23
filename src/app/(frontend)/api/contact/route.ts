@@ -21,14 +21,7 @@ export const runtime = 'nodejs'
 export const dynamic = 'force-dynamic'
 
 type Field =
-  | 'firstName'
-  | 'lastName'
-  | 'email'
-  | 'phone'
-  | 'subject'
-  | 'message'
-  | 'address'
-  | 'zipCode'
+  'firstName' | 'lastName' | 'email' | 'phone' | 'subject' | 'message' | 'address' | 'zipCode'
 
 /**
  * Server-side rules, using the very same validators the forms run in the
@@ -81,7 +74,12 @@ const toE164 = (value: string) => {
 
 /** The IP is only ever stored hashed, never raw. */
 const hashIp = (ip: string) =>
-  ip ? createHash('sha256').update(`${ip}:${process.env.PAYLOAD_SECRET ?? ''}`).digest('hex').slice(0, 32) : undefined
+  ip
+    ? createHash('sha256')
+        .update(`${ip}:${process.env.PAYLOAD_SECRET ?? ''}`)
+        .digest('hex')
+        .slice(0, 32)
+    : undefined
 
 export async function POST(request: Request) {
   let body: Record<string, unknown>
@@ -176,6 +174,10 @@ export async function POST(request: Request) {
           rawPhone: values.phone,
           userAgent: request.headers.get('user-agent')?.slice(0, 300) ?? null,
           ipHash: hashIp(ip) ?? null,
+          // The booking modal prints this reference on its confirmation screen
+          // and writes it into the calendar invite, so without it stored there
+          // is no way to match the number a caller quotes to a record here.
+          orderId: str(body.orderId, 40) || null,
         },
       },
     })

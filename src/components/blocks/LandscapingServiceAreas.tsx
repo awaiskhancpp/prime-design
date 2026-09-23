@@ -97,6 +97,7 @@ export async function LandscapingServiceAreas({
   description: descriptionProp,
   regionHeading,
   areas: areasProp,
+  linked = true,
 }: {
   serviceSlug?: string
   heading?: string
@@ -116,6 +117,14 @@ export async function LandscapingServiceAreas({
    * list entirely, and the caller owns the link targets.
    */
   areas?: Array<{ label?: string; href?: string }>
+  /**
+   * Whether anything in the section navigates. The Google Ads landing pages
+   * pass `false`: their whole job is the form on the page, and a city badge
+   * or a map pin that leaves for a location page is a lost ad click. The
+   * section still shows the coverage — the map, the pins, the badges — it
+   * just does not offer to take anyone anywhere.
+   */
+  linked?: boolean
 } = {}) {
   const { heading, cities, trailingLabel, trailingHref } = website.serviceAreas
   const configuredAreas = await resolveSiteAreas()
@@ -171,7 +180,7 @@ export async function LandscapingServiceAreas({
       unplaceable.push(area.name)
       continue
     }
-    markers.push({ name: area.name, lat, lng, href: linkFor(area) })
+    markers.push({ name: area.name, lat, lng, href: linked ? linkFor(area) : undefined })
   }
   // Only worth reporting for the derived list. A caller-supplied list owns its
   // own entries and legitimately contains things that are not cities — the
@@ -208,17 +217,25 @@ export async function LandscapingServiceAreas({
           <div className="mt-8 flex flex-wrap gap-x-2 gap-y-2">
             {areas.map((area) => (
               <span key={area.name} className="text-sm text-ink-2/70">
-                <a href={linkFor(area)} className="transition-colors hover:text-brass-deep">
+                {linked ? (
+                  <a href={linkFor(area)} className="transition-colors hover:text-brass-deep">
+                    <Badge>{area.name}</Badge>
+                  </a>
+                ) : (
                   <Badge>{area.name}</Badge>
-                </a>
+                )}
               </span>
             ))}
           </div>
 
-          <Button href={trailingHref} variant="line" className="mt-8 self-start text-ink">
-            {trailingLabel}
-            <ArrowUpRight className="h-4 w-4" aria-hidden />
-          </Button>
+          {/* The trailing link goes to /contact, which is off the landing
+              page entirely, so it goes with the rest of the navigation. */}
+          {linked ? (
+            <Button href={trailingHref} variant="line" className="mt-8 self-start text-ink">
+              {trailingLabel}
+              <ArrowUpRight className="h-4 w-4" aria-hidden />
+            </Button>
+          ) : null}
         </div>
 
         {/* ── Right column: Leaflet map ── */}

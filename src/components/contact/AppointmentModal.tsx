@@ -1,7 +1,7 @@
 'use client'
 
 import Image from '@/components/ui/Image'
-import { useMemo, useState } from 'react'
+import { useMemo, useRef, useState } from 'react'
 import type { FormEvent } from 'react'
 import {
   ArrowLeft,
@@ -15,6 +15,7 @@ import {
   X,
 } from 'lucide-react'
 
+import { Captcha, captchaEnabled, type CaptchaHandle } from '@/components/forms/Captcha'
 import { Button } from '@/components/ui/Button'
 import { Input } from '@/components/ui/Input'
 import { Textarea } from '@/components/ui/Textarea'
@@ -320,6 +321,9 @@ export function AppointmentScheduler({
   const [fieldErrors, setFieldErrors] = useState<Partial<Record<CustomerField, string>>>({})
   const [orderId] = useState(() => generateOrderId())
   const [showQr, setShowQr] = useState(false)
+  const [sending, setSending] = useState(false)
+  const [submitError, setSubmitError] = useState<string>()
+  const captcha = useRef<CaptchaHandle>(null)
 
   const dateLabel = selectedDate
     ? selectedDate.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })
@@ -351,6 +355,71 @@ export function AppointmentScheduler({
     link.click()
     document.body.removeChild(link)
     URL.revokeObjectURL(url)
+  }
+
+  /**
+   * Send the booking.
+   *
+   * The WordPress export has no appointment or booking content of any kind —
+   * no plugin, no post type, not even the words — so there is no migrated
+   * schema to honour here. What there is instead is an endpoint already built
+   * for exactly this: `/api/contact` lists `appointment` among its sources,
+   * switches to `APPOINTMENT_RULES` (which additionally require somewhere to
+   * send an estimator) when it sees one, and stores `consultationType` and
+   * `preferredDate`. `ContactSubmissions` has the matching fields and an
+   * "Appointment booking" source. All of it was unreachable: this step used
+   * to be `onClick={() => setStep(4)}`, so the modal showed "Appointment
+   * Confirmed" and an order number for a booking that was never sent
+   * anywhere and never stored.
+   *
+   * The date and the slot are joined into `preferredDate` because that is one
+   * text field, and the order number rides in the body so the reference on
+   * the confirmation screen can be matched to the stored record.
+   */
+  async function submitBooking() {
+    const token = captcha.current?.getToken()
+    if (captchaEnabled() && !token) {
+      setSubmitError('Please complete the captcha.')
+      return
+    }
+
+    setSending(true)
+    setSubmitError(undefined)
+    try {
+      const response = await fetch('/api/contact', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          firstName: customer?.firstName,
+          lastName: customer?.lastName,
+          email: customer?.email,
+          phone: customer?.phone,
+          address: customer?.address,
+          zipCode: customer?.zipCode,
+          // The endpoint's field is `message`; the booking form calls the
+          // same thing comments, and both require the same eight words.
+          message: customer?.comments,
+          consultationType: consultation,
+          preferredDate: dateLabel && time ? `${dateLabel} at ${time}` : dateLabel || time || '',
+          orderId,
+          source: 'appointment',
+          sourceUrl: typeof window === 'undefined' ? undefined : window.location.href,
+          captchaToken: token,
+        }),
+      })
+      const result = (await response.json().catch(() => ({}))) as { error?: string }
+      if (!response.ok) {
+        setSubmitError(result.error ?? 'Something went wrong. Please try again or call us.')
+        return
+      }
+      setStep(4)
+    } catch {
+      setSubmitError('Could not reach the server. Please try again or call us.')
+    } finally {
+      setSending(false)
+      // The token is spent whether or not the booking was accepted.
+      captcha.current?.reset()
+    }
   }
 
   function next() {
@@ -616,12 +685,31 @@ export function AppointmentScheduler({
                   </p>
                 </div>
               )}
-              <div className="mt-10 flex justify-between">
-                <Button type="button" variant="outline" onClick={back} className="flex gap-1">
+              <Captcha ref={captcha} className="mt-8" />
+
+              {submitError ? (
+                <p role="alert" className="mt-3 text-sm text-red-600">
+                  {submitError}
+                </p>
+              ) : null}
+
+              <div className="mt-6 flex justify-between">
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={back}
+                  disabled={sending}
+                  className="flex gap-1"
+                >
                   <ArrowLeft /> Back
                 </Button>
-                <Button type="button" onClick={() => setStep(4)} className="flex gap-1">
-                  Submit <ArrowRight />
+                <Button
+                  type="button"
+                  onClick={submitBooking}
+                  disabled={sending}
+                  className="flex gap-1"
+                >
+                  {sending ? 'Sending…' : 'Submit'} <ArrowRight />
                 </Button>
               </div>
             </div>

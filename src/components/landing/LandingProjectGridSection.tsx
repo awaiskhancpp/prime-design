@@ -1,7 +1,10 @@
 import Image from '@/components/ui/Image'
-import Link from 'next/link'
 
+import { ProjectCard } from '@/components/projects/ProjectCard'
+import { PhotoPlateCard } from '@/components/ui/PhotoPlateCard'
 import { Section } from '@/components/ui/Section'
+import { SectionHeader } from '@/components/ui/SectionHeader'
+import { resolveProjects } from '@/lib/projects'
 
 type ProjectItem = {
   title: string
@@ -9,7 +12,37 @@ type ProjectItem = {
   link?: string
 }
 
-export function LandingProjectGridSection({
+/** `/project/kitchen-remodeling-hayward` -> `kitchen-remodeling-hayward`. */
+const slugFromLink = (link?: string) => link?.match(/\/project\/([^/?#]+)/)?.[1]
+
+/**
+ * The "Our Projects" grid on the Google Ads landing pages.
+ *
+ * Every item in this block points at a real project — the CMS stores the link
+ * as `/project/{slug}` — but the block itself only carries a title, an image
+ * and that link. The tile it used to render showed exactly that: a photograph
+ * with the title in a small white label floating over its top corner, and
+ * nothing else. On a page whose whole job is to convert an ad click, the
+ * strongest proof on it was reduced to a caption.
+ *
+ * So each item is matched back to its project by the slug in its own link and
+ * rendered with `ProjectCard`, the same card `/our-projects` uses. The
+ * category, the place and the excerpt are then real fields read from the
+ * project record rather than anything invented here, and the landing pages
+ * stop having a second, poorer way of showing the same work.
+ *
+ * An item whose slug matches nothing still renders — as the same card with
+ * only what the block actually has. It is a missing record, not a reason to
+ * drop the project from the page.
+ *
+ * Nothing here is clickable, which matches the WordPress originals: these
+ * tiles never linked anywhere. A landing page exists to convert the ad click
+ * it just paid for, and every card that offers a way off the page is a way to
+ * lose it. The cards still carry the category, the place and the excerpt —
+ * they are proof, not navigation — so the "See this Project" action is absent
+ * rather than present and inert.
+ */
+export async function LandingProjectGridSection({
   eyebrow,
   eyebrowIcon,
   heading,
@@ -24,63 +57,61 @@ export function LandingProjectGridSection({
 }) {
   if (!items.length) return null
 
+  const projects = await resolveProjects()
+  const bySlug = new Map(projects.map((project) => [project.slug, project]))
+
   return (
     <Section className="bg-white">
-      <div className="grid gap-6 md:grid-cols-2 md:items-start md:gap-10">
-        <div>
-          {eyebrow || eyebrowIcon ? (
-            <div className="flex items-center gap-2 text-sm text-ink-2">
-              {eyebrowIcon ? (
-                <Image
-                  src={eyebrowIcon}
-                  alt=""
-                  width={16}
-                  height={16}
-                  className="h-4 w-4"
-                  unoptimized={eyebrowIcon.startsWith('http') || eyebrowIcon.includes('/api/media/file/')}
-                  aria-hidden="true"
-                />
-              ) : null}
-              {eyebrow ? <p>{eyebrow}</p> : null}
-            </div>
-          ) : null}
-          {heading ? (
-            <h2 className="mt-3 font-display text-3xl font-medium text-ink md:text-5xl">
-              {heading}
-            </h2>
-          ) : null}
-        </div>
-        {description ? <p className="text-base leading-7 text-ink-2/70">{description}</p> : null}
-      </div>
+      {/* The site's one header component, centred. The heading and the
+          description used to sit in two columns of a split row, which put the
+          section's own summary off to the right of its title as though it
+          belonged to something else. `eyebrow` takes nodes, so the WordPress
+          icon-box SVG rides with its label instead of being dropped. */}
+      {heading ? (
+        <SectionHeader
+          align="center"
+          size="lg"
+          eyebrow={
+            eyebrow || eyebrowIcon ? (
+              <span className="inline-flex items-center gap-2">
+                {eyebrowIcon ? (
+                  <Image
+                    src={eyebrowIcon}
+                    alt=""
+                    width={16}
+                    height={16}
+                    className="h-4 w-4"
+                    unoptimized={
+                      eyebrowIcon.startsWith('http') || eyebrowIcon.includes('/api/media/file/')
+                    }
+                    aria-hidden="true"
+                  />
+                ) : null}
+                {eyebrow}
+              </span>
+            ) : undefined
+          }
+          title={heading}
+          description={description}
+        />
+      ) : null}
 
-      <div className="mt-10 grid gap-4 md:grid-cols-2">
+      {/* The same breakpoints the projects grid uses, so a card is never asked
+          to hold a title in a column too narrow for it. */}
+      <div className="mt-10 grid gap-6 sm:grid-cols-2 xl:grid-cols-3">
         {items.map((item) => {
-          const card = (
-            <article className="group relative aspect-[4/3] overflow-hidden bg-paper-2">
-              {item.image ? (
-                <Image
-                  src={item.image}
-                  alt={item.title}
-                  fill
-                  className="object-cover transition-transform duration-500 ease-out group-hover:scale-105"
-                  unoptimized={item.image.startsWith('http') || item.image.includes('/api/media/file/')}
-                  sizes="(min-width: 768px) 50vw, 100vw"
-                />
-              ) : null}
-              <div className="absolute inset-x-3 top-3">
-                <span className="inline-block max-w-full bg-white px-3 py-2 text-xs font-semibold leading-tight text-ink shadow-sm">
-                  {item.title}
-                </span>
-              </div>
-            </article>
-          )
+          const project = bySlug.get(slugFromLink(item.link) ?? '')
 
-          return item.link ? (
-            <Link key={item.title} href={item.link} aria-label={`View project: ${item.title}`}>
-              {card}
-            </Link>
-          ) : (
-            <div key={item.title}>{card}</div>
+          if (project) return <ProjectCard key={item.title} project={project} linked={false} />
+
+          // No matching record: the same card, carrying only what the block has.
+          return (
+            <PhotoPlateCard
+              key={item.title}
+              image={item.image}
+              imageAlt={item.title}
+              title={item.title}
+            />
           )
         })}
       </div>

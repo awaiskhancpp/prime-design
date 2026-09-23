@@ -60,7 +60,13 @@ export type MapMarker = {
   name: string
   lat: number
   lng: number
-  href: string
+  /**
+   * Where the pin's card links to. Optional: the Google Ads landing pages
+   * show the same map with nothing clickable on it, because sending an ad
+   * click off to a city page is the one thing those pages must not do.
+   * Without it the card is the city's name alone.
+   */
+  href?: string
 }
 
 /** Roughly the centroid of the service area, used before bounds are fitted. */
@@ -175,15 +181,22 @@ function getPinClass(api: GoogleMapsApi): AreaPinCtor {
       title.className = 'pdb-marker__title'
       title.textContent = this.data.name
 
-      const link = document.createElement('a')
-      link.className = 'pdb-marker__link'
-      link.href = this.data.href
-      link.textContent = 'View service area'
-      // Not reachable until the card is open, or tabbing the map would walk
-      // through thirty invisible links.
-      link.tabIndex = -1
+      // No href means no link at all, rather than an anchor going nowhere:
+      // an `<a>` without a target is still announced as a link and still
+      // takes a tab stop.
+      let link: HTMLAnchorElement | null = null
+      if (this.data.href) {
+        link = document.createElement('a')
+        link.className = 'pdb-marker__link'
+        link.href = this.data.href
+        link.textContent = 'View service area'
+        // Not reachable until the card is open, or tabbing the map would walk
+        // through thirty invisible links.
+        link.tabIndex = -1
+      }
 
-      card.append(title, link)
+      card.append(title)
+      if (link) card.append(link)
       root.append(shadow, button, name, card)
 
       button.addEventListener('click', (event) => {
@@ -468,7 +481,10 @@ export function ServiceAreasMap({ markers }: { markers: MapMarker[] }) {
 
       {/* Hairline inset, so the map sits in the page rather than floating as a
           rectangle pasted on top of it. */}
-      <div aria-hidden className="pointer-events-none absolute inset-0 ring-1 ring-inset ring-line" />
+      <div
+        aria-hidden
+        className="pointer-events-none absolute inset-0 ring-1 ring-inset ring-line"
+      />
 
       {status !== 'ready' ? (
         <div className="absolute inset-0 flex items-center justify-center bg-paper-2">

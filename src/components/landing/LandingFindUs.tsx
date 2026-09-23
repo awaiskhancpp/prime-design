@@ -12,7 +12,33 @@ import { Section } from '@/components/ui/Section'
  * "Email Now" / "Address" captions are this design's own labels, so the
  * stored values must not repeat them, or the page renders "Call Us Call Us
  * (650) 235-4863" and a `mailto:` that includes the caption.
+ *
+ * The section is called "Find us" and used to be the one place on the page
+ * that could not help you do that: the phone dialled and the email opened a
+ * client, but the two office addresses were plain text beside a map pin icon
+ * that was purely decorative. They are now links, and a map sits under the
+ * cards.
+ *
+ * The map is Google's own embed, addressed by the `q` query rather than by
+ * coordinates. That matters: the CMS stores the offices as postal addresses
+ * and nothing else, so anything drawn from a latitude and longitude would
+ * have meant inventing them. Letting Google resolve the address it was given
+ * keeps the pin honest — and if an address is edited in Payload, the map
+ * follows it with no second field to keep in step.
  */
+
+/** Each line of the stored address is its own office. */
+const addressLines = (address?: string) =>
+  (address || '')
+    .split(/\n+/)
+    .map((line) => line.trim())
+    .filter(Boolean)
+
+const mapsSearch = (address: string) =>
+  `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(address)}`
+
+const mapsEmbed = (address: string) =>
+  `https://www.google.com/maps?q=${encodeURIComponent(address)}&output=embed`
 export function LandingFindUs({
   eyebrow,
   heading,
@@ -28,11 +54,18 @@ export function LandingFindUs({
 }) {
   const items = [
     phone
-      ? { icon: Phone, label: 'Call Us', value: phone, href: `tel:${phone.replace(/[^0-9+]/g, '')}` }
+      ? {
+          icon: Phone,
+          label: 'Call Us',
+          value: phone,
+          href: `tel:${phone.replace(/[^0-9+]/g, '')}`,
+        }
       : undefined,
     email ? { icon: Mail, label: 'Email Now', value: email, href: `mailto:${email}` } : undefined,
     address ? { icon: MapPin, label: 'Address', value: address, href: undefined } : undefined,
   ].filter((item): item is NonNullable<typeof item> => Boolean(item))
+
+  const offices = addressLines(address)
 
   if (!items.length && !heading) return null
 
@@ -72,11 +105,40 @@ export function LandingFindUs({
                 {value}
               </a>
             ) : (
-              <p className="mt-2 whitespace-pre-line text-sm leading-6 text-ink">{value}</p>
+              /* Each office is its own link. One `<a>` around both would send
+                 someone asking about the San Mateo office to Campbell. */
+              <span className="mt-2 block space-y-1">
+                {addressLines(value).map((line) => (
+                  <a
+                    key={line}
+                    href={mapsSearch(line)}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="block text-sm leading-6 text-ink underline-offset-4 transition-colors hover:text-brass-deep hover:underline"
+                  >
+                    {line}
+                  </a>
+                ))}
+              </span>
             )}
           </div>
         ))}
       </div>
+
+      {/* The first stored address is the one the map opens on — it is the
+          office the company lists first, and a map has to centre somewhere.
+          Every address remains reachable as its own link above. */}
+      {offices.length ? (
+        <div className="mt-6 overflow-hidden border border-line bg-paper-2">
+          <iframe
+            src={mapsEmbed(offices[0])}
+            title={`Map showing ${offices[0]}`}
+            loading="lazy"
+            referrerPolicy="no-referrer-when-downgrade"
+            className="block h-[320px] w-full border-0 md:h-[380px]"
+          />
+        </div>
+      ) : null}
     </Section>
   )
 }

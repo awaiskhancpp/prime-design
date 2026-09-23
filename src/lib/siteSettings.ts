@@ -13,6 +13,29 @@ const payloadImports = () =>
 
 export type SiteAddress = { address: string; link?: string }
 
+/**
+ * Where an address points when nobody has given it a link.
+ *
+ * Only the first office carries one in Site Settings — the Google Business
+ * profile — so the second rendered as plain text everywhere it appeared: the
+ * footer, the homepage contact block and the landing pages' estimate band.
+ * Two addresses side by side, one clickable and one not, reads as a broken
+ * link rather than as a deliberate difference.
+ *
+ * Resolving the address text through Google's search keeps the destination
+ * honest: nothing is invented, the pin is whatever Google makes of the
+ * address the CMS actually stores, and editing that address in Payload moves
+ * the link with it. An explicit `link` always wins, so the first office still
+ * goes to the Business profile.
+ */
+export const addressMapsUrl = (address: string) =>
+  `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(address)}`
+
+const withAddressLinks = (addresses: SiteAddress[]): SiteAddress[] =>
+  addresses
+    .filter((entry) => entry.address)
+    .map((entry) => ({ ...entry, link: entry.link || addressMapsUrl(entry.address) }))
+
 export type SiteSettingsValue = {
   name: string
   phone: string
@@ -76,21 +99,25 @@ const localSettings: SiteSettingsValue = {
   hours: website.header.hours,
   // WordPress contact template: address 1 links to the Google Business
   // profile, address 2 is plain text.
-  addresses: [
+  addresses: withAddressLinks([
     { address: website.footer.addresses[0], link: GOOGLE_BUSINESS },
     { address: website.footer.addresses[1] },
-  ],
+  ]),
   socialLinks: {
     googleBusiness: GOOGLE_BUSINESS,
     yelp: website.reviewSummary.yelp.url,
-    houzz: 'https://www.houzz.com/professionals/kitchen-and-bath-remodelers/prime-kitchens-pfvwus-pf~508047204',
+    houzz:
+      'https://www.houzz.com/professionals/kitchen-and-bath-remodelers/prime-kitchens-pfvwus-pf~508047204',
     bbb: BBB_PROFILE,
   },
 }
 
 const localAreas: SiteArea[] = website.serviceAreas.cities.map((name) => ({
   name,
-  slug: name.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, ''),
+  slug: name
+    .toLowerCase()
+    .replace(/\s+/g, '-')
+    .replace(/[^a-z0-9-]/g, ''),
 }))
 
 type PayloadSiteSettings = {
@@ -130,7 +157,11 @@ type PayloadSiteSettings = {
     heading?: string | null
     body?: string | null
     image?: { url?: string | null } | number | null
-    stats?: Array<{ value?: string | null; label?: string | null; showStars?: boolean | null }> | null
+    stats?: Array<{
+      value?: string | null
+      label?: string | null
+      showStars?: boolean | null
+    }> | null
     buttons?: Array<{ label?: string | null; url?: string | null; variant?: string | null }> | null
   } | null
 }
@@ -153,7 +184,10 @@ export async function resolveSiteAreas(): Promise<SiteArea[]> {
 
   const [{ getPayload }, { default: configPromise }] = await payloadImports()
   const payload = await getPayload({ config: configPromise })
-  const settings = (await payload.findGlobal({ slug: 'site-settings', depth: 1 })) as PayloadSiteSettings
+  const settings = (await payload.findGlobal({
+    slug: 'site-settings',
+    depth: 1,
+  })) as PayloadSiteSettings
   const areas = settings.serviceAreas
     ?.filter(
       (
@@ -169,7 +203,13 @@ export async function resolveSiteAreas(): Promise<SiteArea[]> {
     )
     .map((area) => ({
       name: area.location?.name || '',
-      slug: area.location?.slug || area.location?.name?.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '') || '',
+      slug:
+        area.location?.slug ||
+        area.location?.name
+          ?.toLowerCase()
+          .replace(/\s+/g, '-')
+          .replace(/[^a-z0-9-]/g, '') ||
+        '',
       latitude: numberOr(area.location?.latitude),
       longitude: numberOr(area.location?.longitude),
     }))
@@ -183,7 +223,10 @@ export async function resolveSiteSettings(): Promise<SiteSettingsValue> {
 
   const [{ getPayload }, { default: configPromise }] = await payloadImports()
   const payload = await getPayload({ config: configPromise })
-  const settings = (await payload.findGlobal({ slug: 'site-settings', depth: 1 })) as PayloadSiteSettings
+  const settings = (await payload.findGlobal({
+    slug: 'site-settings',
+    depth: 1,
+  })) as PayloadSiteSettings
   const company = settings.company
   const social = settings.socialLinks
   const trustRaw = settings.trustIntro
@@ -197,15 +240,19 @@ export async function resolveSiteSettings(): Promise<SiteSettingsValue> {
       localSettings.phoneClean,
     phoneCta: textOr(company?.phoneCta) || localSettings.phoneCta,
     email: textOr(company?.email) || localSettings.email,
-    emailLink: textOr(company?.emailLink) || `mailto:${textOr(company?.email) || localSettings.email}`,
+    emailLink:
+      textOr(company?.emailLink) || `mailto:${textOr(company?.email) || localSettings.email}`,
     license: textOr(company?.license) || localSettings.license,
     hours: textOr(company?.hours) || localSettings.hours,
-    addresses:
-      company?.addresses?.flatMap((item): SiteAddress[] => {
-        const address = textOr(item.address)
-        if (!address) return []
-        return [{ address, link: textOr(item.link) }]
-      }) ?? localSettings.addresses,
+    addresses: company?.addresses
+      ? withAddressLinks(
+          company.addresses.flatMap((item): SiteAddress[] => {
+            const address = textOr(item.address)
+            if (!address) return []
+            return [{ address, link: textOr(item.link) }]
+          }),
+        )
+      : localSettings.addresses,
     socialLinks: {
       googleBusiness: textOr(social?.googleBusiness) || localSettings.socialLinks.googleBusiness,
       yelp: textOr(social?.yelp) || localSettings.socialLinks.yelp,
@@ -228,7 +275,13 @@ export async function resolveSiteSettings(): Promise<SiteSettingsValue> {
           })),
           buttons: (trustRaw.buttons ?? []).flatMap((button) =>
             textOr(button?.label) && textOr(button?.url)
-              ? [{ label: textOr(button?.label)!, url: textOr(button?.url)!, variant: textOr(button?.variant) }]
+              ? [
+                  {
+                    label: textOr(button?.label)!,
+                    url: textOr(button?.url)!,
+                    variant: textOr(button?.variant),
+                  },
+                ]
               : [],
           ),
         }
