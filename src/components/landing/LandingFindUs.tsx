@@ -1,5 +1,6 @@
 import { Mail, MapPin, Phone } from 'lucide-react'
 import { Section } from '@/components/ui/Section'
+import { LocationMap, type MapPlace } from '@/components/ui/LocationMap'
 
 /**
  * LandingFindUs
@@ -19,12 +20,13 @@ import { Section } from '@/components/ui/Section'
  * that was purely decorative. They are now links, and a map sits under the
  * cards.
  *
- * The map is Google's own embed, addressed by the `q` query rather than by
- * coordinates. That matters: the CMS stores the offices as postal addresses
- * and nothing else, so anything drawn from a latitude and longitude would
- * have meant inventing them. Letting Google resolve the address it was given
- * keeps the pin honest — and if an address is edited in Payload, the map
- * follows it with no second field to keep in step.
+ * That map used to be a Google Maps embed addressed by the first line of
+ * `address`, which meant Google re-geocoded a postal address on every load and
+ * the block stored no position of its own. It is now `LocationMap` on
+ * OpenFreeMap's keyless tiles, drawn from the block's own `mapPins` — one pin
+ * per office, both offices at once instead of only the first. A block with no
+ * pins renders the cards and no map: there is no address to guess a position
+ * from, and guessing one is what this field exists to stop.
  */
 
 /** Each line of the stored address is its own office. */
@@ -37,20 +39,26 @@ const addressLines = (address?: string) =>
 const mapsSearch = (address: string) =>
   `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(address)}`
 
-const mapsEmbed = (address: string) =>
-  `https://www.google.com/maps?q=${encodeURIComponent(address)}&output=embed`
+/** A stored pin, as Payload hands it over — both numbers optional. */
+export type FindUsMapPin = {
+  latitude?: number | null
+  longitude?: number | null
+}
+
 export function LandingFindUs({
   eyebrow,
   heading,
   phone,
   email,
   address,
+  mapPins,
 }: {
   eyebrow?: string
   heading?: string
   phone?: string
   email?: string
   address?: string
+  mapPins?: FindUsMapPin[]
 }) {
   const items = [
     phone
@@ -66,6 +74,14 @@ export function LandingFindUs({
   ].filter((item): item is NonNullable<typeof item> => Boolean(item))
 
   const offices = addressLines(address)
+
+  // The pins carry their own position; the city a pin sits in is named on the
+  // basemap itself, so nothing here has to label them.
+  const places: MapPlace[] = (mapPins ?? []).flatMap((pin, index) =>
+    typeof pin.latitude === 'number' && typeof pin.longitude === 'number'
+      ? [{ name: offices[index] ?? `Office ${index + 1}`, lat: pin.latitude, lng: pin.longitude }]
+      : [],
+  )
 
   if (!items.length && !heading) return null
 
@@ -125,17 +141,17 @@ export function LandingFindUs({
         ))}
       </div>
 
-      {/* The first stored address is the one the map opens on — it is the
-          office the company lists first, and a map has to centre somewhere.
-          Every address remains reachable as its own link above. */}
-      {offices.length ? (
-        <div className="mt-6 overflow-hidden border border-line bg-paper-2">
-          <iframe
-            src={mapsEmbed(offices[0])}
-            title={`Map showing ${offices[0]}`}
-            loading="lazy"
-            referrerPolicy="no-referrer-when-downgrade"
-            className="block h-[320px] w-full border-0 md:h-[380px]"
+      {/* Every office the block has a pin for, fitted so both are visible.
+          Every address stays reachable as its own link above. */}
+      {places.length ? (
+        <div className="mt-6 h-[320px] overflow-hidden border border-line bg-paper-2 md:h-[380px]">
+          <LocationMap
+            places={places}
+            ariaLabel={
+              offices.length
+                ? `Map showing ${offices.join(' and ')}`
+                : 'Map showing the Prime Design & Build offices'
+            }
           />
         </div>
       ) : null}

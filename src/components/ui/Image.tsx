@@ -17,7 +17,7 @@ import NextImage, { type ImageProps } from 'next/image'
  *
  * Pass `quality` explicitly to override it for one image.
  */
-export const DEFAULT_IMAGE_QUALITY = 100
+export const DEFAULT_IMAGE_QUALITY = 90
 
 export default function Image({ quality = DEFAULT_IMAGE_QUALITY, ...props }: ImageProps) {
   return <NextImage quality={quality} {...props} />

@@ -48,6 +48,7 @@ import {
   MarkerContent,
   type MapRef,
 } from '@/components/ui/map'
+import { MapPinGradientDefs, MapPinGlyph } from '@/components/ui/MapPin'
 import { circlePolygon, paintSiteBasemap } from '@/lib/siteMapStyle'
 
 export type MapMarker = {
@@ -82,13 +83,15 @@ const CITY_HALO_RADIUS_M = 4200
 /** Below this, thirty permanent name labels would collide; above it they fit. */
 const LABEL_ZOOM = 11
 
-/** SVG gradient id, defined once in the React tree and shared by every pin. */
-const PIN_GRADIENT_ID = 'pdb-pin-gradient'
-
 /**
  * Halos sit under every label but over the ground. `waterway_line_label` is
- * the first symbol layer in OpenFreeMap's positron; if a future style drops
- * it, mapcn falls back to appending on top, which is survivable.
+ * the first symbol layer in OpenFreeMap's positron style — which is the style
+ * this map is pinned to (`theme="light"` below), so the layer is always there.
+ * The theme has to be pinned: mapcn otherwise follows the OS's dark-mode
+ * preference into OpenFreeMap's `dark` style, whose layer names are entirely
+ * different (no `waterway_line_label`, and `place_*` instead of `label_*`) —
+ * that made the halos throw "Cannot add layer before non-existing layer" and
+ * left every city label in the dark style's blurred, dotted look.
  */
 const HALO_BEFORE_LAYER = 'waterway_line_label'
 
@@ -99,11 +102,12 @@ export function ServiceAreasMap({ markers }: { markers: MapMarker[] }) {
   const [ready, setReady] = useState(false)
   const [zoom, setZoom] = useState(FALLBACK_ZOOM)
   const [openCity, setOpenCity] = useState<string | null>(null)
-  // Lazily initialised rather than set from the effect below: a browser with
-  // no IntersectionObserver has nothing to wait for, so it starts in view.
-  // `inView` never reaches the server's markup, so it cannot desynchronise
-  // hydration.
-  const [inView, setInView] = useState(() => typeof IntersectionObserver === 'undefined')
+  // Starts `false` and is turned on by the effect below, so the server's markup
+  // and the client's first render agree: deciding it in the initialiser (the
+  // server has no `IntersectionObserver`, the browser does) made them disagree
+  // and React threw the tree away on hydration, which is where this page's
+  // "Hydration failed" console error came from.
+  const [inView, setInView] = useState(false)
 
   // Keyed on coordinates, not array identity: a parent re-render that rebuilds
   // the marker array must not refit the map underneath the reader.
@@ -128,7 +132,14 @@ export function ServiceAreasMap({ markers }: { markers: MapMarker[] }) {
   /* Defer MapLibre and the tiles until the section is nearly on screen. */
   useEffect(() => {
     const element = wrapperRef.current
-    if (!element || inView) return
+    if (!element) return
+    // Nothing to wait for without an observer: mount on the next frame. (On the
+    // frame rather than in the effect body, which `react-hooks/set-state-in-effect`
+    // rejects.)
+    if (typeof IntersectionObserver === 'undefined') {
+      const frame = requestAnimationFrame(() => setInView(true))
+      return () => cancelAnimationFrame(frame)
+    }
     const observer = new IntersectionObserver(
       (entries) => {
         if (entries.some((entry) => entry.isIntersecting)) {
@@ -140,7 +151,7 @@ export function ServiceAreasMap({ markers }: { markers: MapMarker[] }) {
     )
     observer.observe(element)
     return () => observer.disconnect()
-  }, [inView])
+  }, [])
 
   const fitAll = useCallback(() => {
     const map = mapRef.current
@@ -212,15 +223,7 @@ export function ServiceAreasMap({ markers }: { markers: MapMarker[] }) {
       {/* Defined once and shared by every pin's `fill="url(#…)"`. The pins are
           portalled into MapLibre's marker elements, but that is the same
           document, so the reference resolves. */}
-      <svg aria-hidden className="pointer-events-none absolute h-0 w-0">
-        <defs>
-          <linearGradient id={PIN_GRADIENT_ID} x1="0" y1="0" x2="0" y2="1">
-            <stop offset="0%" stopColor="#D2B07A" />
-            <stop offset="55%" stopColor="#C19A5B" />
-            <stop offset="100%" stopColor="#8F6C3E" />
-          </linearGradient>
-        </defs>
-      </svg>
+      <MapPinGradientDefs />
 
       <div
         className="absolute inset-0"
@@ -230,6 +233,12 @@ export function ServiceAreasMap({ markers }: { markers: MapMarker[] }) {
         {inView ? (
           <MapCanvas
             ref={attachMap}
+            // Pinned to the light positron style. The basemap paint in
+            // `paintSiteBasemap` is written against positron's layer names, so
+            // following the OS dark-mode preference would render OpenFreeMap's
+            // `dark` style, skip nearly every paint override, and break the
+            // halo layer below.
+            theme="light"
             center={FALLBACK_CENTER}
             zoom={FALLBACK_ZOOM}
             minZoom={MIN_ZOOM}
@@ -383,35 +392,7 @@ function AreaPin({
           aria-label={`${marker.name} — view service area`}
           className="pdb-pin__button absolute inset-0 origin-bottom cursor-pointer outline-offset-[3px] focus-visible:outline-2 focus-visible:outline-ink"
         >
-          <svg
-            viewBox="0 0 26 36"
-            width="26"
-            height="36"
-            aria-hidden
-            focusable="false"
-            className="block drop-shadow-[0_2px_3px_rgba(20,33,61,0.22)]"
-          >
-            <path
-              d="M13 0C5.82 0 0 5.82 0 13c0 9.75 13 23 13 23s13-13.25 13-23C26 5.82 20.18 0 13 0z"
-              fill={`url(#${PIN_GRADIENT_ID})`}
-            />
-            <path
-              d="M8.2 13.4 13 9.1l4.8 4.3"
-              fill="none"
-              stroke="#FAF7F2"
-              strokeWidth="1.7"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            />
-            <path
-              d="M9.7 12.6v5.5h6.6v-5.5"
-              fill="none"
-              stroke="#FAF7F2"
-              strokeWidth="1.7"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            />
-          </svg>
+          <MapPinGlyph className="block drop-shadow-[0_2px_3px_rgba(20,33,61,0.22)]" />
         </button>
 
         {/* The city name: always on hover, permanently once zoomed past

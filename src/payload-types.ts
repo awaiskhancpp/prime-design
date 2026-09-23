@@ -1236,6 +1236,22 @@ export interface Service {
             email?: string | null;
             address?: string | null;
             mapUrl?: string | null;
+            /**
+             * One pin per office on the map below the cards. Leave empty and the map is not shown; the addresses above still are.
+             */
+            mapPins?:
+              | {
+                  /**
+                   * Decimal degrees, north positive. Campbell is around 37.287.
+                   */
+                  latitude?: number | null;
+                  /**
+                   * Decimal degrees, east positive — so west of Greenwich is negative (-121.94).
+                   */
+                  longitude?: number | null;
+                  id?: string | null;
+                }[]
+              | null;
             sourceId?: string | null;
             sourceElementType?: string | null;
             sourceAttachmentId?: number | null;
@@ -4150,6 +4166,22 @@ export interface LandingPage {
         email?: string | null;
         address?: string | null;
         mapUrl?: string | null;
+        /**
+         * One pin per office on the map below the cards. Leave empty and the map is not shown; the addresses above still are.
+         */
+        mapPins?:
+          | {
+              /**
+               * Decimal degrees, north positive. Campbell is around 37.287.
+               */
+              latitude?: number | null;
+              /**
+               * Decimal degrees, east positive — so west of Greenwich is negative (-121.94).
+               */
+              longitude?: number | null;
+              id?: string | null;
+            }[]
+          | null;
         sourceId?: string | null;
         sourceElementType?: string | null;
         sourceAttachmentId?: number | null;
@@ -5432,6 +5464,13 @@ export interface ServicesSelect<T extends boolean = true> {
               email?: T;
               address?: T;
               mapUrl?: T;
+              mapPins?:
+                | T
+                | {
+                    latitude?: T;
+                    longitude?: T;
+                    id?: T;
+                  };
               sourceId?: T;
               sourceElementType?: T;
               sourceAttachmentId?: T;
@@ -7242,6 +7281,13 @@ export interface LandingPagesSelect<T extends boolean = true> {
               email?: T;
               address?: T;
               mapUrl?: T;
+              mapPins?:
+                | T
+                | {
+                    latitude?: T;
+                    longitude?: T;
+                    id?: T;
+                  };
               sourceId?: T;
               sourceElementType?: T;
               sourceAttachmentId?: T;

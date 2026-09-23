@@ -1,17 +1,22 @@
 import { MapPin } from 'lucide-react'
 
+import { LocationMap } from '@/components/ui/LocationMap'
 import type { ProjectMap } from '@/lib/projects'
 
 /**
- * The project's location, as an embedded Google map.
+ * The project's location, on the site's own map.
  *
- * WordPress records the coordinates in an ACF Google Map field and shows a
- * map on the project page; this renders the same thing from the migrated
- * `address` data.
+ * WordPress records the coordinates in an ACF Google Map field and shows a map
+ * on the project page; this renders the same thing from the migrated
+ * `address` data — the real latitude, longitude and zoom, not an address
+ * looked up again at render time.
  *
- * No Maps API key is configured on this project, so the keyless embed URL is
- * used. If `NEXT_PUBLIC_GOOGLE_MAPS_API_KEY` is ever set, the official Embed
- * API is used instead without any other change.
+ * It used to be a Google Maps embed, keyless for as long as no API key was
+ * configured. That embed is gone the same way the service-area map's Google
+ * build went: it pulls a third-party frame, hands Google the reader's
+ * address, and depends on a keyed service to keep rendering. `LocationMap`
+ * draws the same pin from OpenFreeMap's keyless tiles, in the site's own
+ * basemap paint.
  *
  * `variant` sets the shape only:
  *   - `panel` fills the height of a neighbouring video on desktop
@@ -23,15 +28,13 @@ export function ProjectLocationMap({
   variant = 'wide',
 }: {
   map: ProjectMap
-  /** Project title — used for the iframe's accessible name. */
+  /** Project title — used for the map's accessible name. */
   title: string
   variant?: 'panel' | 'wide'
 }) {
+  // The WordPress ACF field stores these as numbers already; the migration
+  // copied the object through unchanged.
   const query = `${map.lat},${map.lng}`
-  const apiKey = process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY
-  const embedUrl = apiKey
-    ? `https://www.google.com/maps/embed/v1/place?key=${apiKey}&q=${encodeURIComponent(query)}&zoom=${map.zoom}`
-    : `https://www.google.com/maps?q=${encodeURIComponent(query)}&z=${map.zoom}&output=embed`
   const linkUrl = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(query)}`
 
   return (
@@ -46,13 +49,10 @@ export function ProjectLocationMap({
             : 'aspect-[4/3] sm:aspect-[16/7]',
         ].join(' ')}
       >
-        <iframe
-          src={embedUrl}
-          title={`Map of ${title}${map.address ? ` — ${map.address}` : ''}`}
-          loading="lazy"
-          referrerPolicy="no-referrer-when-downgrade"
-          allowFullScreen
-          className="absolute inset-0 h-full w-full border-0"
+        <LocationMap
+          places={[{ name: title, lat: map.lat, lng: map.lng }]}
+          zoom={map.zoom}
+          ariaLabel={`Map of ${title}${map.address ? ` — ${map.address}` : ''}`}
         />
       </div>
 

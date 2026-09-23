@@ -256,7 +256,7 @@ export function LeadForm({
         type="submit"
         variant="primary"
         disabled={sending}
-        className={cn('w-fit', submitClassName)}
+        className={cn('w-fit mt-2', submitClassName)}
       >
         {sending ? 'Sending…' : submitLabel}
       </Button>

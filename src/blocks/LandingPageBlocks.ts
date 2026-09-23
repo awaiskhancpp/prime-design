@@ -380,6 +380,46 @@ export const landingPageBlocks: Block[] = [
     text('email'),
     { name: 'address', type: 'textarea' as const },
     text('mapUrl'),
+    // Where the offices sit on the map under the cards. The map used to be a
+    // Google Maps embed addressed by the first line of `address`, which meant
+    // Google re-geocoded a postal address on every page load and the section
+    // carried no coordinates of its own. These are real fields now, filled
+    // from the addresses above and editable in the admin.
+    {
+      name: 'mapPins',
+      type: 'array' as const,
+      labels: labels('Map pin'),
+      admin: {
+        description:
+          'One pin per office on the map below the cards. Leave empty and the map is not shown; the addresses above still are.',
+      },
+      fields: [
+        {
+          type: 'row' as const,
+          fields: [
+            {
+              name: 'latitude',
+              type: 'number' as const,
+              admin: {
+                width: '50%',
+                step: 0.000001,
+                description: 'Decimal degrees, north positive. Campbell is around 37.287.',
+              },
+            },
+            {
+              name: 'longitude',
+              type: 'number' as const,
+              admin: {
+                width: '50%',
+                step: 0.000001,
+                description:
+                  'Decimal degrees, east positive — so west of Greenwich is negative (-121.94).',
+              },
+            },
+          ],
+        },
+      ],
+    },
   ]),
   base('testimonials', 'Testimonials', [
     text('heading'),

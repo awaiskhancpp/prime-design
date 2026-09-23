@@ -2,6 +2,7 @@ import React from 'react'
 import { headers } from 'next/headers'
 
 import { LandscapingCta } from '@/components/blocks/LandscapingCta'
+import { LandingHeader } from '@/components/landing/LandingHeader'
 import { SiteFooter } from '@/components/layout/SiteFooter'
 import { SiteHeader } from '@/components/layout/SiteHeader'
 import { TopBanner } from '@/components/layout/TopBanner'
@@ -14,9 +15,10 @@ import { getServiceLocation } from '@/lib/serviceLocations'
  * SiteFooter at the bottom. Every page in this group gets it EXCEPT:
  *
  *   - Google Ads landing pages (landing-pages records, and any pages
- *     collection record flagged `isGoogleAdsPage`) — they stay bare, and
- *   - service-location pages (`/[service]/[city]`) — they keep their own
- *     minimal chrome.
+ *     collection record flagged `isGoogleAdsPage`) — they get the slim
+ *     `LandingHeader` (call / get-a-quote) instead, and
+ *   - service-location pages (`/[service]/[city]`) — they stay truly bare
+ *     with their own minimal chrome.
  *
  * This lives in `template.tsx`, NOT `layout.tsx`, and that is the whole point.
  * A root layout renders once and then persists for the lifetime of the tab:
@@ -71,7 +73,17 @@ export default async function FrontendTemplate({ children }: { children: React.R
     bare = landingSlugs.includes(segments[0]) || Boolean(page?.isGoogleAdsPage)
   }
 
-  if (bare) return <>{children}</>
+  if (bare) {
+    // Google Ads landing pages keep a slim, conversion-only header — the two
+    // actions an ad visitor takes (call / get a quote) — over their dark hero.
+    // Service-location pages (`segments.length === 2`) stay truly bare.
+    return (
+      <div className="relative">
+        {segments.length === 1 ? <LandingHeader /> : null}
+        {children}
+      </div>
+    )
+  }
 
   // Pages that open on a white hero need the ink header; every other page
   // opens with a dark hero that the white header overlays. `thank-you` joined

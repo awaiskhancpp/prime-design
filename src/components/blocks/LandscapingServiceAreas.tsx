@@ -2,9 +2,9 @@
  * LandscapingServiceAreas — the "Areas we service" section.
  *
  * The left column lists every service area as a linked badge; the right is the
- * coverage map (`ServiceAreasMap`), which is built directly on the Google Maps
- * JavaScript API — no Leaflet, no map wrapper package. See that file for the
- * basemap and pin design.
+ * coverage map (`ServiceAreasMap`), built on the vendored mapcn primitives over
+ * OpenFreeMap's keyless tiles — no Google Maps API key, no billing, no map
+ * wrapper package. See that file for the basemap and pin design.
  *
  * ── Where the pins come from ──────────────────────────────────────────────
  *
@@ -238,7 +238,7 @@ export async function LandscapingServiceAreas({
           ) : null}
         </div>
 
-        {/* ── Right column: Leaflet map ── */}
+        {/* ── Right column: coverage map ── */}
         <div className="relative min-h-[420px] lg:min-h-[560px]">
           <ServiceAreasMap markers={markers} />
         </div>

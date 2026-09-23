@@ -1,8 +1,8 @@
 'use client'
 
 import Image from '@/components/ui/Image'
-import { useMemo, useRef, useState } from 'react'
-import type { FormEvent } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
+import type { ChangeEvent, FormEvent } from 'react'
 import {
   ArrowLeft,
   ArrowRight,
@@ -144,6 +144,19 @@ function buildIcsContent({
 
 // Each open day has 5 bookable appointment slots.
 const DAILY_TIME_SLOTS = ['12:00 am', '01:00 am', '02:00 am', '03:00 am', '10:00 pm']
+
+/**
+ * A phone field accepts only the characters a phone number can contain, so
+ * typing letters into it does nothing. Formatting stays freeform — the
+ * validator reads digits only, so "(650) 235-4863" and "6502354863" are both
+ * accepted and compared as equal.
+ */
+const sanitizePhone = (value: string) => value.replace(/[^\d+() -]/g, '').slice(0, 24)
+
+/**
+ * A ZIP field accepts digits and a single optional ZIP+4 dash, nothing else.
+ */
+const sanitizeZip = (value: string) => value.replace(/[^\d-]/g, '').slice(0, 10)
 
 function getDaySeed(day: Date) {
   return day.getFullYear() * 10000 + (day.getMonth() + 1) * 100 + day.getDate()
@@ -324,6 +337,15 @@ export function AppointmentScheduler({
   const [sending, setSending] = useState(false)
   const [submitError, setSubmitError] = useState<string>()
   const captcha = useRef<CaptchaHandle>(null)
+  // Honeypot + timing, same anti-spam gates the other lead forms send. A bot
+  // fills the hidden field, and a submission faster than a couple of seconds
+  // after render is a script, not a person. `renderedAt` starts 0 — the
+  // endpoint reads that as "no timing info" rather than an instant submission.
+  const [honeypot, setHoneypot] = useState('')
+  const renderedAt = useRef(0)
+  useEffect(() => {
+    renderedAt.current = Date.now()
+  }, [])
 
   const dateLabel = selectedDate
     ? selectedDate.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })
@@ -405,6 +427,10 @@ export function AppointmentScheduler({
           source: 'appointment',
           sourceUrl: typeof window === 'undefined' ? undefined : window.location.href,
           captchaToken: token,
+          // The same spam gates the site's other forms send: a hidden field no
+          // human fills, and how long the form was on screen before submitting.
+          company: honeypot,
+          renderedAt: renderedAt.current,
         }),
       })
       const result = (await response.json().catch(() => ({}))) as { error?: string }
@@ -458,6 +484,17 @@ export function AppointmentScheduler({
 
     setCustomer(values)
     setStep(3)
+  }
+
+  /**
+   * Validate a field the moment it is left, so a mistake shows inline before
+   * the whole form is submitted — the same behaviour the other lead forms have.
+   */
+  function blur(name: CustomerField) {
+    return (event: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+      const message = CUSTOMER_RULES[name]?.(event.target.value)
+      setFieldErrors((previous) => ({ ...previous, [name]: message }))
+    }
   }
 
   return (
@@ -539,7 +576,7 @@ export function AppointmentScheduler({
             </div>
           </div>
         ) : step === 2 ? (
-          <form onSubmit={submit} className="grid h-full md:grid-cols-[0.8fr_1.2fr]">
+          <form onSubmit={submit} noValidate className="grid h-full md:grid-cols-[0.8fr_1.2fr]">
             <aside className="bg-paper-2 px-8 py-12 text-center md:px-12">
               <div className="mx-auto flex h-20 w-20 items-center justify-center">
                 <Image src="/information.svg" alt="" width={80} height={80} aria-hidden />
@@ -555,14 +592,15 @@ export function AppointmentScheduler({
                 Call {phone}
               </a>
             </aside>
-            <div className="px-8 py-12 md:px-12">
+            <div className="px-8 py-8 md:px-12">
               <h3 className="font-display text-3xl font-medium text-ink">Customer Information</h3>
-              <div className="mt-8 grid gap-5 sm:grid-cols-2">
+              <div className="mt-8 grid gap-2 sm:grid-cols-2">
                 <BookingField name="firstName" error={fieldErrors.firstName}>
                   <Input
                     name="firstName"
                     placeholder="First Name*"
                     defaultValue={customer?.firstName}
+                    onBlur={blur('firstName')}
                     aria-invalid={fieldErrors.firstName ? true : undefined}
                   />
                 </BookingField>
@@ -571,6 +609,7 @@ export function AppointmentScheduler({
                     name="lastName"
                     placeholder="Last Name*"
                     defaultValue={customer?.lastName}
+                    onBlur={blur('lastName')}
                     aria-invalid={fieldErrors.lastName ? true : undefined}
                   />
                 </BookingField>
@@ -580,6 +619,7 @@ export function AppointmentScheduler({
                     name="email"
                     placeholder="Email Address*"
                     defaultValue={customer?.email}
+                    onBlur={blur('email')}
                     aria-invalid={fieldErrors.email ? true : undefined}
                   />
                 </BookingField>
@@ -589,6 +629,10 @@ export function AppointmentScheduler({
                     name="phone"
                     placeholder="Phone Number*"
                     defaultValue={customer?.phone}
+                    onInput={(event) =>
+                      (event.currentTarget.value = sanitizePhone(event.currentTarget.value))
+                    }
+                    onBlur={blur('phone')}
                     aria-invalid={fieldErrors.phone ? true : undefined}
                   />
                 </BookingField>
@@ -597,6 +641,7 @@ export function AppointmentScheduler({
                     name="address"
                     placeholder="Address*"
                     defaultValue={customer?.address}
+                    onBlur={blur('address')}
                     aria-invalid={fieldErrors.address ? true : undefined}
                   />
                 </BookingField>
@@ -606,6 +651,10 @@ export function AppointmentScheduler({
                     placeholder="Zip Code*"
                     inputMode="numeric"
                     defaultValue={customer?.zipCode}
+                    onInput={(event) =>
+                      (event.currentTarget.value = sanitizeZip(event.currentTarget.value))
+                    }
+                    onBlur={blur('zipCode')}
                     aria-invalid={fieldErrors.zipCode ? true : undefined}
                   />
                 </BookingField>
@@ -618,9 +667,23 @@ export function AppointmentScheduler({
                     name="comments"
                     placeholder="Comments* (at least 8 words)"
                     defaultValue={customer?.comments}
+                    onBlur={blur('comments')}
                     aria-invalid={fieldErrors.comments ? true : undefined}
                   />
                 </BookingField>
+              </div>
+
+              {/* Honeypot: hidden from people, irresistible to bots. */}
+              <div aria-hidden className="hidden">
+                <label htmlFor="booking-company">Company</label>
+                <input
+                  id="booking-company"
+                  name="company"
+                  tabIndex={-1}
+                  autoComplete="off"
+                  value={honeypot}
+                  onChange={(event) => setHoneypot(event.target.value)}
+                />
               </div>
               <div className="mt-8 flex justify-between">
                 <Button type="button" variant="outline" onClick={back}>
@@ -643,7 +706,7 @@ export function AppointmentScheduler({
                 Double check your reservation details and click submit if everything is correct
               </p>
             </aside>
-            <div className="px-8 py-12 md:px-12">
+            <div className="px-8 py-8 md:px-12">
               <h3 className="font-display text-3xl font-medium text-ink">{consultation}</h3>
               <p className="mt-3 text-lg text-brass-deep">
                 {dateLabel}, {time}
@@ -922,9 +985,9 @@ function BookingField({
     // control stretching to match a taller neighbour in the two-column grid,
     // and the message slot is always present at a fixed height so showing or
     // clearing an error never shifts the layout.
-    <div className={cn('grid content-start gap-1.5', className)}>
+    <div className={cn('grid content-start gap-1', className)}>
       {children}
-      <div className="min-h-4" aria-live="polite">
+      <div className="min-h-3" aria-live="polite">
         {error ? (
           <p id={`booking-${name}-error`} role="alert" className="text-xs leading-4 text-red-600">
             {error}

@@ -78,10 +78,10 @@ function PhotoCard({ card, priority = false }: { card: CraftsmanshipCard; priori
       ) : null}
 
       {/* Brass into hairline, out to the column edge. */}
-      <span aria-hidden className="mt-6 flex items-center">
+      {/* <span aria-hidden className="mt-6 flex items-center">
         <span className="h-0.5 w-10 bg-brass" />
         <span className="h-px flex-1 bg-line" />
-      </span>
+      </span> */}
 
       <h3 className="mt-5 font-display text-2xl font-medium leading-tight text-ink md:text-[1.75rem]">
         {card.title}

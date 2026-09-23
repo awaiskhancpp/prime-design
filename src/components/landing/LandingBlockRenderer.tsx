@@ -657,6 +657,14 @@ export const landingBlockRegistry: Record<string, Renderer> = {
       phone={text(block.phone)}
       email={text(block.email)}
       address={text(block.address)}
+      // One pin per office, as real coordinates — the map is drawn from these
+      // rather than from a geocoder reading the addresses back.
+      mapPins={(Array.isArray(block.mapPins) ? block.mapPins : [])
+        .map((pin) => pin as Record<string, unknown>)
+        .map((pin) => ({
+          latitude: typeof pin.latitude === 'number' ? pin.latitude : undefined,
+          longitude: typeof pin.longitude === 'number' ? pin.longitude : undefined,
+        }))}
     />
   ),
   faq: FaqBlock,

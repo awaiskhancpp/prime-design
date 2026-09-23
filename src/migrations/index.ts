@@ -52,6 +52,8 @@ import * as migration_20260919_120000_page_social_proof_block from './20260919_1
 import * as migration_20260919_130000_cta_body_rich_text from './20260919_130000_cta_body_rich_text';
 import * as migration_20260919_140000_sub_services_buttons from './20260919_140000_sub_services_buttons';
 import * as migration_20260922_170000_location_coordinates from './20260922_170000_location_coordinates';
+import * as migration_20260923_100000_find_us_map_pins from './20260923_100000_find_us_map_pins';
+import * as migration_20260923_110000_find_us_map_pins_services_side from './20260923_110000_find_us_map_pins_services_side';
 
 export const migrations = [
   {
@@ -323,5 +325,15 @@ export const migrations = [
     up: migration_20260922_170000_location_coordinates.up,
     down: migration_20260922_170000_location_coordinates.down,
     name: '20260922_170000_location_coordinates',
+  },
+  {
+    up: migration_20260923_100000_find_us_map_pins.up,
+    down: migration_20260923_100000_find_us_map_pins.down,
+    name: '20260923_100000_find_us_map_pins',
+  },
+  {
+    up: migration_20260923_110000_find_us_map_pins_services_side.up,
+    down: migration_20260923_110000_find_us_map_pins_services_side.down,
+    name: '20260923_110000_find_us_map_pins_services_side',
   },
 ];

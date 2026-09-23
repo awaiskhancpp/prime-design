@@ -34,14 +34,6 @@ const WATER = '#D9E0EA'
 const PAINT: Record<string, Record<string, unknown>> = {
   background: { 'background-color': PAPER },
 
-  // Ground cover. Parks and woodland stay barely distinct from the ground —
-  // enough to read as green space, not enough to compete with the pins.
-  park: { 'fill-color': '#EBE7D8' },
-  landcover_wood: { 'fill-color': '#E6E2D1' },
-  landcover_glacier: { 'fill-color': '#FFFFFF' },
-  landcover_ice_shelf: { 'fill-color': '#FFFFFF' },
-  landuse_residential: { 'fill-color': PAPER_2 },
-
   // Water is the only cool tone on the map, which is what makes the bay
   // legible at a glance at this zoom.
   water: { 'fill-color': WATER },
@@ -96,8 +88,19 @@ const PAINT: Record<string, Record<string, unknown>> = {
  * own subject matter intruding on ours — the Google build suppressed exactly
  * these for the same reason. Footpath names go too: they only appear at the
  * zooms where someone is already looking at a single street.
+ *
+ * The ground-cover fills (`park`, woodland, residential, glacier) are the same
+ * category of noise. At the zoom these maps live at, OpenMapTiles generalises
+ * those polygons hard, so they render as blocky tan patches that read as a
+ * pixelated texture over the paper floor — exactly what this paint is meant to
+ * prevent. The valley floor should be paper, nothing more.
  */
 const HIDDEN = [
+  'park',
+  'landcover_wood',
+  'landcover_glacier',
+  'landcover_ice_shelf',
+  'landuse_residential',
   'railway',
   'railway_dashline',
   'railway_service',
@@ -126,7 +129,14 @@ export function paintSiteBasemap(map: MapLibreMap) {
     if (!map.getLayer(layerId)) continue
     for (const [property, value] of Object.entries(paint)) {
       try {
-        map.setPaintProperty(layerId, property, value)
+        // The table above is data, so a property key is only ever a `string`
+        // here; every value in it is a real paint property of the layer it is
+        // filed under, and a wrong pairing is caught by the try below.
+        map.setPaintProperty(
+          layerId,
+          property as Parameters<MapLibreMap['setPaintProperty']>[1],
+          value as never,
+        )
       } catch {
         // A property this layer type does not accept — upstream's colour stays.
       }
