@@ -3,6 +3,7 @@ import type { CollectionConfig } from 'payload'
 export const Redirects: CollectionConfig = {
   slug: 'redirects',
   admin: {
+    group: 'System',
     useAsTitle: 'oldPath',
     defaultColumns: ['oldPath', 'newPath', 'statusCode', 'updatedAt'],
     description: 'Permanent and temporary URL redirects used during migration.',

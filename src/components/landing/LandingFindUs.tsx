@@ -127,9 +127,14 @@ export function LandingFindUs({
       </div>
 
       {/* Every office the block has a pin for, fitted so both are visible.
-          Every address stays reachable as its own link above. */}
+          Every address stays reachable as its own link above.
+
+          The box is taller than a typical banner on purpose: the two offices
+          are 30km apart north to south, so a shallow band fits them on
+          latitude alone and spends the rest of its width on ocean. The height
+          lets the fit zoom in and puts the valley between them on screen. */}
       {places.length ? (
-        <div className="mt-6 h-[320px] overflow-hidden border border-line bg-paper-2 md:h-[380px]">
+        <div className="mt-6 h-[380px] overflow-hidden border border-line bg-paper-2 md:h-[460px]">
           <LocationMap
             places={places}
             ariaLabel={

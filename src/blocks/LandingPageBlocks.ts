@@ -17,6 +17,12 @@ const labels = (singular: string, plural = `${singular}s`) => ({ singular, plura
 const base = (slug: string, singular: string, fields: Block['fields']): Block => ({
   slug,
   labels: labels(singular),
+  admin: {
+    // Every section row in the page builder is labelled with its own heading
+    // instead of "Cta 12" — see the component for why. Applied here rather
+    // than per block so a new block gets it for free.
+    components: { Label: '/components/admin/BlockRowLabel#BlockRowLabel' },
+  },
   fields: [...fields, ...provenanceFields()],
 })
 

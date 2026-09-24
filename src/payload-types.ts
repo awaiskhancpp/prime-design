@@ -2008,6 +2008,19 @@ export interface ServiceLocation {
      */
     image?: string | null;
   };
+  /**
+   * The sub-service cards section. The cards themselves come from the parent service; these are this page's own buttons.
+   */
+  offerings?: {
+    primaryCta?: {
+      label?: string | null;
+      href?: string | null;
+    };
+    secondaryCta?: {
+      label?: string | null;
+      href?: string | null;
+    };
+  };
   quote?: {
     heading?: string | null;
     quote?: string | null;
@@ -2020,7 +2033,21 @@ export interface ServiceLocation {
   primeDifference?: {
     eyebrow?: string | null;
     heading?: string | null;
-    body?: string | null;
+    body?: {
+      root: {
+        type: string;
+        children: {
+          type: any;
+          version: number;
+          [k: string]: unknown;
+        }[];
+        direction: ('ltr' | 'rtl') | null;
+        format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+        indent: number;
+        version: number;
+      };
+      [k: string]: unknown;
+    } | null;
     checklist?:
       | {
           text?: string | null;
@@ -2030,7 +2057,21 @@ export interface ServiceLocation {
     reasons?:
       | {
           title: string;
-          description?: string | null;
+          description?: {
+            root: {
+              type: string;
+              children: {
+                type: any;
+                version: number;
+                [k: string]: unknown;
+              }[];
+              direction: ('ltr' | 'rtl') | null;
+              format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+              indent: number;
+              version: number;
+            };
+            [k: string]: unknown;
+          } | null;
           image?: string | null;
           id?: string | null;
         }[]
@@ -4399,8 +4440,6 @@ export interface LandingPage {
     term?: string | null;
     content?: string | null;
   };
-  sourceWordPressId?: number | null;
-  sourceSlug?: string | null;
   /**
    * Search-engine and social-share metadata. Titles and descriptions are migrated from the WordPress Rank Math data — keep them unique per page.
    */
@@ -4434,6 +4473,8 @@ export interface LandingPage {
      */
     ogImage?: (number | null) | Media;
   };
+  sourceWordPressId?: number | null;
+  sourceSlug?: string | null;
   updatedAt: string;
   createdAt: string;
 }
@@ -5913,6 +5954,22 @@ export interface ServiceLocationsSelect<T extends boolean = true> {
         body?: T;
         ctaLabel?: T;
         image?: T;
+      };
+  offerings?:
+    | T
+    | {
+        primaryCta?:
+          | T
+          | {
+              label?: T;
+              href?: T;
+            };
+        secondaryCta?:
+          | T
+          | {
+              label?: T;
+              href?: T;
+            };
       };
   quote?:
     | T
@@ -7439,8 +7496,6 @@ export interface LandingPagesSelect<T extends boolean = true> {
         term?: T;
         content?: T;
       };
-  sourceWordPressId?: T;
-  sourceSlug?: T;
   seo?:
     | T
     | {
@@ -7452,6 +7507,8 @@ export interface LandingPagesSelect<T extends boolean = true> {
         ogDescription?: T;
         ogImage?: T;
       };
+  sourceWordPressId?: T;
+  sourceSlug?: T;
   updatedAt?: T;
   createdAt?: T;
 }

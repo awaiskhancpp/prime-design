@@ -1,6 +1,7 @@
 import { getPayload } from 'payload'
 import configPromise from '@payload-config'
 import { resolveServiceDetail, type ServiceDetail } from './services'
+import { richTextHasContent, type RichTextValue } from './richText'
 import type {
   Location as PayloadLocation,
   Service as PayloadService,
@@ -50,10 +51,16 @@ export type ServiceLocation = {
   primeDifference?: {
     eyebrow?: string
     heading?: string
-    body?: string
+    /** Rich text: the WordPress paragraph emphasises a phrase inside it. */
+    body?: RichTextValue
     checklist?: string[]
     /** Mapped to the section's icon/title/body card shape. */
-    reasons?: Array<{ icon?: string; title: string; body?: string }>
+    reasons?: Array<{ icon?: string; title: string; body?: RichTextValue }>
+  }
+  /** This page's own buttons under the sub-service cards. */
+  offerings?: {
+    primaryCta?: { label: string; href: string }
+    secondaryCta?: { label: string; href: string }
   }
   quote?: {
     heading?: string
@@ -121,6 +128,16 @@ export async function getServiceLocation(serviceSlug: string, locationSlugValue:
     // page falls back to the parent service, then the built-in template).
     const textOr = (value: string | null | undefined) =>
       typeof value === 'string' && value.trim() ? value : undefined
+    /** A rich-text field, or undefined when it holds only an empty paragraph. */
+    const richTextOr = (value: unknown): RichTextValue | undefined =>
+      richTextHasContent(value as RichTextValue) ? (value as RichTextValue) : undefined
+    /** A button, only when it has both halves — a label with no target is a
+     *  dead control, and a target with no label is invisible. */
+    const ctaOr = (value: { label?: string | null; href?: string | null } | null | undefined) => {
+      const label = textOr(value?.label)
+      const href = textOr(value?.href)
+      return label && href ? { label, href } : undefined
+    }
     const compact = <T extends object>(value: T) =>
       Object.values(value).some((entry) =>
         Array.isArray(entry) ? entry.length > 0 : entry !== undefined,
@@ -154,7 +171,10 @@ export async function getServiceLocation(serviceSlug: string, locationSlugValue:
     const primeDifference = compact({
       eyebrow: textOr(doc.primeDifference?.eyebrow),
       heading: textOr(doc.primeDifference?.heading),
-      body: textOr(doc.primeDifference?.body),
+      // `richTextHasContent` rather than a truthiness check: an untouched
+      // Lexical editor saves one empty paragraph, which would otherwise
+      // render as a blank line where the paragraph used to be.
+      body: richTextOr(doc.primeDifference?.body),
       checklist: (doc.primeDifference?.checklist ?? [])
         .map((item) => textOr(item.text))
         .filter((item): item is string => Boolean(item)),
@@ -163,8 +183,12 @@ export async function getServiceLocation(serviceSlug: string, locationSlugValue:
         .map((reason) => ({
           icon: reason.image ?? undefined,
           title: reason.title,
-          body: textOr(reason.description),
+          body: richTextOr(reason.description),
         })),
+    })
+    const offerings = compact({
+      primaryCta: ctaOr(doc.offerings?.primaryCta),
+      secondaryCta: ctaOr(doc.offerings?.secondaryCta),
     })
     const quote = compact({
       heading: textOr(doc.quote?.heading),
@@ -194,8 +218,10 @@ export async function getServiceLocation(serviceSlug: string, locationSlugValue:
           avatar: textOr(item.avatar),
         })),
     })
-    const sectionOverrides = Array.isArray((doc as unknown as { sectionOverrides?: unknown }).sectionOverrides)
-      ? ((doc as unknown as { sectionOverrides: Array<Record<string, unknown>> }).sectionOverrides)
+    const sectionOverrides = Array.isArray(
+      (doc as unknown as { sectionOverrides?: unknown }).sectionOverrides,
+    )
+      ? (doc as unknown as { sectionOverrides: Array<Record<string, unknown>> }).sectionOverrides
           .map((override) => ({
             sectionKey: String(override.sectionKey || ''),
             enabled: override.enabled !== false,
@@ -226,6 +252,7 @@ export async function getServiceLocation(serviceSlug: string, locationSlugValue:
       locationVideo,
       dontSettle,
       primeDifference,
+      offerings,
       quote,
       siliconValleyLoves,
       testimonialCards,

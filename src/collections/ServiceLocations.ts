@@ -85,8 +85,7 @@ const locationHeroField = {
       name: 'formSubject',
       type: 'text' as const,
       admin: {
-        description:
-          'Completes “Let’s talk about your dream …” beside the form — e.g. “kitchen”.',
+        description: 'Completes “Let’s talk about your dream …” beside the form — e.g. “kitchen”.',
       },
     },
     {
@@ -155,7 +154,11 @@ const primeDifferenceField = {
   fields: [
     { name: 'eyebrow', type: 'text' as const },
     { name: 'heading', type: 'text' as const },
-    { name: 'body', type: 'textarea' as const },
+    // Rich text, not a textarea: the WordPress original emphasises a phrase
+    // inside this paragraph ("we are the <b>unrivaled experts</b>"), which a
+    // plain string cannot carry, and editors were otherwise unable to bold or
+    // link anything in the one paragraph that sells the section.
+    { name: 'body', type: 'richText' as const },
     {
       name: 'checklist',
       type: 'array' as const,
@@ -166,8 +169,52 @@ const primeDifferenceField = {
       type: 'array' as const,
       fields: [
         { name: 'title', type: 'text' as const, required: true },
-        { name: 'description', type: 'textarea' as const },
+        // Also rich text, for the same reason and so the four cards are
+        // editable in the same way as the paragraph above them.
+        { name: 'description', type: 'richText' as const },
         { name: 'image', type: 'text' as const },
+      ],
+    },
+  ],
+}
+
+/**
+ * The two buttons under the sub-service cards.
+ *
+ * They live on the location record rather than being read off the parent
+ * service's `sub-services` block, because a location page is a different
+ * WordPress template from its parent service page and its buttons are its
+ * own — the project owner has corrected this exact assumption before. What
+ * the live original carries on every one of these pages is "View our gallery"
+ * (→ /gallery) and "Talk to an expert" (→ #contact, the form further down the
+ * same page); the labels were hardcoded in `ServiceLocationPage` until now,
+ * which meant no editor could change a word of them.
+ */
+const offeringsField = {
+  name: 'offerings',
+  type: 'group' as const,
+  label: 'Offerings Section',
+  admin: {
+    description:
+      "The sub-service cards section. The cards themselves come from the parent service; these are this page's own buttons.",
+  },
+  fields: [
+    {
+      name: 'primaryCta',
+      type: 'group' as const,
+      label: 'Primary Button',
+      fields: [
+        { name: 'label', type: 'text' as const },
+        { name: 'href', type: 'text' as const },
+      ],
+    },
+    {
+      name: 'secondaryCta',
+      type: 'group' as const,
+      label: 'Secondary Button',
+      fields: [
+        { name: 'label', type: 'text' as const },
+        { name: 'href', type: 'text' as const },
       ],
     },
   ],
@@ -237,6 +284,7 @@ export const locationPageSectionFields = [
   locationVideoField,
   dontSettleField,
   quoteField,
+  offeringsField,
   primeDifferenceField,
   testimonialCardsField,
   siliconValleyLovesField,
@@ -247,6 +295,7 @@ export const ServiceLocations: CollectionConfig = {
   // Grouped, predictable list: bathroom-* → home-* → kitchen-*.
   defaultSort: 'slug',
   admin: {
+    group: 'Services',
     useAsTitle: 'title',
     defaultColumns: ['title', 'service', 'location', 'slug'],
     // All 45 records visible on one page (no pagination repeats).
@@ -299,6 +348,12 @@ export const ServiceLocations: CollectionConfig = {
           description:
             '"Don’t Settle for a Mediocre…" intro section. Use {City} and {ServiceTitle} placeholders.',
           fields: [dontSettleField],
+        },
+        {
+          label: 'Offerings',
+          description:
+            'The sub-service cards section. The cards come from the parent service; the two buttons under them belong to this page — the live original carries “View our gallery” and “Talk to an expert”.',
+          fields: [offeringsField],
         },
         {
           label: 'Quote',

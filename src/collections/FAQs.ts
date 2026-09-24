@@ -3,6 +3,7 @@ import type { CollectionConfig } from 'payload'
 export const FAQs: CollectionConfig = {
   slug: 'faqs',
   admin: {
+    group: 'Content',
     useAsTitle: 'question',
     defaultColumns: ['question', 'category', 'sortOrder', 'updatedAt'],
     description: 'Frequently asked questions grouped by remodeling service.',

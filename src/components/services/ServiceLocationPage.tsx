@@ -83,8 +83,7 @@ export function ServiceLocationPage({
   const locDontSettle = entry.dontSettle
   const dontSettle = locDontSettle?.body
     ? {
-        eyebrow:
-          fill(locDontSettle.eyebrow, serviceTitle, city) || `${service.title} in ${city}`,
+        eyebrow: fill(locDontSettle.eyebrow, serviceTitle, city) || `${service.title} in ${city}`,
         heading: fill(locDontSettle.heading, serviceTitle, city) || "Don't Settle for a Mediocre",
         headingAccent: fill(locDontSettle.headingAccent, serviceTitle, city) || city,
         body: fill(locDontSettle.body, serviceTitle, city) || '',
@@ -93,7 +92,9 @@ export function ServiceLocationPage({
         // it is only the last resort.
         image: locDontSettle.image ?? overrides.get('intro')?.image ?? service.image,
         cta: {
-          label: locDontSettle.ctaLabel || 'Talk to an expert',
+          // The button's words come from the record; an empty label means the
+          // page shows no button rather than one this file invented.
+          label: locDontSettle.ctaLabel,
           href: '#contact',
         },
       }
@@ -109,20 +110,25 @@ export function ServiceLocationPage({
         eyebrow: String((subServicesBlock as { eyebrow?: string }).eyebrow || ''),
         title: String((subServicesBlock as { heading?: string }).heading || ''),
         description: String((subServicesBlock as { description?: string }).description || ''),
-        // Location pages carry only the one CTA — "Talk to an expert" — not
-        // the parent service page's pair. Location pages are a different
-        // template from the parent service page, not a copy of it: do not
-        // pull `primaryCta`/`secondaryCta` off the same sub-services record,
-        // even though the fields are right there, because that record's
-        // buttons are for the parent page, not this one.
-        primaryCta: { label: 'Talk to an expert', href: '#contact' },
+        // The buttons are this page's own, read from the location record's
+        // Offerings tab — not from the parent service's `sub-services` block,
+        // whose pair belongs to the parent page. The live original carries
+        // two here, "View our gallery" (→ /gallery) and "Talk to an expert"
+        // (→ #contact), and they were hardcoded in this file until now, so
+        // no editor could change a word of them. Nothing is substituted if
+        // the record is empty: an unset button does not render.
+        primaryCta: entry.offerings?.primaryCta,
+        secondaryCta: entry.offerings?.secondaryCta,
         // No `image` here on purpose — WordPress bound this section's banner
         // to `{featured_image}`, but the real page only ever showed the 3
         // sub-service cards; the standalone banner was this component
         // rendering the city's marketing graphic a second time, right above
         // the cards that already carry their own images. Removed, cards kept.
         cards: (Array.isArray((subServicesBlock as { items?: unknown[] }).items)
-          ? ((subServicesBlock as unknown as { items: unknown[] }).items as Record<string, unknown>[])
+          ? ((subServicesBlock as unknown as { items: unknown[] }).items as Record<
+              string,
+              unknown
+            >[])
           : []
         )
           .map((item) => ({
@@ -135,7 +141,7 @@ export function ServiceLocationPage({
             image: mediaUrl(item.media) ?? service.image,
             href:
               typeof (item.link as { url?: string } | undefined)?.url === 'string'
-                ? ((item.link as { url: string }).url)
+                ? (item.link as { url: string }).url
                 : '#contact',
           }))
           .filter((card) => card.title),
@@ -235,9 +241,14 @@ export function ServiceLocationPage({
             ) : null}
             {enabled('quote') && quote ? (
               <ServiceQuoteSection
-                heading={quote.heading || 'Crafting your dream home, our promise'}
-                quote={quote.quote || ''}
-                attribution={quote.attribution || 'Prime Design & Build'}
+                // No literals here: the heading and the attribution are the
+                // record's own words or nothing at all. Every one of the 45
+                // records carries both today, so this changes nothing on the
+                // site — it removes the copy that would have hidden it if one
+                // day they did not.
+                heading={quote.heading}
+                quote={quote.quote}
+                attribution={quote.attribution}
                 image={quote.image || service.image}
               />
             ) : null}
@@ -246,9 +257,14 @@ export function ServiceLocationPage({
           <>
             {enabled('quote') && quote ? (
               <ServiceQuoteSection
-                heading={quote.heading || 'Crafting your dream home, our promise'}
-                quote={quote.quote || ''}
-                attribution={quote.attribution || 'Prime Design & Build'}
+                // No literals here: the heading and the attribution are the
+                // record's own words or nothing at all. Every one of the 45
+                // records carries both today, so this changes nothing on the
+                // site — it removes the copy that would have hidden it if one
+                // day they did not.
+                heading={quote.heading}
+                quote={quote.quote}
+                attribution={quote.attribution}
                 image={quote.image || service.image}
               />
             ) : null}

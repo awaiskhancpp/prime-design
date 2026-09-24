@@ -157,6 +157,7 @@ export const serviceContentBlocks: Block[] = [
 export const Services: CollectionConfig = {
   slug: 'services',
   admin: {
+    group: 'Services',
     useAsTitle: 'title',
     defaultColumns: ['title', 'slug', 'featured', 'sortOrder'],
     description:
@@ -168,7 +169,8 @@ export const Services: CollectionConfig = {
       type: 'text',
       required: true,
       admin: {
-        description: 'The public name of this service (e.g. "Kitchen Remodeling", "ADU & Garage Conversions")',
+        description:
+          'The public name of this service (e.g. "Kitchen Remodeling", "ADU & Garage Conversions")',
       },
     },
     // Sidebar fields (metadata & publication settings)
@@ -190,7 +192,8 @@ export const Services: CollectionConfig = {
       index: true,
       admin: {
         position: 'sidebar',
-        description: 'Optional parent service (for sub-categories like Shaker Kitchen -> Kitchen Remodeling)',
+        description:
+          'Optional parent service (for sub-categories like Shaker Kitchen -> Kitchen Remodeling)',
       },
     },
     {
@@ -305,8 +308,7 @@ export const Services: CollectionConfig = {
               // this collection's own "Benefits" block.
               blocks: servicePageBlocks,
               admin: {
-                description:
-                  'Visual page blocks. Click "Add Block" below to compose your page.',
+                description: 'Visual page blocks. Click "Add Block" below to compose your page.',
               },
             },
           ],
@@ -485,7 +487,8 @@ export const Services: CollectionConfig = {
                   name: 'lede',
                   type: 'text',
                   admin: {
-                    description: 'Small brass line above the H1. {City} / {Company} are substituted.',
+                    description:
+                      'Small brass line above the H1. {City} / {Company} are substituted.',
                   },
                 },
                 {
@@ -519,7 +522,8 @@ export const Services: CollectionConfig = {
               type: 'group',
               label: 'Quote Section',
               admin: {
-                description: 'Structured "Crafting Your Dream Home, Our Promise" pull-quote section.',
+                description:
+                  'Structured "Crafting Your Dream Home, Our Promise" pull-quote section.',
               },
               fields: [
                 { name: 'heading', type: 'text' },
@@ -637,11 +641,10 @@ export const Services: CollectionConfig = {
               type: 'group',
               label: 'Areas We Service Section',
               admin: {
-                description: 'Structured "Areas we service" section (heading only; cities are linked from service-locations).',
+                description:
+                  'Structured "Areas we service" section (heading only; cities are linked from service-locations).',
               },
-              fields: [
-                { name: 'heading', type: 'text' },
-              ],
+              fields: [{ name: 'heading', type: 'text' }],
             },
             {
               name: 'locationFeatureImages',
@@ -662,7 +665,8 @@ export const Services: CollectionConfig = {
               hasMany: true,
               label: 'Gallery Images',
               admin: {
-                description: 'Photos shown in the gallery section. Empty falls back to the built-in gallery.',
+                description:
+                  'Photos shown in the gallery section. Empty falls back to the built-in gallery.',
               },
             },
             {
@@ -731,7 +735,8 @@ export const Services: CollectionConfig = {
                       name: 'image',
                       type: 'text',
                       admin: {
-                        description: 'Image path (files live in /public, e.g. "/craftsmanship-in-every-project.svg").',
+                        description:
+                          'Image path (files live in /public, e.g. "/craftsmanship-in-every-project.svg").',
                       },
                     },
                   ],

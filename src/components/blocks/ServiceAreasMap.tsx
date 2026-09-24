@@ -38,18 +38,22 @@
 'use client'
 
 import { Crosshair, Minus, Plus } from 'lucide-react'
-import { LngLatBounds } from 'maplibre-gl'
+import dynamic from 'next/dynamic'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 
-import {
-  Map as MapCanvas,
-  MapGeoJSON,
-  MapMarker as MapcnMarker,
-  MarkerContent,
-  type MapRef,
-} from '@/components/ui/map'
-import { MapPinGradientDefs, MapPinGlyph } from '@/components/ui/MapPin'
+import type { MapRef } from '@/components/ui/map'
+import { MapPinGradientDefs } from '@/components/ui/MapPin'
 import { circlePolygon, paintSiteBasemap } from '@/lib/siteMapStyle'
+
+/**
+ * MapLibre and the mapcn primitives are ~287 KB gzipped and this section is in
+ * the footer of nearly every page, so the whole canvas is a separate chunk
+ * that is only fetched once the section is near the viewport. Nothing in this
+ * file may import `@/components/ui/map` or `maplibre-gl` at runtime — a value
+ * import here would pull the library straight back into every page's bundle,
+ * which is exactly the state this replaced. Types are fine: they are erased.
+ */
+const ServiceAreasMapCanvas = dynamic(() => import('./ServiceAreasMapCanvas'), { ssr: false })
 
 export type MapMarker = {
   name: string
@@ -64,11 +68,14 @@ export type MapMarker = {
   href?: string
 }
 
-/** Roughly the centroid of the service area, used before bounds are fitted. */
-const FALLBACK_CENTER: [number, number] = [-121.98, 37.41]
+/**
+ * The zoom the controls start out assuming, before the map reports its own.
+ * The real minimum and maximum come from the MapLibre instance
+ * (`getMinZoom`/`getMaxZoom`) rather than being restated here — the canvas
+ * module sets them, and two copies of a bound is how a disabled button and a
+ * map end up disagreeing.
+ */
 const FALLBACK_ZOOM = 10
-const MIN_ZOOM = 8
-const MAX_ZOOM = 15
 
 /** Keeps the fitted bounds clear of the overlaid controls and the cards. */
 const FIT_PADDING = { top: 80, right: 80, bottom: 80, left: 80 }
@@ -83,18 +90,6 @@ const CITY_HALO_RADIUS_M = 4200
 /** Below this, thirty permanent name labels would collide; above it they fit. */
 const LABEL_ZOOM = 11
 
-/**
- * Halos sit under every label but over the ground. `waterway_line_label` is
- * the first symbol layer in OpenFreeMap's positron style — which is the style
- * this map is pinned to (`theme="light"` below), so the layer is always there.
- * The theme has to be pinned: mapcn otherwise follows the OS's dark-mode
- * preference into OpenFreeMap's `dark` style, whose layer names are entirely
- * different (no `waterway_line_label`, and `place_*` instead of `label_*`) —
- * that made the halos throw "Cannot add layer before non-existing layer" and
- * left every city label in the dark style's blurred, dotted look.
- */
-const HALO_BEFORE_LAYER = 'waterway_line_label'
-
 export function ServiceAreasMap({
   markers,
   locationsServed,
@@ -107,6 +102,7 @@ export function ServiceAreasMap({
 
   const [ready, setReady] = useState(false)
   const [zoom, setZoom] = useState(FALLBACK_ZOOM)
+  const [limits, setLimits] = useState<{ min: number; max: number } | null>(null)
   const [openCity, setOpenCity] = useState<string | null>(null)
   // Starts `false` and is turned on by the effect below, so the server's markup
   // and the client's first render agree: deciding it in the initialiser (the
@@ -162,17 +158,24 @@ export function ServiceAreasMap({
   const fitAll = useCallback(() => {
     const map = mapRef.current
     if (!map) return
-    if (markers.length === 0) {
-      map.jumpTo({ center: FALLBACK_CENTER, zoom: FALLBACK_ZOOM })
-      return
-    }
+    if (markers.length === 0) return
     if (markers.length === 1) {
       map.easeTo({ center: [markers[0].lng, markers[0].lat], zoom: 12 })
       return
     }
-    const bounds = new LngLatBounds()
-    markers.forEach(({ lat, lng }) => bounds.extend([lng, lat]))
-    map.fitBounds(bounds, { padding: FIT_PADDING, duration: 0 })
+    // A plain bounding box rather than `new LngLatBounds(...)`: constructing
+    // the class would mean a value import of `maplibre-gl` in this file and
+    // the library would ship on every page again. `fitBounds` takes the
+    // literal form just as happily.
+    const lats = markers.map((marker) => marker.lat)
+    const lngs = markers.map((marker) => marker.lng)
+    map.fitBounds(
+      [
+        [Math.min(...lngs), Math.min(...lats)],
+        [Math.max(...lngs), Math.max(...lats)],
+      ],
+      { padding: FIT_PADDING, duration: 0 },
+    )
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [markerKey])
 
@@ -187,7 +190,12 @@ export function ServiceAreasMap({
       if (!map) return
 
       const paint = () => paintSiteBasemap(map)
-      const syncZoom = () => setZoom(map.getZoom())
+      // The canvas module owns the zoom limits; the controls read them back
+      // off the instance so a disabled button can never disagree with the map.
+      const syncZoom = () => {
+        setZoom(map.getZoom())
+        setLimits({ min: map.getMinZoom(), max: map.getMaxZoom() })
+      }
       const closeCards = () => setOpenCity(null)
       const onReady = () => {
         paint()
@@ -217,7 +225,9 @@ export function ServiceAreasMap({
   const nudgeZoom = (delta: number) => {
     const map = mapRef.current
     if (!map) return
-    map.easeTo({ zoom: Math.min(MAX_ZOOM, Math.max(MIN_ZOOM, map.getZoom() + delta)) })
+    map.easeTo({
+      zoom: Math.min(map.getMaxZoom(), Math.max(map.getMinZoom(), map.getZoom() + delta)),
+    })
   }
 
   const labelsPinned = zoom >= LABEL_ZOOM
@@ -237,54 +247,14 @@ export function ServiceAreasMap({
         aria-label={`Map of the ${markers.length} Silicon Valley cities Prime Design & Build serves`}
       >
         {inView ? (
-          <MapCanvas
-            ref={attachMap}
-            // Pinned to the light positron style. The basemap paint in
-            // `paintSiteBasemap` is written against positron's layer names, so
-            // following the OS dark-mode preference would render OpenFreeMap's
-            // `dark` style, skip nearly every paint override, and break the
-            // halo layer below.
-            theme="light"
-            center={FALLBACK_CENTER}
-            zoom={FALLBACK_ZOOM}
-            minZoom={MIN_ZOOM}
-            maxZoom={MAX_ZOOM}
-            // The section spans the full page width, so an ordinary scroll has
-            // to keep scrolling the page; ctrl/⌘ + wheel zooms.
-            cooperativeGestures
-            // Rotation and tilt say "explore me"; this map is a claim about
-            // where the company works, and north-up is how that reads.
-            dragRotate={false}
-            pitchWithRotate={false}
-            touchZoomRotate={false}
-            className="h-full w-full"
-          >
-            <MapGeoJSON
-              data={halos}
-              beforeId={HALO_BEFORE_LAYER}
-              fillPaint={{ 'fill-color': '#C19A5B', 'fill-opacity': 0.09 }}
-              linePaint={{ 'line-color': '#C19A5B', 'line-opacity': 0.22, 'line-width': 1 }}
-            />
-
-            {markers.map((marker, index) => (
-              <MapcnMarker
-                key={`${marker.name}-${marker.lat}-${marker.lng}`}
-                longitude={marker.lng}
-                latitude={marker.lat}
-                anchor="bottom"
-              >
-                <AreaPin
-                  marker={marker}
-                  index={index}
-                  open={openCity === marker.name}
-                  labelled={labelsPinned}
-                  onToggle={() =>
-                    setOpenCity((current) => (current === marker.name ? null : marker.name))
-                  }
-                />
-              </MapcnMarker>
-            ))}
-          </MapCanvas>
+          <ServiceAreasMapCanvas
+            markers={markers}
+            halos={halos}
+            openCity={openCity}
+            labelled={labelsPinned}
+            onToggle={(name) => setOpenCity((current) => (current === name ? null : name))}
+            onMap={attachMap}
+          />
         ) : null}
       </div>
 
@@ -307,14 +277,14 @@ export function ServiceAreasMap({
         <MapControl
           label="Zoom in"
           onClick={() => nudgeZoom(1)}
-          disabled={!ready || zoom >= MAX_ZOOM}
+          disabled={!ready || (limits !== null && zoom >= limits.max)}
         >
           <Plus className="h-4 w-4" aria-hidden />
         </MapControl>
         <MapControl
           label="Zoom out"
           onClick={() => nudgeZoom(-1)}
-          disabled={!ready || zoom <= MIN_ZOOM}
+          disabled={!ready || (limits !== null && zoom <= limits.min)}
           className="border-t border-line"
         >
           <Minus className="h-4 w-4" aria-hidden />
@@ -331,110 +301,6 @@ export function ServiceAreasMap({
 
       <MapCountChip count={locationsServed} />
     </div>
-  )
-}
-
-/* ------------------------------------------------------------------ *
- * The pin
- * ------------------------------------------------------------------ */
-
-/**
- * One city.
- *
- * The teardrop carries the house glyph this company actually builds. Its tip
- * is the bottom edge of this element, and the marker is anchored `bottom`, so
- * the tip — not the middle — is what marks the city.
- *
- * `is-open` is written onto MapLibre's own marker element, one level above
- * anything React renders here, because that element is the positioned box the
- * browser stacks: raising the card from inside would still leave it under the
- * next marker in the DOM.
- */
-function AreaPin({
-  marker,
-  index,
-  open,
-  labelled,
-  onToggle,
-}: {
-  marker: MapMarker
-  index: number
-  open: boolean
-  labelled: boolean
-  onToggle: () => void
-}) {
-  const rootRef = useRef<HTMLDivElement>(null)
-
-  useEffect(() => {
-    const host = rootRef.current?.parentElement
-    if (!host) return
-    host.classList.add('pdb-pin')
-    host.classList.toggle('is-open', open)
-  }, [open])
-
-  return (
-    <MarkerContent className="pdb-pin__content">
-      <div
-        ref={rootRef}
-        className="group relative h-9 w-[26px]"
-        // Staggers the drop-in so thirty pins land as a sweep, not a flash.
-        style={{ ['--pdb-delay' as string]: `${Math.min(index * 28, 700)}ms` }}
-      >
-        {/* Ground shadow: the pin is standing on the map, not floating over it. */}
-        <span
-          aria-hidden
-          className="pdb-pin__shadow absolute bottom-0 left-1/2 h-[5px] w-[15px] -translate-x-1/2 translate-y-[2px] rounded-full bg-ink/25 blur-[1.5px]"
-        />
-
-        <button
-          type="button"
-          onClick={(event) => {
-            // Without this the map's own click handler closes the card in the
-            // same gesture that opened it.
-            event.stopPropagation()
-            onToggle()
-          }}
-          aria-expanded={open}
-          aria-label={`${marker.name} — view service area`}
-          className="pdb-pin__button absolute inset-0 origin-bottom cursor-pointer outline-offset-[3px] focus-visible:outline-2 focus-visible:outline-ink"
-        >
-          <MapPinGlyph className="block drop-shadow-[0_2px_3px_rgba(20,33,61,0.22)]" />
-        </button>
-
-        {/* The city name: always on hover, permanently once zoomed past
-            LABEL_ZOOM, and never while its own card is open. */}
-        <span
-          aria-hidden
-          className={[
-            'pointer-events-none absolute left-1/2 top-full mt-[7px] -translate-x-1/2 whitespace-nowrap',
-            'border border-line bg-paper/95 px-[7px] py-[3px] text-[11px] font-semibold tracking-[0.03em] text-ink',
-            'transition-opacity duration-150',
-            open ? 'opacity-0' : labelled ? 'opacity-100' : 'opacity-0 group-hover:opacity-100',
-          ].join(' ')}
-        >
-          {marker.name}
-        </span>
-
-        {/* Card: square corners, hairline border, brass rule on top — the same
-            language as the bordered panels elsewhere on the site. */}
-        {open ? (
-          <div className="absolute bottom-[44px] left-1/2 min-w-[158px] -translate-x-1/2 border border-line border-t-2 border-t-brass bg-white px-[14px] pb-[13px] pt-3 shadow-[0_10px_30px_rgba(20,33,61,0.14)]">
-            <p className="text-sm font-semibold text-ink">{marker.name}</p>
-            {/* No href means no link at all, rather than an anchor going
-                nowhere: an `<a>` with no target is still announced as a link
-                and still takes a tab stop. */}
-            {marker.href ? (
-              <a
-                href={marker.href}
-                className="mt-[7px] inline-block border-b border-brass-deep/35 pb-[2px] text-[10px] font-bold uppercase tracking-[0.14em] text-brass-deep transition-colors hover:border-brass-deep"
-              >
-                View service area
-              </a>
-            ) : null}
-          </div>
-        ) : null}
-      </div>
-    </MarkerContent>
   )
 }
 

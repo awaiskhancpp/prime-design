@@ -4,6 +4,7 @@ import { SEOFields } from './fields/SEO'
 export const Team: CollectionConfig = {
   slug: 'team',
   admin: {
+    group: 'Content',
     useAsTitle: 'name',
     defaultColumns: ['name', 'position', 'updatedAt'],
     description: 'Team members displayed on the company page.',

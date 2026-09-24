@@ -4,6 +4,7 @@ import { SEOFields } from './fields/SEO'
 export const Locations: CollectionConfig = {
   slug: 'locations',
   admin: {
+    group: 'Services',
     useAsTitle: 'name',
     defaultColumns: ['name', 'slug'],
     description: 'Reusable Silicon Valley service-area locations.',

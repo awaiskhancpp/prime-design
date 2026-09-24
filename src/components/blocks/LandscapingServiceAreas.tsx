@@ -167,29 +167,66 @@ export async function LandscapingServiceAreas({
   const headingText = headingProp || heading
   const linkFor = (area: Area) => area.href ?? hrefFor(area.name)
 
-  // Payload first, the offline table second, and a named report if neither can
-  // place an area — the silent `.filter()` this replaces is exactly how the
-  // section came to show one fewer pin than it had badges.
-  const markers: MapMarker[] = []
-  const unplaceable: string[] = []
-  for (const area of areas) {
+  /**
+   * Coordinates, best source first: the area's own Payload values, then the
+   * same location looked up by name in Payload, then the offline table.
+   *
+   * The middle step is what makes a caller-supplied list CMS-driven. A landing
+   * page's `service-areas` block stores city *names* and nothing else, so
+   * without it every pin on the seven Google Ads pages came from `CITY_COORDS`
+   * — editing a location's coordinates in the admin moved the homepage pin and
+   * left the landing-page pin where it was. The two agree today, which is
+   * exactly why that would have gone unnoticed.
+   */
+  const byName = new Map(configuredAreas.map((area) => [area.name.toLowerCase(), area]))
+  const placeOf = (area: Area) => {
+    const known = byName.get(area.name.toLowerCase())
     const fallback = CITY_COORDS[area.name]
-    const lat = area.latitude ?? fallback?.[0]
-    const lng = area.longitude ?? fallback?.[1]
-    if (typeof lat !== 'number' || typeof lng !== 'number') {
+    const lat = area.latitude ?? known?.latitude ?? fallback?.[0]
+    const lng = area.longitude ?? known?.longitude ?? fallback?.[1]
+    return typeof lat === 'number' && typeof lng === 'number' ? { lat, lng } : null
+  }
+
+  /**
+   * The map draws the company's coverage; the badges print what the page
+   * authored. They are usually the same list, and where they are not, the map
+   * is the one that must stay complete.
+   *
+   * The landing blocks are where they part: their list is the site-wide 15
+   * minus San Jose, plus a trailing "And surrounding cities!" pill that is a
+   * sentence rather than a place. Building the map from that list put 14 pins
+   * under a chip reading "15 locations served" — the same badge-versus-pin
+   * mismatch that started all of this, arriving from the other side. So every
+   * configured service area is pinned, and a supplied name that is not one of
+   * them is pinned too if it can be placed, so a page naming a city the site
+   * list does not carry still shows it.
+   */
+  const markers: MapMarker[] = []
+  const seen = new Set<string>()
+  const unplaceable: string[] = []
+
+  for (const area of [...configuredAreas, ...areas]) {
+    const key = area.name.toLowerCase()
+    if (seen.has(key)) continue
+    const place = placeOf(area)
+    if (!place) {
       unplaceable.push(area.name)
       continue
     }
-    markers.push({ name: area.name, lat, lng, href: linked ? linkFor(area) : undefined })
+    seen.add(key)
+    markers.push({ ...place, name: area.name, href: linked ? linkFor(area) : undefined })
   }
-  // Only worth reporting for the derived list. A caller-supplied list owns its
-  // own entries and legitimately contains things that are not cities — the
-  // landing block's trailing "And surrounding cities!" pill, for one — so a
-  // missing pin there is not a gap in the data.
-  if (unplaceable.length && !supplied.length) {
+
+  // A supplied list legitimately contains things that are not places — the
+  // pill above — so only the derived list is worth reporting on. Anything else
+  // missing here is a location in Payload with no coordinates set.
+  const unplaceableAreas = unplaceable.filter((name) =>
+    configuredAreas.some((area) => area.name === name),
+  )
+  if (unplaceableAreas.length) {
     console.warn(
-      `[LandscapingServiceAreas] ${unplaceable.length} of ${areas.length} service areas have no ` +
-        `coordinates and are missing from the map: ${unplaceable.join(', ')}. ` +
+      `[LandscapingServiceAreas] ${unplaceableAreas.length} of ${configuredAreas.length} service ` +
+        `areas have no coordinates and are missing from the map: ${unplaceableAreas.join(', ')}. ` +
         `Set latitude/longitude on the location in Payload.`,
     )
   }
@@ -240,7 +277,10 @@ export async function LandscapingServiceAreas({
 
         {/* ── Right column: coverage map ── */}
         <div className="relative min-h-[420px] lg:min-h-[560px]">
-          <ServiceAreasMap markers={markers} locationsServed={areas.length} />
+          {/* The chip counts pins, not badges: it sits on the map and is read
+              against it, so counting a badge the map cannot draw — the
+              "And surrounding cities!" pill — made it say 15 over 14 pins. */}
+          <ServiceAreasMap markers={markers} locationsServed={markers.length} />
         </div>
       </div>
     </Section>

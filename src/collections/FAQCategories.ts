@@ -3,6 +3,7 @@ import type { CollectionConfig } from 'payload'
 export const FAQCategories: CollectionConfig = {
   slug: 'faq-categories',
   admin: {
+    group: 'Content',
     useAsTitle: 'title',
     defaultColumns: ['title', 'slug', 'updatedAt'],
     description: 'Controlled categories used to organize service and page FAQs.',

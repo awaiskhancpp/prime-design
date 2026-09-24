@@ -5,6 +5,7 @@ import { SEOFields } from './fields/SEO'
 export const Pages: CollectionConfig = {
   slug: 'pages',
   admin: {
+    group: 'Content',
     useAsTitle: 'title',
     defaultColumns: ['title', 'slug', 'isGoogleAdsPage', 'updatedAt'],
     description: 'CMS-managed pages rendered by the shared page route.',

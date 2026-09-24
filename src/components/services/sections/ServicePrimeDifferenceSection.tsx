@@ -1,17 +1,29 @@
 import Image from '@/components/ui/Image'
 
+import { RichTextContent } from '@/components/rich-text/RichTextContent'
+import { richTextHasContent, type RichTextValue } from '@/lib/richText'
 import { Section } from '@/components/ui/Section'
 import { SectionHeader } from '@/components/ui/SectionHeader'
 import type { ServiceDetail } from '@/lib/services'
 import { VideoCarousel, type CarouselVideo } from '@/components/landing/VideoCarousel'
 
+/**
+ * Prose in this section is either a plain string or a Payload rich-text value.
+ *
+ * Service-location pages store both the paragraph and the four card
+ * descriptions as `richText`, so an editor can bold a phrase the way the
+ * WordPress original does ("we are the **unrivaled experts**"). The service
+ * pages still hand this component plain strings, and both have to render.
+ */
+export type PrimeDifferenceProse = string | RichTextValue
+
 export type PrimeDifferenceContent = {
   eyebrow?: string
   heading: string
   headingAccent?: string
-  body?: string
+  body?: PrimeDifferenceProse
   checklist?: string[]
-  reasons?: { icon?: string; title: string; body?: string }[]
+  reasons?: { icon?: string; title: string; body?: PrimeDifferenceProse }[]
   /**
    * Social review badges (Google / Yelp / Houzz) shown under the checklist.
    * Only pages whose WordPress section carries them (the Shaker Kitchen
@@ -107,6 +119,25 @@ const reasons = [
   },
 ]
 
+/**
+ * Renders either kind of prose, or nothing.
+ *
+ * An untouched Lexical editor saves a single empty paragraph, so a bare
+ * truthiness check would leave a blank line under the heading on any page
+ * whose field has been opened in the admin and left alone.
+ */
+function Prose({ value, className }: { value?: PrimeDifferenceProse; className: string }) {
+  if (typeof value === 'string') {
+    return value.trim() ? <p className={className}>{value}</p> : null
+  }
+  if (!richTextHasContent(value)) return null
+  return (
+    <div className={`${className} [&_p]:mt-0 [&_p+p]:mt-4`}>
+      <RichTextContent data={value} />
+    </div>
+  )
+}
+
 export function ServicePrimeDifferenceSection({
   eyebrow,
   heading,
@@ -129,7 +160,7 @@ export function ServicePrimeDifferenceSection({
             size="lg"
             className="max-w-none"
           />
-          {body ? <p className="mt-6 text-base leading-7 text-ink-2/75">{body}</p> : null}
+          <Prose value={body} className="mt-6 text-base leading-7 text-ink-2/75" />
 
           {checklist?.length ? (
             <ul className="mt-7 grid gap-4">
@@ -193,10 +224,6 @@ export function ServicePrimeDifferenceSection({
                 aria-hidden
               />
 
-              <span className="text-xs font-semibold text-brass-deep/50">
-                {String(index + 1).padStart(2, '0')}
-              </span>
-
               <div className="mt-5 flex h-[90px] w-[90px] items-center justify-center">
                 {icon ? (
                   <Image
@@ -211,7 +238,7 @@ export function ServicePrimeDifferenceSection({
               </div>
 
               <h3 className="mt-6 font-display text-xl font-medium text-ink">{title}</h3>
-              {body ? <p className="mt-3 text-sm leading-6 text-ink-2/65">{body}</p> : null}
+              <Prose value={body} className="mt-3 text-sm leading-6 text-ink-2/65" />
             </div>
           ))}
         </div>

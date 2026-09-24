@@ -730,16 +730,110 @@ export const landingBlockRegistry: Record<string, Renderer> = {
 
 export const sharedSectionRegistry = landingBlockRegistry
 
+/**
+ * Where an in-page CTA lands when the section it names is not on the page.
+ *
+ * Highest intent first: the form itself, then the scheduler, then the closing
+ * call to action, then the contact details. A "Get a Quote" that scrolls to
+ * the phone number is a worse answer than one that scrolls to the form, and a
+ * better one than a button that does nothing.
+ */
+const CONVERSION_BLOCKS = ['contact-form', 'booking', 'cta', 'luxury-cta', 'find-us'] as const
+
+/** Anchors a block renders on its own, beyond its stored `anchorId`. */
+const IMPLICIT_ANCHORS: Partial<Record<string, string>> = {
+  'contact-form': 'contact', // `LandingContact` always answers to `#contact`
+  'sub-services': 'services', // `LandingServicesSection` hardcodes `#services`
+}
+
+/**
+ * Anchors the page chrome points at, which never appear in the block data.
+ *
+ * `LandingHeader`'s "Get a Quote" is hardcoded to `#contact` on every landing
+ * page, so it has to be guaranteed even on a page with no contact block —
+ * which is exactly how it died on `home-remodeling-information`.
+ */
+const CHROME_ANCHORS = ['contact']
+
+/** Every `#target` any button, link or rich-text field on the page points at. */
+function referencedAnchors(sections: LandingPageBlock[]): string[] {
+  const found = new Set<string>()
+  const walk = (value: unknown) => {
+    if (typeof value === 'string') {
+      if (value.startsWith('#') && value.length > 1) found.add(value.slice(1))
+      return
+    }
+    if (Array.isArray(value)) {
+      value.forEach(walk)
+      return
+    }
+    if (value && typeof value === 'object') Object.values(value).forEach(walk)
+  }
+  walk(sections)
+  return [...found]
+}
+
+/**
+ * Landing page sections, with every in-page CTA guaranteed a destination.
+ *
+ * The buttons are migrated WordPress copy and they name Bricks CSS ids —
+ * `#contact_form`, `#schedule-call`. A block carries its own id in `anchorId`,
+ * but only where the export gave one, and two pages ended up with buttons
+ * pointing at nothing: `home-remodeling-information` has no contact-form or
+ * booking block at all, so its header "Get a Quote" (`#contact`) and hero
+ * "Schedule A Call" (`#schedule-call`) both died, and on
+ * `kitchen-remodeling-information` three "Schedule a Free Consultation"
+ * buttons named `#contact_form` while the contact block had no `anchorId`.
+ *
+ * Rather than invent anchor ids in the CMS — the buttons are real content and
+ * the missing ids are a gap in the export, not an editorial decision — the
+ * anchors that nothing else provides are rendered onto the page's best
+ * conversion section. Nothing is added when the page already resolves, so a
+ * page whose data is complete renders exactly as before.
+ */
 export function LandingBlockRenderer({ sections }: { sections: LandingPageBlock[] }) {
+  const provided = new Set<string>()
+  for (const section of sections) {
+    const block = section as Block
+    const anchorId = typeof block.anchorId === 'string' ? block.anchorId : undefined
+    if (anchorId) provided.add(anchorId)
+    const implicit = IMPLICIT_ANCHORS[block.blockType]
+    if (implicit) provided.add(implicit)
+  }
+
+  const orphans = [...new Set([...referencedAnchors(sections), ...CHROME_ANCHORS])].filter(
+    (anchor) => !provided.has(anchor),
+  )
+  const conversionIndex = orphans.length
+    ? CONVERSION_BLOCKS.reduce<number>((found, blockType) => {
+        if (found !== -1) return found
+        return sections.findIndex((section) => (section as Block).blockType === blockType)
+      }, -1)
+    : -1
+
   return (
     <>
       {sections.map((section, index) => {
         const block = section as Block
         const Renderer = sharedSectionRegistry[block.blockType]
-        return Renderer ? (
+        const rendered = Renderer ? (
           <Renderer key={`${block.sourceId || block.blockType}-${index}`} block={block} />
         ) : (
           <UnsupportedLandingBlock key={`${block.blockType}-${index}`} block={block} />
+        )
+
+        if (index !== conversionIndex) return rendered
+
+        return (
+          <div key={`anchored-${block.sourceId || block.blockType}-${index}`}>
+            {orphans.map((anchor) => (
+              // `scroll-mt` keeps the landing header off the section it lands
+              // on — the header is fixed, so an anchor without it puts the
+              // heading underneath the bar.
+              <span key={anchor} id={anchor} aria-hidden className="block scroll-mt-24" />
+            ))}
+            {rendered}
+          </div>
         )
       })}
     </>

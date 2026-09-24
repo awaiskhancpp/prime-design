@@ -158,7 +158,7 @@ export async function ServiceLocationHeroForm({
         </div>
       ) : null}
       <Container>
-        <div className="mt-8 flex flex-col items-start justify-between gap-6  px-6 py-6 sm:flex-row sm:items-center sm:px-8">
+        <div className=" flex flex-col items-start justify-between gap-6  px-6 py-6 sm:flex-row sm:items-center sm:px-8">
           <BrandMark />
           <div className="text-left sm:text-right">
             <p className="text-lg text-ink-2">

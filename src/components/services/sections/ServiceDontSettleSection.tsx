@@ -13,7 +13,9 @@ export type ServiceDontSettleContent = {
   headingAccent: string
   body: string
   image: string
-  cta: { label: string; href: string }
+  /** Optional: a button with no label from the CMS is not rendered at all,
+   *  rather than given wording this component made up. */
+  cta?: { label?: string; href: string }
 }
 
 const spaceWordBySlug: Record<string, string> = {
@@ -54,12 +56,14 @@ export function ServiceDontSettleSection({
             size="lg"
             className="max-w-none"
           />
-          <div className="mt-9">
-            <Button href={cta.href} variant="outline" size="lg">
-              {cta.label}
-              <ArrowRight className="h-4 w-4" aria-hidden />
-            </Button>
-          </div>
+          {cta?.label ? (
+            <div className="mt-9">
+              <Button href={cta.href} variant="outline" size="lg">
+                {cta.label}
+                <ArrowRight className="h-4 w-4" aria-hidden />
+              </Button>
+            </div>
+          ) : null}
         </div>
       </div>
     </Section>

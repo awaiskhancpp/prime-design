@@ -5,6 +5,7 @@ import { videoStoryFields } from './fields/videoStory'
 export const Projects: CollectionConfig = {
   slug: 'projects',
   admin: {
+    group: 'Content',
     useAsTitle: 'title',
     defaultColumns: ['title', 'category', 'location', 'updatedAt'],
     description: 'Completed remodeling and construction projects.',

@@ -128,7 +128,7 @@ export function ServiceCraftsmanshipTransformsSection({
 
   return (
     <Section>
-      <div className="grid items-center gap-14 lg:grid-cols-[0.95fr_1fr] lg:gap-20">
+      <div className="grid items-center gap-14 lg:grid-cols-[0.95fr_1fr] lg:gap-14">
         <CraftsmanshipGallery photos={photos} />
 
         <div>
