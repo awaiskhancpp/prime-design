@@ -128,8 +128,7 @@ export const differenceBlock: Block = {
       name: 'checklist',
       type: 'array',
       admin: {
-        description:
-          'The "Why choose" checklist (lead renders bold, text renders after it).',
+        description: 'The "Why choose" checklist (lead renders bold, text renders after it).',
       },
       fields: [
         { name: 'lead', type: 'text' },
@@ -310,7 +309,10 @@ export const expertsBlock: Block = {
  */
 export const socialProofBlock: Block = {
   slug: 'social-proof',
-  labels: { singular: 'Social proof (review platforms)', plural: 'Social proof (review platforms)' },
+  labels: {
+    singular: 'Social proof (review platforms)',
+    plural: 'Social proof (review platforms)',
+  },
   fields: [
     { name: 'eyebrow', type: 'text' },
     { name: 'heading', type: 'text' },
@@ -455,7 +457,11 @@ export const reviewHighlightsBlock: Block = {
         { name: 'rating', type: 'number' },
         { name: 'count', type: 'number' },
         { name: 'url', type: 'text' },
-        { name: 'linkLabel', type: 'text', admin: { description: 'e.g. "Read all reviews on Google".' } },
+        {
+          name: 'linkLabel',
+          type: 'text',
+          admin: { description: 'e.g. "Read all reviews on Google".' },
+        },
       ],
     },
     {
@@ -524,13 +530,17 @@ export const faqIndexBlock: Block = {
     {
       name: 'description',
       type: 'textarea',
-      admin: { description: 'Line above the search field, e.g. "Browse by category or search below".' },
+      admin: {
+        description: 'Line above the search field, e.g. "Browse by category or search below".',
+      },
     },
     { name: 'searchPlaceholder', type: 'text' },
     {
       name: 'allLabel',
       type: 'text',
-      admin: { description: 'Label for the category that shows every question, e.g. "All questions".' },
+      admin: {
+        description: 'Label for the category that shows every question, e.g. "All questions".',
+      },
     },
     {
       name: 'emptyMessage',
@@ -556,6 +566,22 @@ export const consultationsBlock: Block = {
     { name: 'eyebrow', type: 'text' },
     { name: 'heading', type: 'text' },
     { name: 'description', type: 'textarea' },
+    {
+      /**
+       * The reassurance line in the corner of every card.
+       *
+       * It belongs to the section and not to a consultation: it reads the
+       * same on all six cards because it is a promise about booking any of
+       * them, so storing it per service would be six copies of one sentence
+       * to keep in step. It was hardcoded in `ConsultationGrid` until now.
+       */
+      name: 'assuranceNote',
+      type: 'text',
+      admin: {
+        description:
+          'Small print on each card, e.g. \u201cFree \u00b7 No commitment\u201d. Empty prints nothing.',
+      },
+    },
   ],
 }
 

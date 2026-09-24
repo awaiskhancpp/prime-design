@@ -24,7 +24,14 @@ export function ServiceEstimateCta({
   return (
     <section className="bg-brass">
       <Container>
-        <div className=" flex flex-wrap items-center justify-between gap-5 py-9">
+        {/* Centred while the row is stacked, and only then.
+            Below `sm` the heading, the copy and the button sit on separate
+            lines with the button's full width to themselves, and text ragged
+            against the left of a band with nothing beside it reads as a
+            column that lost its partner. Once the row is side by side at
+            `sm` and up, the copy goes back to the left and keeps its
+            relationship with the button on the right. */}
+        <div className="flex flex-col items-center gap-5 py-9 text-center sm:flex-row sm:flex-wrap sm:items-center sm:justify-between sm:text-left">
           <div>
             <h2 className="font-display text-3xl font-semibold text-white">{heading}</h2>
             {body ? (
@@ -39,7 +46,7 @@ export function ServiceEstimateCta({
           </div>
           <Link
             href="/contact"
-            className="bg-white px-5 py-3 text-sm font-semibold text-ink hover:bg-paper items-center flex gap-2"
+            className="flex items-center justify-center gap-2 bg-white px-5 py-3 text-sm font-semibold text-ink hover:bg-paper"
           >
             Get started <ArrowRight />
           </Link>

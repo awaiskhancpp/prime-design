@@ -16,6 +16,7 @@ import {
 } from 'lucide-react'
 
 import { Captcha, captchaEnabled, type CaptchaHandle } from '@/components/forms/Captcha'
+import type { FormServiceOption } from '@/lib/formServices'
 import { Button } from '@/components/ui/Button'
 import { Input } from '@/components/ui/Input'
 import { Textarea } from '@/components/ui/Textarea'
@@ -142,8 +143,38 @@ function buildIcsContent({
   ].join('\r\n')
 }
 
-// Each open day has 5 bookable appointment slots.
-const DAILY_TIME_SLOTS = ['12:00 am', '01:00 am', '02:00 am', '03:00 am', '10:00 pm']
+/**
+ * Availability comes from the server, not from here.
+ *
+ * This file used to decide it: five hardcoded times — 12am, 1am, 2am, 3am and
+ * 10pm — with the "3 left" badges produced by a seeded pseudo-random
+ * generator, Sunday as the only closed day, and a calendar that ran forward
+ * for ever. None of it was enforced, because the browser decided and the
+ * server never looked.
+ *
+ * `/api/availability` now answers all of it from the Booking & Availability
+ * global, and `/api/contact` re-checks the chosen date and time against the
+ * same rules when the booking is submitted. What this component renders is
+ * what the server says, and what it sends is checked again on arrival.
+ */
+export type AvailabilitySlot = { time: string; available: boolean }
+export type AvailabilityDay = {
+  date: string
+  status: 'open' | 'full' | 'closed' | 'past'
+  remaining: number
+  slots: AvailabilitySlot[]
+}
+export type Availability = {
+  rules: { slots: string[]; bookingWindowDays: number; minNoticeHours: number }
+  lastBookableDate: string
+  days: AvailabilityDay[]
+}
+
+/** `YYYY-MM-DD`, the key the server uses for a calendar day. */
+const dateKey = (value: Date) =>
+  `${value.getFullYear()}-${String(value.getMonth() + 1).padStart(2, '0')}-${String(
+    value.getDate(),
+  ).padStart(2, '0')}`
 
 /**
  * A phone field accepts only the characters a phone number can contain, so
@@ -153,48 +184,34 @@ const DAILY_TIME_SLOTS = ['12:00 am', '01:00 am', '02:00 am', '03:00 am', '10:00
  */
 const sanitizePhone = (value: string) => value.replace(/[^\d+() -]/g, '').slice(0, 24)
 
-/**
- * A ZIP field accepts digits and a single optional ZIP+4 dash, nothing else.
- */
+/** A ZIP field accepts digits and a single optional ZIP+4 dash, nothing else. */
 const sanitizeZip = (value: string) => value.replace(/[^\d-]/g, '').slice(0, 10)
-
-function getDaySeed(day: Date) {
-  return day.getFullYear() * 10000 + (day.getMonth() + 1) * 100 + day.getDate()
-}
-
-// Deterministic pseudo-random booked slots per day, so the demo shows a
-// realistic mix of open/taken slots without a real backend. The same date
-// always produces the same result. Swap this for a real per-day
-// availability lookup once appointments are wired up to a backend.
-function getBookedSlotIndexes(day: Date) {
-  let x = getDaySeed(day)
-  const booked = new Set<number>()
-  for (let i = 0; i < DAILY_TIME_SLOTS.length; i += 1) {
-    x = (x * 1103515245 + 12345) & 0x7fffffff
-    if (x % 3 === 0) booked.add(i)
-  }
-  return booked
-}
 
 type DayStatus =
   { kind: 'past' } | { kind: 'closed' } | { kind: 'full' } | { kind: 'open'; remaining: number }
 
-function getDayStatus(day: Date, today: Date): DayStatus {
+/** What the server said about this day; anything it did not mention is closed. */
+function getDayStatus(day: Date, today: Date, availability: Availability | null): DayStatus {
   const dayStart = new Date(day.getFullYear(), day.getMonth(), day.getDate())
   const todayStart = new Date(today.getFullYear(), today.getMonth(), today.getDate())
   if (dayStart < todayStart) return { kind: 'past' }
-  if (day.getDay() === 0) return { kind: 'closed' }
-  const remaining = DAILY_TIME_SLOTS.length - getBookedSlotIndexes(day).size
-  if (remaining <= 0) return { kind: 'full' }
-  return { kind: 'open', remaining }
+  if (!availability) return { kind: 'closed' }
+
+  const match = availability.days.find((entry) => entry.date === dateKey(day))
+  if (!match) return { kind: 'closed' }
+  if (match.status === 'open') return { kind: 'open', remaining: match.remaining }
+  if (match.status === 'full') return { kind: 'full' }
+  return { kind: 'closed' }
 }
 
 function AppointmentCalendar({
   selectedDate,
   onSelect,
+  availability,
 }: {
   selectedDate: Date | null
   onSelect: (date: Date) => void
+  availability: Availability | null
 }) {
   const today = useMemo(() => new Date(), [])
   const [viewYear, setViewYear] = useState((selectedDate ?? today).getFullYear())
@@ -202,6 +219,18 @@ function AppointmentCalendar({
 
   const cells = useMemo(() => buildMonthGrid(viewYear, viewMonth), [viewYear, viewMonth])
   const isCurrentMonth = viewYear === today.getFullYear() && viewMonth === today.getMonth()
+
+  /**
+   * The last month the arrows will reach.
+   *
+   * The booking window is the admin's setting (90 days by default, about
+   * three months), and the server refuses anything past it — so walking the
+   * calendar further would only show months where every day is closed.
+   */
+  const lastDay = availability ? new Date(`${availability.lastBookableDate}T00:00:00`) : null
+  const isLastMonth = lastDay
+    ? viewYear === lastDay.getFullYear() && viewMonth === lastDay.getMonth()
+    : true
 
   function goToPreviousMonth() {
     if (isCurrentMonth) return
@@ -215,6 +244,7 @@ function AppointmentCalendar({
   }
 
   function goToNextMonth() {
+    if (isLastMonth) return
     setViewMonth((month) => {
       if (month === 11) {
         setViewYear((year) => year + 1)
@@ -268,7 +298,7 @@ function AppointmentCalendar({
         {cells.map((day, index) => {
           if (!day) return <span key={index} />
 
-          const status = getDayStatus(day, today)
+          const status = getDayStatus(day, today, availability)
           const selected = selectedDate !== null && isSameDay(day, selectedDate)
           const clickable = status.kind === 'open'
 
@@ -310,11 +340,26 @@ function AppointmentCalendar({
 
 export function AppointmentScheduler({
   consultation,
+  services,
+  formName,
   onDone,
   phone = '(650) 235-4863',
   phoneClean = '6502354863',
 }: {
   consultation: string
+  /**
+   * The service dropdown's options, from `resolveFormServices()`.
+   *
+   * The contact page's consultation cards already say which service is being
+   * booked, so they pass none and the field stays hidden. The landing pages'
+   * booking band does not: its `consultation` falls back to the section
+   * heading, which is how leads arrived saying they wanted a "Book Your Free
+   * Design Consultation" — a headline, not a service. Given the list, the
+   * visitor answers it themselves.
+   */
+  services?: FormServiceOption[]
+  /** Recorded on the lead so the admin can tell the two entry points apart. */
+  formName?: string
   onDone?: () => void
   phone?: string
   phoneClean?: string
@@ -333,8 +378,34 @@ export function AppointmentScheduler({
   } | null>(null)
   const [fieldErrors, setFieldErrors] = useState<Partial<Record<CustomerField, string>>>({})
   const [orderId] = useState(() => generateOrderId())
+  const [availability, setAvailability] = useState<Availability | null>(null)
+  const [availabilityError, setAvailabilityError] = useState(false)
+
+  /**
+   * The calendar's data, fetched when the scheduler mounts.
+   *
+   * No caching: a day fills up the moment somebody books it, and a stale
+   * calendar offers a slot the server will refuse. If the request fails the
+   * modal says so rather than showing an invented calendar — which is what
+   * the old pseudo-random generator did.
+   */
+  useEffect(() => {
+    let cancelled = false
+    fetch('/api/availability', { cache: 'no-store' })
+      .then((response) => (response.ok ? response.json() : Promise.reject(response.status)))
+      .then((data: Availability) => {
+        if (!cancelled) setAvailability(data)
+      })
+      .catch(() => {
+        if (!cancelled) setAvailabilityError(true)
+      })
+    return () => {
+      cancelled = true
+    }
+  }, [])
   const [showQr, setShowQr] = useState(false)
   const [sending, setSending] = useState(false)
+  const [serviceSlug, setServiceSlug] = useState('')
   const [submitError, setSubmitError] = useState<string>()
   const captcha = useRef<CaptchaHandle>(null)
   const captchaToken = useRef<string | undefined>(undefined)
@@ -421,12 +492,22 @@ export function AppointmentScheduler({
           address: customer?.address,
           zipCode: customer?.zipCode,
           // The endpoint's field is `message`; the booking form calls the
-          // same thing comments, and both require the same eight words.
+          // same thing comments.
           message: customer?.comments,
+          // What the visitor picked, when they were asked. Stored as a real
+          // relationship to the service, which is the answer the admin needs
+          // and `consultationType` only ever approximated.
+          service: serviceSlug || undefined,
           consultationType: consultation,
           preferredDate: dateLabel && time ? `${dateLabel} at ${time}` : dateLabel || time || '',
+          // The machine-readable pair the server validates and counts
+          // capacity on. `preferredDate` above stays the human line the
+          // confirmation and the notification print.
+          appointmentDate: selectedDate ? dateKey(selectedDate) : undefined,
+          appointmentSlot: time ?? undefined,
           orderId,
           source: 'appointment',
+          formName: formName ?? 'Appointment booking',
           sourceUrl: typeof window === 'undefined' ? undefined : window.location.href,
           captchaToken: token,
           // The same spam gates the site's other forms send: a hidden field no
@@ -439,7 +520,21 @@ export function AppointmentScheduler({
       if (!response.ok) {
         setSubmitError(result.error ?? 'Something went wrong. Please try again or call us.')
         captchaToken.current = undefined
-        setStep(2)
+        // A 409 is the booking itself being refused — the day filled up while
+        // the form was open, or the slot is no longer offered. Send them back
+        // to the calendar with fresh availability rather than to the details
+        // step, where there is nothing to correct.
+        if (response.status === 409) {
+          setTime(null)
+          setAvailability(null)
+          fetch('/api/availability', { cache: 'no-store' })
+            .then((fresh) => (fresh.ok ? fresh.json() : null))
+            .then((data: Availability | null) => data && setAvailability(data))
+            .catch(() => setAvailabilityError(true))
+          setStep(1)
+        } else {
+          setStep(2)
+        }
         return
       }
       setStep(4)
@@ -546,7 +641,13 @@ export function AppointmentScheduler({
               </p>
 
               <div className="mt-3">
+                {availabilityError ? (
+                  <p role="alert" className="mb-3 text-xs text-red-600">
+                    We could not load the calendar just now. Please call us and we will book you in.
+                  </p>
+                ) : null}
                 <AppointmentCalendar
+                  availability={availability}
                   selectedDate={selectedDate}
                   onSelect={(day) => {
                     setSelectedDate(day)
@@ -562,8 +663,12 @@ export function AppointmentScheduler({
                     <span className="font-semibold text-brass-deep">{dateLabel}</span>
                   </p>
                   <div className="mt-3 grid grid-cols-2 gap-2 sm:grid-cols-3">
-                    {DAILY_TIME_SLOTS.map((slot, index) => {
-                      const taken = getBookedSlotIndexes(selectedDate).has(index)
+                    {(
+                      availability?.days.find((entry) => entry.date === dateKey(selectedDate))
+                        ?.slots ?? []
+                    ).map((option) => {
+                      const taken = !option.available
+                      const slot = option.time
                       return (
                         <button
                           key={slot}
@@ -677,6 +782,32 @@ export function AppointmentScheduler({
                     aria-invalid={fieldErrors.zipCode ? true : undefined}
                   />
                 </BookingField>
+                {services?.length ? (
+                  <div className="grid gap-1 sm:col-span-2">
+                    <label htmlFor="booking-service" className="sr-only">
+                      Service
+                    </label>
+                    <select
+                      id="booking-service"
+                      name="service"
+                      value={serviceSlug}
+                      onChange={(event) => setServiceSlug(event.target.value)}
+                      className="w-full appearance-none border border-line bg-white px-4 py-3 text-base text-ink focus:border-brass focus:outline-none bg-[length:12px] bg-[right_1rem_center] bg-no-repeat pr-10"
+                      style={{
+                        backgroundImage:
+                          "url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' fill='none' stroke='%2314213D' stroke-width='1.5' stroke-linecap='round'/%3E%3C/svg%3E\")",
+                      }}
+                    >
+                      <option value="">What is this about?</option>
+                      {services.map((service) => (
+                        <option key={service.slug} value={service.slug}>
+                          {service.title}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                ) : null}
+
                 <BookingField
                   name="comments"
                   error={fieldErrors.comments}
@@ -684,7 +815,7 @@ export function AppointmentScheduler({
                 >
                   <Textarea
                     name="comments"
-                    placeholder="Comments* (at least 8 words)"
+                    placeholder="Comments* (a sentence about the project)"
                     defaultValue={customer?.comments}
                     onBlur={blur('comments')}
                     aria-invalid={fieldErrors.comments ? true : undefined}
@@ -963,6 +1094,10 @@ export function AppointmentModal({
         </button>
         <AppointmentScheduler
           consultation={consultation}
+          // The consultation cards name the service already ("Kitchen
+          // Remodeling Consultation"), so this entry point asks no service
+          // question — it passes no list, and the field stays hidden.
+          formName="Consultation booking"
           onDone={onClose}
           phone={phone}
           phoneClean={phoneClean}
@@ -988,7 +1123,16 @@ const CUSTOMER_RULES: FieldRules<CustomerField> = {
   phone: usPhone,
   address: streetAddress,
   zipCode: usZip,
-  comments: minWords('Comments', 8),
+  /**
+   * Three words, not eight.
+   *
+   * A booking is not an enquiry: the visitor has already told us the service,
+   * the date and the time, so the comment box is context, not the message. At
+   * eight words a real lead wrote "what the fuck how am i suppose to write 8
+   * wor" into this field and sent it — which is the rule producing worse data
+   * than no rule at all. Three still blocks "asdf" and an empty submit.
+   */
+  comments: minWords('Comments', 3),
 }
 
 /** One booking field plus its inline error message. */

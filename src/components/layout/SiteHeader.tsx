@@ -286,7 +286,7 @@ export function SiteHeader({
           {/* Close button */}
           <div className="flex items-center justify-between border-b border-white/10 px-5 py-5">
             <span className="text-xs font-medium uppercase tracking-[0.2em] text-white/60">
-              Navigation
+              Menu
             </span>
 
             <button

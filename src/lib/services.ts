@@ -274,6 +274,8 @@ type PayloadServiceRecord = {
   description?: string | null
   shortDescription?: string | null
   excerpt?: string | null
+  /** The Overview section's heading; see the field's note in Services.ts. */
+  introHeading?: string | null
   featuredImage?: PayloadMedia | number | null
   featured?: boolean | null
   /** Rich text overview fields (Key Features / Benefits / Process steps). */
@@ -298,7 +300,11 @@ type PayloadServiceRecord = {
     eyebrow?: string | null
     title?: string | null
     description?: string | null
-    steps?: Array<{ title?: string; description?: string; image?: number | PayloadMedia | null }> | null
+    steps?: Array<{
+      title?: string
+      description?: string
+      image?: number | PayloadMedia | null
+    }> | null
   } | null
   locationHero?: {
     lede?: string | null
@@ -317,7 +323,12 @@ type PayloadServiceRecord = {
     heading?: string | null
     body?: string | null
     image?: number | PayloadMedia | null
-    stats?: Array<{ value?: string; label?: string; detail?: string; showStars?: boolean | null }> | null
+    stats?: Array<{
+      value?: string
+      label?: string
+      detail?: string
+      showStars?: boolean | null
+    }> | null
     buttons?: Array<{ label?: string; url?: string; variant?: string | null }> | null
   } | null
   whyChooseUs?: {
@@ -542,8 +553,7 @@ export async function resolveServiceDetail(slug: string): Promise<ServiceDetail 
   }
   const normalized = slug.replace(/-silicon-valley$/, '')
   const record =
-    (await findRecord(slug)) ||
-    (normalized !== slug ? await findRecord(normalized) : undefined)
+    (await findRecord(slug)) || (normalized !== slug ? await findRecord(normalized) : undefined)
   if (!record) return undefined
   // Content comes from Payload only — no static fallback copy.
   const base = {
@@ -566,6 +576,9 @@ export async function resolveServiceDetail(slug: string): Promise<ServiceDetail 
     // exposed separately so consumers like the location hero form (which
     // builds "Kitchen Remodeling in Campbell") never get the slogan.
     title: record.title,
+    // The Overview section's own heading, now that there is a field for it.
+    // Empty leaves `ServiceOverview` on its title-based fallback.
+    introHeading: record.introHeading || undefined,
     heroHeading: record.hero?.heading || undefined,
     // Migrated WordPress (Rank Math) SEO — services previously fell back to
     // the generated title/description because nothing mapped this through.
@@ -603,17 +616,24 @@ export async function resolveServiceDetail(slug: string): Promise<ServiceDetail 
             : undefined,
         }
       : undefined,
-    overviewImages: (record.overview?.overviewImages as Array<PayloadMedia | number> | undefined | null)
+    overviewImages: (
+      record.overview?.overviewImages as Array<PayloadMedia | number> | undefined | null
+    )
       ?.map((image) => payloadImageUrl(image))
       .filter((url): url is string => Boolean(url)),
     craftsmanship: richTextHasContent(record.craftsmanship as RichTextValue)
       ? (record.craftsmanship as RichTextValue)
       : undefined,
-    craftsmanshipImages: (record.craftsmanshipImages as Array<PayloadMedia | number> | undefined | null)
+    craftsmanshipImages: (
+      record.craftsmanshipImages as Array<PayloadMedia | number> | undefined | null
+    )
       ?.map((image) => payloadImageUrl(image))
       .filter((url): url is string => Boolean(url)),
     craftsmanshipCta: record.craftsmanshipCta
-      ? { label: record.craftsmanshipCta.label ?? undefined, href: record.craftsmanshipCta.href ?? undefined }
+      ? {
+          label: record.craftsmanshipCta.label ?? undefined,
+          href: record.craftsmanshipCta.href ?? undefined,
+        }
       : undefined,
     clientApproach: richTextHasContent(record.clientApproach as RichTextValue)
       ? (record.clientApproach as RichTextValue)
@@ -626,9 +646,8 @@ export async function resolveServiceDetail(slug: string): Promise<ServiceDetail 
       .filter((url): url is string => Boolean(url)),
     gallery: record.galleryImages?.map(payloadImageUrl).filter((url): url is string => Boolean(url))
       .length
-      ? (record.galleryImages
-          ?.map(payloadImageUrl)
-          .filter((url): url is string => Boolean(url)) ?? base.gallery)
+      ? (record.galleryImages?.map(payloadImageUrl).filter((url): url is string => Boolean(url)) ??
+        base.gallery)
       : base.gallery,
     process: record.process
       ? {
@@ -814,4 +833,3 @@ export async function resolveServices(): Promise<Service[]> {
     showInConsultationForm: record.showInConsultationForm ?? true,
   }))
 }
-

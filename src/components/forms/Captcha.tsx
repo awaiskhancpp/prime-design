@@ -74,7 +74,14 @@ export function Captcha({
   // testing the hostname inline would render the widget on the server and skip
   // it on the client, and React would throw the tree away on hydration.
   const [skipOnLocalhost, setSkipOnLocalhost] = useState(false)
-  useEffect(() => setSkipOnLocalhost(isLocalhost()), [])
+  // On the next frame rather than in the effect body, which
+  // `react-hooks/set-state-in-effect` rejects — the same pattern the maps use
+  // for their in-view flag. One frame of a widget that is about to be removed
+  // is invisible, and only on localhost.
+  useEffect(() => {
+    const frame = requestAnimationFrame(() => setSkipOnLocalhost(isLocalhost()))
+    return () => cancelAnimationFrame(frame)
+  }, [])
   // Only used by the reCAPTCHA branch, whose widget reports its token through a
   // callback rather than an imperative getter.
   const [recaptchaToken, setRecaptchaToken] = useState<string>()

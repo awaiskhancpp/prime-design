@@ -13,7 +13,11 @@ import { ServiceGallery } from './ServiceGallery'
 import { ServiceImageTextSection } from './sections/ServiceImageTextSection'
 import { ServiceQuoteSection } from './ServiceQuoteSection'
 import { ServiceCraftsmanshipTransformsSection } from './sections/ServiceCraftsmanshipTransformsSection'
-import { ServiceHomeRepairCategoriesSection, type HomeRepairCategory } from './sections/ServiceHomeRepairCategoriesSection'
+import {
+  ServiceHomeRepairCategoriesSection,
+  type HomeRepairCategory,
+} from './sections/ServiceHomeRepairCategoriesSection'
+import { WhyChooseUs } from '@/components/gallery/WhyChooseUs'
 import { ServiceWhyChooseUsSection } from './sections/ServiceWhyChooseUsSection'
 import {
   ServiceRealHomesStoriesSection,
@@ -85,11 +89,67 @@ function renderPrimeDifference(block: RawBlock, headingText: string): RenderedSe
   }
 }
 
+/**
+ * The brass icon set the "Why Choose" cards are drawn with, in the order the
+ * site uses everywhere else (the Prime Difference cards, the gallery page).
+ * The CMS block stores a title and a sentence per card and no icon, so the
+ * icons are matched by position — four cards, four icons.
+ */
+const WHY_CHOOSE_ICONS = [
+  '/attention-to-detail.svg',
+  '/quality-craftsmanship.svg',
+  '/professional-expertise.svg',
+  '/customer-satisfaction.svg',
+]
+
+/**
+ * Pages that draw this section with the gallery page's design — centred
+ * header, four bordered cards with a brass icon and a number — rather than
+ * `ServiceWhyChooseUsSection`'s plainer grid.
+ *
+ * Additions and ADU already rendered it that way (hardcoded in
+ * `ServiceDetailPage`), and the owner asked for Home Remodeling and Bathroom
+ * Remodeling to match. The content still comes from each page's own CMS
+ * block; only the design is shared.
+ */
+const GALLERY_WHY_CHOOSE_SLUGS = new Set([
+  'additions',
+  'adu',
+  'home-remodeling',
+  'bathroom-remodeling',
+])
+
 /** `experience-difference` — "Why Choose Prime Design & Build?" grid. */
-function renderWhyChooseUs(block: RawBlock, headingText: string): RenderedSection {
+function renderWhyChooseUs(
+  block: RawBlock,
+  headingText: string,
+  serviceSlug?: string,
+): RenderedSection {
   const features = blocks(block.features)
     .map((feature) => ({ title: str(feature.title), description: str(feature.description) }))
     .filter((item) => item.title)
+
+  if (serviceSlug && GALLERY_WHY_CHOOSE_SLUGS.has(serviceSlug)) {
+    return {
+      key: 'why-choose-us',
+      node: (
+        <WhyChooseUs
+          // The gallery design splits its eyebrow in two ("Experience the"
+          // + the quoted accent). The CMS stores one string, so it goes in
+          // whole and the accent is left empty rather than guessed at.
+          eyebrow={str(block.eyebrow)}
+          eyebrowAccent=""
+          heading={headingText || ''}
+          reasons={features.map((feature, index) => ({
+            icon: WHY_CHOOSE_ICONS[index % WHY_CHOOSE_ICONS.length],
+            title: feature.title,
+            body: feature.description,
+          }))}
+        />
+      ),
+    }
+  }
+
   return {
     key: 'why-choose-us',
     node: (
@@ -106,9 +166,7 @@ function renderWhyChooseUs(block: RawBlock, headingText: string): RenderedSectio
 /** `craftsmanship` — "Craftsmanship That Transforms" split-image section. */
 function renderCraftsmanship(block: RawBlock, service: ServiceDetail): RenderedSection {
   const image = mediaUrl(block.media) || mediaUrl(block.image)
-  const images: [string, string] = image
-    ? [image, service.image]
-    : [service.image, service.image]
+  const images: [string, string] = image ? [image, service.image] : [service.image, service.image]
   const bodyText = str(block.description) || str(block.body)
 
   return {
@@ -355,8 +413,8 @@ function renderVideo(block: RawBlock, headingText: string): RenderedSection | nu
  * image). Rendered through the shared registry so it keeps its page position.
  */
 function renderFinanceHub(block: RawBlock): RenderedSection {
-  const ctaButton = blocks(block.buttons).find(
-    (item) => Boolean(item && typeof item === 'object' && str((item as RawBlock).label)),
+  const ctaButton = blocks(block.buttons).find((item) =>
+    Boolean(item && typeof item === 'object' && str((item as RawBlock).label)),
   ) as RawBlock | undefined
   return {
     key: 'shared-registry',
@@ -383,8 +441,8 @@ function renderFinanceHub(block: RawBlock): RenderedSection {
  * background image with the dark shade overlay.
  */
 function renderFinanceCta(block: RawBlock): RenderedSection {
-  const ctaButton = blocks(block.buttons).find(
-    (item) => Boolean(item && typeof item === 'object' && str((item as RawBlock).label)),
+  const ctaButton = blocks(block.buttons).find((item) =>
+    Boolean(item && typeof item === 'object' && str((item as RawBlock).label)),
   ) as RawBlock | undefined
   return {
     key: 'shared-registry',
@@ -428,9 +486,7 @@ const cta = (value: unknown): { label: string; href: string } | undefined => {
 }
 
 const descriptionText = (block: RawBlock): string =>
-  typeof block.description === 'string'
-    ? block.description
-    : richTextToPlainText(block.description)
+  typeof block.description === 'string' ? block.description : richTextToPlainText(block.description)
 
 const descriptionRich = (block: RawBlock): RichTextValue | undefined =>
   richTextHasContent(block.description as RichTextValue)
@@ -542,14 +598,15 @@ export function renderSection(
   // cards are the Why Choose Us content, and the Prime Difference design
   // (checklist beside a video carousel) does not fit it.
   if (blockType === 'prime-difference' && headingLower.includes('why choose'))
-    return renderWhyChooseUs(block, headingText)
+    return renderWhyChooseUs(block, headingText, service.slug)
   if (blockType === 'prime-difference') return renderPrimeDifference(block, headingText)
 
   if (blockType === 'experience-difference' && service.slug === 'finance') {
     return renderLicensedInsured(block)
   }
 
-  if (blockType === 'experience-difference') return renderWhyChooseUs(block, headingText)
+  if (blockType === 'experience-difference')
+    return renderWhyChooseUs(block, headingText, service.slug)
 
   if (blockType === 'craftsmanship' || (isImageText && headingLower.includes('craftsmanship'))) {
     return renderCraftsmanship(block, service)
@@ -602,9 +659,8 @@ export function renderSection(
   if (isImageText) {
     const image = mediaUrl(block.media)
     const buttons = Array.isArray(block.buttons) ? block.buttons : []
-    const ctaButton = buttons.find(
-      (item): item is Record<string, unknown> =>
-        Boolean(item && typeof item === 'object' && str((item as Record<string, unknown>).label)),
+    const ctaButton = buttons.find((item): item is Record<string, unknown> =>
+      Boolean(item && typeof item === 'object' && str((item as Record<string, unknown>).label)),
     )
     return {
       key: 'shared-registry',

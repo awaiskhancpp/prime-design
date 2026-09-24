@@ -119,9 +119,11 @@ export interface Config {
   fallbackLocale: null;
   globals: {
     'site-settings': SiteSetting;
+    'booking-settings': BookingSetting;
   };
   globalsSelect: {
     'site-settings': SiteSettingsSelect<false> | SiteSettingsSelect<true>;
+    'booking-settings': BookingSettingsSelect<false> | BookingSettingsSelect<true>;
   };
   locale: null;
   widgets: {
@@ -283,6 +285,10 @@ export interface Service {
    * Photo for this service’s card in the Contact consultation list. WordPress used a dedicated image per card, not the service hero — leave empty to fall back to the hero image.
    */
   consultationImage?: (number | null) | Media;
+  /**
+   * Shown on the Contact page card, e.g. “~1 Hour”. Empty prints no duration badge.
+   */
+  consultationDuration?: string | null;
   /**
    * Display order in navigation and menus (lower numbers first)
    */
@@ -630,6 +636,7 @@ export interface Service {
             blockType: 'image-text';
           }
         | {
+            eyebrow?: string | null;
             heading?: string | null;
             description?: string | null;
             source?: ('media' | 'externalUrl') | null;
@@ -1471,6 +1478,10 @@ export interface Service {
    * The shorter one-line summary WordPress uses on the homepage "Our Services" cards. Distinct copy from Short Description, not an abbreviation of it.
    */
   excerpt?: string | null;
+  /**
+   * Heading above the overview photos, e.g. "Accessory Dwelling Units (ADUs) - Expanding Your Living Space". Empty falls back to the service title.
+   */
+  introHeading?: string | null;
   /**
    * The photo used when this service is shown as a card (homepage "Our Services"). WordPress picks a different image here from the page hero; falls back to the hero image when empty.
    */
@@ -2714,6 +2725,10 @@ export interface Page {
             eyebrow?: string | null;
             heading?: string | null;
             description?: string | null;
+            /**
+             * Small print on each card, e.g. “Free · No commitment”. Empty prints nothing.
+             */
+            assuranceNote?: string | null;
             id?: string | null;
             blockName?: string | null;
             blockType: 'consultations';
@@ -3612,6 +3627,7 @@ export interface LandingPage {
         blockType: 'craftsmanship';
       }
     | {
+        eyebrow?: string | null;
         heading?: string | null;
         description?: string | null;
         source?: ('media' | 'externalUrl') | null;
@@ -4517,7 +4533,11 @@ export interface ContactSubmission {
    */
   phone: string;
   /**
-   * The six options the WordPress form offered. Blank when the form that submitted has no project selector.
+   * Chosen from the form’s service dropdown, which lists the featured services in their sort order — the same six the WordPress form offered.
+   */
+  service?: (number | null) | Service;
+  /**
+   * Legacy. The six options the WordPress form offered, before the dropdown was wired to the Services collection.
    */
   projectType?:
     | ('kitchen-remodeling' | 'bathroom-remodeling' | 'home-remodeling' | 'additions' | 'adu' | 'complete-renovation')
@@ -4528,8 +4548,14 @@ export interface ContactSubmission {
   zipCode?: string | null;
   consultationType?: string | null;
   preferredDate?: string | null;
+  appointmentDate?: string | null;
+  appointmentSlot?: string | null;
   source: 'contact-page' | 'service-page' | 'location-page' | 'landing-page' | 'appointment' | 'other';
   status: 'new' | 'contacted' | 'qualified' | 'archived';
+  /**
+   * The form that was filled in, e.g. “Hero estimate form”.
+   */
+  formName?: string | null;
   /**
    * Page the form was submitted from.
    */
@@ -4775,6 +4801,7 @@ export interface ServicesSelect<T extends boolean = true> {
   showInConsultationForm?: T;
   consultationLabel?: T;
   consultationImage?: T;
+  consultationDuration?: T;
   sortOrder?: T;
   sectionOrder?:
     | T
@@ -5046,6 +5073,7 @@ export interface ServicesSelect<T extends boolean = true> {
         video?:
           | T
           | {
+              eyebrow?: T;
               heading?: T;
               description?: T;
               source?: T;
@@ -5667,6 +5695,7 @@ export interface ServicesSelect<T extends boolean = true> {
       };
   shortDescription?: T;
   excerpt?: T;
+  introHeading?: T;
   featuredImage?: T;
   description?: T;
   overview?:
@@ -6346,6 +6375,7 @@ export interface PagesSelect<T extends boolean = true> {
               eyebrow?: T;
               heading?: T;
               description?: T;
+              assuranceNote?: T;
               id?: T;
               blockName?: T;
             };
@@ -6890,6 +6920,7 @@ export interface LandingPagesSelect<T extends boolean = true> {
         video?:
           | T
           | {
+              eyebrow?: T;
               heading?: T;
               description?: T;
               source?: T;
@@ -7554,6 +7585,7 @@ export interface ContactSubmissionsSelect<T extends boolean = true> {
   lastName?: T;
   email?: T;
   phone?: T;
+  service?: T;
   projectType?: T;
   subject?: T;
   message?: T;
@@ -7561,8 +7593,11 @@ export interface ContactSubmissionsSelect<T extends boolean = true> {
   zipCode?: T;
   consultationType?: T;
   preferredDate?: T;
+  appointmentDate?: T;
+  appointmentSlot?: T;
   source?: T;
   status?: T;
+  formName?: T;
   sourceUrl?: T;
   notificationStatus?: T;
   crmStatus?: T;
@@ -7727,6 +7762,62 @@ export interface SiteSetting {
   createdAt?: string | null;
 }
 /**
+ * Which days and times consultations can be booked, how many per day, and how far ahead the calendar runs.
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "booking-settings".
+ */
+export interface BookingSetting {
+  id: number;
+  /**
+   * Each open day offers these times. Use the 12-hour form the site prints, e.g. “09:00 am”, “01:30 pm”. Remove a row to stop offering that time.
+   */
+  slots?:
+    | {
+        time: string;
+        id?: string | null;
+      }[]
+    | null;
+  /**
+   * How far in advance a visitor must book. At 24, a time less than a day away is not offered — which is also what stops someone booking a slot that has already passed today.
+   */
+  minNoticeHours?: number | null;
+  /**
+   * Sunday was the only closed day and it was written into the code. Tick any weekday here — a holiday week is easier to handle as individual dates below.
+   */
+  closedWeekdays?: ('0' | '1' | '2' | '3' | '4' | '5' | '6')[] | null;
+  closedDates?:
+    | {
+        date: string;
+        /**
+         * For your own reference, e.g. “Thanksgiving”. Not shown on the site.
+         */
+        note?: string | null;
+        id?: string | null;
+      }[]
+    | null;
+  /**
+   * The most that can be booked on any open day. Once a day reaches it the calendar shows it as full, and the server refuses a booking for it even if the page is edited to offer one.
+   */
+  dailyCapacity?: number | null;
+  /**
+   * Overrides the number above for one date — "only one that day", or two. Set 0 to close the date instead.
+   */
+  dateCapacities?:
+    | {
+        date: string;
+        capacity: number;
+        id?: string | null;
+      }[]
+    | null;
+  /**
+   * How far ahead the calendar goes. 90 is about three months; the arrows stop there and a later date is refused by the server too. The calendar used to run forward forever.
+   */
+  bookingWindowDays?: number | null;
+  updatedAt?: string | null;
+  createdAt?: string | null;
+}
+/**
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "site-settings_select".
  */
@@ -7806,6 +7897,39 @@ export interface SiteSettingsSelect<T extends boolean = true> {
         ogDescription?: T;
         ogImage?: T;
       };
+  updatedAt?: T;
+  createdAt?: T;
+  globalType?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "booking-settings_select".
+ */
+export interface BookingSettingsSelect<T extends boolean = true> {
+  slots?:
+    | T
+    | {
+        time?: T;
+        id?: T;
+      };
+  minNoticeHours?: T;
+  closedWeekdays?: T;
+  closedDates?:
+    | T
+    | {
+        date?: T;
+        note?: T;
+        id?: T;
+      };
+  dailyCapacity?: T;
+  dateCapacities?:
+    | T
+    | {
+        date?: T;
+        capacity?: T;
+        id?: T;
+      };
+  bookingWindowDays?: T;
   updatedAt?: T;
   createdAt?: T;
   globalType?: T;

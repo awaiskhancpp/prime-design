@@ -84,9 +84,15 @@ export function ServiceProcessSection({
 
       <div ref={scrollRef} style={{ height: scrollHeight }}>
         <div className="sticky top-0 h-screen overflow-hidden bg-white">
-          <div className="grid h-full lg:grid-cols-2">
-            {/* Left: contained image */}
-            <div className="relative hidden overflow-hidden bg-white lg:block">
+          {/* Two columns on desktop, two rows below it.
+              The image column used to be `hidden lg:block`, so on a phone the
+              section was a list of steps with the photograph of each step
+              missing — the half that shows the work. Stacked, the picture
+              takes the top ~38% of the sticky viewport and the copy the rest,
+              which keeps both on screen as the steps advance. */}
+          <div className="grid h-full grid-rows-[38%_1fr] lg:grid-cols-2 lg:grid-rows-1">
+            {/* The image: above the copy on small screens, beside it on large. */}
+            <div className="relative block overflow-hidden bg-white">
               {/* Progress bar on left edge */}
               <div className="absolute bottom-0 left-0 top-0 z-10 w-0.5 bg-line">
                 <div
@@ -95,8 +101,8 @@ export function ServiceProcessSection({
                 />
               </div>
 
-              <div className="flex h-full items-center justify-center p-12">
-                <div className="relative w-full overflow-hidden" style={{ aspectRatio: '4/3' }}>
+              <div className="flex h-full items-center justify-center p-4 sm:p-6 lg:p-12">
+                <div className="relative h-full w-full overflow-hidden lg:h-auto lg:aspect-[4/3]">
                   {validSteps.map((step, index) => (
                     <div
                       key={`img-${index}`}
@@ -111,7 +117,9 @@ export function ServiceProcessSection({
                           alt={step.title}
                           fill
                           className="object-cover"
-                          sizes="40vw"
+                          // Full width when stacked, a little under half when
+                          // it sits beside the copy.
+                          sizes="(min-width: 1024px) 40vw, 100vw"
                           priority={index === 0}
                         />
                       ) : (
@@ -126,7 +134,7 @@ export function ServiceProcessSection({
             {/* Right: text panel */}
             <div className="relative flex flex-col">
               {/* Step indicator strip */}
-              <div className="flex gap-1 px-8 pt-20 md:px-12 md:pt-20">
+              <div className="flex gap-1 px-6 pt-6 sm:px-8 lg:px-12 lg:pt-20">
                 {validSteps.map((_, index) => (
                   <button
                     key={`ind-${index}`}
@@ -152,7 +160,7 @@ export function ServiceProcessSection({
                     key={`step-${index}`}
                     aria-hidden={activeStep !== index}
                     className={cn(
-                      'absolute inset-0 flex flex-col justify-center px-8 transition-all duration-500 ease-out md:px-12',
+                      'absolute inset-0 flex flex-col justify-center px-6 transition-all duration-500 ease-out sm:px-8 lg:px-12',
                       activeStep === index
                         ? 'pointer-events-auto translate-y-0 opacity-100'
                         : 'pointer-events-none translate-y-6 opacity-0',
@@ -176,7 +184,7 @@ export function ServiceProcessSection({
               </div>
 
               {/* Nav dots */}
-              <div className="flex items-center justify-end gap-2 px-8 pb-16 md:px-12 md:pb-16">
+              <div className="flex items-center justify-end gap-2 px-6 pb-8 sm:px-8 lg:px-12 lg:pb-16">
                 <span className="mr-2 text-[11px] font-semibold uppercase tracking-[0.12em] text-ink-2/30">
                   Scroll to explore
                 </span>

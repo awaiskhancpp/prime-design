@@ -60,6 +60,7 @@ type PayloadMedia = { url?: string | null }
 type PayloadConsultation = Pick<ConsultationType, 'title' | 'slug'> & {
   hero?: { image?: number | PayloadMedia | null } | null
   consultationLabel?: string | null
+  consultationDuration?: string | null
   consultationImage?: number | PayloadMedia | null
 }
 
@@ -116,7 +117,9 @@ export async function resolveConsultations(): Promise<ConsultationType[]> {
       // Consultation") or the automatic "{Service} Consultation" fallback.
       title: item.consultationLabel || `${item.title} Consultation`,
       slug: item.slug,
-      duration: '~1 Hour',
+      // The card's duration badge, from the service record. Empty means the
+      // card prints no badge rather than a number this file decided on.
+      duration: item.consultationDuration || '',
       // WordPress gives each consultation card its own photo, which is NOT the
       // service hero, so `consultationImage` wins. The hero is the fallback for
       // services that have no card image set.

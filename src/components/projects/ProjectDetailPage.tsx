@@ -45,7 +45,19 @@ export function ProjectDetailPage({ project }: { project: Project }) {
             </p>
             <h2 className="mt-4 font-display text-4xl font-medium text-ink-2">A closer look</h2>
           </div>
-          <p className="max-w-3xl text-lg leading-8 text-ink-2/75">{project.description}</p>
+          {/* The write-up as the CMS holds it. `content` is rich text and
+              carries the inline links the original page has — "an outdated
+              kitchen" points at /kitchen-remodeling/ — which rendering the
+              flattened `description` string dropped. Projects with no rich
+              text (twelve of the eighteen have no write-up at all) fall back
+              to the plain field and read exactly as before. */}
+          {project.content ? (
+            <div className="max-w-3xl text-lg leading-8 text-ink-2/75 [&_a]:font-medium [&_a]:text-brass-deep [&_a]:underline [&_a]:underline-offset-2 [&_p+p]:mt-4">
+              <RichTextContent data={project.content} />
+            </div>
+          ) : (
+            <p className="max-w-3xl text-lg leading-8 text-ink-2/75">{project.description}</p>
+          )}
         </div>
       </Section>
 
@@ -58,9 +70,7 @@ export function ProjectDetailPage({ project }: { project: Project }) {
         <Section className="bg-white pt-0">
           <div
             className={
-              project.video && project.map
-                ? 'grid gap-6 lg:grid-cols-[1.55fr_1fr] lg:gap-8'
-                : ''
+              project.video && project.map ? 'grid gap-6 lg:grid-cols-[1.55fr_1fr] lg:gap-8' : ''
             }
           >
             {project.video ? (

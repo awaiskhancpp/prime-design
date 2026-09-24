@@ -14,7 +14,7 @@ export function TestimonialVideos({ content }: { content: PageTestimonialVideosC
   if (!content.videos.length) return null
 
   return (
-    <Section className="bg-white pt-0">
+    <Section className="bg-white pt-10 ">
       {content.heading ? (
         <div className="mb-12">
           <SectionHeader title={content.heading} description={content.description ?? undefined} />

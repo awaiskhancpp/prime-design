@@ -218,7 +218,7 @@ export function LandscapingIntro({
                   src={image}
                   alt={intro?.heading || 'Prime Design & Build project'}
                   fill
-                  className="object-cover"
+                  className="object-cover object-right"
                   sizes="(min-width: 1024px) 50vw, 100vw"
                 />
               </div>

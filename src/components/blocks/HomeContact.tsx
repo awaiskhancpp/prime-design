@@ -1,6 +1,7 @@
 import { Mail, MapPin, Phone } from 'lucide-react'
 
 import website from '../../../website.json'
+import { resolveFormServices } from '@/lib/formServices'
 import { LeadForm } from '@/components/forms/LeadForm'
 import { Section } from '@/components/ui/Section'
 import { SectionHeader } from '@/components/ui/SectionHeader'
@@ -22,6 +23,7 @@ export async function HomeContact({
   intro,
   id,
   linkAddresses = true,
+  formName = 'Contact band',
 }: {
   contactIntro?: PageHeadingContent
   intro?: { eyebrow?: string; heading?: string; description?: string }
@@ -29,8 +31,15 @@ export async function HomeContact({
   id?: string
   /** Landing pages keep office addresses as text; shared pages retain map links. */
   linkAddresses?: boolean
+  /**
+   * What to call this form on the stored lead. The band is mounted by the
+   * homepage, the contact page and every ads landing page, and they are worth
+   * telling apart in the admin list.
+   */
+  formName?: string
 }) {
   const settings = await resolveSiteSettings()
+  const services = await resolveFormServices()
   const contactDetails = [
     { icon: Mail, label: settings.email, href: settings.emailLink },
     { icon: Phone, label: settings.phone, href: `tel:${settings.phoneClean}` },
@@ -45,8 +54,11 @@ export async function HomeContact({
     (contactIntro?.body
       ? richTextToPlainText(contactIntro.body)
       : "If you have any questions or you'd like to find out more about our services, please get in touch.")
+  // `scroll-mt` because the site header is sticky: without it an anchor jump
+  // to this section — the ticker on a location page, the "Get a Quote" CTA on
+  // a landing page — puts the heading underneath the bar.
   return (
-    <Section id={id || 'contact'} className="bg-white">
+    <Section id={id || 'contact'} className="scroll-mt-28 bg-white">
       <div className="grid gap-12 border border-line p-8 md:p-12 lg:grid-cols-[0.85fr_1.15fr] lg:gap-20">
         <div>
           <SectionHeader
@@ -81,7 +93,12 @@ export async function HomeContact({
           </div>
         </div>
 
-        <LeadForm submitLabel={website.contactForm.submitLabel} messagePlaceholder="Type your message..." />
+        <LeadForm
+          submitLabel={website.contactForm.submitLabel}
+          messagePlaceholder="Type your message..."
+          services={services}
+          formName={formName}
+        />
       </div>
     </Section>
   )

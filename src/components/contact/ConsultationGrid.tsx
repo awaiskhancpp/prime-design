@@ -9,9 +9,11 @@ import { AppointmentModal } from './AppointmentModal'
 
 function ConsultationCard({
   consultation,
+  assuranceNote,
   onBook,
 }: {
   consultation: ConsultationType
+  assuranceNote?: string
   onBook: (title: string) => void
 }) {
   return (
@@ -35,13 +37,16 @@ function ConsultationCard({
 
       {/* Body */}
       <div className="flex flex-1 flex-col p-6">
-        {/* Duration badge */}
-        <div className="mb-4 inline-flex items-center gap-1.5 self-start border border-line px-2.5 py-1">
-          <span aria-hidden className="h-1.5 w-1.5 rounded-full bg-brass" />
-          <span className="text-[10px] font-semibold uppercase tracking-[0.12em] text-brass-deep">
-            {consultation.duration}
-          </span>
-        </div>
+        {/* Duration badge — only when the service record carries one. An
+            empty field prints no badge rather than a made-up number. */}
+        {consultation.duration ? (
+          <div className="mb-4 inline-flex items-center gap-1.5 self-start border border-line px-2.5 py-1">
+            <span aria-hidden className="h-1.5 w-1.5 rounded-full bg-brass" />
+            <span className="text-[10px] font-semibold uppercase tracking-[0.12em] text-brass-deep">
+              {consultation.duration}
+            </span>
+          </div>
+        ) : null}
 
         {/* Title */}
         <h2 className="font-display text-xl font-medium leading-snug text-ink">
@@ -53,9 +58,13 @@ function ConsultationCard({
 
         {/* Footer */}
         <div className="mt-auto flex items-center justify-between gap-4">
-          <span className="text-[11px] font-semibold uppercase tracking-[0.08em] text-ink-2/40">
-            Free · No commitment
-          </span>
+          {assuranceNote ? (
+            <span className="text-[11px] font-semibold uppercase tracking-[0.08em] text-ink-2/40">
+              {assuranceNote}
+            </span>
+          ) : (
+            <span />
+          )}
           <button
             type="button"
             onClick={() => onBook(consultation.title)}
@@ -72,10 +81,13 @@ function ConsultationCard({
 
 export function ConsultationGrid({
   consultations,
+  assuranceNote,
   phone,
   phoneClean,
 }: {
   consultations: ConsultationType[]
+  /** The section's small print, shown on every card. From the CMS block. */
+  assuranceNote?: string
   phone?: string
   phoneClean?: string
 }) {
@@ -88,6 +100,7 @@ export function ConsultationGrid({
           <ConsultationCard
             key={consultation.slug}
             consultation={consultation}
+            assuranceNote={assuranceNote}
             onBook={setSelected}
           />
         ))}

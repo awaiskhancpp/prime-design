@@ -239,6 +239,23 @@ export const Services: CollectionConfig = {
       },
     },
     {
+      /**
+       * How long this consultation runs, as the card prints it.
+       *
+       * Per service rather than per section: an ADU consultation and a
+       * bathroom one are not the same appointment, and the number is the
+       * kind of thing that changes for one service without changing for the
+       * rest. Every card said "~1 Hour" because the resolver hardcoded it.
+       */
+      name: 'consultationDuration',
+      type: 'text',
+      label: 'Consultation Duration',
+      admin: {
+        description:
+          'Shown on the Contact page card, e.g. \u201c~1 Hour\u201d. Empty prints no duration badge.',
+      },
+    },
+    {
       name: 'sortOrder',
       type: 'number',
       defaultValue: 0,
@@ -332,6 +349,28 @@ export const Services: CollectionConfig = {
               admin: {
                 description:
                   'The shorter one-line summary WordPress uses on the homepage "Our Services" cards. Distinct copy from Short Description, not an abbreviation of it.',
+              },
+            },
+            {
+              /**
+               * The Overview section's own heading.
+               *
+               * `ServiceOverview` has read `introHeading` all along, but the
+               * field existed only in the TypeScript type — there was no
+               * Payload field and no column, so it could never be set and
+               * every page fell back to "{Service title} — expanding your
+               * living space". That fallback is invented copy, and it is
+               * wrong on the two pages that say something else: the ADU page
+               * reads "Accessory Dwelling Units (ADUs) - Expanding Your
+               * Living Space" and the Additions page "Home Additions -
+               * Enhancing Your Living Space".
+               */
+              name: 'introHeading',
+              type: 'text',
+              label: 'Overview heading',
+              admin: {
+                description:
+                  'Heading above the overview photos, e.g. "Accessory Dwelling Units (ADUs) - Expanding Your Living Space". Empty falls back to the service title.',
               },
             },
             {

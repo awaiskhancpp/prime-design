@@ -56,6 +56,11 @@ import * as migration_20260923_100000_find_us_map_pins from './20260923_100000_f
 import * as migration_20260923_110000_find_us_map_pins_services_side from './20260923_110000_find_us_map_pins_services_side'
 import * as migration_20260924_100000_location_prime_difference_richtext from './20260924_100000_location_prime_difference_richtext'
 import * as migration_20260924_120000_location_offerings_cards from './20260924_120000_location_offerings_cards'
+import * as migration_20260924_140000_submission_service_and_form_name from './20260924_140000_submission_service_and_form_name'
+import * as migration_20260924_160000_service_intro_heading_and_video_eyebrow from './20260924_160000_service_intro_heading_and_video_eyebrow'
+import * as migration_20260924_170000_video_eyebrow_shared_block from './20260924_170000_video_eyebrow_shared_block'
+import * as migration_20260924_180000_consultation_duration_and_note from './20260924_180000_consultation_duration_and_note'
+import * as migration_20260924_190000_booking_settings from './20260924_190000_booking_settings'
 
 export const migrations = [
   {
@@ -347,5 +352,30 @@ export const migrations = [
     up: migration_20260924_120000_location_offerings_cards.up,
     down: migration_20260924_120000_location_offerings_cards.down,
     name: '20260924_120000_location_offerings_cards',
+  },
+  {
+    up: migration_20260924_140000_submission_service_and_form_name.up,
+    down: migration_20260924_140000_submission_service_and_form_name.down,
+    name: '20260924_140000_submission_service_and_form_name',
+  },
+  {
+    up: migration_20260924_160000_service_intro_heading_and_video_eyebrow.up,
+    down: migration_20260924_160000_service_intro_heading_and_video_eyebrow.down,
+    name: '20260924_160000_service_intro_heading_and_video_eyebrow',
+  },
+  {
+    up: migration_20260924_170000_video_eyebrow_shared_block.up,
+    down: migration_20260924_170000_video_eyebrow_shared_block.down,
+    name: '20260924_170000_video_eyebrow_shared_block',
+  },
+  {
+    up: migration_20260924_180000_consultation_duration_and_note.up,
+    down: migration_20260924_180000_consultation_duration_and_note.down,
+    name: '20260924_180000_consultation_duration_and_note',
+  },
+  {
+    up: migration_20260924_190000_booking_settings.up,
+    down: migration_20260924_190000_booking_settings.down,
+    name: '20260924_190000_booking_settings',
   },
 ]

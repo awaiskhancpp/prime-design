@@ -686,6 +686,8 @@ export function ServiceTemplate({ service }: { service: ServiceDetail }) {
       'gallery',
       'craftsmanship',
       'silicon-valley-loves',
+      // Same placement as Home Remodeling: under the trust band, not last.
+      'why-choose-us',
       'prime-difference',
       'faq',
       'service-areas',
@@ -703,6 +705,10 @@ export function ServiceTemplate({ service }: { service: ServiceDetail }) {
       'craftsmanship',
       'service-areas',
       'silicon-valley-loves',
+      // Directly under the trust band and above the FAQ. Left out of this
+      // list it fell to the residual bucket and rendered after the contact
+      // section, which is past the point anyone is still reading.
+      'why-choose-us',
       'prime-difference',
       'faq',
       'reviews',

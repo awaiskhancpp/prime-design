@@ -39,6 +39,13 @@ export type Project = {
   /** Short card copy for the homepage project tiles. */
   excerpt?: string
   description: string
+  /**
+   * The project's write-up as the CMS stores it — paragraphs, and the inline
+   * links the original page carries ("an outdated <a>kitchen</a>"). Six of
+   * the eighteen have one; `description` is its plain reading, kept for the
+   * cards and the meta tags.
+   */
+  content?: RichTextValue
   heroImage: string
   gallery: string[]
   video?: ProjectVideo
@@ -298,6 +305,8 @@ type PayloadProject = {
   summary?: string | null
   excerpt?: string | null
   description?: string | null
+  /** The write-up, as rich text; `description` is its plain reading. */
+  content?: unknown
   featuredImage?: number | PayloadMedia | null
   gallery?: Array<number | PayloadMedia> | null
   publishedDate?: string | null
@@ -362,6 +371,9 @@ function normalizeProject(project: PayloadProject): Project {
     summary: project.summary || fallback?.summary || '',
     excerpt: project.excerpt || undefined,
     description: project.description || fallback?.description || '',
+    content: richTextHasContent(project.content as RichTextValue)
+      ? (project.content as RichTextValue)
+      : undefined,
     heroImage: payloadMediaUrl(project.featuredImage) || fallback?.heroImage || home,
     gallery: gallery?.length ? gallery : fallback?.gallery || [],
     map: parseMap(project.address),

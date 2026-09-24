@@ -37,7 +37,21 @@ export function FaqExplorer({
   categories: FaqIndexCategory[]
 }) {
   const [activeCategory, setActiveCategory] = useState<string>(ALL)
-  const [openItems, setOpenItems] = useState<Set<string>>(new Set())
+  /**
+   * One answer at a time, and space reserved for it.
+   *
+   * Opening an answer used to grow the page under the reader: one question
+   * pushed everything below it down 136px, two by 300px, and the "Areas we
+   * service" section moved with them. Two changes together stop that. Only
+   * one answer can be open, so the column can only ever grow by one answer's
+   * height; and `reserve` below holds exactly that much space at the foot of
+   * the list, so the growth is absorbed instead of added. The page is the
+   * same height whichever question is open, and whether any is.
+   */
+  const [openItem, setOpenItem] = useState<string | null>(null)
+  /** Every answer's height while closed, keyed by id, measured from the page. */
+  const [answerHeights, setAnswerHeights] = useState<Record<string, number>>({})
+  const listRef = useRef<HTMLDivElement>(null)
   /** The category currently under the top of the viewport (All view only). */
   const [currentCategory, setCurrentCategory] = useState<string | null>(null)
   const sectionRefs = useRef(new Map<string, HTMLElement>())
@@ -95,15 +109,53 @@ export function FaqExplorer({
     )
     for (const [, node] of nodes) observer.observe(node)
     return () => observer.disconnect()
-  }, [activeCategory, visible, openItems])
+  }, [activeCategory, visible, openItem])
 
-  const toggle = (id: string) =>
-    setOpenItems((previous) => {
-      const next = new Set(previous)
-      if (next.has(id)) next.delete(id)
-      else next.add(id)
-      return next
-    })
+  const toggle = (id: string) => setOpenItem((current) => (current === id ? null : id))
+
+  const tallestAnswer = Math.max(0, ...Object.values(answerHeights))
+  const openHeight = openItem ? (answerHeights[openItem] ?? 0) : 0
+  const reservePx = Math.max(0, tallestAnswer - openHeight)
+
+  /**
+   * The tallest answer, measured from the page itself.
+   *
+   * Every panel stays in the DOM and is collapsed with a `0fr` grid row
+   * rather than `hidden`, so its content still has a real height to measure
+   * while closed. Re-measured when the visible set changes (filtering by
+   * category changes which answers are on the page) and on resize, because
+   * an answer's height depends on the column width.
+   */
+  useEffect(() => {
+    const element = listRef.current
+    if (!element) return
+
+    const measure = () => {
+      const panels = element.querySelectorAll<HTMLElement>('[data-faq-answer]')
+      const next: Record<string, number> = {}
+      for (const panel of panels) {
+        const id = panel.dataset.faqId
+        if (id) next[id] = panel.scrollHeight
+      }
+      setAnswerHeights((previous) => {
+        const same =
+          Object.keys(next).length === Object.keys(previous).length &&
+          Object.entries(next).every(([id, height]) => previous[id] === height)
+        return same ? previous : next
+      })
+    }
+
+    // On the next frame, not in the effect body: the rule this project lints
+    // with rejects a synchronous setState in an effect, and the panels need a
+    // paint before their heights are real.
+    const frame = requestAnimationFrame(measure)
+    const observer = new ResizeObserver(measure)
+    observer.observe(element)
+    return () => {
+      cancelAnimationFrame(frame)
+      observer.disconnect()
+    }
+  }, [visible])
 
   if (!categories.length) return null
 
@@ -137,11 +189,21 @@ export function FaqExplorer({
             height to the answers column and made it grow each time an answer
             opened. No max-height here — the rail is left at its natural
             height rather than given a scrollbar of its own. */}
-        <aside className="self-start lg:sticky lg:top-28">
+        {/* `min-w-0`: a grid item defaults to `min-width: auto`, which means
+            it refuses to shrink below its content. The chip row below is a
+            horizontal strip of 12 category buttons, so without this the
+            column grew to the full 3,579px of that strip and took the whole
+            page with it — /faq scrolled sideways by 3,189px on a phone. */}
+        <aside className="min-w-0 self-start lg:sticky lg:top-28">
           <p className="mb-4 hidden text-xs font-semibold uppercase tracking-[0.18em] text-ink-2/45 lg:block">
             Categories
           </p>
-          <div className="-mx-4 flex gap-2 overflow-x-auto px-4 pb-2 lg:mx-0 lg:flex-col lg:gap-0 lg:overflow-visible lg:px-0 lg:pb-0 lg:border-l lg:border-line">
+          {/* Wrapped, not scrolled. A sideways strip hides most of the
+              categories behind a gesture with nothing to indicate they are
+              there; wrapped, all twelve are on screen at once, which is what
+              the owner asked for on the landing pages' FAQ for the same
+              reason. From `lg` it becomes the vertical rail again. */}
+          <div className="flex flex-wrap gap-2 pb-2 lg:flex-col lg:flex-nowrap lg:gap-0 lg:border-l lg:border-line lg:pb-0">
             <FaqCategoryButton
               label={content.allLabel || 'All questions'}
               count={totalCount}
@@ -161,7 +223,11 @@ export function FaqExplorer({
           </div>
         </aside>
 
-        <div className="min-w-0">
+        {/* The reserve shrinks by exactly as much as the open answer adds:
+            padding = tallest − open. Closed, the column carries the tallest
+            answer's worth of space; open, that space becomes the answer. The
+            sum is constant, so nothing below the list moves. */}
+        <div className="min-w-0" ref={listRef} style={{ paddingBottom: reservePx }}>
           {visible.length ? (
             <div className="grid gap-10">
               {visible.map((category) => (
@@ -185,7 +251,7 @@ export function FaqExplorer({
 
                   <ul className="divide-y divide-line">
                     {category.items.map((item) => {
-                      const open = openItems.has(item.id)
+                      const open = openItem === item.id
                       return (
                         <li key={item.id}>
                           <h4>
@@ -210,12 +276,33 @@ export function FaqExplorer({
                               </span>
                             </button>
                           </h4>
+                          {/* Collapsed with a grid row rather than `hidden`,
+                              so the answer keeps a measurable height while
+                              closed — that is what `reserve` is measured
+                              from. `inert` keeps a closed answer out of the
+                              tab order and away from screen readers, which
+                              `display: none` used to do for free. */}
                           <div
-                            id={`faq-panel-${item.id}`}
-                            hidden={!open}
-                            className="max-w-3xl pb-6 pr-8 text-sm leading-7 text-ink-2/75 [&_p]:mt-0 [&_p+p]:mt-4"
+                            className={cn(
+                              'grid transition-[grid-template-rows] duration-300 ease-out',
+                              open ? 'grid-rows-[1fr]' : 'grid-rows-[0fr]',
+                            )}
                           >
-                            <RichTextContent data={item.answer} />
+                            <div className="overflow-hidden">
+                              <div
+                                id={`faq-panel-${item.id}`}
+                                data-faq-answer
+                                data-faq-id={item.id}
+                                // React 19 passes `inert` through as a real
+                                // boolean; the string form it replaced made
+                                // React warn on every render.
+                                inert={!open}
+                                aria-hidden={!open}
+                                className="max-w-3xl pb-6 pr-8 text-sm leading-7 text-ink-2/75 [&_p]:mt-0 [&_p+p]:mt-4"
+                              >
+                                <RichTextContent data={item.answer} />
+                              </div>
+                            </div>
                           </div>
                         </li>
                       )

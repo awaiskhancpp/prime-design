@@ -5,6 +5,7 @@ import { getPayload } from 'payload'
 import configPromise from '@payload-config'
 import { BrandMark } from '@/components/layout/BrandMark'
 import { LeadForm } from '@/components/forms/LeadForm'
+import { resolveFormServices } from '@/lib/formServices'
 import { Container } from '@/components/ui/Container'
 import type { ServiceDetail } from '@/lib/services'
 import type { Location, ServiceLocation } from '@/lib/serviceLocations'
@@ -65,7 +66,10 @@ type HeroCopy = { lede: string; body: string; formSubject: string; blurbs: strin
  * and passed to both consumers (the feature blurbs and the hero body) so the
  * two cannot drift apart.
  */
-function resolveHeroCopy(service: ServiceDetail, override?: ServiceLocation['locationHero']): HeroCopy {
+function resolveHeroCopy(
+  service: ServiceDetail,
+  override?: ServiceLocation['locationHero'],
+): HeroCopy {
   const template = HERO_COPY[service.slug] ?? HERO_COPY['kitchen-remodeling']
   const fromService = service.locationHero
   return {
@@ -225,29 +229,47 @@ export async function ServiceLocationHeroForm({
             </p>
 
             <LeadForm
-              className="mt-6 gap-4"
+              className="mt-6 gap-1"
               layout="stacked"
               requireSubject
               submitLabel="Request A Quote"
               submitClassName="mt-2 w-full justify-center"
               messagePlaceholder="Tell Us About Your Project"
+              services={await resolveFormServices()}
+              // Named for the admin list: these pages carry this form in the
+              // hero and the shared contact band at the foot.
+              formName="Hero estimate form"
+              source="location-page"
             />
           </div>
         </div>
       </Container>
 
-      <div className="overflow-hidden border-y border-brass-deep/20 bg-brass py-3">
+      {/* The whole band is a link to the contact section, as it is on the
+          original — there the marquee is wrapped in `<a href="#contact">`,
+          and it is the only thing in that strip, so a visitor who reads
+          "CALL NOW" and clicks anywhere on it lands on the form rather than
+          on nothing. The repeated copies are decorative, so the link carries
+          its own accessible name instead of announcing the ticker text. */}
+      <a
+        href="#contact"
+        aria-label={`Contact us about ${service.title} in ${location.name}`}
+        className="block overflow-hidden border-y border-brass-deep/20 bg-brass py-3 outline-offset-2 transition-colors hover:bg-brass-deep focus-visible:outline-2 focus-visible:outline-ink"
+      >
         {/* Real marquee: the content is duplicated exactly once (two
             identical copies, side by side), and the whole flex row
             animates translateX(0) -> translateX(-50%). Since the second
             copy starts at the halfway point, the moment the first copy
             has scrolled fully offscreen the second is in the exact
-            position the first started in — the loop is invisible. The
-            duplicate copy is aria-hidden so screen readers only hear the
-            ticker text once, not twice. */}
-        <div className="flex w-max animate-marquee gap-3 whitespace-nowrap will-change-transform hover:[animation-play-state:paused]">
+            position the first started in — the loop is invisible. Both
+            copies are aria-hidden now: the link above names itself, so the
+            text underneath it is decoration. */}
+        <div
+          aria-hidden
+          className="flex w-max animate-marquee gap-3 whitespace-nowrap will-change-transform hover:[animation-play-state:paused]"
+        >
           {[0, 1].map((copy) => (
-            <div key={copy} className="flex shrink-0 items-center gap-3" aria-hidden={copy === 1}>
+            <div key={copy} className="flex shrink-0 items-center gap-3">
               {Array.from({ length: 8 }).map((_, index) => (
                 <span
                   key={index}
@@ -262,7 +284,7 @@ export async function ServiceLocationHeroForm({
             </div>
           ))}
         </div>
-      </div>
+      </a>
     </section>
   )
 }

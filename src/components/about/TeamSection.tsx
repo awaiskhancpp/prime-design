@@ -25,8 +25,16 @@ function Portrait({
   member: TeamMember
   variant?: 'grid' | 'modal'
 }) {
+  // In the modal on a phone the portrait sits above the copy, so its height
+  // is taken out of the same 90vh the text has to fit in: `4/5` would eat two
+  // thirds of the sheet. `5/4` keeps the face readable — the crop is
+  // `object-top`, so a wide frame still holds the head — and leaves the
+  // biography the room it needs. Beside the copy from `md` up it fills the
+  // column as before.
   const aspectClasses =
-    variant === 'modal' ? 'aspect-[4/3] md:aspect-auto md:h-full md:min-h-[26rem]' : 'aspect-[4/5]'
+    variant === 'modal'
+      ? 'aspect-[5/4] max-h-[38vh] md:aspect-auto md:max-h-none md:h-full md:min-h-[26rem]'
+      : 'aspect-[4/5]'
 
   return (
     <div className={`relative overflow-hidden bg-ink-2 ${aspectClasses}`}>
@@ -176,7 +184,12 @@ export function TeamSection({
             role="dialog"
             aria-modal="true"
             aria-labelledby="team-member-name"
-            className="relative grid max-h-[90vh] w-full max-w-4xl overflow-y-auto bg-paper shadow-2xl md:grid-cols-[0.95fr_1.05fr]"
+            // `items-start` matters as much as the scrolling: the copy panel
+            // below centres itself vertically, and a centred flex child that
+            // is taller than its scroll container overflows *upward*, where
+            // scrolling cannot reach it. That is what cut the "Prime Design &
+            // Build" line and the top of the portrait off on a phone.
+            className="relative grid max-h-[90vh] w-full max-w-4xl items-start overflow-y-auto overscroll-contain bg-paper shadow-2xl md:grid-cols-[0.95fr_1.05fr] md:items-stretch"
           >
             <button
               type="button"
@@ -187,18 +200,20 @@ export function TeamSection({
               <X />
             </button>
             <Portrait member={selectedMember} variant="modal" />
-            <div className="flex flex-col justify-center p-8 md:p-12">
+            <div className="flex flex-col justify-start p-6 sm:p-8 md:justify-center md:p-12">
               <p className="text-xs font-semibold uppercase tracking-[0.2em] text-brass-deep">
                 Prime Design & Build
               </p>
               <h2
                 id="team-member-name"
-                className="mt-5 font-display text-5xl font-medium leading-none text-ink-2"
+                className="mt-4 font-display text-3xl font-medium leading-tight text-ink-2 sm:text-4xl md:mt-5 md:text-5xl md:leading-none"
               >
                 {selectedMember.name}
               </h2>
-              <p className="mt-4 text-xl text-ink-2/75">{selectedMember.role}</p>
-              <p className="mt-7 text-base leading-8 text-ink-2/75">{selectedMember.description}</p>
+              <p className="mt-3 text-lg text-ink-2/75 md:mt-4 md:text-xl">{selectedMember.role}</p>
+              <p className="mt-5 text-sm leading-7 text-ink-2/75 sm:text-base md:mt-7 md:leading-8">
+                {selectedMember.description}
+              </p>
             </div>
           </div>
         </div>

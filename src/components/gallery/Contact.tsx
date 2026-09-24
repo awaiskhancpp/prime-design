@@ -5,6 +5,7 @@ import { LeadForm } from '@/components/forms/LeadForm'
 import { Section } from '@/components/ui/Section'
 import { VideoPlayer } from '@/components/ui/VideoPlayer'
 import { SectionHeader } from '@/components/ui/SectionHeader'
+import { resolveFormServices } from '@/lib/formServices'
 import { resolveSiteSettings } from '@/lib/siteSettings'
 
 // WordPress contact-section walkthrough (template 1495/1584/1639) — the
@@ -30,7 +31,9 @@ export async function Contact({ city, poster }: { city?: string; poster?: string
   ]
 
   return (
-    <Section id="contact" className="relative ">
+    // `scroll-mt` because a sticky header sits over this on the pages that
+    // have one, and the location pages' ticker links straight here.
+    <Section id="contact" className="relative scroll-mt-28">
       {/* 
         Added `items-start` to the grid. 
         This is required for CSS `sticky` to work in a grid layout. 
@@ -40,7 +43,9 @@ export async function Contact({ city, poster }: { city?: string; poster?: string
         <div className="flex flex-col">
           <SectionHeader
             eyebrow={
-              city ? `Start Crafting Your Dream Project in ${city} Today` : 'Start crafting your dream project today'
+              city
+                ? `Start Crafting Your Dream Project in ${city} Today`
+                : 'Start crafting your dream project today'
             }
             title="Ready to discuss your needs?"
             titleHighlight="your needs?"
@@ -59,8 +64,8 @@ export async function Contact({ city, poster }: { city?: string; poster?: string
                 </p>
 
                 <p className="mt-3 max-w-md text-sm leading-6 text-ink-2/65">
-                  To get in touch, simply fill out the form on this page and we will get back to
-                  you within 2-3 hours on business days.
+                  To get in touch, simply fill out the form on this page and we will get back to you
+                  within 2-3 hours on business days.
                 </p>
               </>
             }
@@ -73,6 +78,8 @@ export async function Contact({ city, poster }: { city?: string; poster?: string
             submitClassName="w-full sm:w-fit mt-2"
             submitLabel={website.contactForm.submitLabel}
             messagePlaceholder="Type your message..."
+            services={await resolveFormServices()}
+            formName="Gallery enquiry form"
           />
         </div>
 

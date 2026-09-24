@@ -237,6 +237,7 @@ function PageSectionNode({
           ) : null}
           <ConsultationGrid
             consultations={context.consultations ?? []}
+            assuranceNote={section.content.assuranceNote}
             phone={context.phone}
             phoneClean={context.phoneClean}
           />

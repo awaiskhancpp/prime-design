@@ -12,12 +12,23 @@ import type { Project } from '@/lib/projects'
  *   category  six values, 13–24 characters
  *   location  16–40 characters, every one suffixed ", CA, USA" or similar
  *
- * The body copy is `excerpt`, not `summary`. The card used `summary`, whose
+ * The body copy is the project's own write-up where it has one.
+ *
+ * Six of the eighteen carry a real description on the original site — the
+ * paragraphs the project page prints, 47 to 509 characters, some with inline
+ * links — and that is what the card should show, because it is what the
+ * project actually says about itself. The other twelve have no write-up on
+ * the original either, so they keep the `excerpt` they show today; nothing
+ * is invented to fill the gap.
+ *
+ * `summary` remains the last resort. It used to be first, and its
  * 133-character spread is what made the grid ragged: at two clamped lines a
  * 47-character summary left half the block empty while a 180-character one
- * was cut mid-sentence. `excerpt` spans 47 characters end to end and is the
- * field documented as card copy. No CSS fixes a content mismatch that the
- * right field does not have.
+ * was cut mid-sentence.
+ *
+ * Two lines, not three. With the longer descriptions in play a third line
+ * pushed the taller cards well past their neighbours; clamped at two, every
+ * card's plate is the same depth whichever field filled it.
  *
  * The title gets two lines as a ceiling. `line-clamp-1` at `text-3xl` cut
  * nine of the eighteen mid-word; the longest lost three quarters of itself.
@@ -69,8 +80,14 @@ export function ProjectCard({
       footerLeft={place(project.location)}
       actionLabel={linked ? 'See this Project' : undefined}
     >
-      <p className="mt-2 line-clamp-3 text-sm leading-6 text-ink-2/70">
-        {project.excerpt || project.summary}
+      {/* Two lines, reserved at 48px. Seventeen of the eighteen fill both;
+          the one that does not (San Jose's 47-character write-up) would
+          otherwise render a 24px block and pull its footer up level with the
+          bodies of the cards beside it. The card itself is the same height
+          either way — the grid stretches it — so what the reservation fixes
+          is the ragged inside of the plate, not the outside of the card. */}
+      <p className="mt-2 line-clamp-2 min-h-12 text-sm leading-6 text-ink-2/70">
+        {project.description || project.excerpt || project.summary}
       </p>
     </PhotoPlateCard>
   )

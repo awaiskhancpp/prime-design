@@ -26,7 +26,7 @@ export function ServiceHero({ service }: { service: ServiceDetail }) {
       : undefined
 
   return (
-    <section className="relative isolate flex min-h-screen items-end overflow-hidden bg-ink pb-16 pt-16 text-white lg:pb-24">
+    <section className="relative isolate flex min-h-screen items-end overflow-hidden bg-ink pb-10 pt-16 text-white lg:pb-16">
       {heroVideo ? (
         <video
           className="absolute inset-0 z-0 h-full w-full object-cover"
@@ -63,7 +63,7 @@ export function ServiceHero({ service }: { service: ServiceDetail }) {
       <Container className="relative z-10 w-full">
         <div className="max-w-4xl">
           {service.eyebrow ? (
-            <p className="mb-5 text-xs font-semibold uppercase tracking-[0.2em] text-brass">
+            <p className="mb-1 lg:mb-5 text-xs font-semibold uppercase tracking-[0.2em] text-brass">
               {service.eyebrow}
             </p>
           ) : null}
@@ -73,10 +73,10 @@ export function ServiceHero({ service }: { service: ServiceDetail }) {
           <h1 className="max-w-4xl font-display text-5xl font-medium leading-tight tracking-tight md:text-7xl">
             {service.heroHeading || service.title}
           </h1>
-          <p className="mt-7 max-w-xl text-base leading-7 text-white/75 md:text-lg">
+          <p className="mt-1 lg:mt-7 max-w-xl text-base leading-7 text-white/75 md:text-lg">
             {service.lead}
           </p>
-          <div className="mt-9 flex flex-wrap gap-3">
+          <div className="mt-4 lg:mt-9 flex flex-wrap gap-3">
             {service.heroButtons?.map((button) => (
               <Button
                 key={`${button.label}-${button.href}`}

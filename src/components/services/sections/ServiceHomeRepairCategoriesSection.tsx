@@ -69,7 +69,7 @@ export function ServiceHomeRepairCategoriesSection({
   description?: string
 }) {
   return (
-    <Section className="grid gap-20">
+    <Section className="grid gap-14 lg:gap-20">
       {heading ? (
         <SectionHeader align="center" eyebrow={eyebrow} title={heading} description={description} />
       ) : null}
@@ -80,8 +80,14 @@ export function ServiceHomeRepairCategoriesSection({
         return (
           <div
             key={category.title}
-            className={`grid gap-8 mt-6 first:mt-0 md:grid-cols-2 md:items-center md:gap-16 ${
-              imageOnRight ? 'md:[&>div:first-child]:order-2' : ''
+            /* Side by side only from `lg`. At `md` the two columns and a 64px
+               gutter left each side about 325px: the photograph shrank to a
+               thumbnail marooned in white space while the paragraph beside it
+               broke every five or six words. Stacked, the image runs the full
+               width and the copy reads in one measure — and the alternating
+               left/right rhythm returns as soon as there is room for it. */
+            className={`mt-6 grid gap-6 first:mt-0 lg:grid-cols-2 lg:items-center lg:gap-14 ${
+              imageOnRight ? 'lg:[&>div:first-child]:order-2' : ''
             }`}
           >
             <div className="relative aspect-[4/3] overflow-hidden bg-paper-2">
@@ -96,16 +102,12 @@ export function ServiceHomeRepairCategoriesSection({
             <div>
               {category.eyebrow ? (
                 <>
-                  <p className="font-display text-2xl font-medium text-brass">
-                    {category.eyebrow}
-                  </p>
+                  <p className="font-display text-2xl font-medium text-brass">{category.eyebrow}</p>
                   <h3 className="font-display text-3xl font-semibold text-ink">{category.title}</h3>
                 </>
               ) : (
                 <>
-                  <p className="font-display text-2xl font-medium text-brass">
-                    {firstWord}
-                  </p>
+                  <p className="font-display text-2xl font-medium text-brass">{firstWord}</p>
                   <h3 className="font-display text-3xl font-semibold text-ink">{rest.join(' ')}</h3>
                 </>
               )}

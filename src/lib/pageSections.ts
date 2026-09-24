@@ -193,6 +193,8 @@ export type PageConsultationsContent = {
   eyebrow?: string
   heading?: string
   description?: string
+  /** Small print repeated on every card, e.g. "Free · No commitment". */
+  assuranceNote?: string
 }
 
 export type PageSection =
@@ -509,6 +511,7 @@ export function toPageSection(block: PageBlock): PageSection | undefined {
           eyebrow: optionalText(block.eyebrow),
           heading: optionalText(block.heading),
           description: optionalText(block.description),
+          assuranceNote: optionalText(block.assuranceNote),
         },
       }
     case 'faq-index':
@@ -528,7 +531,10 @@ export function toPageSection(block: PageBlock): PageSection | undefined {
     case 'custom':
       return {
         type: 'custom',
-        content: resolveCustomSection(block as unknown as Parameters<typeof resolveCustomSection>[0], mediaUrl),
+        content: resolveCustomSection(
+          block as unknown as Parameters<typeof resolveCustomSection>[0],
+          mediaUrl,
+        ),
       }
 
     // The generic blocks that existed before the sections were added.

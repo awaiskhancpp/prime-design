@@ -4,6 +4,7 @@ import { getPayload } from 'payload'
 
 import configPromise from '@payload-config'
 import { dispatchLeadIntegrations } from '@/lib/leadIntegrations'
+import { checkBooking } from '@/lib/bookingAvailability'
 import { verifyCaptcha } from '@/lib/captcha'
 import {
   email as emailRule,
@@ -37,9 +38,21 @@ const BASE_RULES: FieldRules<Field> = {
   message: minWords('Message', 8),
 }
 
-/** The booking flow also needs somewhere to send an estimator. */
+/**
+ * The booking flow also needs somewhere to send an estimator — and asks less
+ * of the comment box.
+ *
+ * A booking has already said which service, which day and which time, so its
+ * comment is context rather than the message itself. Holding it to the
+ * contact form's eight words is what produced a stored lead reading "what the
+ * fuck how am i suppose to write 8 wor": the rule did not raise the quality
+ * of the data, it just made a person fight the form. Three words still stops
+ * an empty or junk submit, and it matches what the modal now asks for — the
+ * two must agree, or the form accepts what the server then rejects.
+ */
 const APPOINTMENT_RULES: FieldRules<Field> = {
   ...BASE_RULES,
+  message: minWords('Comments', 3),
   address: streetAddress,
   zipCode: usZip,
 }
@@ -111,8 +124,30 @@ export async function POST(request: Request) {
   const forwarded = request.headers.get('x-forwarded-for') ?? ''
   const ip = forwarded.split(',')[0]?.trim() || ''
   const token = str(body.captchaToken, 4000) || str(body.recaptchaToken, 4000) || undefined
-  const captcha = await verifyCaptcha(token, ip)
-  if (captcha.error) {
+
+  /**
+   * Local development submits without a token, on purpose.
+   *
+   * Turnstile's site key is registered against the live domain, so on
+   * localhost Cloudflare answers the widget's challenge with 400 and the
+   * widget never produces a token — `components/forms/Captcha.tsx` therefore
+   * does not render it there. Without this the two halves disagree: the form
+   * shows no challenge and the server then rejects the submission for not
+   * having answered one, which is a form that cannot be tested locally at all.
+   *
+   * Both conditions are required and neither is attacker-controlled in the
+   * place that matters: a deployed build runs with `NODE_ENV=production`, so
+   * the exemption cannot be reached there however the Host header is spoofed.
+   */
+  const host = request.headers.get('host') ?? ''
+  const isLocalRequest =
+    process.env.NODE_ENV !== 'production' && /^(localhost|127\.0\.0\.1|\[::1\])(:\d+)?$/.test(host)
+
+  // `skipped` is the collection's existing value for "no challenge was
+  // checked"; a new status would mean a schema change for a development-only
+  // path, and the stored `sourceUrl` already says it was localhost.
+  const captcha = isLocalRequest ? { status: 'skipped' as const } : await verifyCaptcha(token, ip)
+  if ('error' in captcha && captcha.error) {
     return NextResponse.json({ error: captcha.error }, { status: 400 })
   }
 
@@ -142,9 +177,50 @@ export async function POST(request: Request) {
     ? (body.projectType as (typeof PROJECT_TYPES)[number])
     : undefined
 
+  /**
+   * The service the visitor picked, as a slug.
+   *
+   * Resolved against the Services collection rather than trusted: the browser
+   * sends a slug, and a slug that names no service — a stale form, or someone
+   * posting by hand — stores nothing instead of a dangling reference. The
+   * lookup is by slug and not by id for the same reason the form posts one:
+   * an id in page source is a database detail, a slug is already public.
+   */
+  const serviceSlug = str(body.service, 120)
+
+  /**
+   * A booking is re-checked here, against the same rules the calendar drew
+   * itself from.
+   *
+   * The calendar runs in a browser the visitor controls, so what it offered
+   * is a suggestion. This asks the server's own question — is that date open,
+   * inside the window, far enough away, and does the day still have room? —
+   * from the request's `appointmentDate` and `appointmentSlot` alone. A
+   * request that skips the modal, replays an old one, or names a closed
+   * Sunday is refused here regardless of what the page showed.
+   */
+  let booking: Awaited<ReturnType<typeof checkBooking>> | undefined
+  if (source === 'appointment') {
+    booking = await checkBooking(body.appointmentDate, body.appointmentSlot)
+    if (!booking.ok) {
+      return NextResponse.json({ error: booking.reason }, { status: 409 })
+    }
+  }
+
   // ---- store -------------------------------------------------------------
   try {
     const payload = await getPayload({ config: configPromise })
+
+    let serviceId: number | undefined
+    if (serviceSlug) {
+      const match = await payload.find({
+        collection: 'services',
+        where: { slug: { equals: serviceSlug } },
+        limit: 1,
+        depth: 0,
+      })
+      serviceId = (match.docs[0] as { id?: number } | undefined)?.id
+    }
 
     const submission = await payload.create({
       collection: 'contact-submissions',
@@ -153,6 +229,7 @@ export async function POST(request: Request) {
         lastName: values.lastName,
         email: values.email.toLowerCase(),
         phone: toE164(values.phone),
+        service: serviceId,
         projectType,
         subject: values.subject || undefined,
         message: values.message,
@@ -160,14 +237,21 @@ export async function POST(request: Request) {
         zipCode: values.zipCode || undefined,
         consultationType: str(body.consultationType, 200) || undefined,
         preferredDate: str(body.preferredDate, 100) || undefined,
+        // The booked day and time as the server validated them — not as the
+        // browser described them. Capacity is counted on these.
+        appointmentDate: booking?.ok ? booking.key : undefined,
+        appointmentSlot: booking?.ok ? booking.slot : undefined,
         source,
         status: 'new',
+        // Which form, in words. The browser names itself; an unnamed form
+        // stores nothing rather than a guess made from the URL.
+        formName: str(body.formName, 120) || undefined,
         sourceUrl: str(body.sourceUrl, 500) || undefined,
         // Provider-neutral in meaning despite the name: the stored column
         // predates Turnstile and renaming it needs a migration, which §8b of
         // CLAUDE.md blocks. Turnstile never sets a score.
         recaptchaStatus: captcha.status,
-        recaptchaScore: captcha.score,
+        recaptchaScore: 'score' in captcha ? captcha.score : undefined,
         notificationStatus: 'pending',
         crmStatus: 'pending',
         meta: {

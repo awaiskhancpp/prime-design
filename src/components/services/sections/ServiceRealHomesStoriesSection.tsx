@@ -64,16 +64,23 @@ export function ServiceRealHomesStoriesSection({
         />
       </div>
 
-      <div className="mt-14 grid gap-6 md:grid-cols-3">
+      {/* Three columns only once there is room for three.
+          `md:grid-cols-3` put three cards across a 768px viewport, which left
+          each quote about 150px wide — the sentences broke every three or
+          four words and the cards grew to twice the height of the section
+          above them. Tablets get two columns and the third card wraps; the
+          padding and the quote size step down with the width for the same
+          reason. */}
+      <div className="mt-14 grid gap-5 sm:grid-cols-2 sm:gap-6 lg:grid-cols-3">
         {testimonials.map((item) => (
           <figure
             key={item.attribution}
-            className="flex h-full flex-col border border-line bg-white p-8"
+            className="flex h-full flex-col border border-line bg-white p-6 md:p-7 lg:p-8"
           >
             <span className="font-display text-5xl leading-none text-brass" aria-hidden>
               &ldquo;
             </span>
-            <blockquote className="mt-4 flex-1 font-display text-lg leading-8 text-ink-2">
+            <blockquote className="mt-4 flex-1 font-display text-base leading-7 text-ink-2 lg:text-lg lg:leading-8">
               {item.quote}
             </blockquote>
             <figcaption className="mt-6 text-sm italic text-brass-deep">

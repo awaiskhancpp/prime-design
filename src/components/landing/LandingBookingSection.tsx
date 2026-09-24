@@ -1,5 +1,6 @@
 import { AppointmentScheduler } from '@/components/contact/AppointmentModal'
 import { Section } from '@/components/ui/Section'
+import { resolveFormServices } from '@/lib/formServices'
 import { resolveSiteSettings } from '@/lib/siteSettings'
 
 /**
@@ -38,7 +39,13 @@ export async function LandingBookingSection({
       ) : null}
       <div className={eyebrow || heading ? 'mt-8 flex justify-center' : 'flex justify-center'}>
         <AppointmentScheduler
+          // The fallback to `heading` is why leads arrived saying their
+          // consultation was "Book Your Free Design Consultation" — the
+          // section's headline. The list below lets the visitor say which
+          // service they actually want, and that is what is stored.
           consultation={consultationLabel || heading || ''}
+          services={await resolveFormServices()}
+          formName="Landing page booking"
           phone={settings.phone}
           phoneClean={settings.phoneClean}
         />

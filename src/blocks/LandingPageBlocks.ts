@@ -104,12 +104,22 @@ export const landingPageBlocks: Block[] = [
     {
       name: 'items',
       type: 'array' as const,
-      fields: [text('title', true), { name: 'body', type: 'textarea' as const }, ...mediaReferenceFields()],
+      fields: [
+        text('title', true),
+        { name: 'body', type: 'textarea' as const },
+        ...mediaReferenceFields(),
+      ],
     },
     { name: 'images', type: 'array' as const, fields: mediaReferenceFields() },
     ...mediaReferenceFields('decorativeMedia'),
   ]),
   base('video', 'Video', [
+    // The WordPress video sections carry a small line above the heading
+    // ("#1 Kitchen Remodeling Company in Silicon Valley"). With no field for
+    // it the import put that line in `description`, where it rendered as body
+    // copy under the heading, and the eyebrow the section does show came from
+    // a hardcoded per-service table in `ServiceVideoSection` instead.
+    text('eyebrow'),
     text('heading'),
     description(),
     { name: 'source', type: 'select' as const, options: ['media', 'externalUrl'] },
@@ -244,7 +254,7 @@ export const landingPageBlocks: Block[] = [
       type: 'array' as const,
       admin: {
         description:
-          'Before/after pairs shown in this section\'s media column. WordPress authors them as an `xbeforeafterimage` in the Bricks section immediately after this one (siding, outdoor hardscape) — the same split the video carousel uses — so they belong here, not in a section of their own.',
+          "Before/after pairs shown in this section's media column. WordPress authors them as an `xbeforeafterimage` in the Bricks section immediately after this one (siding, outdoor hardscape) — the same split the video carousel uses — so they belong here, not in a section of their own.",
       },
       fields: [
         { name: 'beforeMedia', type: 'upload' as const, relationTo: 'media' as const },
