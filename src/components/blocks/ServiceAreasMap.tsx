@@ -95,7 +95,13 @@ const LABEL_ZOOM = 11
  */
 const HALO_BEFORE_LAYER = 'waterway_line_label'
 
-export function ServiceAreasMap({ markers }: { markers: MapMarker[] }) {
+export function ServiceAreasMap({
+  markers,
+  locationsServed,
+}: {
+  markers: MapMarker[]
+  locationsServed: number
+}) {
   const wrapperRef = useRef<HTMLDivElement>(null)
   const mapRef = useRef<MapRef | null>(null)
 
@@ -323,7 +329,7 @@ export function ServiceAreasMap({ markers }: { markers: MapMarker[] }) {
         </MapControl>
       </div>
 
-      <MapCountChip count={markers.length} />
+      <MapCountChip count={locationsServed} />
     </div>
   )
 }
@@ -471,7 +477,7 @@ function MapCountChip({ count }: { count: number }) {
   if (!count) return null
   return (
     <p className="pointer-events-none absolute bottom-4 left-4 z-10 border border-line bg-paper/95 px-3 py-2 text-[11px] font-semibold uppercase tracking-[0.14em] text-brass-deep">
-      {count} cities served
+      {count} locations served
     </p>
   )
 }

@@ -24,5 +24,22 @@ export function LandingContact({
    */
   id?: string
 }) {
-  return <HomeContact intro={{ eyebrow, heading, description }} id={id} />
+  const contact = (
+    <HomeContact
+      intro={{ eyebrow, heading, description }}
+      id={id || 'contact'}
+      linkAddresses={false}
+    />
+  )
+
+  // Keep the WordPress section's source anchor (for its existing in-page
+  // links) while also giving the landing header's #contact CTA a stable target.
+  return id && id !== 'contact' ? (
+    <>
+      <span id="contact" className="block" aria-hidden="true" />
+      {contact}
+    </>
+  ) : (
+    contact
+  )
 }

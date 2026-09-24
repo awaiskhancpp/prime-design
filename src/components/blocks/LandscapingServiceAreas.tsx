@@ -240,7 +240,7 @@ export async function LandscapingServiceAreas({
 
         {/* ── Right column: coverage map ── */}
         <div className="relative min-h-[420px] lg:min-h-[560px]">
-          <ServiceAreasMap markers={markers} />
+          <ServiceAreasMap markers={markers} locationsServed={areas.length} />
         </div>
       </div>
     </Section>

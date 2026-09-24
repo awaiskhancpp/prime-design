@@ -679,7 +679,6 @@ export const landingBlockRegistry: Record<string, Renderer> = {
       .map((provider) => provider as Record<string, unknown>)
       .map((provider) => ({
         name: text(provider.name) || '',
-        reviewUrl: text(provider.reviewUrl),
         rating: typeof provider.rating === 'number' ? provider.rating : undefined,
         reviewCount: typeof provider.reviewCount === 'number' ? provider.reviewCount : undefined,
         reviews: (Array.isArray(provider.reviews) ? provider.reviews : [])

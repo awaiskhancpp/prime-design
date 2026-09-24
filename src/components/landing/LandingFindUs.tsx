@@ -36,9 +36,6 @@ const addressLines = (address?: string) =>
     .map((line) => line.trim())
     .filter(Boolean)
 
-const mapsSearch = (address: string) =>
-  `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(address)}`
-
 /** A stored pin, as Payload hands it over — both numbers optional. */
 export type FindUsMapPin = {
   latitude?: number | null
@@ -121,20 +118,8 @@ export function LandingFindUs({
                 {value}
               </a>
             ) : (
-              /* Each office is its own link. One `<a>` around both would send
-                 someone asking about the San Mateo office to Campbell. */
-              <span className="mt-2 block space-y-1">
-                {addressLines(value).map((line) => (
-                  <a
-                    key={line}
-                    href={mapsSearch(line)}
-                    target="_blank"
-                    rel="noreferrer"
-                    className="block text-sm leading-6 text-ink underline-offset-4 transition-colors hover:text-brass-deep hover:underline"
-                  >
-                    {line}
-                  </a>
-                ))}
+              <span className="mt-2 block whitespace-pre-line text-sm leading-6 text-ink">
+                {value}
               </span>
             )}
           </div>

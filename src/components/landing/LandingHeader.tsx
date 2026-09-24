@@ -33,14 +33,14 @@ export async function LandingHeader() {
       <Container>
         <div className="flex min-h-20 items-center justify-between gap-4">
           {/* Brand — the one element that says who this is. */}
-          <BrandMark />
+          <BrandMark linked={false} />
 
           {/* Actions — the two things the page exists to prompt. */}
           <div className="flex items-center gap-3 sm:gap-5">
             {/* Phone — the primary action on an ad page, tap-to-call. */}
             <a
               href={`tel:${phoneClean}`}
-              className="group hidden items-center gap-2.5 md:flex"
+              className="group hidden items-center gap-1 md:flex"
               aria-label={`Call Prime Design & Build at ${phone}`}
             >
               <span
@@ -65,7 +65,7 @@ export async function LandingHeader() {
 
             {/* CTA — brass fill, the strongest surface the header owns. */}
             <Button
-              href="/contact"
+              href="#contact"
               variant="primary"
               className="border-brass bg-brass text-ink-2 hover:border-brass-deep hover:bg-brass-deep hover:text-white"
             >

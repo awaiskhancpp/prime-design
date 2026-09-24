@@ -21,17 +21,24 @@ export async function HomeContact({
   contactIntro,
   intro,
   id,
+  linkAddresses = true,
 }: {
   contactIntro?: PageHeadingContent
   intro?: { eyebrow?: string; heading?: string; description?: string }
   /** Anchor id override; defaults to the homepage's `contact`. */
   id?: string
+  /** Landing pages keep office addresses as text; shared pages retain map links. */
+  linkAddresses?: boolean
 }) {
   const settings = await resolveSiteSettings()
   const contactDetails = [
     { icon: Mail, label: settings.email, href: settings.emailLink },
     { icon: Phone, label: settings.phone, href: `tel:${settings.phoneClean}` },
-    ...settings.addresses.map((item) => ({ icon: MapPin, label: item.address, href: item.link })),
+    ...settings.addresses.map((item) => ({
+      icon: MapPin,
+      label: item.address,
+      href: linkAddresses ? item.link : undefined,
+    })),
   ]
   const description =
     intro?.description ||

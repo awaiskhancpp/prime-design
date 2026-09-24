@@ -126,7 +126,7 @@ export function ServiceProcessSection({
             {/* Right: text panel */}
             <div className="relative flex flex-col">
               {/* Step indicator strip */}
-              <div className="flex gap-1 px-8 pt-8 md:px-12 md:pt-10">
+              <div className="flex gap-1 px-8 pt-20 md:px-12 md:pt-20">
                 {validSteps.map((_, index) => (
                   <button
                     key={`ind-${index}`}
@@ -176,7 +176,7 @@ export function ServiceProcessSection({
               </div>
 
               {/* Nav dots */}
-              <div className="flex items-center justify-end gap-2 px-8 pb-8 md:px-12 md:pb-10">
+              <div className="flex items-center justify-end gap-2 px-8 pb-16 md:px-12 md:pb-16">
                 <span className="mr-2 text-[11px] font-semibold uppercase tracking-[0.12em] text-ink-2/30">
                   Scroll to explore
                 </span>

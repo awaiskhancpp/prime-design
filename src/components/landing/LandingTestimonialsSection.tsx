@@ -16,7 +16,6 @@ type Review = {
 type Provider = {
   name: string
   collectionId?: string
-  reviewUrl?: string
   rating?: number
   reviewCount?: number
   reviews: Review[]
@@ -79,21 +78,6 @@ export function LandingTestimonialsSection({
                 {provider.name} Rating
               </button>
             ))}
-          </div>
-          <div className="mt-5 flex flex-wrap gap-4 text-sm">
-            {usableProviders.map((provider) =>
-              provider.reviewUrl ? (
-                <a
-                  key={provider.name}
-                  href={provider.reviewUrl}
-                  target="_blank"
-                  rel="noreferrer"
-                  className="font-semibold text-ink-2 underline decoration-brass underline-offset-4"
-                >
-                  Read reviews on {provider.name}
-                </a>
-              ) : null,
-            )}
           </div>
         </div>
 

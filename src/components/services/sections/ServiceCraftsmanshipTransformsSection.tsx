@@ -37,28 +37,10 @@ export type ServiceCraftsmanshipContent = {
  *
  * ── Why the photos are laid out this way ──────────────────────────────────
  *
- * The previous design insetted the second photo over the bottom-left corner
- * of the first, inside a thick white border. That is the "detail callout"
- * idiom — it tells the reader the small picture is a crop of the large one.
- * These pairs are nothing of the sort: they are two unrelated projects, so
- * the composition was actively lying about the content, and it also hid a
- * corner of the first photograph behind the second.
- *
- * So the pair is now a **diptych**: two separate frames, side by side, one
- * never touching the other. They are deliberately not matched rectangles —
- * different widths (4:5 portrait against a square) with their bottoms on one
- * line, so the shorter one steps down from the taller. Two different shapes
- * on a shared baseline read as two photographs of equal standing; two
- * identical stacked rectangles read as a contact sheet, and an overlap reads
- * as a zoom. The offset paper block behind the top-left corner and the brass
- * rule under the baseline are the site's existing accents (see
- * `LandingCraftsmanshipSection`), carrying the depth the drop-shadow inset
- * used to provide.
- *
- * Because both frames are aspect-ratio'd rather than fixed-height, the block
- * scales with its column, and the two columns are centred against each other
- * — which matters here because the copy ranges from one short paragraph
- * (bathroom, ~230 characters) to two long ones (~700).
+ * The photos use an offset, overlapping composition based on the supplied
+ * reference. Each stays in its own square-cornered frame; the overlap is a
+ * visual layer, not a crop/detail treatment. The text stays together in the
+ * original opposite column. With only one photo, it fills the image column.
  *
  * ── Why the heading goes through SectionHeader ────────────────────────────
  *
@@ -147,7 +129,7 @@ export function ServiceCraftsmanshipTransformsSection({
   return (
     <Section>
       <div className="grid items-center gap-14 lg:grid-cols-[0.95fr_1fr] lg:gap-20">
-        <CraftsmanshipDiptych photos={photos} />
+        <CraftsmanshipGallery photos={photos} />
 
         <div>
           <SectionHeader
@@ -183,54 +165,40 @@ export function ServiceCraftsmanshipTransformsSection({
 }
 
 /**
- * The photographs: one frame on its own, or two as a diptych.
- *
- * `items-end` is what makes the pair read as a composition rather than a
- * grid — the two frames share a baseline, and the squarer second one steps
- * down from the taller first. Neither ever covers the other.
+ * A layered pair that follows the reference's offset composition. Both
+ * images retain square corners, and a single image falls back to one full
+ * frame rather than leaving an empty placeholder.
  */
-function CraftsmanshipDiptych({ photos }: { photos: string[] }) {
-  if (!photos.length) return null
-  const [first, second] = photos
+function CraftsmanshipGallery({ photos }: { photos: string[] }) {
+  const galleryPhotos = photos.slice(0, 2)
+  if (!galleryPhotos.length) return null
+  const [first, second] = galleryPhotos
 
   return (
     <div className="relative">
-      {/* An empty brass-outlined square set behind the first frame's top-left
-          corner — depth without a second photo sitting on top of the first.
-          Hidden on the narrowest screens, where it would push past the
-          container gutter. */}
-      <span
-        aria-hidden
-        className="absolute -left-4 -top-4 hidden h-28 w-28 border border-brass/40 bg-paper-2/60 sm:block lg:-left-6 lg:-top-6 lg:h-44 lg:w-44"
-      />
-
       {second ? (
-        // Side by side from `sm` up. On a phone the diptych would put two
-        // ~150px-wide photographs next to each other, too small to read, so
-        // there they stack at full width — still two separate frames, still
-        // two different shapes.
-        <div className="relative grid items-end gap-4 sm:grid-cols-[1.12fr_0.88fr] sm:gap-5">
-          <div className="relative aspect-[4/3] overflow-hidden bg-paper-2 shadow-xl shadow-ink/10 sm:aspect-[4/5]">
+        <div className="relative aspect-[5/4] w-full">
+          <div className="absolute left-0 top-0 z-10 aspect-[4/3] w-[72%] overflow-hidden border border-white bg-paper-2 shadow-xl shadow-ink/15">
             <Image
               src={first}
               alt=""
               fill
               className="object-cover"
-              sizes="(min-width: 1024px) 25vw, (min-width: 640px) 45vw, 92vw"
+              sizes="(min-width: 1024px) 34vw, 68vw"
             />
           </div>
-          <div className="relative aspect-[16/9] overflow-hidden bg-paper-2 shadow-lg shadow-ink/10 sm:aspect-square">
+          <div className="absolute bottom-0 right-0 z-20 aspect-[4/3] w-[72%] overflow-hidden border border-white bg-paper-2 shadow-xl shadow-ink/15">
             <Image
               src={second}
               alt=""
               fill
               className="object-cover"
-              sizes="(min-width: 1024px) 20vw, (min-width: 640px) 36vw, 92vw"
+              sizes="(min-width: 1024px) 34vw, 68vw"
             />
           </div>
         </div>
       ) : (
-        <div className="relative aspect-[4/3] w-full overflow-hidden bg-paper-2 shadow-xl shadow-ink/10">
+        <div className="relative aspect-[4/3] w-full overflow-hidden border border-white bg-paper-2 shadow-xl shadow-ink/15">
           <Image
             src={first}
             alt=""
@@ -240,13 +208,6 @@ function CraftsmanshipDiptych({ photos }: { photos: string[] }) {
           />
         </div>
       )}
-
-      {/* A hairline the full width of the pair, brass at its start: it draws
-          the shared baseline the two frames sit on, so they read as one
-          arrangement rather than two pictures that happen to be adjacent. */}
-      <div aria-hidden className="relative mt-6 h-px w-full bg-line">
-        <span className="absolute inset-y-0 left-0 w-20 bg-brass" />
-      </div>
     </div>
   )
 }

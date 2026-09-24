@@ -24,6 +24,7 @@ export async function PayloadPage({ page }: { page: Page }) {
   const services = await resolveServices()
 
   const context: PageSectionContext = {
+    isGoogleAdsPage: page.isGoogleAdsPage,
     services,
     socialLinks: settings.socialLinks,
     phone: settings.phone,
@@ -54,7 +55,7 @@ export async function PayloadPage({ page }: { page: Page }) {
         <PageSections sections={page.layout} context={context} />
       </main>
 
-      <LandscapingServiceAreas />
+      <LandscapingServiceAreas linked={!page.isGoogleAdsPage} />
     </div>
   )
 }

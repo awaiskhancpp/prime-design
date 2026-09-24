@@ -45,6 +45,8 @@ import type { ConsultationType } from '@/lib/consultations'
  * the phone number and the review-profile links.
  */
 export type PageSectionContext = {
+  /** Google Ads pages keep service-area names and map pins non-navigating. */
+  isGoogleAdsPage?: boolean
   services?: Service[]
   members?: AboutTeamMember[]
   galleryCategories?: GalleryCategory[]
@@ -245,7 +247,12 @@ function PageSectionNode({
       return <FaqExplorer content={section.content} categories={context.faqCategories ?? []} />
 
     case 'service-areas':
-      return <LandscapingServiceAreas heading={section.content.heading} />
+      return (
+        <LandscapingServiceAreas
+          heading={section.content.heading}
+          linked={!context.isGoogleAdsPage}
+        />
+      )
 
     case 'custom':
       return <CustomSection section={section.content} />
