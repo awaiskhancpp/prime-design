@@ -100,12 +100,23 @@ export function ServiceLocationPage({
       }
     : undefined
 
-  // Offerings — only categories with sub-category pages, from the parent
-  // service's Payload sub-services block (never static copy).
+  /**
+   * Offerings — this page's own section when the record carries one.
+   *
+   * The location record's cards are the WordPress original's: its own three
+   * photographs, its own titles (only the kitchen template appends the city),
+   * its own links. The parent service's `sub-services` block is the fallback
+   * for a record that has not been seeded, and it is a fallback only — the
+   * two templates genuinely show different images, which is what sent the
+   * wrong photos onto all 30 pages that have this section.
+   */
+  const locOfferings = entry.offerings
+  const locCards = locOfferings?.cards ?? []
+
   const subServicesBlock = service.sections?.find(
     (section) => section && section.blockType === 'sub-services',
   )
-  const offerings = subServicesBlock
+  const parentOfferings = subServicesBlock
     ? {
         eyebrow: String((subServicesBlock as { eyebrow?: string }).eyebrow || ''),
         title: String((subServicesBlock as { heading?: string }).heading || ''),
@@ -147,6 +158,22 @@ export function ServiceLocationPage({
           .filter((card) => card.title),
       }
     : undefined
+
+  const offerings = locCards.length
+    ? {
+        eyebrow: parentOfferings?.eyebrow,
+        title: locOfferings?.heading ?? parentOfferings?.title ?? '',
+        description: locOfferings?.description ?? parentOfferings?.description,
+        primaryCta: locOfferings?.primaryCta,
+        secondaryCta: locOfferings?.secondaryCta,
+        cards: locCards.map((card) => ({
+          title: card.title,
+          description: card.description ?? '',
+          image: card.image ?? service.image,
+          href: card.href ?? '#contact',
+        })),
+      }
+    : parentOfferings
 
   // Quote — service-location override → service defaults (Payload only).
   const locQuote = entry.quote
@@ -219,8 +246,13 @@ export function ServiceLocationPage({
 
         {enabled('intro') && dontSettle ? <ServiceDontSettleSection {...dontSettle} /> : null}
 
+        {/* `city` is only passed when the cards came from the parent service:
+            it is what appends " Remodeling in {City}" to each card title and
+            rewrites the links. A record with its own cards already carries the
+            exact titles and links the original uses — and on bathroom pages
+            those titles have no city in them at all. */}
         {enabled('offerings') && offerings ? (
-          <ServiceOfferingsSection {...offerings} city={city} />
+          <ServiceOfferingsSection {...offerings} city={locCards.length ? undefined : city} />
         ) : null}
 
         {/* WordPress section order differs per service: home pages put the

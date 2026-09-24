@@ -2012,6 +2012,17 @@ export interface ServiceLocation {
    * The sub-service cards section. The cards themselves come from the parent service; these are this page's own buttons.
    */
   offerings?: {
+    heading?: string | null;
+    description?: string | null;
+    cards?:
+      | {
+          title: string;
+          description?: string | null;
+          image?: (number | null) | Media;
+          href?: string | null;
+          id?: string | null;
+        }[]
+      | null;
     primaryCta?: {
       label?: string | null;
       href?: string | null;
@@ -5958,6 +5969,17 @@ export interface ServiceLocationsSelect<T extends boolean = true> {
   offerings?:
     | T
     | {
+        heading?: T;
+        description?: T;
+        cards?:
+          | T
+          | {
+              title?: T;
+              description?: T;
+              image?: T;
+              href?: T;
+              id?: T;
+            };
         primaryCta?:
           | T
           | {

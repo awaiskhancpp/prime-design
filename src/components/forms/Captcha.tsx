@@ -34,8 +34,28 @@ const WIDGET_HEIGHT = 65
 const turnstileSiteKey = () => process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY
 const recaptchaSiteKey = () => process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY
 
+/**
+ * Turnstile cannot run on `localhost`.
+ *
+ * The site key is registered against the real domain, so Cloudflare answers
+ * the widget's challenge requests with 400 (error 110200, "unknown domain")
+ * and its iframe leaves two `blob:` requests open forever. The document
+ * itself finishes and paints, but the browser's tab spinner never stops,
+ * which looks exactly like a page that is still loading and never arrives.
+ *
+ * So the widget is skipped when the page is served from localhost. Nothing
+ * changes anywhere else: a deployed domain, a preview URL or a LAN address
+ * all still render it. Submitting a real lead form in local development was
+ * already impossible for the same reason — there was no token to be had —
+ * so this costs nothing and stops the tab hanging.
+ */
+const isLocalhost = () =>
+  typeof window !== 'undefined' &&
+  /^(localhost|127\.0\.0\.1|\[::1\]|::1)$/.test(window.location.hostname)
+
 /** Whether a widget will render — forms use this to require a token. */
-export const captchaEnabled = () => Boolean(turnstileSiteKey() || recaptchaSiteKey())
+export const captchaEnabled = () =>
+  !isLocalhost() && Boolean(turnstileSiteKey() || recaptchaSiteKey())
 
 export function Captcha({
   ref,
@@ -50,6 +70,11 @@ export function Captcha({
 }) {
   const siteKey = turnstileSiteKey()
   const widget = useRef<TurnstileInstance>(null)
+  // Decided after mount, never during render: the server has no `window`, so
+  // testing the hostname inline would render the widget on the server and skip
+  // it on the client, and React would throw the tree away on hydration.
+  const [skipOnLocalhost, setSkipOnLocalhost] = useState(false)
+  useEffect(() => setSkipOnLocalhost(isLocalhost()), [])
   // Only used by the reCAPTCHA branch, whose widget reports its token through a
   // callback rather than an imperative getter.
   const [recaptchaToken, setRecaptchaToken] = useState<string>()
@@ -88,6 +113,14 @@ export function Captcha({
     }),
     [siteKey, recaptchaToken],
   )
+
+  if (skipOnLocalhost) {
+    return (
+      <p className={cn('mt-1 mb-3 text-xs text-ink-2/45', className)}>
+        Captcha disabled on localhost — it validates against the live domain.
+      </p>
+    )
+  }
 
   if (!siteKey) return <Recaptcha onToken={setRecaptchaToken} />
 

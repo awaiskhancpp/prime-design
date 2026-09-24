@@ -199,6 +199,35 @@ const offeringsField = {
       "The sub-service cards section. The cards themselves come from the parent service; these are this page's own buttons.",
   },
   fields: [
+    { name: 'heading', type: 'text' as const },
+    { name: 'description', type: 'textarea' as const },
+    {
+      /**
+       * The three cards, as this page shows them.
+       *
+       * They used to be read off the parent service's `sub-services` block,
+       * with the city appended to each title. That was wrong in both halves.
+       * The location template carries its own photographs — the kitchen pages
+       * use `Custom-Kitchen.png` / `European-Kitchen.png` /
+       * `Shaker-Kitchen.png` while the parent service page uses project
+       * photos, and the bathroom pages use three specific 2023-05-05 photos,
+       * not the neighbouring frames from the same series the service page
+       * shows. And only the kitchen pages append the city to a card title;
+       * the bathroom pages read "Custom Bathtubs" full stop.
+       *
+       * Empty falls back to the parent service's cards, so a page that has
+       * not been seeded renders exactly as it did before.
+       */
+      name: 'cards',
+      type: 'array' as const,
+      labels: { singular: 'Card', plural: 'Cards' },
+      fields: [
+        { name: 'title', type: 'text' as const, required: true },
+        { name: 'description', type: 'textarea' as const },
+        { name: 'image', type: 'upload' as const, relationTo: 'media' as const },
+        { name: 'href', type: 'text' as const },
+      ],
+    },
     {
       name: 'primaryCta',
       type: 'group' as const,

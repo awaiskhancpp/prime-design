@@ -57,8 +57,11 @@ export type ServiceLocation = {
     /** Mapped to the section's icon/title/body card shape. */
     reasons?: Array<{ icon?: string; title: string; body?: RichTextValue }>
   }
-  /** This page's own buttons under the sub-service cards. */
+  /** This page's own offerings section: its copy, cards and buttons. */
   offerings?: {
+    heading?: string
+    description?: string
+    cards?: Array<{ title: string; description?: string; image?: string; href?: string }>
     primaryCta?: { label: string; href: string }
     secondaryCta?: { label: string; href: string }
   }
@@ -187,6 +190,18 @@ export async function getServiceLocation(serviceSlug: string, locationSlugValue:
         })),
     })
     const offerings = compact({
+      heading: textOr(doc.offerings?.heading),
+      description: textOr(doc.offerings?.description),
+      // Only cards that have a title; a card with no photo still renders,
+      // because the words are the content and the image is a reference to it.
+      cards: (doc.offerings?.cards ?? [])
+        .filter((card) => Boolean(card.title))
+        .map((card) => ({
+          title: card.title as string,
+          description: textOr(card.description),
+          image: mediaUrl(card.image),
+          href: textOr(card.href),
+        })),
       primaryCta: ctaOr(doc.offerings?.primaryCta),
       secondaryCta: ctaOr(doc.offerings?.secondaryCta),
     })

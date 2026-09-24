@@ -55,6 +55,7 @@ import * as migration_20260922_170000_location_coordinates from './20260922_1700
 import * as migration_20260923_100000_find_us_map_pins from './20260923_100000_find_us_map_pins'
 import * as migration_20260923_110000_find_us_map_pins_services_side from './20260923_110000_find_us_map_pins_services_side'
 import * as migration_20260924_100000_location_prime_difference_richtext from './20260924_100000_location_prime_difference_richtext'
+import * as migration_20260924_120000_location_offerings_cards from './20260924_120000_location_offerings_cards'
 
 export const migrations = [
   {
@@ -341,5 +342,10 @@ export const migrations = [
     up: migration_20260924_100000_location_prime_difference_richtext.up,
     down: migration_20260924_100000_location_prime_difference_richtext.down,
     name: '20260924_100000_location_prime_difference_richtext',
+  },
+  {
+    up: migration_20260924_120000_location_offerings_cards.up,
+    down: migration_20260924_120000_location_offerings_cards.down,
+    name: '20260924_120000_location_offerings_cards',
   },
 ]
