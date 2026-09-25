@@ -6,6 +6,9 @@ import type { PageSection } from '@/lib/pageSections'
 import { Button } from '@/components/ui/Button'
 
 import { CustomSection } from '@/components/blocks/CustomSection'
+import { LinkList } from '@/components/blocks/LinkList'
+import { NextSteps } from '@/components/blocks/NextSteps'
+import { PolicySections } from '@/components/blocks/PolicySections'
 import { HomeContact } from '@/components/blocks/HomeContact'
 import { HomeFeatureBlocks } from '@/components/blocks/HomeFeatureBlocks'
 import { HomeProjects } from '@/components/blocks/HomeProjects'
@@ -353,6 +356,15 @@ function PageSectionNode({
           ) : null}
         </Section>
       )
+
+    case 'policy':
+      return <PolicySections content={section.content} />
+
+    case 'next-steps':
+      return <NextSteps content={section.content} />
+
+    case 'link-list':
+      return <LinkList content={section.content} />
 
     default:
       return null

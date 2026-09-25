@@ -3,6 +3,17 @@ import type { CollectionConfig } from 'payload'
 /**
  * Leads captured by the site's contact forms.
  *
+ * Enquiries only, and one of three records that used to be one. Consultation
+ * bookings live in `appointments` — they have a day, a time slot and a
+ * lifecycle of their own, and this collection's statuses (new / contacted /
+ * qualified / archived) describe a lead, not an appointment. The person behind
+ * either lives in `customers`. `/api/contact` routes on `source`.
+ *
+ * A lead deliberately does NOT create a customer record: somebody asking a
+ * question has not become a customer, and a directory filled with people who
+ * never booked is no longer a directory. If that should change, make it an
+ * explicit rule on qualification rather than a side effect of the form.
+ *
  * The submission is written here first and nothing else happens to it yet.
  * Email notifications and the CRM sync are deliberately NOT wired: the audit of
  * the WordPress export could not recover the destination for the form the
@@ -103,42 +114,6 @@ export const ContactSubmissions: CollectionConfig = {
     { name: 'message', type: 'textarea', required: true },
 
     {
-      type: 'collapsible',
-      label: 'Appointment details',
-      admin: {
-        description: 'Only set when the lead came from the consultation booking flow.',
-      },
-      fields: [
-        { name: 'address', type: 'text' },
-        { name: 'zipCode', type: 'text' },
-        { name: 'consultationType', type: 'text' },
-        {
-          /**
-           * The line the confirmation and the notification print, e.g.
-           * "September 24, 2026 at 10:00 am". Kept as the human reading of
-           * the two structured fields below.
-           */
-          name: 'preferredDate',
-          type: 'text',
-        },
-        {
-          /**
-           * The booked day, as a date rather than a sentence.
-           *
-           * Capacity ("only one appointment that day") is counted on this
-           * column; it cannot be counted on `preferredDate`, where the same
-           * day can be written more than one way.
-           */
-          name: 'appointmentDate',
-          type: 'date',
-          index: true,
-          admin: { date: { pickerAppearance: 'dayOnly', displayFormat: 'd MMM yyyy' } },
-        },
-        { name: 'appointmentSlot', type: 'text' },
-      ],
-    },
-
-    {
       type: 'row',
       fields: [
         {
@@ -151,7 +126,10 @@ export const ContactSubmissions: CollectionConfig = {
             { label: 'Service page', value: 'service-page' },
             { label: 'Location page', value: 'location-page' },
             { label: 'Landing page', value: 'landing-page' },
-            { label: 'Appointment booking', value: 'appointment' },
+            // 'appointment' was an option here until bookings moved to the
+            // Customers collection. The value stays in the Postgres enum
+            // (removing one is not something Postgres does cleanly) but no
+            // row uses it and nothing writes it any more.
             { label: 'Other', value: 'other' },
           ],
         },

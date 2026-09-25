@@ -600,6 +600,81 @@ export const serviceAreasBlock: Block = {
   ],
 }
 
+/**
+ * A numbered legal document — the privacy policy, and anything else with the
+ * same shape. Sections are numbered by their order in the array, so moving one
+ * renumbers the rest; storing the number would let the two disagree.
+ */
+export const policyBlock: Block = {
+  slug: 'policy',
+  labels: { singular: 'Policy', plural: 'Policies' },
+  fields: [
+    { name: 'intro', type: 'textarea', admin: { description: 'Opening paragraph, above the numbered sections.' } },
+    {
+      name: 'sections',
+      type: 'array',
+      fields: [
+        { name: 'title', type: 'text', required: true },
+        {
+          name: 'paragraphs',
+          type: 'array',
+          fields: [
+            {
+              name: 'lead',
+              type: 'text',
+              admin: { description: 'Bold run before the paragraph, e.g. \u201c1.1 Personal Information:\u201d.' },
+            },
+            { name: 'body', type: 'textarea', required: true },
+          ],
+        },
+      ],
+    },
+    {
+      name: 'showContactDetails',
+      type: 'checkbox',
+      defaultValue: true,
+      admin: {
+        description:
+          'Print the company name, first address and email from Site Settings below the last section, so the policy cannot fall out of step with the rest of the site.',
+      },
+    },
+  ],
+}
+
+/** A short numbered list of what happens next. */
+export const nextStepsBlock: Block = {
+  slug: 'next-steps',
+  labels: { singular: 'Next Steps', plural: 'Next Steps' },
+  fields: [
+    { name: 'heading', type: 'text' },
+    {
+      name: 'steps',
+      type: 'array',
+      fields: [
+        { name: 'title', type: 'text', required: true },
+        { name: 'detail', type: 'textarea' },
+      ],
+    },
+  ],
+}
+
+/** A row of link chips — somewhere to go from a page that is a dead end. */
+export const linkListBlock: Block = {
+  slug: 'link-list',
+  labels: { singular: 'Link List', plural: 'Link Lists' },
+  fields: [
+    { name: 'heading', type: 'text' },
+    {
+      name: 'links',
+      type: 'array',
+      fields: [
+        { name: 'label', type: 'text', required: true },
+        { name: 'href', type: 'text', required: true },
+      ],
+    },
+  ],
+}
+
 /** Every section a page can be built from. */
 export const sectionBlocks: Block[] = [
   heroBlock,
@@ -625,4 +700,7 @@ export const sectionBlocks: Block[] = [
   testimonialsSpotlightBlock,
   serviceAreasBlock,
   customSectionBlock,
+  policyBlock,
+  nextStepsBlock,
+  linkListBlock,
 ]

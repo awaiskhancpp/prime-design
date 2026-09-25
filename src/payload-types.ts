@@ -84,12 +84,22 @@ export interface Config {
     'landing-pages': LandingPage;
     'gallery-categories': GalleryCategory;
     'contact-submissions': ContactSubmission;
+    customers: Customer;
+    appointments: Appointment;
+    orders: Order;
     'payload-kv': PayloadKv;
     'payload-locked-documents': PayloadLockedDocument;
     'payload-preferences': PayloadPreference;
     'payload-migrations': PayloadMigration;
   };
-  collectionsJoins: {};
+  collectionsJoins: {
+    customers: {
+      appointments: 'appointments';
+    };
+    orders: {
+      appointments: 'appointments';
+    };
+  };
   collectionsSelect: {
     users: UsersSelect<false> | UsersSelect<true>;
     media: MediaSelect<false> | MediaSelect<true>;
@@ -108,6 +118,9 @@ export interface Config {
     'landing-pages': LandingPagesSelect<false> | LandingPagesSelect<true>;
     'gallery-categories': GalleryCategoriesSelect<false> | GalleryCategoriesSelect<true>;
     'contact-submissions': ContactSubmissionsSelect<false> | ContactSubmissionsSelect<true>;
+    customers: CustomersSelect<false> | CustomersSelect<true>;
+    appointments: AppointmentsSelect<false> | AppointmentsSelect<true>;
+    orders: OrdersSelect<false> | OrdersSelect<true>;
     'payload-kv': PayloadKvSelect<false> | PayloadKvSelect<true>;
     'payload-locked-documents': PayloadLockedDocumentsSelect<false> | PayloadLockedDocumentsSelect<true>;
     'payload-preferences': PayloadPreferencesSelect<false> | PayloadPreferencesSelect<true>;
@@ -2881,6 +2894,61 @@ export interface Page {
             blockType: 'custom';
           }
         | {
+            /**
+             * Opening paragraph, above the numbered sections.
+             */
+            intro?: string | null;
+            sections?:
+              | {
+                  title: string;
+                  paragraphs?:
+                    | {
+                        /**
+                         * Bold run before the paragraph, e.g. “1.1 Personal Information:”.
+                         */
+                        lead?: string | null;
+                        body: string;
+                        id?: string | null;
+                      }[]
+                    | null;
+                  id?: string | null;
+                }[]
+              | null;
+            /**
+             * Print the company name, first address and email from Site Settings below the last section, so the policy cannot fall out of step with the rest of the site.
+             */
+            showContactDetails?: boolean | null;
+            id?: string | null;
+            blockName?: string | null;
+            blockType: 'policy';
+          }
+        | {
+            heading?: string | null;
+            steps?:
+              | {
+                  title: string;
+                  detail?: string | null;
+                  id?: string | null;
+                }[]
+              | null;
+            id?: string | null;
+            blockName?: string | null;
+            blockType: 'next-steps';
+          }
+        | {
+            heading?: string | null;
+            links?:
+              | {
+                  label: string;
+                  href: string;
+                  id?: string | null;
+                }[]
+              | null;
+            id?: string | null;
+            blockName?: string | null;
+            blockType: 'link-list';
+          }
+        | {
             eyebrow?: string | null;
             heading: string;
             body: string;
@@ -4544,13 +4612,7 @@ export interface ContactSubmission {
     | null;
   subject?: string | null;
   message: string;
-  address?: string | null;
-  zipCode?: string | null;
-  consultationType?: string | null;
-  preferredDate?: string | null;
-  appointmentDate?: string | null;
-  appointmentSlot?: string | null;
-  source: 'contact-page' | 'service-page' | 'location-page' | 'landing-page' | 'appointment' | 'other';
+  source: 'contact-page' | 'service-page' | 'location-page' | 'landing-page' | 'other';
   status: 'new' | 'contacted' | 'qualified' | 'archived';
   /**
    * The form that was filled in, e.g. “Hero estimate form”.
@@ -4583,6 +4645,162 @@ export interface ContactSubmission {
     | number
     | boolean
     | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * Contact profiles. One per person, created or matched when a consultation is booked.
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "customers".
+ */
+export interface Customer {
+  id: number;
+  firstName: string;
+  lastName: string;
+  email: string;
+  /**
+   * Normalised to E.164, so the same number matches one profile.
+   */
+  phone?: string | null;
+  accountStatus: 'guest' | 'registered';
+  /**
+   * What they wrote themselves — the comments from their most recent booking.
+   */
+  customerNotes?: string | null;
+  /**
+   * Internal. Never shown to the customer and never written by the site.
+   */
+  adminNotes?: string | null;
+  customFields?: {
+    /**
+     * A second number, separate from the primary phone above. Never written by the site.
+     */
+    phoneNumber?: string | null;
+    address?: string | null;
+    zipCode?: string | null;
+    /**
+     * The comment box on the booking form. Distinct from “Notes left by the customer” above, which is the core note field and is not written by the site.
+     */
+    comments?: string | null;
+  };
+  appointments?: {
+    docs?: (number | Appointment)[];
+    hasNextPage?: boolean;
+    totalDocs?: number;
+  };
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * Consultations requested through the site. The contact details are the snapshot given at booking; the linked Customer holds the current ones.
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "appointments".
+ */
+export interface Appointment {
+  id: number;
+  /**
+   * The contact profile. Their details as they stand today.
+   */
+  customer?: (number | null) | Customer;
+  firstName: string;
+  lastName: string;
+  email: string;
+  /**
+   * Normalised to E.164 on submit; the raw input is kept in `meta`.
+   */
+  phone: string;
+  /**
+   * Chosen from the booking form’s service dropdown.
+   */
+  service?: (number | null) | Service;
+  /**
+   * Context the customer added to the booking. The modal asks for three words, not the contact form’s eight — the booking has already said which service, which day and which time.
+   */
+  message: string;
+  startsAt?: string | null;
+  endsAt?: string | null;
+  bufferBefore?: number | null;
+  bufferAfter?: number | null;
+  consultationType?: string | null;
+  /**
+   * Quoted by the customer, e.g. “LWYFS8N”.
+   */
+  bookingReference?: string | null;
+  /**
+   * Where to send an estimator.
+   */
+  address?: string | null;
+  zipCode?: string | null;
+  order?: (number | null) | Order;
+  status: 'pending-approval' | 'approved' | 'completed' | 'cancelled' | 'no-show';
+  /**
+   * The form that was filled in, e.g. “Appointment modal”.
+   */
+  formName?: string | null;
+  /**
+   * Page the booking was made from.
+   */
+  sourceUrl?: string | null;
+  notificationStatus?: ('pending' | 'not-configured' | 'sent' | 'failed') | null;
+  crmStatus?: ('pending' | 'not-configured' | 'synced' | 'failed') | null;
+  /**
+   * Last delivery error, if any.
+   */
+  deliveryError?: string | null;
+  recaptchaStatus?: ('not-configured' | 'verified' | 'skipped') | null;
+  /**
+   * Only set by reCAPTCHA v3.
+   */
+  recaptchaScore?: number | null;
+  /**
+   * Raw phone input, user agent and a hashed IP. No raw IP is stored.
+   */
+  meta?:
+    | {
+        [k: string]: unknown;
+      }
+    | unknown[]
+    | string
+    | number
+    | boolean
+    | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * Price, payment and fulfilment for a booking. Consultations are free, so these open at zero.
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "orders".
+ */
+export interface Order {
+  id: number;
+  /**
+   * The same reference as the appointment it was opened for.
+   */
+  reference?: string | null;
+  customer?: (number | null) | Customer;
+  orderStatus: 'open' | 'completed' | 'cancelled';
+  fulfillmentStatus: 'not-fulfilled' | 'partially-fulfilled' | 'fulfilled';
+  paymentStatus: 'not-paid' | 'partially-paid' | 'paid' | 'processing';
+  /**
+   * Code applied to this order, if any.
+   */
+  coupon?: string | null;
+  subtotal?: number | null;
+  total?: number | null;
+  totalPayments?: number | null;
+  /**
+   * Total price less payments taken.
+   */
+  balanceDue?: number | null;
+  appointments?: {
+    docs?: (number | Appointment)[];
+    hasNextPage?: boolean;
+    totalDocs?: number;
+  };
   updatedAt: string;
   createdAt: string;
 }
@@ -4677,6 +4895,18 @@ export interface PayloadLockedDocument {
     | ({
         relationTo: 'contact-submissions';
         value: number | ContactSubmission;
+      } | null)
+    | ({
+        relationTo: 'customers';
+        value: number | Customer;
+      } | null)
+    | ({
+        relationTo: 'appointments';
+        value: number | Appointment;
+      } | null)
+    | ({
+        relationTo: 'orders';
+        value: number | Order;
       } | null);
   globalSlug?: string | null;
   user: {
@@ -6461,6 +6691,55 @@ export interface PagesSelect<T extends boolean = true> {
               id?: T;
               blockName?: T;
             };
+        policy?:
+          | T
+          | {
+              intro?: T;
+              sections?:
+                | T
+                | {
+                    title?: T;
+                    paragraphs?:
+                      | T
+                      | {
+                          lead?: T;
+                          body?: T;
+                          id?: T;
+                        };
+                    id?: T;
+                  };
+              showContactDetails?: T;
+              id?: T;
+              blockName?: T;
+            };
+        'next-steps'?:
+          | T
+          | {
+              heading?: T;
+              steps?:
+                | T
+                | {
+                    title?: T;
+                    detail?: T;
+                    id?: T;
+                  };
+              id?: T;
+              blockName?: T;
+            };
+        'link-list'?:
+          | T
+          | {
+              heading?: T;
+              links?:
+                | T
+                | {
+                    label?: T;
+                    href?: T;
+                    id?: T;
+                  };
+              id?: T;
+              blockName?: T;
+            };
         content?:
           | T
           | {
@@ -7589,12 +7868,6 @@ export interface ContactSubmissionsSelect<T extends boolean = true> {
   projectType?: T;
   subject?: T;
   message?: T;
-  address?: T;
-  zipCode?: T;
-  consultationType?: T;
-  preferredDate?: T;
-  appointmentDate?: T;
-  appointmentSlot?: T;
   source?: T;
   status?: T;
   formName?: T;
@@ -7605,6 +7878,82 @@ export interface ContactSubmissionsSelect<T extends boolean = true> {
   recaptchaStatus?: T;
   recaptchaScore?: T;
   meta?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "customers_select".
+ */
+export interface CustomersSelect<T extends boolean = true> {
+  firstName?: T;
+  lastName?: T;
+  email?: T;
+  phone?: T;
+  accountStatus?: T;
+  customerNotes?: T;
+  adminNotes?: T;
+  customFields?:
+    | T
+    | {
+        phoneNumber?: T;
+        address?: T;
+        zipCode?: T;
+        comments?: T;
+      };
+  appointments?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "appointments_select".
+ */
+export interface AppointmentsSelect<T extends boolean = true> {
+  customer?: T;
+  firstName?: T;
+  lastName?: T;
+  email?: T;
+  phone?: T;
+  service?: T;
+  message?: T;
+  startsAt?: T;
+  endsAt?: T;
+  bufferBefore?: T;
+  bufferAfter?: T;
+  consultationType?: T;
+  bookingReference?: T;
+  address?: T;
+  zipCode?: T;
+  order?: T;
+  status?: T;
+  formName?: T;
+  sourceUrl?: T;
+  notificationStatus?: T;
+  crmStatus?: T;
+  deliveryError?: T;
+  recaptchaStatus?: T;
+  recaptchaScore?: T;
+  meta?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "orders_select".
+ */
+export interface OrdersSelect<T extends boolean = true> {
+  reference?: T;
+  customer?: T;
+  orderStatus?: T;
+  fulfillmentStatus?: T;
+  paymentStatus?: T;
+  coupon?: T;
+  subtotal?: T;
+  total?: T;
+  totalPayments?: T;
+  balanceDue?: T;
+  appointments?: T;
   updatedAt?: T;
   createdAt?: T;
 }
@@ -7808,6 +8157,10 @@ export interface BookingSetting {
       }[]
     | null;
   /**
+   * How long a consultation runs. Used to work out each appointment’s end time from its start; every consultation card on the site says “~1 Hour”, which is the 60 here. Visitors are never asked this — they pick a start slot.
+   */
+  appointmentMinutes?: number | null;
+  /**
    * How far in advance a visitor must book. At 24, a time less than a day away is not offered — which is also what stops someone booking a slot that has already passed today.
    */
   minNoticeHours?: number | null;
@@ -7951,6 +8304,7 @@ export interface BookingSettingsSelect<T extends boolean = true> {
         time?: T;
         id?: T;
       };
+  appointmentMinutes?: T;
   minNoticeHours?: T;
   closedWeekdays?: T;
   closedDates?:

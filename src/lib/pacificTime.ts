@@ -49,10 +49,20 @@ function pacificOffsetMinutes(year: number, month0: number, day: number, hour: n
   return (utcGuess.getTime() - asIfUtc) / 60000
 }
 
-/** Converts a Pacific-time wall-clock date + hour slot into a correct UTC ISO instant. */
-export function pacificToUtcIso(year: number, month0: number, day: number, hour: number): string {
+/**
+ * Converts a Pacific-time wall-clock date + time into a correct UTC ISO
+ * instant. `minute` exists because the booking slots are not all on the hour
+ * \u2014 "10:30 am" is one of them.
+ */
+export function pacificToUtcIso(
+  year: number,
+  month0: number,
+  day: number,
+  hour: number,
+  minute = 0,
+): string {
   const offsetMinutes = pacificOffsetMinutes(year, month0, day, hour)
-  const utcMillis = Date.UTC(year, month0, day, hour) + offsetMinutes * 60000
+  const utcMillis = Date.UTC(year, month0, day, hour, minute) + offsetMinutes * 60000
   return new Date(utcMillis).toISOString()
 }
 

@@ -221,6 +221,36 @@ missing snapshots.
 These differ from the WordPress export **on purpose**. Do not "fix" them back
 without asking — each was a decision, not a migration error.
 
+- **`/thank-you` is `noIndex`; WordPress serves it `follow, index`.** A
+  post-submission confirmation page has no business in search results, which
+  is what the `noIndex` field's own description in
+  `src/collections/fields/SEO.ts` says ("Tick only for pages that should stay
+  out of Google (thank-you pages, duplicates)"). The value lives on the
+  `thank-you` pages record, so the CMS can change it; `/thank-you/page.tsx`
+  additionally defaults to `noIndex: true` when the record is missing, so a
+  deleted row cannot quietly start indexing it.
+
+- **`/thank-you`'s meta description is authored, not migrated.** WordPress
+  emits none at all for that page. "Thanks for getting in touch — a member of
+  our team will be with you shortly." was written for this site. The same is
+  true of the page body: WordPress has a heading and two sentences ("Thank You
+  / For contacting us. Your submission have been received. Our team will get
+  back to you soon."), where this site has a hero, a "What happens next" list
+  and an "In the meantime" link row. All of it is in the CMS now — the page
+  record's `hero`, a `next-steps` block and a `link-list` block.
+
+- **The privacy policy names Prime Design & Build, WordPress names Prime
+  Kitchens.** The live WordPress page still opens "This Privacy Policy
+  describes how Prime Kitchens…" and closes with `1729 N First St, San Jose,
+  CA 95112` and `office@primekitchens.net` — the former trading name and an
+  address the company has left, so a visitor exercising a right under the
+  policy would write to a dead mailbox. The opening paragraph now names the
+  current company, the Rank Math meta description was corrected the same way,
+  and the closing contact block is no longer copy at all: `PolicySections`
+  prints the name, first address and email from the Site Settings global, so
+  the policy cannot fall out of step with the rest of the site again. The
+  eight numbered sections are the WordPress wording, unchanged.
+
 - **Prime Difference icons are brass, WordPress is black.** WordPress uses
   wp 901 `Customer-Focused.svg`, 897 `Innovation.svg`, 898 `Process-2.svg` and
   902 `Process-1.svg`, and all four carry hardcoded black fills (`#100f0d` on

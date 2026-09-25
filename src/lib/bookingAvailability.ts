@@ -3,6 +3,8 @@ import 'server-only'
 import configPromise from '@payload-config'
 import { getPayload } from 'payload'
 
+import { parseDateParts, pacificToUtcIso } from './pacificTime'
+
 /**
  * What can be booked, decided on the server.
  *
@@ -42,6 +44,8 @@ export type BookingRules = {
   dailyCapacity: number
   bookingWindowDays: number
   minNoticeHours: number
+  /** How long one consultation runs; the appointment's end time comes from it. */
+  appointmentMinutes: number
 }
 
 /** Sensible values when the global has never been saved. */
@@ -53,6 +57,7 @@ const DEFAULTS: BookingRules = {
   dailyCapacity: 3,
   bookingWindowDays: 90,
   minNoticeHours: 24,
+  appointmentMinutes: 60,
 }
 
 /** `YYYY-MM-DD` for a Date, read in local (server) time. */
@@ -132,6 +137,10 @@ export async function resolveBookingRules(): Promise<BookingRules> {
       720,
       Math.max(0, numberOr(settings.minNoticeHours, DEFAULTS.minNoticeHours)),
     ),
+    appointmentMinutes: Math.min(
+      480,
+      Math.max(5, numberOr(settings.appointmentMinutes, DEFAULTS.appointmentMinutes)),
+    ),
   }
 }
 
@@ -141,28 +150,38 @@ async function bookedCounts(fromKey: string, toKey: string): Promise<Map<string,
   if (!process.env.DATABASE_URL) return counts
 
   const payload = await getPayload({ config: configPromise })
+  /**
+   * Widened by a day at each end. The range is asked in calendar days but
+   * `startsAt` is an instant, and the first and last day's instants sit up to
+   * a day either side of the naive UTC boundary; a booking on the window's
+   * first morning would otherwise not be counted.
+   */
   const { docs } = await payload.find({
-    collection: 'contact-submissions',
+    collection: 'appointments',
     where: {
       and: [
-        { source: { equals: 'appointment' } },
-        { appointmentDate: { greater_than_equal: fromKey } },
-        { appointmentDate: { less_than_equal: toKey } },
-        // An archived lead gives its slot back: the collection's four
-        // statuses are new / contacted / qualified / archived, and archived
-        // is the one that means "this is not happening". Without this a
-        // cancelled booking would hold a day closed for good.
-        { status: { not_equals: 'archived' } },
+        { startsAt: { greater_than_equal: `${fromKey}T00:00:00.000Z` } },
+        { startsAt: { less_than_equal: `${toKey}T23:59:59.999Z` } },
+        // A booking that is not happening gives its slot back.
+        { status: { not_in: ['cancelled', 'no-show'] } },
       ],
     },
-    limit: 1000,
+    limit: 5000,
     depth: 0,
     pagination: false,
   })
 
-  for (const doc of docs as Array<{ appointmentDate?: unknown }>) {
-    const key = storedDateKey(doc.appointmentDate)
-    if (key) counts.set(key, (counts.get(key) ?? 0) + 1)
+  /**
+   * Keyed by the Pacific calendar day, which round-trips exactly: `startsAt`
+   * was built from the `YYYY-MM-DD` the visitor picked, read as a Pacific wall
+   * clock, so reading it back in Pacific returns that same string whatever
+   * timezone the server or the browser is in.
+   */
+  for (const doc of docs as Array<{ startsAt?: unknown }>) {
+    const parts = parseDateParts(doc.startsAt as string | null | undefined)
+    if (!parts) continue
+    const key = `${parts.year}-${String(parts.month0 + 1).padStart(2, '0')}-${String(parts.day).padStart(2, '0')}`
+    counts.set(key, (counts.get(key) ?? 0) + 1)
   }
   return counts
 }
@@ -189,7 +208,11 @@ export async function resolveAvailability(now = new Date()): Promise<{
   const end = new Date(start)
   end.setDate(end.getDate() + rules.bookingWindowDays)
 
-  const counts = await bookedCounts(dateKey(start), dateKey(end))
+  const widenedStart = new Date(start)
+  widenedStart.setDate(widenedStart.getDate() - 1)
+  const widenedEnd = new Date(end)
+  widenedEnd.setDate(widenedEnd.getDate() + 1)
+  const counts = await bookedCounts(dateKey(widenedStart), dateKey(widenedEnd))
   const earliest = new Date(now.getTime() + rules.minNoticeHours * 60 * 60 * 1000)
 
   const days: BookingDay[] = []
@@ -248,7 +271,38 @@ export function slotStart(day: Date, time: string): Date {
 }
 
 export type BookingCheck =
-  { ok: true; date: Date; key: string; slot: string } | { ok: false; reason: string }
+  | {
+      ok: true
+      date: Date
+      /** The calendar day the visitor picked, `YYYY-MM-DD`. */
+      key: string
+      /** The slot as offered, e.g. "09:00 am". */
+      slot: string
+      /** The slot resolved to an instant, read as a Pacific wall clock. */
+      startsAt: string
+      /** `startsAt` plus the configured appointment length. */
+      endsAt: string
+    }
+  | { ok: false; reason: string }
+
+/**
+ * A validated day + slot as two instants.
+ *
+ * The slot is a Pacific wall-clock time — "09:00 am" means nine in the morning
+ * in Campbell, not on whatever timezone the server happens to run in — so the
+ * conversion goes through `pacificToUtcIso` rather than `new Date(...)`.
+ */
+function slotInstants(key: string, slot: string, minutes: number) {
+  const [year, month, day] = key.split('-').map(Number)
+  const match = /^(\d{1,2}):(\d{2})\s*(am|pm)$/i.exec(slot.trim())
+  let hour = match ? Number(match[1]) % 12 : 9
+  if (match && match[3].toLowerCase() === 'pm') hour += 12
+  const minute = match ? Number(match[2]) : 0
+
+  const startsAt = pacificToUtcIso(year, month - 1, day, hour, minute)
+  const endsAt = new Date(new Date(startsAt).getTime() + minutes * 60000).toISOString()
+  return { startsAt, endsAt }
+}
 
 /**
  * Is this booking allowed? The question `/api/contact` asks before storing.
@@ -298,10 +352,16 @@ export async function checkBooking(dateInput: unknown, slotInput: unknown): Prom
     return { ok: false, reason: 'That time is too soon. Please choose a later one.' }
   }
 
-  const counts = await bookedCounts(key, key)
+  // Asked over three days for the reason `bookedCounts` explains, then read
+  // back for the one that matters.
+  const before = new Date(date)
+  before.setDate(before.getDate() - 1)
+  const after = new Date(date)
+  after.setDate(after.getDate() + 1)
+  const counts = await bookedCounts(dateKey(before), dateKey(after))
   if ((counts.get(key) ?? 0) >= capacity) {
     return { ok: false, reason: 'That day is fully booked. Please choose another.' }
   }
 
-  return { ok: true, date, key, slot }
+  return { ok: true, date, key, slot, ...slotInstants(key, slot, rules.appointmentMinutes) }
 }

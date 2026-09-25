@@ -62,6 +62,11 @@ import * as migration_20260924_170000_video_eyebrow_shared_block from './2026092
 import * as migration_20260924_180000_consultation_duration_and_note from './20260924_180000_consultation_duration_and_note'
 import * as migration_20260924_190000_booking_settings from './20260924_190000_booking_settings'
 import * as migration_20260925_100000_site_settings_reviews from './20260925_100000_site_settings_reviews'
+import * as migration_20260925_110000_customers from './20260925_110000_customers'
+import * as migration_20260925_120000_policy_next_steps_link_list_blocks from './20260925_120000_policy_next_steps_link_list_blocks'
+import * as migration_20260925_130000_appointments_rename_and_customers from './20260925_130000_appointments_rename_and_customers'
+import * as migration_20260925_140000_latepoint_field_parity from './20260925_140000_latepoint_field_parity'
+import * as migration_20260925_150000_booking_settings_appointment_minutes from './20260925_150000_booking_settings_appointment_minutes'
 
 export const migrations = [
   {
@@ -383,5 +388,30 @@ export const migrations = [
     up: migration_20260925_100000_site_settings_reviews.up,
     down: migration_20260925_100000_site_settings_reviews.down,
     name: '20260925_100000_site_settings_reviews',
+  },
+  {
+    up: migration_20260925_110000_customers.up,
+    down: migration_20260925_110000_customers.down,
+    name: '20260925_110000_customers',
+  },
+  {
+    up: migration_20260925_120000_policy_next_steps_link_list_blocks.up,
+    down: migration_20260925_120000_policy_next_steps_link_list_blocks.down,
+    name: '20260925_120000_policy_next_steps_link_list_blocks',
+  },
+  {
+    up: migration_20260925_130000_appointments_rename_and_customers.up,
+    down: migration_20260925_130000_appointments_rename_and_customers.down,
+    name: '20260925_130000_appointments_rename_and_customers',
+  },
+  {
+    up: migration_20260925_140000_latepoint_field_parity.up,
+    down: migration_20260925_140000_latepoint_field_parity.down,
+    name: '20260925_140000_latepoint_field_parity',
+  },
+  {
+    up: migration_20260925_150000_booking_settings_appointment_minutes.up,
+    down: migration_20260925_150000_booking_settings_appointment_minutes.down,
+    name: '20260925_150000_booking_settings_appointment_minutes',
   },
 ]

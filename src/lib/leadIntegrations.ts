@@ -1,6 +1,6 @@
 import 'server-only'
 
-import type { ContactSubmission } from '@/payload-types'
+import type { Appointment, ContactSubmission } from '@/payload-types'
 
 /**
  * The single seam for everything that happens to a lead AFTER it is stored.
@@ -37,8 +37,13 @@ export type LeadDeliveryResult = {
   deliveryError?: string
 }
 
+/**
+ * Takes either kind of submission. An enquiry (`ContactSubmission`) and a
+ * booking (`Appointment`) are separate collections but the same thing happens
+ * to them here: somebody is told, and a CRM is updated.
+ */
 export async function dispatchLeadIntegrations(
-  _submission: ContactSubmission,
+  _submission: Appointment | ContactSubmission,
 ): Promise<LeadDeliveryResult> {
   // Intentionally inert. `pending` (rather than `not-configured`) records that
   // these leads are still waiting to be delivered once a destination is

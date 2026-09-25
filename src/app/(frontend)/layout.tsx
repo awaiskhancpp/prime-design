@@ -29,8 +29,33 @@ export const metadata: Metadata = {
     template: `%s`,
   },
   description: 'Prime Design & Build — thoughtful spaces, carefully built in Silicon Valley.',
+  /**
+   * The WordPress site icon, at the exact sizes WordPress publishes.
+   *
+   * The files in `public/` are the originals, downloaded unchanged from
+   * `wp-content/uploads/2023/05/cropped-Prime-Kitchens-Logo-512-×-512-px-1`
+   * — the square 512px mark, which is what a favicon needs. The previous
+   * value pointed at media 218 (`cropped-Prime-Kitchens-Logo-1.png`), the
+   * 461×289 landscape logo: a different crop that browsers letterbox into
+   * a 16px box, so the wordmark was unreadable in a tab. The square version
+   * was never imported into the Media collection.
+   *
+   * These stay in `public/` rather than the Media collection on purpose: a
+   * favicon is requested before anything else on the page, and serving it
+   * through `/api/media/file/…` puts a database round-trip in front of it.
+   */
   icons: {
-    icon: '/api/media/file/cropped-Prime-Kitchens-Logo-1.png',
+    icon: [
+      { url: '/favicon.ico', sizes: '32x32 192x192' },
+      { url: '/favicon-32x32.png', type: 'image/png', sizes: '32x32' },
+      { url: '/favicon-192x192.png', type: 'image/png', sizes: '192x192' },
+    ],
+    apple: [{ url: '/apple-touch-icon.png', sizes: '180x180' }],
+  },
+  other: {
+    // WordPress emits this for pinned Windows tiles; mirrored here so the
+    // migrated site presents the same icon set.
+    'msapplication-TileImage': '/mstile-270x270.png',
   },
   applicationName: SITE_NAME,
   authors: [{ name: SITE_NAME, url: SITE_URL }],

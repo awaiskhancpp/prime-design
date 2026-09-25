@@ -197,6 +197,25 @@ export type PageConsultationsContent = {
   assuranceNote?: string
 }
 
+export type PagePolicyContent = {
+  intro?: string
+  sections: Array<{
+    title: string
+    paragraphs: Array<{ lead?: string; body: string }>
+  }>
+  showContactDetails: boolean
+}
+
+export type PageNextStepsContent = {
+  heading?: string
+  steps: Array<{ title: string; detail?: string }>
+}
+
+export type PageLinkListContent = {
+  heading?: string
+  links: Array<{ label: string; href: string }>
+}
+
 export type PageSection =
   | { type: 'hero'; content: PageHeroContent }
   | { type: 'social-proof'; content: PageSocialProofContent }
@@ -225,6 +244,9 @@ export type PageSection =
   | { type: 'image-text'; content: PageImageTextContent }
   | { type: 'gallery'; content: PageGalleryContent }
   | { type: 'cta'; content: PageCtaContent }
+  | { type: 'policy'; content: PagePolicyContent }
+  | { type: 'next-steps'; content: PageNextStepsContent }
+  | { type: 'link-list'; content: PageLinkListContent }
 
 const text = (value: unknown) => (typeof value === 'string' ? value : '')
 
@@ -241,6 +263,10 @@ const rich = (value: unknown): RichTextValue | undefined =>
 
 const group = (value: unknown) =>
   value && typeof value === 'object' ? (value as Record<string, unknown>) : {}
+
+/** An array field's rows, as plain records. */
+const rows = (value: unknown): Array<Record<string, unknown>> =>
+  Array.isArray(value) ? (value as Array<Record<string, unknown>>) : []
 
 type PageBlock = Record<string, unknown> & { blockType?: string | null }
 
@@ -337,6 +363,42 @@ export function toPageSection(block: PageBlock): PageSection | undefined {
               beforeImage: mediaUrl(item.beforeImage),
               afterImage: mediaUrl(item.afterImage),
             })),
+        },
+      }
+    case 'policy':
+      return {
+        type: 'policy',
+        content: {
+          intro: optionalText(block.intro),
+          sections: rows(block.sections).map((section) => ({
+            title: text(section.title),
+            paragraphs: rows(section.paragraphs).map((paragraph) => ({
+              lead: optionalText(paragraph.lead),
+              body: text(paragraph.body),
+            })),
+          })),
+          showContactDetails: block.showContactDetails !== false,
+        },
+      }
+    case 'next-steps':
+      return {
+        type: 'next-steps',
+        content: {
+          heading: optionalText(block.heading),
+          steps: rows(block.steps).map((step) => ({
+            title: text(step.title),
+            detail: optionalText(step.detail),
+          })),
+        },
+      }
+    case 'link-list':
+      return {
+        type: 'link-list',
+        content: {
+          heading: optionalText(block.heading),
+          links: rows(block.links)
+            .map((link) => ({ label: text(link.label), href: text(link.href) }))
+            .filter((link) => link.label && link.href),
         },
       }
     case 'team':

@@ -60,6 +60,18 @@ export const BookingSettings: GlobalConfig = {
               ],
             },
             {
+              name: 'appointmentMinutes',
+              type: 'number',
+              label: 'Appointment length (minutes)',
+              defaultValue: 60,
+              min: 5,
+              max: 480,
+              admin: {
+                description:
+                  'How long a consultation runs. Used to work out each appointment\u2019s end time from its start; every consultation card on the site says \u201c~1 Hour\u201d, which is the 60 here. Visitors are never asked this \u2014 they pick a start slot.',
+              },
+            },
+            {
               name: 'minNoticeHours',
               type: 'number',
               label: 'Minimum notice (hours)',

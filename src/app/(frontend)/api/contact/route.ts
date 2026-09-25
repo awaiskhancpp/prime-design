@@ -5,6 +5,7 @@ import { getPayload } from 'payload'
 import configPromise from '@payload-config'
 import { dispatchLeadIntegrations } from '@/lib/leadIntegrations'
 import { checkBooking } from '@/lib/bookingAvailability'
+import { findOrCreateCustomer } from '@/lib/customers'
 import { verifyCaptcha } from '@/lib/captcha'
 import {
   email as emailRule,
@@ -222,49 +223,136 @@ export async function POST(request: Request) {
       serviceId = (match.docs[0] as { id?: number } | undefined)?.id
     }
 
-    const submission = await payload.create({
-      collection: 'contact-submissions',
-      data: {
-        firstName: values.firstName,
-        lastName: values.lastName,
-        email: values.email.toLowerCase(),
-        phone: toE164(values.phone),
-        service: serviceId,
-        projectType,
-        subject: values.subject || undefined,
-        message: values.message,
-        address: values.address || undefined,
-        zipCode: values.zipCode || undefined,
-        consultationType: str(body.consultationType, 200) || undefined,
-        preferredDate: str(body.preferredDate, 100) || undefined,
-        // The booked day and time as the server validated them — not as the
-        // browser described them. Capacity is counted on these.
-        appointmentDate: booking?.ok ? booking.key : undefined,
-        appointmentSlot: booking?.ok ? booking.slot : undefined,
-        source,
-        status: 'new',
-        // Which form, in words. The browser names itself; an unnamed form
-        // stores nothing rather than a guess made from the URL.
-        formName: str(body.formName, 120) || undefined,
-        sourceUrl: str(body.sourceUrl, 500) || undefined,
-        // Provider-neutral in meaning despite the name: the stored column
-        // predates Turnstile and renaming it needs a migration, which §8b of
-        // CLAUDE.md blocks. Turnstile never sets a score.
-        recaptchaStatus: captcha.status,
-        recaptchaScore: 'score' in captcha ? captcha.score : undefined,
-        notificationStatus: 'pending',
-        crmStatus: 'pending',
-        meta: {
-          rawPhone: values.phone,
-          userAgent: request.headers.get('user-agent')?.slice(0, 300) ?? null,
-          ipHash: hashIp(ip) ?? null,
-          // The booking modal prints this reference on its confirmation screen
-          // and writes it into the calendar invite, so without it stored there
-          // is no way to match the number a caller quotes to a record here.
-          orderId: str(body.orderId, 40) || null,
-        },
+    /**
+     * Everything both kinds of submission carry. What differs is everything
+     * that follows: an enquiry has a subject and a lead's lifecycle, a booking
+     * has a day, a slot, an address and an appointment's lifecycle.
+     */
+    const shared = {
+      firstName: values.firstName,
+      lastName: values.lastName,
+      email: values.email.toLowerCase(),
+      phone: toE164(values.phone),
+      service: serviceId,
+      message: values.message,
+      // Which form, in words. The browser names itself; an unnamed form
+      // stores nothing rather than a guess made from the URL.
+      formName: str(body.formName, 120) || undefined,
+      sourceUrl: str(body.sourceUrl, 500) || undefined,
+      // Provider-neutral in meaning despite the name: the stored column
+      // predates Turnstile. Turnstile never sets a score.
+      recaptchaStatus: captcha.status,
+      recaptchaScore: 'score' in captcha ? captcha.score : undefined,
+      notificationStatus: 'pending' as const,
+      crmStatus: 'pending' as const,
+      meta: {
+        rawPhone: values.phone,
+        userAgent: request.headers.get('user-agent')?.slice(0, 300) ?? null,
+        ipHash: hashIp(ip) ?? null,
       },
-    })
+    }
+
+    /**
+     * A booking is an appointment, an enquiry is a lead, and the two live in
+     * separate collections. `source` is what decides — it is also what the
+     * validation rules and the availability re-check above keyed off.
+     */
+    const collection = booking?.ok ? ('appointments' as const) : ('contact-submissions' as const)
+
+    /**
+     * Booking a consultation puts the person in the customer directory. An
+     * enquiry deliberately does not: somebody asking a question has not
+     * become a customer, and turning every question into a directory entry
+     * fills it with people who never booked anything.
+     */
+    const customerId = booking?.ok
+      ? await findOrCreateCustomer(payload, {
+          firstName: values.firstName,
+          lastName: values.lastName,
+          email: values.email.toLowerCase(),
+          phone: toE164(values.phone),
+          address: values.address || undefined,
+          zipCode: values.zipCode || undefined,
+          notes: values.message,
+        })
+      : undefined
+
+    const reference = str(body.orderId, 40) || undefined
+
+    /**
+     * Every appointment gets an order, even though every consultation is free.
+     *
+     * It opens exactly as the WordPress admin shows one: Open, Not Fulfilled,
+     * Not Paid, nothing owed. Keeping it separate is the point — it gives
+     * price, payment and fulfilment somewhere to live that is not the
+     * appointment's own status, so "Completed" can never be confused with
+     * "Paid". Nothing here takes a payment; these are the fields that would
+     * hold one if anything ever did.
+     *
+     * A failure is not allowed to lose the booking: the appointment is stored
+     * with no order rather than not stored at all.
+     */
+    let orderId: number | undefined
+    if (booking?.ok) {
+      try {
+        const order = await payload.create({
+          collection: 'orders',
+          data: {
+            reference,
+            customer: customerId,
+            orderStatus: 'open',
+            fulfillmentStatus: 'not-fulfilled',
+            paymentStatus: 'not-paid',
+            subtotal: 0,
+            total: 0,
+            totalPayments: 0,
+            balanceDue: 0,
+          },
+        })
+        orderId = order.id as number
+      } catch (error) {
+        console.error('[contact] could not open an order for the booking', error)
+      }
+    }
+
+    const submission = booking?.ok
+      ? await payload.create({
+          collection: 'appointments',
+          data: {
+            ...shared,
+            customer: customerId,
+            order: orderId,
+            consultationType: str(body.consultationType, 200) || undefined,
+            // The visit as two instants, resolved by the server from the day
+            // and slot it validated — not as the browser described them. The
+            // slot is a Pacific wall-clock time, so `checkBooking` converts it
+            // rather than trusting whatever timezone this process runs in.
+            startsAt: booking.startsAt,
+            endsAt: booking.endsAt,
+            // The reference the modal prints on its confirmation screen and
+            // writes into the calendar invite, so the number a caller quotes
+            // can be looked up.
+            bookingReference: reference,
+            address: values.address || undefined,
+            zipCode: values.zipCode || undefined,
+            status: 'pending-approval' as const,
+          },
+        })
+      : await payload.create({
+          collection: 'contact-submissions',
+          data: {
+            ...shared,
+            projectType,
+            subject: values.subject || undefined,
+            // `appointment` is no longer one of a lead's sources — it is what
+            // sends a submission to Customers instead. A request that claims
+            // it but fails the booking re-check never reaches here (409
+            // above); one that claims it with no booking at all is recorded
+            // as what it actually is, a contact-page enquiry.
+            source: source === 'appointment' ? 'contact-page' : source,
+            status: 'new' as const,
+          },
+        })
 
     // Delivery is a separate concern and is currently inert. It runs after the
     // lead is safely stored and can never fail the request.
@@ -276,7 +364,7 @@ export async function POST(request: Request) {
         delivery.deliveryError
       ) {
         await payload.update({
-          collection: 'contact-submissions',
+          collection,
           id: submission.id,
           data: {
             notificationStatus: delivery.notificationStatus,
