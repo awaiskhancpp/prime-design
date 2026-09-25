@@ -2781,6 +2781,12 @@ export interface Page {
             blockType: 'testimonial-videos';
           }
         | {
+            eyebrow?: string | null;
+            heading?: string | null;
+            /**
+             * Optional line under the heading. Left empty on the Testimonials page — the spotlight section this heading came from had a body, but it was not carried over.
+             */
+            description?: string | null;
             /**
              * Rating badges shown across the top (Yelp, Google, Houzz, BBB).
              */
@@ -3241,6 +3247,11 @@ export interface Testimonial {
   location?: string | null;
   rating?: number | null;
   source?: string | null;
+  /**
+   * Link to this review on Yelp or Google. Shown as “Read the full review” when the stored text is a truncated excerpt.
+   */
+  sourceUrl?: string | null;
+  quoteIsExcerpt?: boolean | null;
   /**
    * Relative date as the review platform shows it, e.g. "5 months ago". Rendered beside the source on the Testimonials page.
    */
@@ -6640,6 +6651,9 @@ export interface PagesSelect<T extends boolean = true> {
         'review-highlights'?:
           | T
           | {
+              eyebrow?: T;
+              heading?: T;
+              description?: T;
               badges?:
                 | T
                 | {
@@ -6886,6 +6900,8 @@ export interface TestimonialsSelect<T extends boolean = true> {
   location?: T;
   rating?: T;
   source?: T;
+  sourceUrl?: T;
+  quoteIsExcerpt?: T;
   timeAgo?: T;
   image?: T;
   featured?: T;

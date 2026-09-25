@@ -1,53 +1,41 @@
-import Image from '@/components/ui/Image'
-import Link from 'next/link'
-
-import { Badge } from '@/components/ui/Badge'
+import { PhotoPlateCard } from '@/components/ui/PhotoPlateCard'
 import type { BlogPost } from '@/lib/blog'
 
+/**
+ * A post on `/blog`.
+ *
+ * It is `ui/PhotoPlateCard` — the photograph kept whole with a paper plate
+ * under it, opened by a brass rule. That treatment used to be the projects
+ * grid's, and it moved here because it was never a project idiom: a plate of
+ * categories, a headline, a two-line standfirst and a byline is the shape of
+ * an article, and reading it on a project made the portfolio look like a blog.
+ * The projects grid now has a photographic tile of its own (`ProjectCard`).
+ *
+ * The card previously drew its own version of the same arrangement — bare
+ * copy under the image, category badges, title, excerpt, byline — which is
+ * the second implementation §2 of CLAUDE.md warns about. There is one now.
+ *
+ * `aspect-[4/3]` rather than the plate's 3:2 default: it is the frame the blog
+ * grid already used, and the hero images are shot for it.
+ *
+ * All of a post's categories go in the eyebrow, joined, rather than as badges.
+ * The plate's eyebrow is a single brass line — a row of bordered pills sitting
+ * on it would be a third treatment of the same information.
+ */
 export function BlogCard({ post }: { post: BlogPost }) {
-  const visibleCategories = post.categories.slice(0, 3)
-  const hiddenCount = post.categories.length - visibleCategories.length
-
   return (
-    <article className="group flex h-full flex-col">
-      <Link
-        href={`/blog/${post.slug}`}
-        className="relative block aspect-[4/3] overflow-hidden bg-paper-2"
-      >
-        <Image
-          src={post.heroImage}
-          alt={post.title}
-          fill
-          className="object-cover transition-transform duration-500 ease-out group-hover:scale-105"
-          sizes="(min-width: 1024px) 33vw, (min-width: 640px) 50vw, 100vw"
-        />
-      </Link>
-
-      <div className="flex flex-1 flex-col pt-5">
-        {/* Fixed to a single row so every card's heading starts at the same
-            height, regardless of how many categories a post has. */}
-        <div className="flex items-center gap-1 overflow-hidden">
-          {visibleCategories.map((category) => (
-            <Badge key={category} className="shrink-0">
-              {category}
-            </Badge>
-          ))}
-          {hiddenCount > 0 ? (
-            <Badge className="shrink-0 border-line text-ink-2/60">+{hiddenCount}</Badge>
-          ) : null}
-        </div>
-
-        <h2 className="mt-3 line-clamp-2 font-display text-xl font-medium leading-snug text-ink-2 transition-colors group-hover:text-brass-deep">
-          <Link href={`/blog/${post.slug}`}>{post.title}</Link>
-        </h2>
-
-        <p className="mt-3 line-clamp-2 text-sm leading-6 text-ink-2/70">{post.excerpt}</p>
-
-        <div className="mt-5 flex items-center justify-between gap-4 text-xs text-ink-2/50">
-          <span>{post.author}</span>
-          <span>{post.date}</span>
-        </div>
-      </div>
-    </article>
+    <PhotoPlateCard
+      href={`/blog/${post.slug}`}
+      image={post.heroImage}
+      imageAlt={post.title}
+      aspect="aspect-[4/3]"
+      eyebrow={post.categories.join(' · ') || undefined}
+      title={post.title}
+      footerLeft={[post.author, post.date].filter(Boolean).join(' · ')}
+      actionLabel="Read article"
+      sizes="(min-width: 1024px) 33vw, (min-width: 640px) 50vw, 100vw"
+    >
+      <p className="mt-2 line-clamp-2 min-h-12 text-sm leading-6 text-ink-2/70">{post.excerpt}</p>
+    </PhotoPlateCard>
   )
 }

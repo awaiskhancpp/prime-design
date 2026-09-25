@@ -13,6 +13,31 @@ import type { FaqIndexCategory } from '@/lib/faqIndex.server'
 const ALL = '__all__'
 
 /**
+ * Hold `element` at the same point on the screen while the layout around it
+ * changes.
+ *
+ * The panel opens over a 300ms `grid-template-rows` transition, so the
+ * growth arrives a frame at a time rather than all at once — correcting the
+ * scroll position once, up front, would make the question jump and then
+ * drift. This watches the element for the length of the transition and
+ * takes the difference out of the scroll position on every frame, so the
+ * question sits still and the answer appears to unfold beneath it.
+ *
+ * At the very bottom of the page there is nothing left to scroll, so the
+ * last question can still shift; the browser has no more room to give.
+ */
+function anchor(element: HTMLElement, top: number) {
+  const started = performance.now()
+  const step = () => {
+    const delta = element.getBoundingClientRect().top - top
+    if (Math.abs(delta) > 0.5) window.scrollBy(0, delta)
+    // A little past the 300ms transition, to catch the final frame.
+    if (performance.now() - started < 400) requestAnimationFrame(step)
+  }
+  requestAnimationFrame(step)
+}
+
+/**
  * The FAQ page's browse index.
  *
  * Section copy, then a two-column split — categories on the left, questions
@@ -38,20 +63,28 @@ export function FaqExplorer({
 }) {
   const [activeCategory, setActiveCategory] = useState<string>(ALL)
   /**
-   * One answer at a time, and space reserved for it.
+   * One answer at a time, and the question you press does not move.
    *
    * Opening an answer used to grow the page under the reader: one question
    * pushed everything below it down 136px, two by 300px, and the "Areas we
-   * service" section moved with them. Two changes together stop that. Only
-   * one answer can be open, so the column can only ever grow by one answer's
-   * height; and `reserve` below holds exactly that much space at the foot of
-   * the list, so the growth is absorbed instead of added. The page is the
-   * same height whichever question is open, and whether any is.
+   * service" section moved with them. The first fix for that reserved the
+   * tallest answer's worth of space at the foot of the list and gave it back
+   * as an answer opened, so the page height never changed at all.
+   *
+   * That reserve is gone, because its cost was worse than the problem. It is
+   * sized by the single tallest answer — the ten-step "typical stages of a
+   * kitchen remodel" list — while the median answer is a fifth of that, so
+   * every reader paid for the outlier on every scroll: 520px of empty space
+   * under the last question on a desktop, and 912px on a phone, which is more
+   * than a whole viewport of nothing. The last question never reached the
+   * bottom of the page.
+   *
+   * What holds the page steady now is `anchor` below: the question you press
+   * stays at exactly the same point on the screen while its answer opens
+   * underneath it, and so does everything above it. What changes is that
+   * content *below* the open question now moves down, as an accordion's does.
    */
   const [openItem, setOpenItem] = useState<string | null>(null)
-  /** Every answer's height while closed, keyed by id, measured from the page. */
-  const [answerHeights, setAnswerHeights] = useState<Record<string, number>>({})
-  const listRef = useRef<HTMLDivElement>(null)
   /** The category currently under the top of the viewport (All view only). */
   const [currentCategory, setCurrentCategory] = useState<string | null>(null)
   const sectionRefs = useRef(new Map<string, HTMLElement>())
@@ -111,51 +144,11 @@ export function FaqExplorer({
     return () => observer.disconnect()
   }, [activeCategory, visible, openItem])
 
-  const toggle = (id: string) => setOpenItem((current) => (current === id ? null : id))
-
-  const tallestAnswer = Math.max(0, ...Object.values(answerHeights))
-  const openHeight = openItem ? (answerHeights[openItem] ?? 0) : 0
-  const reservePx = Math.max(0, tallestAnswer - openHeight)
-
-  /**
-   * The tallest answer, measured from the page itself.
-   *
-   * Every panel stays in the DOM and is collapsed with a `0fr` grid row
-   * rather than `hidden`, so its content still has a real height to measure
-   * while closed. Re-measured when the visible set changes (filtering by
-   * category changes which answers are on the page) and on resize, because
-   * an answer's height depends on the column width.
-   */
-  useEffect(() => {
-    const element = listRef.current
-    if (!element) return
-
-    const measure = () => {
-      const panels = element.querySelectorAll<HTMLElement>('[data-faq-answer]')
-      const next: Record<string, number> = {}
-      for (const panel of panels) {
-        const id = panel.dataset.faqId
-        if (id) next[id] = panel.scrollHeight
-      }
-      setAnswerHeights((previous) => {
-        const same =
-          Object.keys(next).length === Object.keys(previous).length &&
-          Object.entries(next).every(([id, height]) => previous[id] === height)
-        return same ? previous : next
-      })
-    }
-
-    // On the next frame, not in the effect body: the rule this project lints
-    // with rejects a synchronous setState in an effect, and the panels need a
-    // paint before their heights are real.
-    const frame = requestAnimationFrame(measure)
-    const observer = new ResizeObserver(measure)
-    observer.observe(element)
-    return () => {
-      cancelAnimationFrame(frame)
-      observer.disconnect()
-    }
-  }, [visible])
+  const toggle = (id: string, element?: HTMLElement | null) => {
+    const top = element?.getBoundingClientRect().top
+    setOpenItem((current) => (current === id ? null : id))
+    if (element && top !== undefined) anchor(element, top)
+  }
 
   if (!categories.length) return null
 
@@ -223,11 +216,7 @@ export function FaqExplorer({
           </div>
         </aside>
 
-        {/* The reserve shrinks by exactly as much as the open answer adds:
-            padding = tallest − open. Closed, the column carries the tallest
-            answer's worth of space; open, that space becomes the answer. The
-            sum is constant, so nothing below the list moves. */}
-        <div className="min-w-0" ref={listRef} style={{ paddingBottom: reservePx }}>
+        <div className="min-w-0">
           {visible.length ? (
             <div className="grid gap-10">
               {visible.map((category) => (
@@ -257,7 +246,7 @@ export function FaqExplorer({
                           <h4>
                             <button
                               type="button"
-                              onClick={() => toggle(item.id)}
+                              onClick={(event) => toggle(item.id, event.currentTarget)}
                               aria-expanded={open}
                               aria-controls={`faq-panel-${item.id}`}
                               className="group flex w-full items-start justify-between gap-5 py-5 text-left"
@@ -277,11 +266,11 @@ export function FaqExplorer({
                             </button>
                           </h4>
                           {/* Collapsed with a grid row rather than `hidden`,
-                              so the answer keeps a measurable height while
-                              closed — that is what `reserve` is measured
-                              from. `inert` keeps a closed answer out of the
-                              tab order and away from screen readers, which
-                              `display: none` used to do for free. */}
+                              so the answer has a height to animate between
+                              instead of appearing all at once. `inert` keeps
+                              a closed answer out of the tab order and away
+                              from screen readers, which `display: none` used
+                              to do for free. */}
                           <div
                             className={cn(
                               'grid transition-[grid-template-rows] duration-300 ease-out',

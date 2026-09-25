@@ -53,10 +53,15 @@ function padForLoop(services: Service[]): Service[] {
 }
 
 export function HomeServices({
+  eyebrow,
   heading,
+  headingHighlight,
   services = [],
 }: {
+  /** The section's kicker, from the `services` block on the homepage record. */
+  eyebrow?: string
   heading?: string
+  headingHighlight?: string
   /** Payload services to show (already filtered/ordered by the caller). */
   services?: Service[]
 }) {
@@ -67,7 +72,11 @@ export function HomeServices({
   return (
     <Section className="">
       <div className="flex items-end justify-between gap-6">
-        <SectionHeader title={heading ?? ''} />
+        <SectionHeader
+          eyebrow={eyebrow}
+          title={heading ?? ''}
+          titleHighlight={headingHighlight}
+        />
         <div className="hidden shrink-0 items-center gap-3 sm:flex">
           <button
             type="button"

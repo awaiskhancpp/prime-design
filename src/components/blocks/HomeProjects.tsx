@@ -25,7 +25,16 @@ const WP_HOMEPAGE_ORDER = [
  * recent projects are shown instead. Card images are each project's real
  * featured image from Payload.
  */
-export async function HomeProjects({ heading }: { heading?: string }) {
+export async function HomeProjects({
+  eyebrow,
+  heading,
+  headingHighlight,
+}: {
+  /** The section's kicker, from the `projects` block on the homepage record. */
+  eyebrow?: string
+  heading?: string
+  headingHighlight?: string
+}) {
   const projects = await resolveProjects()
   const featured = projects.filter((project) => project.featured)
   const shown = (featured.length ? featured : projects).slice(0, 6)
@@ -42,7 +51,12 @@ export async function HomeProjects({ heading }: { heading?: string }) {
 
   return (
     <Section className="bg-white">
-      <SectionHeader align="center" title={title} />
+      <SectionHeader
+        align="center"
+        eyebrow={eyebrow}
+        title={title}
+        titleHighlight={headingHighlight}
+      />
 
       <div className="mt-10 grid grid-cols-1 gap-1 overflow-hidden  sm:grid-cols-2 lg:grid-cols-3">
         {shown.map((project) => (

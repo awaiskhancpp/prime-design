@@ -19,6 +19,10 @@ export type CollectionTestimonial = {
   timeAgo?: string
   location?: string
   image?: string
+  /** The review on the platform it was left on, when we have it. */
+  sourceUrl?: string
+  /** `quote` is the platform's excerpt, not the whole review. */
+  quoteIsExcerpt?: boolean
 }
 
 type TestimonialDoc = {
@@ -30,6 +34,8 @@ type TestimonialDoc = {
   timeAgo?: string | null
   location?: string | null
   image?: { url?: string | null } | number | null
+  sourceUrl?: string | null
+  quoteIsExcerpt?: boolean | null
 }
 
 const imageUrl = (value: TestimonialDoc['image']) =>
@@ -72,6 +78,8 @@ export async function resolveAllTestimonials(limit = 300): Promise<CollectionTes
         timeAgo: doc.timeAgo ?? undefined,
         location: doc.location ?? undefined,
         image: imageUrl(doc.image),
+        sourceUrl: doc.sourceUrl ?? undefined,
+        quoteIsExcerpt: doc.quoteIsExcerpt ?? undefined,
       }))
   } catch (error) {
     console.error('resolveAllTestimonials: could not load testimonials', error)
@@ -101,6 +109,8 @@ export async function resolveFeaturedTestimonials(limit = 50): Promise<Collectio
         timeAgo: doc.timeAgo ?? undefined,
         location: doc.location ?? undefined,
         image: imageUrl(doc.image),
+        sourceUrl: doc.sourceUrl ?? undefined,
+        quoteIsExcerpt: doc.quoteIsExcerpt ?? undefined,
       }))
   } catch (error) {
     console.error('resolveFeaturedTestimonials: could not load featured testimonials', error)

@@ -1,12 +1,14 @@
 'use client'
 
 import Image from '@/components/ui/Image'
-import { useMemo, useState } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 
 import { Section } from '@/components/ui/Section'
+import { SectionHeader } from '@/components/ui/SectionHeader'
 import { cn } from '@/lib/utils'
 import type { PageReviewHighlightsContent } from '@/lib/pageSections'
 import type { CollectionTestimonial } from '@/lib/testimonialsCollection.server'
+import { Container } from '../ui/Container'
 
 function initials(name: string) {
   return name
@@ -51,6 +53,12 @@ export function ReviewHighlights({
 
   const [tab, setTab] = useState<string>(ALL)
   const [shown, setShown] = useState(pageSize)
+  /**
+   * The one review reading in full, if any. One at a time: two open panels in
+   * a masonry column can overlap each other, and there is never a reason to
+   * read two reviews at once.
+   */
+  const [openReview, setOpenReview] = useState<number | null>(null)
 
   /** Tabs are built from the reviews actually present, not a fixed list. */
   const tabs = useMemo(() => {
@@ -83,9 +91,18 @@ export function ReviewHighlights({
   const selectTab = (key: string) => {
     setTab(key)
     setShown(pageSize)
+    setOpenReview(null)
   }
 
-  if (!content.badges.length && !content.stats.length && !testimonials.length) return null
+  if (
+    !content.eyebrow &&
+    !content.heading &&
+    !content.badges.length &&
+    !content.stats.length &&
+    !testimonials.length
+  ) {
+    return null
+  }
 
   return (
     <>
@@ -121,7 +138,27 @@ export function ReviewHighlights({
       </Section>
 
       {testimonials.length ? (
-        <Section className="bg-white pt-0">
+        <div className="bg-white pb-10 md:pb-14 lg:pb-16 bg-white pt-0">
+          <Container>
+            {/*
+            The section's heading, centred, directly above the tabs.
+            
+            It sits here rather than at the top of the strip because the
+            badges and the per-platform scores above are a rating summary,
+            not something this heading introduces — what it introduces is the
+            wall of reviews that begins with these tabs. The copy came from
+            the Testimonials Spotlight section that used to sit below.
+          */}
+          {content.eyebrow || content.heading || content.description ? (
+            <SectionHeader
+              align="center"
+              eyebrow={content.eyebrow}
+              title={content.heading ?? ''}
+              description={content.description}
+              className="mb-10"
+            />
+          ) : null}
+
           {/* Platform tabs. Only worth showing when more than one platform is
               represented — with a single source, "All" and that source are
               the same list. */}
@@ -154,7 +191,7 @@ export function ReviewHighlights({
               {cards.map((review) => (
                 <article
                   key={review.id}
-                  className="mb-4 inline-block w-full break-inside-avoid border border-line bg-paper p-5 sm:p-6"
+                  className="relative mb-4 inline-block w-full break-inside-avoid border border-line bg-paper p-5 sm:p-6"
                 >
                   <div className="flex items-center gap-4">
                     <span className="flex h-10 w-10 shrink-0 items-center justify-center bg-paper-2 text-xs font-semibold text-ink-2">
@@ -177,7 +214,16 @@ export function ReviewHighlights({
                       </span>
                     ) : null}
                   </div>
-                  <p className="mt-6 text-base leading-7 text-ink-2/75">{review.quote}</p>
+                  <ReviewQuote
+                    quote={review.quote}
+                    sourceUrl={review.sourceUrl}
+                    isExcerpt={review.quoteIsExcerpt}
+                    source={review.source}
+                    open={openReview === review.id}
+                    onToggle={() =>
+                      setOpenReview((current) => (current === review.id ? null : review.id))
+                    }
+                  />
                 </article>
               ))}
             </div>
@@ -197,9 +243,134 @@ export function ReviewHighlights({
               </button>
             ) : null}
           </div>
-        </Section>
+          </Container>
+        </div>
       ) : null}
     </>
+  )
+}
+
+/**
+ * A review's text, clamped to six lines, with "Read more" only when there is
+ * more than six lines to read.
+ *
+ * Whether it overflows is measured, not guessed from a character count: the
+ * cards sit in a masonry that is one column on a phone and two from `md`, so
+ * the same review wraps to a different number of lines at different widths. A
+ * `ResizeObserver` re-measures when the column width changes, so the link
+ * appears and disappears with the layout rather than being decided once.
+ *
+ * Open, the full text renders in a raised panel over the clamped text rather
+ * than growing the card. That is deliberate: this site's standing rule is that
+ * expanding something must not push what is below it down the page, and in a
+ * CSS-columns masonry an in-place expansion moves every card after it and
+ * everything below the grid. Reserving the tallest review's worth of space
+ * under the grid instead — the way `FaqExplorer` does it — would leave several
+ * hundred pixels of permanent whitespace here, because the longest review runs
+ * to 2,593 characters against a six-line clamp.
+ *
+ * The panel starts at the top of the text, not the top of the card, so the
+ * reviewer's name, platform and stars stay visible while their review is open.
+ * It is capped at 70% of the viewport and scrolls inside: the longest review
+ * here is 2,593 characters, which rendered in full runs to about 1,130px — a
+ * panel that would both run off the bottom of the screen and bury the cards
+ * beneath it. Capped, it reads as a raised card and never leaves the viewport.
+ *
+ * The collapsed "Read more" stays in the DOM while the panel is open, holding
+ * the card's height, but goes `invisible`, `aria-hidden` and out of the tab
+ * order: it sits underneath the panel, so it cannot be clicked, and a control
+ * that cannot be clicked must not be offered to a keyboard or a screen reader.
+ * The panel carries the "Show less" that actually closes it.
+ */
+function ReviewQuote({
+  quote,
+  sourceUrl,
+  isExcerpt,
+  source,
+  open,
+  onToggle,
+}: {
+  quote: string
+  /** The review on Yelp or Google, when we have it. */
+  sourceUrl?: string
+  /** `quote` is the platform's excerpt, not the whole review. */
+  isExcerpt?: boolean
+  source?: string
+  open: boolean
+  onToggle: () => void
+}) {
+  const clampedRef = useRef<HTMLParagraphElement | null>(null)
+  const [overflows, setOverflows] = useState(false)
+
+  const measure = useCallback(() => {
+    const element = clampedRef.current
+    if (!element) return
+    // One pixel of slack: sub-pixel line heights make an exactly-fitting
+    // paragraph report a scrollHeight a fraction taller than its box.
+    setOverflows(element.scrollHeight - element.clientHeight > 1)
+  }, [])
+
+  useEffect(() => {
+    measure()
+    const element = clampedRef.current
+    if (!element || typeof ResizeObserver === 'undefined') return
+    const observer = new ResizeObserver(measure)
+    observer.observe(element)
+    return () => observer.disconnect()
+  }, [measure, quote])
+
+  return (
+    <div className="relative mt-6">
+      <p ref={clampedRef} className="line-clamp-6 text-base leading-7 text-ink-2/75">
+        {quote}
+      </p>
+
+      {/*
+        A truncated review cannot be expanded — there is nothing more to show.
+        Yelp's API hands over about 160 characters and keeps the rest, so the
+        only honest thing a card can offer is the review itself, where it was
+        written. Roughly three lines long, these never reach the six-line
+        clamp, so without this they would simply trail off into "..." with no
+        way to read the rest.
+      */}
+      {isExcerpt && sourceUrl ? (
+        <a
+          href={sourceUrl}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="mt-3 inline-block text-sm font-semibold text-brass-deep underline underline-offset-4 transition-colors hover:text-brass focus-visible:outline-2 focus-visible:outline-brass"
+        >
+          Read the full review{source ? ` on ${source[0].toUpperCase()}${source.slice(1)}` : ''}
+        </a>
+      ) : overflows ? (
+        <button
+          type="button"
+          onClick={onToggle}
+          aria-expanded={open}
+          aria-hidden={open}
+          tabIndex={open ? -1 : undefined}
+          className={cn(
+            'mt-3 text-sm font-semibold text-brass-deep underline underline-offset-4 transition-colors hover:text-brass focus-visible:outline-2 focus-visible:outline-brass',
+            open && 'invisible',
+          )}
+        >
+          Read more
+        </button>
+      ) : null}
+
+      {open ? (
+        <div className="absolute inset-x-0 top-0 z-20 max-h-[70vh] overflow-y-auto border border-brass bg-paper p-4 shadow-xl">
+          <p className="text-base leading-7 text-ink-2/75">{quote}</p>
+          <button
+            type="button"
+            onClick={onToggle}
+            className="mt-3 text-sm font-semibold text-brass-deep underline underline-offset-4 transition-colors hover:text-brass focus-visible:outline-2 focus-visible:outline-brass"
+          >
+            Show less
+          </button>
+        </div>
+      ) : null}
+    </div>
   )
 }
 

@@ -158,6 +158,9 @@ export type PageTestimonialVideosContent = {
 }
 
 export type PageReviewHighlightsContent = {
+  eyebrow?: string
+  heading?: string
+  description?: string
   badges: Array<{ image: string; alt: string }>
   stats: Array<{
     label?: string
@@ -533,6 +536,9 @@ export function toPageSection(block: PageBlock): PageSection | undefined {
       return {
         type: 'review-highlights',
         content: {
+          eyebrow: optionalText(block.eyebrow),
+          heading: optionalText(block.heading),
+          description: optionalText(block.description),
           badges: (Array.isArray(block.badges) ? block.badges : [])
             .map((value) => group(value))
             .map((value) => ({

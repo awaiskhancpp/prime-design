@@ -79,8 +79,13 @@ export function PhotoPlateCard({
           className="absolute inset-x-0 top-0 h-0.5 bg-brass transition-colors duration-300 group-hover:bg-brass-deep"
         />
 
+        {/* One line, always. A project's category is 13–24 characters and
+            never comes close, but a blog post joins all of its categories in
+            here and three of them wrap — which drops that card's title a line
+            below every other title in the row. Clipped, every plate in a row
+            starts its heading at the same height. */}
         {eyebrow ? (
-          <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-brass-deep">
+          <p className="truncate text-[10px] font-semibold uppercase tracking-[0.18em] text-brass-deep">
             {eyebrow}
           </p>
         ) : null}

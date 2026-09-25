@@ -435,6 +435,26 @@ export const reviewHighlightsBlock: Block = {
   labels: { singular: 'Review Highlights', plural: 'Review Highlights' },
   fields: [
     {
+      /**
+       * The section's own heading, centred above the badges and the platform
+       * tabs. It had none: the Testimonials page introduced this strip with a
+       * separate Testimonials Spotlight section underneath it, and when that
+       * section was removed its eyebrow and heading moved up here, to the
+       * section they now introduce.
+       */
+      name: 'eyebrow',
+      type: 'text',
+    },
+    { name: 'heading', type: 'text' },
+    {
+      name: 'description',
+      type: 'textarea',
+      admin: {
+        description:
+          'Optional line under the heading. Left empty on the Testimonials page \u2014 the spotlight section this heading came from had a body, but it was not carried over.',
+      },
+    },
+    {
       name: 'badges',
       type: 'array',
       admin: { description: 'Rating badges shown across the top (Yelp, Google, Houzz, BBB).' },

@@ -129,7 +129,13 @@ function PageSectionNode({
       )
 
     case 'projects':
-      return <HomeProjects heading={section.content.heading} />
+      return (
+        <HomeProjects
+          eyebrow={section.content.eyebrow}
+          heading={section.content.heading}
+          headingHighlight={section.content.headingHighlight}
+        />
+      )
 
     case 'services': {
       // WordPress features six of the eleven services on the homepage. The
@@ -140,7 +146,9 @@ function PageSectionNode({
       const featured = all.filter((service) => service.featured)
       return (
         <HomeServices
+          eyebrow={section.content.eyebrow}
           heading={section.content.heading}
+          headingHighlight={section.content.headingHighlight}
           services={featured.length ? featured : all}
         />
       )

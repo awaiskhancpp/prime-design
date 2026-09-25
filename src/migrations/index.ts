@@ -68,6 +68,9 @@ import * as migration_20260925_130000_appointments_rename_and_customers from './
 import * as migration_20260925_140000_latepoint_field_parity from './20260925_140000_latepoint_field_parity'
 import * as migration_20260925_150000_booking_settings_appointment_minutes from './20260925_150000_booking_settings_appointment_minutes'
 import * as migration_20260925_160000_faq_category_sort_order from './20260925_160000_faq_category_sort_order'
+import * as migration_20260925_170000_review_highlights_heading from './20260925_170000_review_highlights_heading'
+import * as migration_20260925_180000_review_highlights_description from './20260925_180000_review_highlights_description'
+import * as migration_20260925_190000_testimonial_source_url from './20260925_190000_testimonial_source_url'
 
 export const migrations = [
   {
@@ -419,5 +422,20 @@ export const migrations = [
     up: migration_20260925_160000_faq_category_sort_order.up,
     down: migration_20260925_160000_faq_category_sort_order.down,
     name: '20260925_160000_faq_category_sort_order',
+  },
+  {
+    up: migration_20260925_170000_review_highlights_heading.up,
+    down: migration_20260925_170000_review_highlights_heading.down,
+    name: '20260925_170000_review_highlights_heading',
+  },
+  {
+    up: migration_20260925_180000_review_highlights_description.up,
+    down: migration_20260925_180000_review_highlights_description.down,
+    name: '20260925_180000_review_highlights_description',
+  },
+  {
+    up: migration_20260925_190000_testimonial_source_url.up,
+    down: migration_20260925_190000_testimonial_source_url.down,
+    name: '20260925_190000_testimonial_source_url',
   },
 ]
