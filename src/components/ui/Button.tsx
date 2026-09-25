@@ -66,8 +66,14 @@ function LineButton({
       <span className="relative z-10 inline-flex items-center gap-2 whitespace-nowrap">
         {children}
       </span>
+      {/* The underline, swept in from the left on hover.
+          Scaled rather than translated: at rest the translated copy sat
+          exactly one width to the left, and on a fractional x-position the
+          browser rounded its right edge back into the clipping box — which
+          painted a one-pixel dot under the first letter of every nav item.
+          `scale-x-0` from the left edge has no edge to round back in. */}
       <span className="absolute inset-x-0 bottom-0 h-px overflow-hidden" aria-hidden="true">
-        <span className="absolute inset-0 -translate-x-full bg-current transition-transform duration-300 ease-out group-hover:translate-x-0" />
+        <span className="absolute inset-0 origin-left scale-x-0 bg-current transition-transform duration-300 ease-out group-hover:scale-x-100" />
       </span>
     </>
   )

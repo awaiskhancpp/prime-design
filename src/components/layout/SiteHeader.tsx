@@ -149,7 +149,10 @@ export function SiteHeader({
                 className="flex w-14 shrink-0 items-center justify-center text-white/70 transition-colors hover:text-brass focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brass"
               >
                 <ChevronDown
-                  className={cn('h-6 w-6 transition-transform duration-200', expanded && 'rotate-180')}
+                  className={cn(
+                    'h-6 w-6 transition-transform duration-200',
+                    expanded && 'rotate-180',
+                  )}
                   aria-hidden="true"
                 />
               </button>
@@ -290,7 +293,13 @@ export function SiteHeader({
                         aria-expanded={expanded}
                         aria-controls={submenuId}
                         className={cn(
-                          'ml-1 p-1 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brass',
+                          // `pb-1.5` matches the label's: a `line` Button
+                          // reserves six pixels under its text for the hover
+                          // underline, so its text occupies the top of the
+                          // box while a symmetrically padded chevron centred
+                          // itself in the whole box — three pixels low. Same
+                          // bottom padding, same text band, same centre.
+                          'ml-1 px-1 pb-1.5 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brass',
                           linkClassName,
                         )}
                       >
