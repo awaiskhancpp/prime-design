@@ -357,19 +357,16 @@ export const Blog: CollectionConfig = {
           name: 'meta_title',
           type: 'text',
           required: false,
-          maxLength: 55,
           admin: {
-            description:
-              'Overrides the default title. Aim for 50–60 characters (hard limit 55 here).',
+            description: 'Overrides the default title. Aim for 50–60 characters; source titles are not truncated.',
           },
         },
         {
           name: 'meta_description',
           type: 'textarea',
           required: false,
-          maxLength: 155,
           admin: {
-            description: 'SEO description for search results (150–155 characters recommended)',
+            description: 'SEO description for search results (150–160 characters recommended; no hard limit).',
           },
         },
         {

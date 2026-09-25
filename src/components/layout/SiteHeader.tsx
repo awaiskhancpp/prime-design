@@ -20,6 +20,11 @@ import { BrandMark } from './BrandMark'
  * bar (84px); the measured value replaces it as soon as the page is at rest.
  */
 const FALLBACK_PIN_AFTER = 122
+type SiteNavItem = (typeof website.nav)[number]
+
+function dropdownId(prefix: string, href: string) {
+  return `${prefix}-${href.replace(/[^a-zA-Z0-9_-]/g, '-')}`
+}
 
 export function SiteHeader({
   tone = 'dark',
@@ -29,6 +34,26 @@ export function SiteHeader({
   variant?: 'full' | 'minimal'
 }) {
   const [isMenuOpen, setIsMenuOpen] = useState(false)
+  const [expandedMobileMenus, setExpandedMobileMenus] = useState<Set<string>>(() => new Set())
+  const [expandedDesktopMenus, setExpandedDesktopMenus] = useState<Set<string>>(() => new Set())
+
+  const toggleMobileMenu = (key: string) => {
+    setExpandedMobileMenus((current) => {
+      const next = new Set(current)
+      if (next.has(key)) next.delete(key)
+      else next.add(key)
+      return next
+    })
+  }
+
+  const toggleDesktopMenu = (key: string) => {
+    setExpandedDesktopMenus((current) => {
+      const next = new Set(current)
+      if (next.has(key)) next.delete(key)
+      else next.add(key)
+      return next
+    })
+  }
 
   /**
    * The header rests over the hero and pins to the top once it has scrolled
@@ -83,6 +108,62 @@ export function SiteHeader({
   )
 
   const linkClassName = isLight ? 'text-ink-2' : 'text-white'
+
+  const renderMobileItems = (items: SiteNavItem[], depth = 0) =>
+    items.map((item) => {
+      const hasChildren = Boolean(item.children?.length)
+      const expanded = expandedMobileMenus.has(item.href)
+      const submenuId = dropdownId('mobile-menu', item.href)
+      const itemLinkClass = cn(
+        'flex flex-1 items-center text-white transition-colors hover:text-brass',
+        depth === 0 ? 'min-h-[104px]' : 'min-h-14',
+        depth === 0 ? 'text-[28px] font-medium tracking-tight' : 'text-lg font-medium',
+      )
+
+      return (
+        <div key={item.href} className="border-b border-white/15">
+          <div className="flex items-stretch" style={{ paddingLeft: `${depth * 16}px` }}>
+            {item.href === '#' ? (
+              <button
+                type="button"
+                onClick={() => toggleMobileMenu(item.href)}
+                aria-expanded={expanded}
+                aria-controls={submenuId}
+                className={cn(itemLinkClass, 'text-left')}
+              >
+                {item.label}
+              </button>
+            ) : (
+              <Link href={item.href} onClick={() => setIsMenuOpen(false)} className={itemLinkClass}>
+                {item.label}
+              </Link>
+            )}
+
+            {hasChildren ? (
+              <button
+                type="button"
+                onClick={() => toggleMobileMenu(item.href)}
+                aria-label={`${expanded ? 'Collapse' : 'Expand'} ${item.label} menu`}
+                aria-expanded={expanded}
+                aria-controls={submenuId}
+                className="flex w-14 shrink-0 items-center justify-center text-white/70 transition-colors hover:text-brass focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brass"
+              >
+                <ChevronDown
+                  className={cn('h-6 w-6 transition-transform duration-200', expanded && 'rotate-180')}
+                  aria-hidden="true"
+                />
+              </button>
+            ) : null}
+          </div>
+
+          {hasChildren ? (
+            <div id={submenuId} hidden={!expanded}>
+              {renderMobileItems(item.children!, depth + 1)}
+            </div>
+          ) : null}
+        </div>
+      )
+    })
 
   return (
     <>
@@ -182,53 +263,101 @@ export function SiteHeader({
                     )
                   }
 
-                  return (
-                    <div key={item.label} className="group relative">
-                      <Button
-                        href={item.href === '#' ? undefined : item.href}
-                        variant="line"
-                        className={linkClassName}
-                      >
-                        {item.label}
+                  const expanded = expandedDesktopMenus.has(item.href)
+                  const submenuId = dropdownId('desktop-menu', item.href)
 
+                  return (
+                    <div key={item.label} className="group relative flex items-center">
+                      {item.href === '#' ? (
+                        <Button
+                          variant="line"
+                          onClick={() => toggleDesktopMenu(item.href)}
+                          aria-expanded={expanded}
+                          aria-controls={submenuId}
+                          className={linkClassName}
+                        >
+                          {item.label}
+                        </Button>
+                      ) : (
+                        <Button href={item.href} variant="line" className={linkClassName}>
+                          {item.label}
+                        </Button>
+                      )}
+                      <button
+                        type="button"
+                        onClick={() => toggleDesktopMenu(item.href)}
+                        aria-label={`${expanded ? 'Collapse' : 'Expand'} ${item.label} menu`}
+                        aria-expanded={expanded}
+                        aria-controls={submenuId}
+                        className={cn(
+                          'ml-1 p-1 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brass',
+                          linkClassName,
+                        )}
+                      >
                         <ChevronDown
-                          className="h-3.5 w-3.5 transition-transform duration-200 group-hover:rotate-180"
+                          className={cn(
+                            'h-3.5 w-3.5 transition-transform duration-200 group-hover:rotate-180',
+                            expanded && 'rotate-180',
+                          )}
                           aria-hidden="true"
                         />
-                      </Button>
+                      </button>
 
-                      <div className="invisible absolute left-1/2 top-full z-50 min-w-56 -translate-x-1/2 translate-y-2 border border-line bg-white py-2 opacity-0 shadow-lg transition-all duration-200 group-hover:visible group-hover:translate-y-0 group-hover:opacity-100 group-focus-within:visible group-focus-within:translate-y-0 group-focus-within:opacity-100">
-                        {item.children.map((child) => (
-                          <div key={child.label} className="group/sub relative">
-                            <Link
-                              href={child.href}
-                              className="flex items-center justify-between gap-5 px-5 py-2 text-sm font-medium normal-case tracking-normal text-ink-2 transition-colors hover:bg-paper-2 hover:text-brass"
-                            >
-                              {child.label}
+                      <div
+                        id={submenuId}
+                        className={cn(
+                          'invisible absolute left-1/2 top-full z-50 min-w-56 -translate-x-1/2 translate-y-2 border border-line bg-white py-2 opacity-0 shadow-lg transition-all duration-200 group-hover:visible group-hover:translate-y-0 group-hover:opacity-100 group-focus-within:visible group-focus-within:translate-y-0 group-focus-within:opacity-100',
+                          expanded && 'visible translate-y-0 opacity-100',
+                        )}
+                      >
+                        {item.children.map((child) => {
+                          const childExpanded = expandedDesktopMenus.has(child.href)
+                          const childSubmenuId = dropdownId('desktop-menu', child.href)
+
+                          return (
+                            <div key={child.label} className="group/sub relative flex items-center">
+                              <Link
+                                href={child.href}
+                                className="flex min-w-0 flex-1 items-center gap-5 px-5 py-2 text-sm font-medium normal-case tracking-normal text-ink-2 transition-colors hover:bg-paper-2 hover:text-brass"
+                              >
+                                {child.label}
+                              </Link>
 
                               {child.children?.length ? (
-                                <ChevronRight
-                                  className="h-4 w-4 text-ink-2/60"
-                                  aria-hidden="true"
-                                />
+                                <button
+                                  type="button"
+                                  onClick={() => toggleDesktopMenu(child.href)}
+                                  aria-label={`${childExpanded ? 'Collapse' : 'Expand'} ${child.label} menu`}
+                                  aria-expanded={childExpanded}
+                                  aria-controls={childSubmenuId}
+                                  className="flex h-9 w-9 shrink-0 items-center justify-center text-ink-2/60 hover:bg-paper-2 hover:text-brass focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brass"
+                                >
+                                  <ChevronRight className="h-4 w-4" aria-hidden="true" />
+                                </button>
                               ) : null}
-                            </Link>
 
-                            {child.children?.length ? (
-                              <div className="invisible absolute left-full top-0 z-50 min-w-56 border border-line bg-white py-2 opacity-0 shadow-lg transition duration-200 group-hover/sub:visible group-hover/sub:opacity-100">
-                                {child.children.map((nested) => (
-                                  <Link
-                                    key={nested.label}
-                                    href={nested.href}
-                                    className="block px-5 py-2 text-sm font-medium normal-case tracking-normal text-ink-2 transition-colors hover:bg-paper-2 hover:text-brass"
-                                  >
-                                    {nested.label}
-                                  </Link>
-                                ))}
-                              </div>
-                            ) : null}
-                          </div>
-                        ))}
+                              {child.children?.length ? (
+                                <div
+                                  id={childSubmenuId}
+                                  className={cn(
+                                    'invisible absolute left-full top-0 z-50 min-w-56 border border-line bg-white py-2 opacity-0 shadow-lg transition duration-200 group-hover/sub:visible group-hover/sub:opacity-100 group-focus-within/sub:visible group-focus-within/sub:opacity-100',
+                                    childExpanded && 'visible opacity-100',
+                                  )}
+                                >
+                                  {child.children.map((nested) => (
+                                    <Link
+                                      key={nested.label}
+                                      href={nested.href}
+                                      className="block px-5 py-2 text-sm font-medium normal-case tracking-normal text-ink-2 transition-colors hover:bg-paper-2 hover:text-brass"
+                                    >
+                                      {nested.label}
+                                    </Link>
+                                  ))}
+                                </div>
+                              ) : null}
+                            </div>
+                          )
+                        })}
                       </div>
                     </div>
                   )
@@ -301,21 +430,7 @@ export function SiteHeader({
 
           {/* Navigation */}
           <nav className="flex flex-1 flex-col overflow-y-auto px-5">
-            {primaryLinks.map((item) => (
-              <div key={item.label} className="border-b border-white/15">
-                <Link
-                  href={item.href === '#' ? '/' : item.href}
-                  onClick={() => setIsMenuOpen(false)}
-                  className="flex min-h-[104px] items-center justify-between text-[28px] font-medium tracking-tight text-white transition-colors hover:text-brass"
-                >
-                  {item.label}
-
-                  {item.children?.length ? (
-                    <ChevronRight className="h-7 w-7 text-white/50" aria-hidden="true" />
-                  ) : null}
-                </Link>
-              </div>
-            ))}
+            {renderMobileItems(primaryLinks)}
 
             <div className="border-b border-white/15">
               <Link

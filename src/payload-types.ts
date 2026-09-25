@@ -3309,11 +3309,11 @@ export interface Blog {
   relatedPosts?: (number | Blog)[] | null;
   seo?: {
     /**
-     * Overrides the default title. Aim for 50–60 characters (hard limit 55 here).
+     * Overrides the default title. Aim for 50–60 characters; source titles are not truncated.
      */
     meta_title?: string | null;
     /**
-     * SEO description for search results (150–155 characters recommended)
+     * SEO description for search results (150–160 characters recommended; no hard limit).
      */
     meta_description?: string | null;
     /**

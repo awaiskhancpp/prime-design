@@ -97,7 +97,7 @@ export default async function FrontendTemplate({ children }: { children: React.R
   // NotFoundPage instead marks itself with `data-light-chrome`, which the
   // `styles.css` override recolours regardless of the (necessarily wrong)
   // tone guessed here. See the comment there.
-  const lightChromePaths = ['team', 'search', 'thank-you']
+  const lightChromePaths = ['team', 'search', 'thank-you', 'book-online']
   const headerTone =
     segments.length === 1 && lightChromePaths.includes(segments[0]) ? 'light' : 'dark'
 

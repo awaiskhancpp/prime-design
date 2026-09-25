@@ -63,6 +63,9 @@ type WordPressBlogPost = {
   /** Direct featured-image URL (REST source) — preferred over thumbnailId. */
   thumbnailUrl?: string
   excerptFromRankMath?: string
+  seoTitleFromRankMath?: string
+  seoDescriptionFromRankMath?: string
+  seoCanonicalFromRankMath?: string
   sourceUrl?: string
 }
 
@@ -106,6 +109,9 @@ function parseBlogPosts(xml: string): WordPressBlogPost[] {
         categories: categoriesOf(item),
         thumbnailId: thumb ? Number(thumb) : undefined,
         excerptFromRankMath: metaValue(item, 'rank_math_description'),
+        seoTitleFromRankMath: metaValue(item, 'rank_math_title'),
+        seoDescriptionFromRankMath: metaValue(item, 'rank_math_description'),
+        seoCanonicalFromRankMath: metaValue(item, 'rank_math_canonical_url'),
         sourceUrl: field(item, 'link'),
       },
     ]
@@ -641,16 +647,30 @@ async function main() {
   // Excerpts come from the XML export's rank_math_description (the REST
   // auto-excerpt is truncated with "[…]"). Posts without one get an excerpt
   // cut from their own content.
-  const rankMathByPostId = new Map<number, string>()
+  const rankMathByPostId = new Map<
+    number,
+    { title?: string; description?: string; canonicalUrl?: string }
+  >()
   for (const match of xml.matchAll(/<item>([\s\S]*?)<\/item>/g)) {
     const item = match[1]
     if (field(item, 'wp:post_type') !== 'post') continue
     const id = Number(field(item, 'wp:post_id'))
+    if (!id) continue
+    const title = metaValue(item, 'rank_math_title')
     const description = metaValue(item, 'rank_math_description')
-    if (id && description) rankMathByPostId.set(id, description)
+    const canonicalUrl = metaValue(item, 'rank_math_canonical_url')
+    rankMathByPostId.set(id, {
+      title: title || undefined,
+      description: description || undefined,
+      canonicalUrl: canonicalUrl || undefined,
+    })
   }
   for (const post of posts) {
-    post.excerptFromRankMath = rankMathByPostId.get(post.id) ?? contentExcerpt(post.content)
+    const sourceSeo = rankMathByPostId.get(post.id)
+    post.seoTitleFromRankMath = sourceSeo?.title
+    post.seoDescriptionFromRankMath = sourceSeo?.description
+    post.seoCanonicalFromRankMath = sourceSeo?.canonicalUrl
+    post.excerptFromRankMath = sourceSeo?.description ?? contentExcerpt(post.content)
   }
 
   // Authors come from the XML export's <wp:author> list. The REST API only
@@ -859,6 +879,13 @@ async function main() {
     const { intro, content } = convertToLexical(contentHtml)
     const safeIntro = intro ? fixLexicalForPayload(intro) : null
     const safeContent = fixLexicalForPayload(content)
+    const seo = {
+      ...(post.seoTitleFromRankMath ? { meta_title: post.seoTitleFromRankMath } : {}),
+      ...(post.seoDescriptionFromRankMath
+        ? { meta_description: post.seoDescriptionFromRankMath }
+        : {}),
+      ...(post.seoCanonicalFromRankMath ? { canonical_url: post.seoCanonicalFromRankMath } : {}),
+    }
     const record = {
       title: post.title,
       slug: post.slug,
@@ -872,7 +899,7 @@ async function main() {
       author: authorUserId,
       intro: safeIntro,
       content: safeContent,
-      seo: post.excerptFromRankMath ? { metaDescription: post.excerptFromRankMath } : undefined,
+      seo: Object.keys(seo).length ? seo : undefined,
     }
 
     const existing = await payload.find({

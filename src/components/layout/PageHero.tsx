@@ -96,7 +96,7 @@ export function PageHero({
 
         // Mobile
         'px-0',
-        'pb-12',
+        'pb-10',
         'pt-[180px]',
 
         // Small tablets
@@ -104,9 +104,9 @@ export function PageHero({
         'sm:pt-[190px]',
 
         // Desktop
-        'md:pb-24',
+        'md:pb-18',
         'md:pt-40',
-        'lg:pb-28',
+        'lg:pb-18',
       ].join(' ')}
     >
       {/* =========================================================
@@ -150,9 +150,9 @@ export function PageHero({
           OVERLAYS
           ========================================================= */}
 
-      <div className="pointer-events-none absolute inset-0 -z-10 bg-gradient-to-r from-ink/55 via-ink/20 to-transparent" />
+      <div className="pointer-events-none absolute inset-0 -z-10 bg-gradient-to-r from-ink/35 via-ink/15 to-transparent" />
 
-      <div className="pointer-events-none absolute inset-0 -z-10 bg-gradient-to-t from-ink/45 via-transparent to-ink/10" />
+      <div className="pointer-events-none absolute inset-0 -z-10 bg-gradient-to-t from-ink/25 via-transparent to-ink/10" />
 
       {/* =========================================================
           OPTIONAL HEADER
