@@ -45,7 +45,7 @@ function ImageGrid({ images, alt }: { images: string[]; alt: string }) {
           alt={alt}
           fill
           className="object-cover"
-          sizes="(min-width: 768px) 45vw, 100vw"
+          sizes="(min-width: 1024px) 45vw, 92vw"
         />
       </div>
     )
@@ -64,7 +64,7 @@ function ImageGrid({ images, alt }: { images: string[]; alt: string }) {
               alt={`${alt} ${index + 1}`}
               fill
               className="object-cover"
-              sizes="22vw"
+              sizes="(min-width: 1024px) 22vw, 46vw"
             />
           </div>
         ))}
@@ -76,7 +76,7 @@ function ImageGrid({ images, alt }: { images: string[]; alt: string }) {
     return (
       <div className="grid grid-cols-2 gap-4">
         <div className="relative row-span-2 aspect-[3/5] overflow-hidden">
-          <Image src={shown[0]} alt={`${alt} 1`} fill className="object-cover" sizes="22vw" />
+          <Image src={shown[0]} alt={`${alt} 1`} fill className="object-cover" sizes="(min-width: 1024px) 22vw, 46vw" />
         </div>
         {shown.slice(1).map((src, index) => (
           <div key={`${src}-${index}`} className="relative aspect-[4/3] overflow-hidden">
@@ -85,7 +85,7 @@ function ImageGrid({ images, alt }: { images: string[]; alt: string }) {
               alt={`${alt} ${index + 2}`}
               fill
               className="object-cover"
-              sizes="22vw"
+              sizes="(min-width: 1024px) 22vw, 46vw"
             />
           </div>
         ))}
@@ -100,18 +100,18 @@ function ImageGrid({ images, alt }: { images: string[]; alt: string }) {
     <div className="grid grid-cols-2 gap-4">
       <div className="grid gap-4">
         <div className="relative aspect-[4/3] overflow-hidden">
-          <Image src={shown[0]} alt={`${alt} 1`} fill className="object-cover" sizes="22vw" />
+          <Image src={shown[0]} alt={`${alt} 1`} fill className="object-cover" sizes="(min-width: 1024px) 22vw, 46vw" />
         </div>
         <div className="relative aspect-[3/4] overflow-hidden">
-          <Image src={shown[2]} alt={`${alt} 3`} fill className="object-cover" sizes="22vw" />
+          <Image src={shown[2]} alt={`${alt} 3`} fill className="object-cover" sizes="(min-width: 1024px) 22vw, 46vw" />
         </div>
       </div>
       <div className="grid gap-4 md:mt-10">
         <div className="relative aspect-[3/4] overflow-hidden">
-          <Image src={shown[1]} alt={`${alt} 2`} fill className="object-cover" sizes="22vw" />
+          <Image src={shown[1]} alt={`${alt} 2`} fill className="object-cover" sizes="(min-width: 1024px) 22vw, 46vw" />
         </div>
         <div className="relative aspect-[4/3] overflow-hidden">
-          <Image src={shown[3]} alt={`${alt} 4`} fill className="object-cover" sizes="22vw" />
+          <Image src={shown[3]} alt={`${alt} 4`} fill className="object-cover" sizes="(min-width: 1024px) 22vw, 46vw" />
         </div>
       </div>
     </div>
@@ -139,7 +139,14 @@ export function ServiceIconChecklistGallerySection({
   return (
     <section className=" py-16 md:py-24">
       <Container>
-        <div className="grid gap-14 md:grid-cols-[1.05fr_0.95fr] md:items-start md:gap-16">
+        {/*
+          Two columns from `lg`, not `md`. At 768–1023px the two-column split
+          left the gallery roughly 340px wide, so each of the four photos was
+          about 160px — too small to read. Below `lg` the grid stays single
+          column, which puts the photos under the checklist at full width
+          (they are the second child, so that is the order they stack in).
+        */}
+        <div className="grid gap-14 lg:grid-cols-[1.05fr_0.95fr] lg:items-start lg:gap-16">
           <div>
             <SectionHeader eyebrow={eyebrow} title={heading} className="max-w-none" />
             {/* Short brass rule — same header anchor used by the sibling

@@ -75,6 +75,19 @@ export type SiteSettingsValue = {
     stats?: Array<{ value?: string; label?: string; showStars?: boolean }>
     buttons?: Array<{ label: string; url: string; variant?: string }>
   }
+  /**
+   * Platform marks and headline figures for the "See what people are saying
+   * about us" sections. The reviews themselves are Testimonials records; these
+   * are the two things that sit around them.
+   */
+  reviews?: {
+    googleIcon?: string
+    yelpIcon?: string
+    googleRating?: number
+    googleReviewCount?: number
+    yelpRating?: number
+    yelpReviewCount?: number
+  }
 }
 
 /** `latitude`/`longitude` drive this area's pin on the coverage map. They are
@@ -163,6 +176,14 @@ type PayloadSiteSettings = {
       showStars?: boolean | null
     }> | null
     buttons?: Array<{ label?: string | null; url?: string | null; variant?: string | null }> | null
+  } | null
+  reviews?: {
+    googleIcon?: { url?: string | null } | number | null
+    yelpIcon?: { url?: string | null } | number | null
+    googleRating?: number | null
+    googleReviewCount?: number | null
+    yelpRating?: number | null
+    yelpReviewCount?: number | null
   } | null
 }
 
@@ -284,6 +305,19 @@ export async function resolveSiteSettings(): Promise<SiteSettingsValue> {
                 ]
               : [],
           ),
+        }
+      : undefined,
+    // Reviews — the platform marks and the headline figures. Payload only:
+    // an empty field renders nothing rather than falling back to a hardcoded
+    // logo or count, so what the admin sees is what the page shows.
+    reviews: settings.reviews
+      ? {
+          googleIcon: mediaUrl(settings.reviews.googleIcon),
+          yelpIcon: mediaUrl(settings.reviews.yelpIcon),
+          googleRating: numberOr(settings.reviews.googleRating),
+          googleReviewCount: numberOr(settings.reviews.googleReviewCount),
+          yelpRating: numberOr(settings.reviews.yelpRating),
+          yelpReviewCount: numberOr(settings.reviews.yelpReviewCount),
         }
       : undefined,
   }

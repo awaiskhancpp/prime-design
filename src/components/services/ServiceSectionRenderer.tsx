@@ -1,6 +1,6 @@
 import { Fragment, type ReactNode } from 'react'
 import { Contact as GalleryContact } from '@/components/gallery/Contact'
-import { ProjectsReviews } from '@/components/projects/ProjectsReviews'
+import { ProjectsReviewsSection } from '@/components/projects/ProjectsReviewsSection'
 import type { ServiceDetail } from '@/lib/services'
 import { ServiceProcessSection } from './ServiceProcessSection'
 import { ServiceOfferingsSection } from './ServiceOfferingsSection'
@@ -384,7 +384,7 @@ function renderTestimonials(
     }
   }
   if (blockType === 'testimonials') {
-    return { key: 'reviews', node: <ProjectsReviews /> }
+    return { key: 'reviews', node: <ProjectsReviewsSection /> }
   }
   return null
 }

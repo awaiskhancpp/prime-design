@@ -61,6 +61,7 @@ import * as migration_20260924_160000_service_intro_heading_and_video_eyebrow fr
 import * as migration_20260924_170000_video_eyebrow_shared_block from './20260924_170000_video_eyebrow_shared_block'
 import * as migration_20260924_180000_consultation_duration_and_note from './20260924_180000_consultation_duration_and_note'
 import * as migration_20260924_190000_booking_settings from './20260924_190000_booking_settings'
+import * as migration_20260925_100000_site_settings_reviews from './20260925_100000_site_settings_reviews'
 
 export const migrations = [
   {
@@ -377,5 +378,10 @@ export const migrations = [
     up: migration_20260924_190000_booking_settings.up,
     down: migration_20260924_190000_booking_settings.down,
     name: '20260924_190000_booking_settings',
+  },
+  {
+    up: migration_20260925_100000_site_settings_reviews.up,
+    down: migration_20260925_100000_site_settings_reviews.down,
+    name: '20260925_100000_site_settings_reviews',
   },
 ]

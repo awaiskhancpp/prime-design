@@ -510,6 +510,19 @@ async function resolveOneContentImage(
   placeholderBuffer: Buffer | undefined,
   nextGoogleIndex: () => number,
 ): Promise<ResolvedContentImage | undefined> {
+  // WordPress embeds the attachment ID in `wp-image-####` even when the URL
+  // has been resized, proxied, or its filename collides with another upload.
+  // Resolve this stable source identity before trying URL/filename heuristics.
+  const sourceAttachmentId = tag?.match(/\bwp-image-(\d+)\b/)?.[1]
+  if (sourceAttachmentId) {
+    const byWordPressId = await payload.find({
+      collection: 'media',
+      where: { wordpressId: { equals: Number(sourceAttachmentId) } },
+      limit: 1,
+    })
+    if (byWordPressId.docs[0]) return { id: Number(byWordPressId.docs[0].id) }
+  }
+
   // 1. Already-imported media with the exact source URL.
   const byUrl = await payload.find({
     collection: 'media',

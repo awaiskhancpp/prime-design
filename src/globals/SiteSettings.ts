@@ -74,6 +74,54 @@ export const SiteSettings: GlobalConfig = {
       ],
     },
     {
+      name: 'reviews',
+      type: 'group',
+      label: 'Reviews',
+      admin: {
+        description:
+          'The "See what people are saying about us" sections. The reviews themselves are the Testimonials collection (mark the ones you want with Featured); these are the platform marks shown beside each review and the headline figures above them.',
+      },
+      fields: [
+        {
+          type: 'row',
+          fields: [
+            {
+              name: 'googleIcon',
+              type: 'upload',
+              relationTo: 'media',
+              label: 'Google mark',
+              admin: {
+                width: '50%',
+                description: 'Shown on each review whose source is Google.',
+              },
+            },
+            {
+              name: 'yelpIcon',
+              type: 'upload',
+              relationTo: 'media',
+              label: 'Yelp mark',
+              admin: {
+                width: '50%',
+                description: 'Shown on each review whose source is Yelp.',
+              },
+            },
+          ],
+        },
+        { name: 'googleRating', type: 'number', admin: { step: 0.1, description: 'e.g. 4.9' } },
+        {
+          name: 'googleReviewCount',
+          type: 'number',
+          admin: { description: 'e.g. 56 — the platform total, not the number of records here.' },
+        },
+        { name: 'yelpRating', type: 'number', admin: { step: 0.1, description: 'e.g. 4.9' } },
+        {
+          name: 'yelpReviewCount',
+          type: 'number',
+          admin: { description: 'e.g. 64' },
+        },
+      ],
+    },
+    {
       name: 'serviceAreas',
       type: 'array',
       fields: [{ name: 'location', type: 'relationship', relationTo: 'locations' }],

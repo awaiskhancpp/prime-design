@@ -1,4 +1,4 @@
-import { ProjectsReviews } from '@/components/projects/ProjectsReviews'
+import { ProjectsReviewsSection } from '@/components/projects/ProjectsReviewsSection'
 import { LandscapingServiceAreas } from '@/components/blocks/LandscapingServiceAreas'
 import { PageHero } from '@/components/layout/PageHero'
 import { Section } from '@/components/ui/Section'
@@ -74,7 +74,7 @@ export async function BlogPage() {
             : 'Contact us here or reach us at (650) 235-4863'
         }
       />
-      <ProjectsReviews />
+      <ProjectsReviewsSection />
       <LandscapingServiceAreas />
     </div>
   )

@@ -7693,6 +7693,35 @@ export interface SiteSetting {
     houzz?: string | null;
     bbb?: string | null;
   };
+  /**
+   * The "See what people are saying about us" sections. The reviews themselves are the Testimonials collection (mark the ones you want with Featured); these are the platform marks shown beside each review and the headline figures above them.
+   */
+  reviews?: {
+    /**
+     * Shown on each review whose source is Google.
+     */
+    googleIcon?: (number | null) | Media;
+    /**
+     * Shown on each review whose source is Yelp.
+     */
+    yelpIcon?: (number | null) | Media;
+    /**
+     * e.g. 4.9
+     */
+    googleRating?: number | null;
+    /**
+     * e.g. 56 — the platform total, not the number of records here.
+     */
+    googleReviewCount?: number | null;
+    /**
+     * e.g. 4.9
+     */
+    yelpRating?: number | null;
+    /**
+     * e.g. 64
+     */
+    yelpReviewCount?: number | null;
+  };
   serviceAreas?:
     | {
         location?: (number | null) | Location;
@@ -7854,6 +7883,16 @@ export interface SiteSettingsSelect<T extends boolean = true> {
         yelp?: T;
         houzz?: T;
         bbb?: T;
+      };
+  reviews?:
+    | T
+    | {
+        googleIcon?: T;
+        yelpIcon?: T;
+        googleRating?: T;
+        googleReviewCount?: T;
+        yelpRating?: T;
+        yelpReviewCount?: T;
       };
   serviceAreas?:
     | T

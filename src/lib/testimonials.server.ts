@@ -5,6 +5,8 @@ export type FeaturedTestimonial = {
   source: string
   rating: number
   summary: string
+  /** Relative date as the review platform shows it, e.g. "5 months ago". */
+  timeAgo?: string
 }
 
 export async function getFeaturedTestimonials(): Promise<FeaturedTestimonial[]> {
@@ -32,6 +34,7 @@ export async function getFeaturedTestimonials(): Promise<FeaturedTestimonial[]> 
       quote?: string
       rating?: number
       source?: string
+      timeAgo?: string
     }>).filter((doc) => doc.name && doc.quote)
     if (docs.length) {
       return docs.map((doc) => ({
@@ -39,6 +42,7 @@ export async function getFeaturedTestimonials(): Promise<FeaturedTestimonial[]> 
         source: (doc.source || 'Google').toString(),
         rating: doc.rating ?? 5,
         summary: doc.quote as string,
+        timeAgo: doc.timeAgo || undefined,
       }))
     }
     return []

@@ -5,7 +5,7 @@ import { resolvePageBySlug } from '@/lib/pages'
 import { resolveProjects } from '@/lib/projects'
 import { resolveSiteSettings } from '@/lib/siteSettings'
 import { ProjectCard } from './ProjectCard'
-import { ProjectsReviews } from './ProjectsReviews'
+import { ProjectsReviewsSection } from './ProjectsReviewsSection'
 import { ProjectsTrustIntro } from './ProjectsTrustIntro'
 
 export async function ProjectsPage() {
@@ -55,7 +55,7 @@ export async function ProjectsPage() {
         stats={trust?.stats}
         buttons={trust?.buttons}
       />
-      <ProjectsReviews />
+      <ProjectsReviewsSection />
       <LandscapingServiceAreas />
     </div>
   )
