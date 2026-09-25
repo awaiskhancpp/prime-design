@@ -29,6 +29,9 @@ export const metadata: Metadata = {
     template: `%s`,
   },
   description: 'Prime Design & Build — thoughtful spaces, carefully built in Silicon Valley.',
+  icons: {
+    icon: '/api/media/file/cropped-Prime-Kitchens-Logo-1.png',
+  },
   applicationName: SITE_NAME,
   authors: [{ name: SITE_NAME, url: SITE_URL }],
   creator: SITE_NAME,

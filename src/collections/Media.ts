@@ -8,6 +8,20 @@ export const Media: CollectionConfig = {
   access: {
     read: () => true,
   },
+  hooks: {
+    beforeValidate: [
+      ({ data, originalDoc, req }) => {
+        if (!data || (typeof data.alt === 'string' && data.alt.trim())) return data
+
+        const filename = req.file?.name || data.filename || originalDoc?.filename
+        if (typeof filename === 'string' && filename.trim()) {
+          data.alt = filename.trim()
+        }
+
+        return data
+      },
+    ],
+  },
   fields: [
     {
       name: 'alt',
