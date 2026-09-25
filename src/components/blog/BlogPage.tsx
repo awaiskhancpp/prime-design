@@ -31,6 +31,7 @@ export async function BlogPage() {
   return (
     <div className="min-h-screen bg-white">
       <PageHero
+        eyebrow={hero?.eyebrow}
         title={hero?.heading || 'See our blog'}
         description={
           hero?.description ?? (

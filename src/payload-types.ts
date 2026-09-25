@@ -259,6 +259,10 @@ export interface FaqCategory {
   id: number;
   title: string;
   slug: string;
+  /**
+   * Lowest first on the FAQ page.
+   */
+  sortOrder?: number | null;
   updatedAt: string;
   createdAt: string;
 }
@@ -1388,6 +1392,10 @@ export interface Service {
                     | boolean
                     | null;
                   sourceId?: string | null;
+                  /**
+                   * Optional. Show these questions, in this order, instead of the category’s own order.
+                   */
+                  faqOrder?: (number | Faq)[] | null;
                   id?: string | null;
                 }[]
               | null;
@@ -5016,6 +5024,7 @@ export interface FaqsSelect<T extends boolean = true> {
 export interface FaqCategoriesSelect<T extends boolean = true> {
   title?: T;
   slug?: T;
+  sortOrder?: T;
   updatedAt?: T;
   createdAt?: T;
 }
@@ -5869,6 +5878,7 @@ export interface ServicesSelect<T extends boolean = true> {
                         };
                     sourceQuery?: T;
                     sourceId?: T;
+                    faqOrder?: T;
                     id?: T;
                   };
               sourceId?: T;

@@ -2,6 +2,7 @@ import type { Block } from 'payload'
 import {
   buttonGroupFields,
   faqCategoryFields,
+  faqOrderField,
   featureCardFields,
   galleryItemFields,
   iconReferenceFields,
@@ -519,6 +520,23 @@ export const landingPageBlocks: Block[] = [
  * than a second hand-maintained list) means a block added for landing pages
  * never silently appears in the Services admin again.
  */
-export const servicePageBlocks: Block[] = landingPageBlocks.filter(
-  (block) => !LANDING_ONLY_BLOCK_SLUGS.has(block.slug),
-)
+/**
+ * The Services copy of the FAQ block. Identical to the landing pages' one
+ * except that its categories carry `faqOrder` — see `faqOrderField`. Only the
+ * service pages need it (only they show the same category as /faq in a
+ * different order), and giving it to landing pages as well would mean a
+ * `landing_pages_rels` table for a field nothing there would ever set.
+ */
+const serviceFaqBlock: Block = base('faq', 'FAQ', [
+  text('heading'),
+  description(),
+  {
+    name: 'categories',
+    type: 'array' as const,
+    fields: [...faqCategoryFields(), faqOrderField()],
+  },
+])
+
+export const servicePageBlocks: Block[] = landingPageBlocks
+  .filter((block) => !LANDING_ONLY_BLOCK_SLUGS.has(block.slug))
+  .map((block) => (block.slug === 'faq' ? serviceFaqBlock : block))

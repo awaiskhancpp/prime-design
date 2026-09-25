@@ -27,7 +27,12 @@ export type FaqIndexCategory = {
   items: FaqIndexItem[]
 }
 
-type CategoryDoc = { id: number | string; title?: string | null; slug?: string | null }
+type CategoryDoc = {
+  id: number | string
+  title?: string | null
+  slug?: string | null
+  sortOrder?: number | null
+}
 type FaqDoc = {
   id: number | string
   question?: string | null
@@ -39,7 +44,8 @@ const categoryId = (value: FaqDoc['category']) =>
   value && typeof value === 'object' ? String(value.id) : value != null ? String(value) : null
 
 /**
- * Every visible FAQ, grouped into its category and ordered by `sortOrder`.
+ * Every visible FAQ, grouped into its category and ordered by `sortOrder` —
+ * both the questions within a category and the categories themselves.
  * Categories with no visible questions are dropped so the page never renders
  * an empty heading. Returns an empty list when there is no database — the
  * section then renders its own copy with no questions rather than falling back
@@ -51,7 +57,7 @@ export async function resolveFaqIndex(): Promise<FaqIndexCategory[]> {
     const payload = await getPayload({ config: configPromise })
 
     const [categories, faqs] = await Promise.all([
-      payload.find({ collection: 'faq-categories', depth: 0, limit: 200, sort: 'title' }),
+      payload.find({ collection: 'faq-categories', depth: 0, limit: 200, sort: 'sortOrder' }),
       payload.find({
         collection: 'faqs',
         where: { visible: { equals: true } },

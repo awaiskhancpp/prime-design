@@ -21,6 +21,7 @@ export async function ProjectsPage() {
   return (
     <div className="min-h-screen ">
       <PageHero
+        eyebrow={hero?.eyebrow}
         title={hero?.heading || 'Showcasing our latest remodeling projects in Silicon Valley'}
         description={
           hero?.description ??

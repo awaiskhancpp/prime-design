@@ -67,6 +67,7 @@ import * as migration_20260925_120000_policy_next_steps_link_list_blocks from '.
 import * as migration_20260925_130000_appointments_rename_and_customers from './20260925_130000_appointments_rename_and_customers'
 import * as migration_20260925_140000_latepoint_field_parity from './20260925_140000_latepoint_field_parity'
 import * as migration_20260925_150000_booking_settings_appointment_minutes from './20260925_150000_booking_settings_appointment_minutes'
+import * as migration_20260925_160000_faq_category_sort_order from './20260925_160000_faq_category_sort_order'
 
 export const migrations = [
   {
@@ -413,5 +414,10 @@ export const migrations = [
     up: migration_20260925_150000_booking_settings_appointment_minutes.up,
     down: migration_20260925_150000_booking_settings_appointment_minutes.down,
     name: '20260925_150000_booking_settings_appointment_minutes',
+  },
+  {
+    up: migration_20260925_160000_faq_category_sort_order.up,
+    down: migration_20260925_160000_faq_category_sort_order.down,
+    name: '20260925_160000_faq_category_sort_order',
   },
 ]

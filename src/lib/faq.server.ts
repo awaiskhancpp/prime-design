@@ -27,6 +27,43 @@ export const serviceFaqCategories: Record<string, { categoryTitle: string }> = {
   finance: { categoryTitle: 'Finance Questions' },
 }
 
+/**
+ * Specific questions, in the order given.
+ *
+ * Used by a page whose FAQ section runs in a different order from the
+ * category's own — see `faqOrderField`. Payload returns the matched records in
+ * its own order, so they are re-sorted here into the order that was asked for;
+ * an id that no longer exists is simply absent rather than leaving a hole.
+ */
+export async function getFaqItemsById(ids: Array<number | string>): Promise<FaqItem[]> {
+  if (!process.env.DATABASE_URL || !ids.length) return []
+  try {
+    const { getPayload } = await import('payload')
+    const configPromise = (await import('@payload-config')).default
+    const payload = await getPayload({ config: configPromise })
+    const faqs = await payload.find({
+      collection: 'faqs',
+      where: { id: { in: ids } },
+      depth: 0,
+      limit: 200,
+    })
+    const byId = new Map(
+      (faqs.docs as Array<{ id: number | string; question?: string; answer?: unknown }>).map(
+        (doc) => [String(doc.id), doc],
+      ),
+    )
+    return ids
+      .map((id) => byId.get(String(id)))
+      .filter((doc): doc is { id: number | string; question: string; answer: unknown } =>
+        Boolean(doc?.question && doc?.answer),
+      )
+      .map((doc) => ({ question: doc.question, answer: doc.answer as RichTextValue }))
+  } catch (error) {
+    console.error('getFaqItemsById: could not load the ordered FAQs', error)
+    return []
+  }
+}
+
 export async function getFaqItems(categoryTitle: string): Promise<FaqItem[]> {
   if (!process.env.DATABASE_URL) return []
   try {

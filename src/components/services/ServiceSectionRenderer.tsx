@@ -488,6 +488,28 @@ const cta = (value: unknown): { label: string; href: string } | undefined => {
 const descriptionText = (block: RawBlock): string =>
   typeof block.description === 'string' ? block.description : richTextToPlainText(block.description)
 
+/**
+ * The FAQ section's own question order, if the CMS block sets one.
+ *
+ * It lives on the block's first category (`categories[0].faqOrder`), where the
+ * admin puts it, and is only set where a page runs the category in a different
+ * order from /faq — see `faqOrderField`. `depth` may have populated each entry
+ * into a whole FAQ document, so ids are taken from either shape.
+ */
+const faqOrderFrom = (block: RawBlock): Array<number | string> | undefined => {
+  const categories = Array.isArray(block.categories) ? block.categories : []
+  const first = categories[0] as { faqOrder?: unknown } | undefined
+  const order = Array.isArray(first?.faqOrder) ? first.faqOrder : []
+  const ids = order
+    .map((entry) =>
+      entry && typeof entry === 'object' && 'id' in entry
+        ? (entry as { id: number | string }).id
+        : (entry as number | string),
+    )
+    .filter((id) => typeof id === 'number' || typeof id === 'string')
+  return ids.length ? ids : undefined
+}
+
 const descriptionRich = (block: RawBlock): RichTextValue | undefined =>
   richTextHasContent(block.description as RichTextValue)
     ? (block.description as RichTextValue)
@@ -748,6 +770,7 @@ export function renderSection(
           slug={service.slug}
           heading={headingText || undefined}
           description={descriptionText(block) || undefined}
+          faqOrder={faqOrderFrom(block)}
         />
       ),
     }

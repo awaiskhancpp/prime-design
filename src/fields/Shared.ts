@@ -71,6 +71,31 @@ export const faqQuestionFields = (): Field[] => [
   { name: 'sourceId', type: 'text' },
 ]
 
+/**
+ * An explicit order for the questions a page's FAQ section shows.
+ *
+ * WordPress does not agree with itself about this: Home Remodel Questions run
+ * "how long / design services / can I make changes / what types" on /faq, and
+ * "can I make changes / how long / design services / what types" on
+ * /home-remodeling. One `sortOrder` on the FAQ record cannot be both, so a
+ * page that needs its own sequence names it here. Left empty — which is every
+ * other page — the section falls back to the category's own order.
+ *
+ * A relationship rather than a list of question strings: the FAQs collection
+ * already holds these, and a text copy would be a second spelling of the
+ * question to keep in step (see §7 of CLAUDE.md).
+ */
+export const faqOrderField = (): Field => ({
+  name: 'faqOrder',
+  type: 'relationship',
+  relationTo: 'faqs',
+  hasMany: true,
+  admin: {
+    description:
+      'Optional. Show these questions, in this order, instead of the category’s own order.',
+  },
+})
+
 export const faqCategoryFields = (): Field[] => [
   { name: 'title', type: 'text', required: true },
   {
