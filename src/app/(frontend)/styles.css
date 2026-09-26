@@ -5,6 +5,11 @@
   --color-ink-2: #1F3358;
   --color-brass: #C19A5B;
   --color-brass-deep: #8F6C3E;
+  /* The gold the WordPress landing pages actually band with. It is the
+     original's own `--latepoint-brand-primary`, and it is lighter than
+     `--color-brass`: `#C19A5B` appears nowhere on those pages. Used for the
+     full-width CTA bands, where the darker brass sat too close to the ink. */
+  --color-brass-light: #E9BB6D;
   --color-paper: #FAF7F2;
   --color-paper-2: #F1ECE3;
   --color-line: #E4DED2;

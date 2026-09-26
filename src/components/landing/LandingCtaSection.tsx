@@ -29,11 +29,20 @@ export function LandingCtaSection({
   image?: string
 }) {
   return (
-    <Section className="bg-brass text-ink">
+    <Section className="bg-brass-light text-ink">
       <div className={`grid gap-8 md:items-start ${image ? 'md:grid-cols-[280px_1fr]' : ''}`}>
         {image ? (
-          <div className="relative aspect-[4/3] w-full max-w-[280px] overflow-hidden  bg-ink-2/10">
-            <Image src={image} alt={heading || ''} fill className="object-cover" sizes="280px" />
+          /* Full width on a phone, where the band is a single column and a
+             280px photo left a third of the row empty beside it; the 280px
+             cap returns at `md`, where the grid puts the copy alongside. */
+          <div className="relative aspect-[4/3] w-full overflow-hidden bg-ink-2/10 md:max-w-[280px]">
+            <Image
+              src={image}
+              alt={heading || ''}
+              fill
+              className="object-cover"
+              sizes="(min-width: 768px) 280px, 100vw"
+            />
           </div>
         ) : null}
         <div className="text-left">

@@ -2,14 +2,37 @@ import { getPayload } from 'payload'
 import configPromise from '@payload-config'
 import type { ServiceLocation } from './serviceLocations'
 
-// The WordPress 3261 "Areas we service" city list, in its exact order.
-// San Jose is intentionally absent — WordPress doesn't list it in this
-// section (its location page still exists and stays reachable).
-const cityOrder = [
-  'Palo Alto', 'Los Gatos', 'Los Altos', 'Saratoga', 'Fremont', 'Santa Clara',
-  'Menlo Park', 'Milpitas', 'Mountain View', 'Silicon Valley', 'Sunnyvale',
-  'Campbell', 'Redwood City', 'Cupertino',
+/**
+ * The twelve cities every one of these sections lists in the same order.
+ *
+ * Read off the live service pages, not from a landing page: the order that
+ * used to be here came from WordPress post 3261, which is the Kitchen
+ * Remodeling *Information* page, a different page with a different list. That
+ * is also where the claim that "San Jose is intentionally absent" came from.
+ * It is absent there; on `/kitchen-remodeling/`, `/bathroom-remodeling/` and
+ * `/home-remodeling/` San Jose is the fourteenth card of fifteen, and
+ * filtering by that list was dropping it.
+ */
+const BASE_CITY_ORDER = [
+  'Saratoga', 'Los Gatos', 'Los Altos', 'Milpitas', 'Fremont', 'Redwood City',
+  'Menlo Park', 'Cupertino', 'Santa Clara', 'Sunnyvale', 'Mountain View', 'Palo Alto',
 ]
+
+/**
+ * Where each page puts the three cities that move.
+ *
+ * All three sections list the same fifteen cities and agree on the twelve in
+ * the middle; what differs is whether Campbell, San Jose and Silicon Valley
+ * sit at the front or the back. Taken from the rendered markup of each live
+ * page rather than assumed to be shared.
+ */
+const cityOrderByService: Record<string, string[]> = {
+  'kitchen-remodeling': ['Campbell', ...BASE_CITY_ORDER, 'San Jose', 'Silicon Valley'],
+  'bathroom-remodeling': ['Silicon Valley', ...BASE_CITY_ORDER, 'San Jose', 'Campbell'],
+  'home-remodeling': ['San Jose', 'Campbell', ...BASE_CITY_ORDER, 'Silicon Valley'],
+}
+
+const DEFAULT_CITY_ORDER = cityOrderByService['kitchen-remodeling']
 
 /** `numeric` columns can arrive as strings through some driver paths. */
 const numberOr = (value: number | string | null | undefined) => {
@@ -45,6 +68,8 @@ export async function getServiceAreas(serviceSlug: string): Promise<ServiceLocat
       if (serviceId) break
     }
     if (!serviceId) return []
+
+    const order = cityOrderByService[normalized] ?? DEFAULT_CITY_ORDER
 
     const slResult = await payload.find({
       collection: 'service-locations',
@@ -95,9 +120,23 @@ export async function getServiceAreas(serviceSlug: string): Promise<ServiceLocat
         } as ServiceLocation
       })
       .filter((area) => Boolean(area.location.name && area.slug))
-      // Only the cities WordPress lists in this section, in WP order.
-      .filter((area) => cityOrder.includes(area.location.name))
-      .sort((a, b) => cityOrder.indexOf(a.location.name) - cityOrder.indexOf(b.location.name))
+      /**
+       * Ordered by the list above, and NOT filtered by it.
+       *
+       * Filtering is what lost San Jose: a city missing from the order simply
+       * stopped rendering, silently, and the section showed fourteen cards
+       * where WordPress shows fifteen. A city the list does not name now
+       * sorts to the end instead of disappearing, so adding one in the CMS
+       * puts it on the page rather than nowhere.
+       */
+      .sort((a, b) => {
+        const rank = (name: string) => {
+          const index = order.indexOf(name)
+          return index === -1 ? Number.MAX_SAFE_INTEGER : index
+        }
+        const byRank = rank(a.location.name) - rank(b.location.name)
+        return byRank !== 0 ? byRank : a.location.name.localeCompare(b.location.name)
+      })
   } catch (error) {
     console.error(`getServiceAreas: could not load service areas for "${serviceSlug}"`, error)
     return []
