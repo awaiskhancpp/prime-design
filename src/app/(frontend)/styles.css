@@ -19,6 +19,14 @@
   /* --animate-blink-slow: blink-slow 2.6s ease-in-out infinite; */
   --animate-fade-in: fade-in 0.4s ease-out;
    --animate-marquee: marquee 48s linear infinite;
+  /* The two review columns on the landing pages, running against each other.
+     The duration here is only a default: each column overrides it inline with
+     one worked out from how much text it is carrying, so that a tall column
+     and a short one travel at the same speed. A `var()` in the token itself
+     does not survive Tailwind resolving the theme, which is why the override
+     is an inline `animation-duration` rather than a custom property. */
+  --animate-review-up: review-up 120s linear infinite;
+  --animate-review-down: review-down 120s linear infinite;
   --animate-header-drop: header-drop 0.28s ease-out;
   --animate-buffer-sweep: buffer-sweep 1.1s ease-in-out infinite;
 }
@@ -32,6 +40,43 @@
     opacity: 0.2;
   }
 } */
+/* Both columns render their reviews twice back to back, so -50% is exactly
+   one copy: at that point the second copy sits where the first began and the
+   loop point cannot be seen. `up` starts at the top and pulls away; `down` is
+   the same travel run backwards, which is what makes the pair move against
+   each other. */
+@keyframes review-up {
+  from {
+    transform: translateY(0);
+  }
+  to {
+    transform: translateY(-50%);
+  }
+}
+
+@keyframes review-down {
+  from {
+    transform: translateY(-50%);
+  }
+  to {
+    transform: translateY(0);
+  }
+}
+
+/* A wall of text moving on its own is the clearest case there is for taking
+   somebody at their word when they ask for less motion. The reviews stay,
+   they simply stop travelling. */
+@media (prefers-reduced-motion: reduce) {
+  .review-column {
+    animation: none !important;
+  }
+}
+
+/* The column holding still while one of its reviews is read is handled in the
+   component now, not here: the open review is state, so the pause is a class.
+   See the note in `LandingTestimonialsSection` about why a CSS-only
+   `<details>` could not work inside a transformed, clipped column. */
+
 @keyframes marquee {
   from {
     transform: translateX(0);
