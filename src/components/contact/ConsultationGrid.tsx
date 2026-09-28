@@ -14,7 +14,7 @@ function ConsultationCard({
 }: {
   consultation: ConsultationType
   assuranceNote?: string
-  onBook: (title: string) => void
+  onBook: (consultation: ConsultationType) => void
 }) {
   return (
     <article className="group relative flex flex-col overflow-hidden border border-line bg-white transition-shadow duration-300 hover:shadow-lg hover:shadow-ink/5">
@@ -67,7 +67,7 @@ function ConsultationCard({
           )}
           <button
             type="button"
-            onClick={() => onBook(consultation.title)}
+            onClick={() => onBook(consultation)}
             className="inline-flex shrink-0 items-center gap-2 bg-ink-2 px-4 py-2.5 text-[11px] font-semibold uppercase tracking-[0.12em] text-white transition-colors hover:bg-ink"
           >
             Book
@@ -91,7 +91,7 @@ export function ConsultationGrid({
   phone?: string
   phoneClean?: string
 }) {
-  const [selected, setSelected] = useState<string | null>(null)
+  const [selected, setSelected] = useState<ConsultationType | null>(null)
 
   return (
     <>
@@ -108,8 +108,12 @@ export function ConsultationGrid({
 
       {selected ? (
         <AppointmentModal
-          key={selected}
-          consultation={selected}
+          key={selected.slug}
+          consultation={selected.title}
+          // The card the visitor clicked already names a real service — carry
+          // its slug through rather than letting the booking go out with no
+          // service on it.
+          defaultServiceSlug={selected.slug}
           onClose={() => setSelected(null)}
           phone={phone}
           phoneClean={phoneClean}

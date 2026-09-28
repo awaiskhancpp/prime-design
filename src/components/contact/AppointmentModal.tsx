@@ -37,6 +37,13 @@ type AppointmentModalProps = {
   onClose: () => void
   phone?: string
   phoneClean?: string
+  /**
+   * The service this booking is already known to be for, when the caller
+   * knows it — e.g. the consultation card the visitor clicked carries a real
+   * `services` collection slug. Pre-fills the (hidden, since no `services`
+   * list is passed here) service field so it still reaches the lead record.
+   */
+  defaultServiceSlug?: string
 }
 
 const WEEKDAY_LABELS = ['S', 'M', 'T', 'W', 'T', 'F', 'S']
@@ -341,6 +348,7 @@ function AppointmentCalendar({
 export function AppointmentScheduler({
   consultation,
   services,
+  defaultServiceSlug,
   formName,
   onDone,
   phone = '(650) 235-4863',
@@ -358,6 +366,13 @@ export function AppointmentScheduler({
    * visitor answers it themselves.
    */
   services?: FormServiceOption[]
+  /**
+   * The service slug to submit when the caller already knows it (e.g. the
+   * consultation card that opened this booking) and so passes no `services`
+   * list — the field stays hidden, but the value it would have held still
+   * goes out with the booking instead of being lost.
+   */
+  defaultServiceSlug?: string
   /** Recorded on the lead so the admin can tell the two entry points apart. */
   formName?: string
   onDone?: () => void
@@ -405,7 +420,7 @@ export function AppointmentScheduler({
   }, [])
   const [showQr, setShowQr] = useState(false)
   const [sending, setSending] = useState(false)
-  const [serviceSlug, setServiceSlug] = useState('')
+  const [serviceSlug, setServiceSlug] = useState(defaultServiceSlug ?? '')
   const [submitError, setSubmitError] = useState<string>()
   const captcha = useRef<CaptchaHandle>(null)
   const captchaToken = useRef<string | undefined>(undefined)
@@ -907,7 +922,18 @@ export function AppointmentScheduler({
                     {submitError}
                   </p>
                 ) : null}
-                <div className="mt-8 flex justify-between">
+                {/* Pinned to the bottom of the modal's own scroll area (not
+                    the page): on a short browser window this step's fields,
+                    the captcha widget and this row can add up to more than
+                    `max-h-[calc(100vh-2rem)]` allows, and the row used to
+                    scroll along with the fields — so "Next" could end up
+                    below the fold behind a scrollbar easy to miss. Sticky
+                    keeps it reachable regardless of how tall the fields area
+                    gets. Negative margins cancel this column's own padding
+                    so the border/background bleed to its full width; the
+                    padding is reapplied inside so the buttons land exactly
+                    where they did before. */}
+                <div className="sticky bottom-0 -mx-8 mt-8 flex justify-between border-t border-line bg-white px-8 py-4 md:-mx-12 md:px-12">
                   <Button type="button" variant="outline" onClick={back}>
                     ← Back
                   </Button>
@@ -976,7 +1002,10 @@ export function AppointmentScheduler({
                   </p>
                 ) : null}
 
-                <div className="mt-6 flex justify-between">
+                {/* Sticky for the same reason as step 2's footer: keeps
+                    "Submit" reachable even when the review content above it
+                    is taller than the modal's viewport-capped height. */}
+                <div className="sticky bottom-0 -mx-8 mt-6 flex justify-between border-t border-line bg-white px-8 py-4 md:-mx-12 md:px-12">
                   <Button
                     type="button"
                     variant="outline"
@@ -1121,7 +1150,7 @@ export function AppointmentScheduler({
               )}
 
               {onDone && (
-                <div className="mt-10 flex justify-center">
+                <div className="sticky bottom-0 -mx-8 mt-10 flex justify-center border-t border-line bg-white px-8 py-4 sm:-mx-10 sm:px-10">
                   <Button type="button" onClick={onDone}>
                     Done
                   </Button>
@@ -1140,6 +1169,7 @@ export function AppointmentModal({
   onClose,
   phone,
   phoneClean,
+  defaultServiceSlug,
 }: AppointmentModalProps) {
   if (!consultation) return null
 
@@ -1163,7 +1193,9 @@ export function AppointmentModal({
           consultation={consultation}
           // The consultation cards name the service already ("Kitchen
           // Remodeling Consultation"), so this entry point asks no service
-          // question — it passes no list, and the field stays hidden.
+          // question — it passes no list, and the field stays hidden. The
+          // slug behind that card still rides along via defaultServiceSlug.
+          defaultServiceSlug={defaultServiceSlug}
           formName="Consultation booking"
           onDone={onClose}
           phone={phone}
