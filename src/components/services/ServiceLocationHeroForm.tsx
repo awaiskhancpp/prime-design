@@ -173,7 +173,7 @@ export async function ServiceLocationHeroForm({
               href={phoneHref}
               className="mt-1 inline-block text-lg font-semibold text-brass-deep underline decoration-brass/40 underline-offset-4 hover:text-brass"
             >
-              Call us at {phone}
+              Call us at <span className="nimbata">{phone}</span>
             </a>
           </div>
         </div>
@@ -214,7 +214,7 @@ export async function ServiceLocationHeroForm({
                 href={phoneHref}
                 className="font-semibold text-brass-deep underline decoration-brass/40 underline-offset-4 hover:text-brass"
               >
-                {phone} →
+                <span className="nimbata">{phone}</span> →
               </a>
             </p>
           </div>

@@ -8130,6 +8130,81 @@ export interface SiteSetting {
       | null;
   };
   /**
+   * Measurement, advertising, and search-console identifiers. Leave a field empty to switch that platform off — nothing is emitted for a blank ID. Changes take effect on the next page load, with no deploy.
+   */
+  analytics?: {
+    tracking?: {
+      /**
+       * Optional. If set, the container loads first and everything below stays available as a fallback — do not configure the same tags in both places, or page views are counted twice.
+       */
+      googleTagManagerId?: string | null;
+      /**
+       * The "Google tag" ID (the GT- value from the Google tag snippet, or a G- measurement ID). Loads gtag.js for the site.
+       */
+      googleTagId?: string | null;
+      /**
+       * Optional additional GA4 destination. Use the G- ID from the Analytics web stream; it is configured through the same Google tag.
+       */
+      googleAnalyticsId?: string | null;
+      /**
+       * The AW- ID from the Google Ads tag. Loaded through the Google tag; the conversion actions themselves are configured in Google Ads.
+       */
+      googleAdsId?: string | null;
+      /**
+       * The numeric Pixel ID from Meta Events Manager. Fires a PageView on load.
+       */
+      metaPixelId?: string | null;
+      /**
+       * The project ID from Clarity, e.g. p0z8k1muhv.
+       */
+      clarityProjectId?: string | null;
+      /**
+       * The call-tracking number Nimbata issues (Tracking → Numbers). For your reference and for wrapping the number on the page in <span class="nimbata"> — it is not a script identifier, so it is not used to build a URL.
+       */
+      nimbataTrackingNumber?: string | null;
+      /**
+       * Paste the whole <script> tag from Nimbata → Tracking → Tracking Code, exactly as they give it. It is emitted at the end of <body> on every page, which is where Nimbata requires it. The vendor host is not reachable from our build environment, so the script is taken verbatim rather than reconstructed from an ID.
+       */
+      nimbataScript?: string | null;
+    };
+    verification?: {
+      /**
+       * The content of <meta name="google-site-verification">. If Search Console is already verified, a tag added in GTM (Admin → container → Google Search Console) can be used instead.
+       */
+      google?: string | null;
+      /**
+       * The content of <meta name="msvalidate.01">.
+       */
+      bing?: string | null;
+      /**
+       * The content of <meta name="yandex-verification">.
+       */
+      yandex?: string | null;
+      /**
+       * The content of <meta name="p:domain_verify">.
+       */
+      pinterest?: string | null;
+      /**
+       * The content of <meta name="facebook-domain-verification">.
+       */
+      facebookDomainVerification?: string | null;
+    };
+    custom?: {
+      /**
+       * Inserted into <head> on every page, after the tags above. Typical use: a verification meta tag for a platform not listed, or a vendor snippet.
+       */
+      headCode?: string | null;
+      /**
+       * Inserted immediately after <body> opens — the usual place for a Google Tag Manager <noscript> fallback.
+       */
+      bodyStartCode?: string | null;
+      /**
+       * Inserted before </body>. For chat widgets and other non-critical scripts.
+       */
+      bodyEndCode?: string | null;
+    };
+  };
+  /**
    * Search-engine and social-share metadata. Titles and descriptions are migrated from the WordPress Rank Math data — keep them unique per page.
    */
   seo?: {
@@ -8302,6 +8377,38 @@ export interface SiteSettingsSelect<T extends boolean = true> {
               url?: T;
               variant?: T;
               id?: T;
+            };
+      };
+  analytics?:
+    | T
+    | {
+        tracking?:
+          | T
+          | {
+              googleTagManagerId?: T;
+              googleTagId?: T;
+              googleAnalyticsId?: T;
+              googleAdsId?: T;
+              metaPixelId?: T;
+              clarityProjectId?: T;
+              nimbataTrackingNumber?: T;
+              nimbataScript?: T;
+            };
+        verification?:
+          | T
+          | {
+              google?: T;
+              bing?: T;
+              yandex?: T;
+              pinterest?: T;
+              facebookDomainVerification?: T;
+            };
+        custom?:
+          | T
+          | {
+              headCode?: T;
+              bodyStartCode?: T;
+              bodyEndCode?: T;
             };
       };
   seo?:

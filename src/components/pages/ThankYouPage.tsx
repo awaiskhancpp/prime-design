@@ -61,7 +61,7 @@ export async function ThankYouPage() {
             className="justify-center px-3 py-2.5 text-center text-xs sm:px-6 sm:py-3.5 sm:text-base"
           >
             <Phone className="hidden h-4 w-4 sm:inline" aria-hidden />
-            {phone}
+            <span className="nimbata">{phone}</span>
           </Button>
         ) : null}
       </UtilityHero>

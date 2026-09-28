@@ -44,12 +44,13 @@ export async function HomeContact({
   const settings = await resolveSiteSettings()
   const services = await resolveFormServices()
   const contactDetails = [
-    { icon: Mail, label: settings.email, href: settings.emailLink },
-    { icon: Phone, label: settings.phone, href: `tel:${settings.phoneClean}` },
+    { icon: Mail, label: settings.email, href: settings.emailLink, nimbata: false },
+    { icon: Phone, label: settings.phone, href: `tel:${settings.phoneClean}`, nimbata: true },
     ...settings.addresses.map((item) => ({
       icon: MapPin,
       label: item.address,
       href: linkAddresses ? item.link : undefined,
+      nimbata: false,
     })),
   ]
   const description =
@@ -76,7 +77,7 @@ export async function HomeContact({
           />
 
           <div className="mt-8 grid gap-4">
-            {contactDetails.map(({ icon: Icon, label, href }) =>
+            {contactDetails.map(({ icon: Icon, label, href, nimbata }) =>
               href ? (
                 <a
                   key={label}
@@ -84,12 +85,12 @@ export async function HomeContact({
                   className="flex items-center gap-3 text-sm text-ink-2 transition-colors hover:text-brass-deep"
                 >
                   <Icon className="h-4 w-4 shrink-0 text-brass" aria-hidden />
-                  {label}
+                  {nimbata ? <span className="nimbata">{label}</span> : label}
                 </a>
               ) : (
                 <span key={label} className="flex items-center gap-3 text-sm text-ink-2">
                   <Icon className="h-4 w-4 shrink-0 text-brass" aria-hidden />
-                  {label}
+                  {nimbata ? <span className="nimbata">{label}</span> : label}
                 </span>
               ),
             )}

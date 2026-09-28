@@ -64,6 +64,7 @@ export function LandingFindUs({
           label: 'Call Us',
           value: phone,
           href: `tel:${phone.replace(/[^0-9+]/g, '')}`,
+          nimbata: true,
         }
       : undefined,
     email ? { icon: Mail, label: 'Email Now', value: email, href: `mailto:${email}` } : undefined,
@@ -94,7 +95,7 @@ export function LandingFindUs({
       ) : null}
 
       <div className="mt-10 grid gap-6 sm:grid-cols-3">
-        {items.map(({ icon: Icon, label, value, href }) => (
+        {items.map(({ icon: Icon, label, value, href, nimbata }) => (
           <div
             key={label}
             className="group relative border border-line bg-paper p-6 transition-shadow duration-300 hover:shadow-lg hover:shadow-ink/5"
@@ -115,11 +116,11 @@ export function LandingFindUs({
                 href={href}
                 className="mt-2 block whitespace-pre-line text-sm leading-6 text-ink transition-colors hover:text-brass-deep"
               >
-                {value}
+                {nimbata ? <span className="nimbata">{value}</span> : value}
               </a>
             ) : (
               <span className="mt-2 block whitespace-pre-line text-sm leading-6 text-ink">
-                {value}
+                {nimbata ? <span className="nimbata">{value}</span> : value}
               </span>
             )}
           </div>

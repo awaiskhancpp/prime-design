@@ -133,7 +133,7 @@ export async function TopBanner({ className, location, locationHref }: TopBanner
         <div className="flex min-h-[38px] items-center justify-between gap-4 py-1.5 text-[11px] sm:text-xs md:hidden">
           {/* Phone */}
           <BannerLink href={`tel:${phoneClean}`} icon={Phone} emphasize>
-            {displayPhone}
+            <span className="nimbata">{displayPhone}</span>
           </BannerLink>
 
           {/* Hours */}
@@ -170,7 +170,7 @@ export async function TopBanner({ className, location, locationHref }: TopBanner
           <div className="flex shrink-0 items-center gap-3 sm:gap-5">
             {/* Phone */}
             <BannerLink href={`tel:${phoneClean}`} icon={Phone} emphasize>
-              {displayPhone}
+              <span className="nimbata">{displayPhone}</span>
             </BannerLink>
 
             {/* Divider */}

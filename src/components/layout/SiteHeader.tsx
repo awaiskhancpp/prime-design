@@ -488,7 +488,7 @@ function DesktopPhone({ tone }: { tone: 'dark' | 'light' }) {
           isLight ? 'text-ink-2' : 'text-white',
         )}
       >
-        {phone}
+        <span className="nimbata">{phone}</span>
       </a>
     </div>
   )

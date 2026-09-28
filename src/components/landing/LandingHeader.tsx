@@ -50,7 +50,7 @@ export async function LandingHeader() {
                 <Phone className="h-4 w-4" />
               </span>
               <span className="text-lg font-semibold tracking-wide transition-colors duration-200 group-hover:text-brass">
-                {phone}
+                <span className="nimbata">{phone}</span>
               </span>
             </a>
 

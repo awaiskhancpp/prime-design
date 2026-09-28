@@ -1,4 +1,5 @@
 import type { GlobalConfig } from 'payload'
+import { AnalyticsFields } from '@/collections/fields/Analytics'
 import { SEOFields } from '@/collections/fields/SEO'
 
 export const SiteSettings: GlobalConfig = {
@@ -176,6 +177,7 @@ export const SiteSettings: GlobalConfig = {
         },
       ],
     },
+    ...AnalyticsFields,
     ...SEOFields,
   ],
 }

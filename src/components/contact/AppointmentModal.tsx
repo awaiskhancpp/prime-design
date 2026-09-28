@@ -742,7 +742,7 @@ export function AppointmentScheduler({
                 </p>
                 <p className="mt-20 text-sm font-semibold text-ink">Questions?</p>
                 <a className="mt-2 block text-base text-brass-deep" href={`tel:${phoneClean}`}>
-                  Call {phone}
+                  Call <span className="nimbata">{phone}</span>
                 </a>
               </aside>
               <div className="px-8 py-8 md:px-12">
@@ -824,7 +824,7 @@ export function AppointmentScheduler({
                 </p>
                 <p className="mt-20 text-sm font-semibold text-ink">Questions?</p>
                 <a className="mt-2 block text-base text-brass-deep" href={`tel:${phoneClean}`}>
-                  Call {phone}
+                  Call <span className="nimbata">{phone}</span>
                 </a>
               </aside>
               <div className="px-8 py-8 md:px-12">

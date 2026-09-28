@@ -71,6 +71,8 @@ import * as migration_20260925_160000_faq_category_sort_order from './20260925_1
 import * as migration_20260925_170000_review_highlights_heading from './20260925_170000_review_highlights_heading'
 import * as migration_20260925_180000_review_highlights_description from './20260925_180000_review_highlights_description'
 import * as migration_20260925_190000_testimonial_source_url from './20260925_190000_testimonial_source_url'
+import * as migration_20260926_120000_site_settings_analytics from './20260926_120000_site_settings_analytics'
+import * as migration_20260929_120000_complete_analytics_configuration from './20260929_120000_complete_analytics_configuration'
 
 export const migrations = [
   {
@@ -437,5 +439,15 @@ export const migrations = [
     up: migration_20260925_190000_testimonial_source_url.up,
     down: migration_20260925_190000_testimonial_source_url.down,
     name: '20260925_190000_testimonial_source_url',
+  },
+  {
+    up: migration_20260926_120000_site_settings_analytics.up,
+    down: migration_20260926_120000_site_settings_analytics.down,
+    name: '20260926_120000_site_settings_analytics',
+  },
+  {
+    up: migration_20260929_120000_complete_analytics_configuration.up,
+    down: migration_20260929_120000_complete_analytics_configuration.down,
+    name: '20260929_120000_complete_analytics_configuration',
   },
 ]

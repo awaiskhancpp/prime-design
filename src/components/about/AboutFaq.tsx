@@ -36,7 +36,7 @@ export function AboutFaq({
             size="md"
             className="mt-7"
           >
-            Give us a ring at {phone}
+            Give us a ring at <span className="nimbata">{phone}</span>
           </Button>
         </div>
         <div className="border-t border-line">
