@@ -8,13 +8,13 @@ import { Section } from '@/components/ui/Section'
 import { VideoPlayer } from '@/components/ui/VideoPlayer'
 import { ServiceVideoSection } from '@/components/services/ServiceVideoSection'
 import { ServiceImageTextSection } from '@/components/services/sections/ServiceImageTextSection'
+import { ServiceWhyChooseUsSection } from '@/components/services/sections/ServiceWhyChooseUsSection'
 import BeforeAfterSlider from '@/components/blocks/BeforeAfterSlider'
 import { LandingFindUs } from './LandingFindUs'
 import { LandingGallerySection } from './LandingGallerySection'
 import { LandingGalleryTabs } from './LandingGalleryTabs'
 import { LandingLuxuryCta } from './LandingLuxuryCta'
 import { LandingCtaSection } from './LandingCtaSection'
-import { LandingExperienceDifferenceSection } from './LandingExperienceDifferenceSection'
 import { LandingPrimeDifferenceSection } from './LandingPrimeDifferenceSection'
 import { LandingBenefitsSection } from './LandingBenefitsSection'
 import { LandingCraftsmanshipSection } from './LandingCraftsmanshipSection'
@@ -590,12 +590,19 @@ export const landingBlockRegistry: Record<string, Renderer> = {
       />
     )
   },
+  // Was `LandingExperienceDifferenceSection` — a second, generic "Why
+  // choose us" design next to the real one built for service pages. Same
+  // block fields (eyebrow/heading/description/features), so this is a
+  // straight swap: `ServiceWhyChooseUsSection` is the component every
+  // service page already renders for its own `experience-difference` block
+  // (see `renderWhyChooseUs` in ServiceSectionRenderer.tsx) — landing pages
+  // now get the same design instead of a duplicate.
   'experience-difference': ({ block }) => (
-    <LandingExperienceDifferenceSection
+    <ServiceWhyChooseUsSection
       eyebrow={text(block.eyebrow)}
       heading={text(block.heading)}
-      body={text(block.description)}
-      features={
+      description={text(block.description)}
+      items={
         Array.isArray(block.features)
           ? block.features
               .map((item) => item as Record<string, unknown>)

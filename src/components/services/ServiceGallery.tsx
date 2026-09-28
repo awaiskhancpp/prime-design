@@ -1,7 +1,11 @@
+'use client'
+
+import { useState } from 'react'
 import Image from '@/components/ui/Image'
 import { ArrowRight } from 'lucide-react'
 
 import { Button } from '@/components/ui/Button'
+import { Lightbox } from '@/components/gallery/Lightbox'
 import { Section } from '@/components/ui/Section'
 import { SectionHeader } from '@/components/ui/SectionHeader'
 import type { ServiceDetail } from '@/lib/services'
@@ -50,6 +54,7 @@ function galleryImagesFor(service: ServiceDetail) {
 
 export function ServiceGallery({ service }: { service: ServiceDetail }) {
   const images = galleryImagesFor(service)
+  const [lightboxIndex, setLightboxIndex] = useState<number | null>(null)
   if (!images.length) return null
 
   return (
@@ -62,10 +67,12 @@ export function ServiceGallery({ service }: { service: ServiceDetail }) {
         description="Client satisfaction is our #1 priority. No matter the type of project we take on, the entire process, from the consultation to the finishing touches, is handled with a high level of professionalism."
       />
 
-      <div className=" mt-10 grid gap-5 sm:grid-cols-3">
+      <div className="mt-10 grid grid-cols-2 gap-5 sm:grid-cols-3">
         {images.map((image, index) => (
-          <div
+          <button
             key={`${image}-${index}`}
+            type="button"
+            onClick={() => setLightboxIndex(index)}
             className="relative aspect-[4/3] overflow-hidden bg-paper-2"
           >
             <Image
@@ -75,7 +82,7 @@ export function ServiceGallery({ service }: { service: ServiceDetail }) {
               className="object-cover"
               sizes="(min-width: 768px) 50vw, 100vw"
             />
-          </div>
+          </button>
         ))}
       </div>
 
@@ -85,6 +92,16 @@ export function ServiceGallery({ service }: { service: ServiceDetail }) {
           <ArrowRight className="h-4 w-4" aria-hidden />
         </Button>
       </div>
+
+      {lightboxIndex !== null ? (
+        <Lightbox
+          images={images}
+          index={lightboxIndex}
+          alt={`${service.title} project photo`}
+          onClose={() => setLightboxIndex(null)}
+          onNavigate={setLightboxIndex}
+        />
+      ) : null}
     </Section>
   )
 }

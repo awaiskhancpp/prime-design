@@ -76,16 +76,23 @@ export function ServiceHero({ service }: { service: ServiceDetail }) {
           <p className="mt-1 lg:mt-7 max-w-xl text-base leading-7 text-white/75 md:text-lg">
             {service.lead}
           </p>
-          <div className="mt-4 lg:mt-9 flex flex-wrap gap-3">
+          {/* `flex-1` on every button (mobile only, via the arbitrary child
+              selector) splits the row evenly between however many buttons
+              there are — two share it side by side instead of the second
+              wrapping to its own line, and a lone button (the sub-styles and
+              Finance currently seed just one) still fills the row rather
+              than sitting half-width. `sm:` reverts to each button's own
+              natural width, unchanged from before. */}
+          <div className="mt-4 flex flex-wrap gap-3 [&>*]:min-w-0 [&>*]:flex-1 sm:[&>*]:flex-none lg:mt-9">
             {service.heroButtons?.map((button) => (
               <Button
                 key={`${button.label}-${button.href}`}
                 href={button.href}
                 variant="primary"
                 size="lg"
-                className="border-brass bg-brass text-ink hover:border-brass-deep hover:bg-brass-deep hover:text-white"
+                className="justify-center border-brass bg-brass px-3 py-2.5 text-center text-xs text-ink hover:border-brass-deep hover:bg-brass-deep hover:text-white sm:px-6 sm:py-3.5 sm:text-base"
               >
-                {button.label} <ArrowRight className="h-4 w-4" aria-hidden />
+                {button.label} <ArrowRight className="hidden h-4 w-4 sm:inline" aria-hidden />
               </Button>
             ))}
           </div>

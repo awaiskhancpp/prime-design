@@ -20,6 +20,7 @@ import { Captcha, captchaEnabled, type CaptchaHandle } from '@/components/forms/
 import { Button } from '@/components/ui/Button'
 import { Input } from '@/components/ui/Input'
 import { Textarea } from '@/components/ui/Textarea'
+import { landingPageServiceFromPathname } from '@/lib/landingPageServices'
 import { cn } from '@/lib/utils'
 import {
   email as emailRule,
@@ -194,61 +195,6 @@ const sanitizePhone = (value: string) => value.replace(/[^\d+() -]/g, '').slice(
 /** A ZIP field accepts digits and a single optional ZIP+4 dash, nothing else. */
 const sanitizeZip = (value: string) => value.replace(/[^\d-]/g, '').slice(0, 10)
 
-/**
- * Which real service a booking is for, guessed from the page it was opened
- * on, for the callers that don't already know (the contact page's
- * consultation cards always pass an explicit `defaultServiceSlug`; the seven
- * Google Ads landing pages never have, since there is no Payload field for
- * it — WordPress kept this in LatePoint's own tables, and LatePoint was not
- * part of the WXR export, so it was never migrated, see the `booking`
- * block's own note in LandingPageBlocks.ts).
- *
- * `consultationLabel` here is not invented — it's the real, already-live
- * label the same service's card shows on the /contact page (checked against
- * the actual rendered cards, not guessed): the services collection has no
- * "Home Remodeling" card at all — `home-remodeling`'s own `consultationLabel`
- * is "New Construction Consultation", so that's what that landing page
- * shows too. `remodeling-information` (the general, fifteen-section
- * catch-all covering kitchen, bathroom and whole-home remodeling together)
- * is mapped to `complete-renovation` / "Complete Renovation Consultation"
- * per the project owner directly, not guessed from the page's own content.
- *
- * Five of the seven landing pages are unambiguously about one service and
- * are listed here. The other two are deliberately left out:
- * `outdoor-hardscape-outdoor-kitchen-information` and
- * `siding-installation-replacement-information` have no matching row in the
- * services collection at all (there is no outdoor or siding service) — a
- * booking from either still submits with no service, since guessing one
- * would misclassify the lead.
- */
-const LANDING_PAGE_SERVICES: Record<string, { slug: string; consultationLabel: string }> = {
-  'kitchen-remodeling-information': {
-    slug: 'kitchen-remodeling',
-    consultationLabel: 'Kitchen Remodeling Consultation',
-  },
-  'bathroom-remodeling-information': {
-    slug: 'bathroom-remodeling',
-    consultationLabel: 'Bathroom Remodeling Consultation',
-  },
-  'additions-remodeling-information': {
-    slug: 'additions',
-    consultationLabel: 'Additions Consultation',
-  },
-  'home-remodeling-information': {
-    slug: 'home-remodeling',
-    consultationLabel: 'New Construction Consultation',
-  },
-  'remodeling-information': {
-    slug: 'complete-renovation',
-    consultationLabel: 'Complete Renovation Consultation',
-  },
-}
-
-function landingPageServiceFromPathname(pathname: string | null) {
-  const segment = pathname?.split('/').filter(Boolean).pop()
-  return segment ? LANDING_PAGE_SERVICES[segment] : undefined
-}
-
 type DayStatus =
   { kind: 'past' } | { kind: 'closed' } | { kind: 'full' } | { kind: 'open'; remaining: number }
 
@@ -348,7 +294,7 @@ function AppointmentCalendar({
           in your build. An inline style is generated at runtime by React,
           not by a CSS build step, so there is nothing left that can drop it. */}
       <div
-        className="mt-3 grid gap-y-1 text-center"
+        className="mt-3 grid gap-y-2 text-center"
         style={{ gridTemplateColumns: 'repeat(7, minmax(0, 1fr))' }}
       >
         {WEEKDAY_LABELS.map((label, index) => (
@@ -783,7 +729,7 @@ export function AppointmentScheduler({
             // (much shorter) natural height: without one, this step sits far
             // short of step 2's, so the modal visibly jumps in size the
             // moment a date is picked and the form appears.
-            <div className="grid h-full md:min-h-[600px] md:grid-cols-[0.8fr_1.2fr]">
+            <div className="grid h-full md:min-h-[530px] md:grid-cols-[0.8fr_1.2fr]">
               <aside className="bg-paper-2 px-8 py-12 text-center md:px-12">
                 <div className="mx-auto flex h-20 w-20 items-center justify-center">
                   <Image src="/date-and-time.svg" alt="" width={80} height={80} aria-hidden />
@@ -883,7 +829,7 @@ export function AppointmentScheduler({
               </aside>
               <div className="px-8 py-8 md:px-12">
                 <h3 className="font-display text-3xl font-medium text-ink">Customer Information</h3>
-                <div className="mt-8 grid gap-3 sm:grid-cols-2">
+                <div className="mt-8 grid gap-x-2 gap-y-1 sm:grid-cols-2">
                   <BookingField name="firstName" error={fieldErrors.firstName}>
                     <Input
                       name="firstName"

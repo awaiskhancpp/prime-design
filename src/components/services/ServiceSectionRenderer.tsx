@@ -1,7 +1,7 @@
 import { Fragment, type ReactNode } from 'react'
 import { Contact as GalleryContact } from '@/components/gallery/Contact'
 import { ProjectsReviewsSection } from '@/components/projects/ProjectsReviewsSection'
-import type { ServiceDetail } from '@/lib/services'
+import { bookableServiceSlug, type ServiceDetail } from '@/lib/services'
 import { ServiceProcessSection } from './ServiceProcessSection'
 import { ServiceOfferingsSection } from './ServiceOfferingsSection'
 import { ServiceVideoSection } from './ServiceVideoSection'
@@ -594,7 +594,7 @@ export function renderSection(
   rawSection: object,
   service: ServiceDetail,
   singletonKeys: Set<string>,
-  ContactComponent: ComponentType = GalleryContact,
+  ContactComponent: ComponentType<{ defaultServiceSlug?: string }> = GalleryContact,
 ): RenderedSection | null {
   const block = rawSection as RawBlock
   const blockType = block.blockType
@@ -751,7 +751,10 @@ export function renderSection(
   if (blockType === 'contact-form' || blockType === 'booking' || blockType === 'form') {
     if (singletonKeys.has('service-contact')) return null
     singletonKeys.add('service-contact')
-    return { key: 'service-contact', node: <ContactComponent /> }
+    return {
+      key: 'service-contact',
+      node: <ContactComponent defaultServiceSlug={bookableServiceSlug(service)} />,
+    }
   }
 
   if (blockType === 'gallery') {
@@ -798,7 +801,7 @@ export function ServiceSectionRenderer({
 }: {
   sections: NonNullable<ServiceDetail['sections']>
   service: ServiceDetail
-  ContactComponent?: ComponentType
+  ContactComponent?: ComponentType<{ defaultServiceSlug?: string }>
 }) {
   const rendered: ReactNode[] = []
   const singletonKeys = new Set<string>()

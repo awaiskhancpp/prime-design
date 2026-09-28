@@ -334,7 +334,9 @@ export function ServiceLocationPage({
             fileUrl, so the clip shows its own first frame. Passing the city's
             featured image here pasted a "Kitchen Remodeling in {City}" graphic
             over a video shot somewhere else. */}
-        {enabled('contact') ? <GalleryContact city={city} /> : null}
+        {enabled('contact') ? (
+          <GalleryContact city={city} defaultServiceSlug={entry.serviceSlug} />
+        ) : null}
 
         <ServiceLocationFooter />
       </main>

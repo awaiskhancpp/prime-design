@@ -1,12 +1,14 @@
 'use client'
 
+import { usePathname } from 'next/navigation'
 import { useEffect, useRef, useState, type FormEvent } from 'react'
 
 import { Button } from '@/components/ui/Button'
 import { Input } from '@/components/ui/Input'
 import { Textarea } from '@/components/ui/Textarea'
-import { cn } from '@/lib/utils'
 import type { FormServiceOption } from '@/lib/formServices'
+import { landingPageServiceFromPathname } from '@/lib/landingPageServices'
+import { cn } from '@/lib/utils'
 import { Captcha, captchaEnabled, type CaptchaHandle } from './Captcha'
 import {
   email as emailRule,
@@ -59,6 +61,7 @@ const EMPTY: Record<FieldName, string> = {
 export function LeadForm({
   submitLabel,
   services,
+  defaultServiceSlug,
   formName,
   className,
   inputClassName,
@@ -97,6 +100,14 @@ export function LeadForm({
    */
   services?: FormServiceOption[]
   /**
+   * Which option the dropdown should already show, when the page this form
+   * is on is itself about one service (a service page, a service-location
+   * page) rather than a generic page a visitor could mean anything on. Still
+   * an ordinary, editable `<select>` — a visitor who came for something else
+   * can change it — this only sets where it starts.
+   */
+  defaultServiceSlug?: string
+  /**
    * The form's own name, stored on the lead. `source` says what kind of page
    * this was and `sourceUrl` says which one, but a page can carry three
    * forms; this is what tells them apart in the admin list.
@@ -114,8 +125,16 @@ export function LeadForm({
   const [honeypot, setHoneypot] = useState('')
   // The chosen service's slug. Its own state rather than a member of
   // `values`: everything in there is a validated free-text field, and this is
-  // a closed list that cannot be typed into or be wrong.
-  const [serviceSlug, setServiceSlug] = useState('')
+  // a closed list that cannot be typed into or be wrong. Seeded from
+  // `defaultServiceSlug` when the caller already knows it (a service page, a
+  // service-location page), or else guessed from the URL for the Google Ads
+  // landing pages that render this same form and never pass one — see
+  // `landingPageServiceFromPathname`'s own note. Still a normal `<select>`
+  // the visitor can change either way.
+  const pathname = usePathname()
+  const initialServiceSlug =
+    defaultServiceSlug ?? landingPageServiceFromPathname(pathname)?.slug ?? ''
+  const [serviceSlug, setServiceSlug] = useState(initialServiceSlug)
   // Captcha tokens are single-use and time-limited, so the token is read from
   // the widget at submit time rather than mirrored into React state when the
   // challenge is solved — a person who solves it and then spends a few minutes
@@ -191,7 +210,7 @@ export function LeadForm({
       }
       setDone(true)
       setValues(EMPTY)
-      setServiceSlug('')
+      setServiceSlug(initialServiceSlug)
       setTouched({})
       setSubmitted(false)
     } catch {

@@ -24,6 +24,7 @@ export async function HomeContact({
   id,
   linkAddresses = true,
   formName = 'Contact band',
+  defaultServiceSlug,
 }: {
   contactIntro?: PageHeadingContent
   intro?: { eyebrow?: string; heading?: string; description?: string }
@@ -37,6 +38,8 @@ export async function HomeContact({
    * telling apart in the admin list.
    */
   formName?: string
+  /** Which service dropdown option to start on; see `LeadForm`'s own note. */
+  defaultServiceSlug?: string
 }) {
   const settings = await resolveSiteSettings()
   const services = await resolveFormServices()
@@ -97,6 +100,7 @@ export async function HomeContact({
           submitLabel={website.contactForm.submitLabel}
           messagePlaceholder="Type your message..."
           services={services}
+          defaultServiceSlug={defaultServiceSlug}
           formName={formName}
         />
       </div>

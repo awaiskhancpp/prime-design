@@ -54,7 +54,14 @@ export function UtilityHero({
           ) : null}
 
           {children ? (
-            <div className="mt-9 flex flex-wrap items-center justify-center gap-3">{children}</div>
+            // `flex-1` on every action (mobile only) splits the row evenly
+            // between however many there are — two sit side by side instead
+            // of the second wrapping below, and a lone action still fills
+            // the row instead of sitting half-width. `sm:` reverts to each
+            // one's own natural width, unchanged from before.
+            <div className="mt-9 flex flex-wrap items-center justify-center gap-3 [&>*]:min-w-0 [&>*]:flex-1 sm:[&>*]:flex-none">
+              {children}
+            </div>
           ) : null}
         </div>
       </Container>

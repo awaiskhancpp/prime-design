@@ -236,6 +236,7 @@ export async function ServiceLocationHeroForm({
               submitClassName="mt-2 w-full justify-center"
               messagePlaceholder="Tell Us About Your Project"
               services={await resolveFormServices()}
+              defaultServiceSlug={service.slug}
               // Named for the admin list: these pages carry this form in the
               // hero and the shared contact band at the foot.
               formName="Hero estimate form"

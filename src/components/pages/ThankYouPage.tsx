@@ -43,14 +43,24 @@ export async function ThankYouPage() {
         description={hero?.description}
       >
         {hero?.cta?.label ? (
-          <Button href={hero.cta.href || '/contact'} variant="primary" size="lg">
-            <CalendarDays className="h-4 w-4" aria-hidden />
+          <Button
+            href={hero.cta.href || '/contact'}
+            variant="primary"
+            size="lg"
+            className="justify-center px-3 py-2.5 text-center text-xs sm:px-6 sm:py-3.5 sm:text-base"
+          >
+            <CalendarDays className="hidden h-4 w-4 sm:inline" aria-hidden />
             {hero.cta.label}
           </Button>
         ) : null}
         {phone ? (
-          <Button href={`tel:${phone.replace(/[^\d+]/g, '')}`} variant="outline" size="lg">
-            <Phone className="h-4 w-4" aria-hidden />
+          <Button
+            href={`tel:${phone.replace(/[^\d+]/g, '')}`}
+            variant="outline"
+            size="lg"
+            className="justify-center px-3 py-2.5 text-center text-xs sm:px-6 sm:py-3.5 sm:text-base"
+          >
+            <Phone className="hidden h-4 w-4 sm:inline" aria-hidden />
             {phone}
           </Button>
         ) : null}

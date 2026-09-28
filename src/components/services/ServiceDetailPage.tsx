@@ -5,7 +5,7 @@ import { ServiceAreasStrip } from './ServiceAreasStrip'
 import { WhyChooseUs } from '@/components/gallery/WhyChooseUs'
 import { Contact as GalleryContact } from '@/components/gallery/Contact'
 import { Section } from '@/components/ui/Section'
-import type { ServiceDetail } from '@/lib/services'
+import { bookableServiceSlug, type ServiceDetail } from '@/lib/services'
 
 // Section components + their curated per-slug content helpers.
 import { ServiceOfferingsSection } from './ServiceOfferingsSection'
@@ -234,13 +234,11 @@ export function ServiceTemplate({ service }: { service: ServiceDetail }) {
         // Rich-text overview lists (Key Features / Benefits / Process) from
         // Payload take priority over both the legacy checklist blocks and
         // the built-in static arrays.
-        <Section>
-          <ServiceOverview
-            service={service}
-            showInlineProcess={sections.inlineProcess}
-            hasVisualProcess={sections.visualProcess}
-          />
-        </Section>
+        <ServiceOverview
+          service={service}
+          showInlineProcess={sections.inlineProcess}
+          hasVisualProcess={sections.visualProcess}
+        />
       ) : !sections.homeRepairCategories && contentBlocks?.length ? (
         <Section>
           <ServiceContentBlocks service={service} blocks={contentBlocks} />
@@ -248,13 +246,11 @@ export function ServiceTemplate({ service }: { service: ServiceDetail }) {
       ) : !sections.homeRepairCategories &&
         !hasCmsBlocks &&
         !(hasCmsSections && cmsHas('image-text', 'sub-services', 'prime-difference')) ? (
-        <Section>
-          <ServiceOverview
-            service={service}
-            showInlineProcess={sections.inlineProcess}
-            hasVisualProcess={sections.visualProcess}
-          />
-        </Section>
+        <ServiceOverview
+          service={service}
+          showInlineProcess={sections.inlineProcess}
+          hasVisualProcess={sections.visualProcess}
+        />
       ) : null,
     },
     {
@@ -602,7 +598,11 @@ export function ServiceTemplate({ service }: { service: ServiceDetail }) {
     },
     {
       key: 'contact',
-      node: cmsSlotNodes.get('contact') ?? (sections.contact ? <ContactSection /> : null),
+      node:
+        cmsSlotNodes.get('contact') ??
+        (sections.contact ? (
+          <ContactSection defaultServiceSlug={bookableServiceSlug(service)} />
+        ) : null),
     },
     {
       // Only truly-unresolvable CMS sections land here now, plus anything

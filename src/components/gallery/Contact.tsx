@@ -22,7 +22,16 @@ const CONTACT_VIDEO = '/api/media/file/prime-kitchens-san-luis.mp4'
  */
 const CONTACT_VIDEO_POSTER = '/api/media/file/prime-kitchens-san-luis-poster.jpg'
 
-export async function Contact({ city, poster }: { city?: string; poster?: string }) {
+export async function Contact({
+  city,
+  poster,
+  defaultServiceSlug,
+}: {
+  city?: string
+  poster?: string
+  /** Which service dropdown option to start on; see `LeadForm`'s own note. */
+  defaultServiceSlug?: string
+}) {
   const settings = await resolveSiteSettings()
   const contactDetails = [
     { icon: Mail, label: settings.email, href: settings.emailLink },
@@ -79,6 +88,7 @@ export async function Contact({ city, poster }: { city?: string; poster?: string
             submitLabel={website.contactForm.submitLabel}
             messagePlaceholder="Type your message..."
             services={await resolveFormServices()}
+            defaultServiceSlug={defaultServiceSlug}
             formName="Gallery enquiry form"
           />
         </div>

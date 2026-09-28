@@ -27,11 +27,28 @@ export type Service = {
   sectionOrder?: string[]
 }
 
+/**
+ * The service slug a contact/lead form on this page should pre-select.
+ *
+ * Usually the page's own service — but the kitchen sub-styles (Shaker,
+ * Custom, European) aren't themselves one of the six services the lead
+ * forms offer (see `formServices.ts`'s own note: a visitor choosing between
+ * "Kitchen Remodeling" and "Shaker Kitchen" is being asked a question the
+ * sales call exists to answer), so their own slug never matches a dropdown
+ * option and the field would otherwise sit blank. This resolves to their
+ * parent service instead, when they have one.
+ */
+export function bookableServiceSlug(service: ServiceDetail): string {
+  return service.parentService?.slug || service.slug
+}
+
 export type ServiceDetail = Service & {
   eyebrow: string
   lead: string
   /** Hero H1 (WordPress hero heading) — distinct from the plain `title`. */
   heroHeading?: string
+  /** The sub-styles' (Shaker/Custom/European Kitchen) real parent service. */
+  parentService?: { slug?: string | null } | null
   keyFeatures: string[]
   benefits: string[]
   processSteps: string[]
@@ -278,6 +295,8 @@ type PayloadServiceRecord = {
   introHeading?: string | null
   featuredImage?: PayloadMedia | number | null
   featured?: boolean | null
+  /** Populated to a full doc at `depth: 2`; a bare id otherwise. */
+  parentService?: { slug?: string | null } | number | null
   /** Rich text overview fields (Key Features / Benefits / Process steps). */
   overview?: {
     keyFeatures?: unknown
@@ -580,6 +599,10 @@ export async function resolveServiceDetail(slug: string): Promise<ServiceDetail 
     // Empty leaves `ServiceOverview` on its title-based fallback.
     introHeading: record.introHeading || undefined,
     heroHeading: record.hero?.heading || undefined,
+    parentService:
+      record.parentService && typeof record.parentService === 'object'
+        ? { slug: record.parentService.slug }
+        : undefined,
     // Migrated WordPress (Rank Math) SEO — services previously fell back to
     // the generated title/description because nothing mapped this through.
     seo: record.seo
