@@ -7,10 +7,9 @@ import { Section } from '@/components/ui/Section'
 import { RichTextContent } from '@/components/rich-text/RichTextContent'
 import { cn } from '@/lib/utils'
 import { FaqCategoryButton } from './FaqCategoryButton'
+import { FaqCategoryPicker, ALL } from './FaqCategoryPicker'
 import type { PageFaqIndexContent } from '@/lib/pageSections'
 import type { FaqIndexCategory } from '@/lib/faqIndex.server'
-
-const ALL = '__all__'
 
 /**
  * Hold `element` at the same point on the screen while the layout around it
@@ -172,31 +171,36 @@ export function FaqExplorer({
       </div>
 
       <p className="mx-auto mt-6 max-w-2xl text-center text-xs uppercase tracking-[0.14em] text-ink-2/45">
-        {`${totalCount} question${totalCount === 1 ? '' : 's'} across ${categories.length} categories`}
+        {`${totalCount} question${totalCount === 1 ? '' : 's'} across ${categories.length} categor${categories.length === 1 ? 'y' : 'ies'}`}
       </p>
 
       {/* ---- categories + questions ---- */}
-      <div className="mt-12 grid gap-10 lg:grid-cols-[260px_1fr] lg:gap-14">
-        {/* `self-start` at every breakpoint, not just `lg`: a grid item
-            stretches to the row height by default, which tied this rail's
-            height to the answers column and made it grow each time an answer
-            opened. No max-height here — the rail is left at its natural
-            height rather than given a scrollbar of its own. */}
-        {/* `min-w-0`: a grid item defaults to `min-width: auto`, which means
-            it refuses to shrink below its content. The chip row below is a
-            horizontal strip of 12 category buttons, so without this the
-            column grew to the full 3,579px of that strip and took the whole
-            page with it — /faq scrolled sideways by 3,189px on a phone. */}
-        <aside className="min-w-0 self-start lg:sticky lg:top-28">
-          <p className="mb-4 hidden text-xs font-semibold uppercase tracking-[0.18em] text-ink-2/45 lg:block">
+      <div className="mt-12 grid gap-6 lg:grid-cols-[260px_1fr] lg:gap-14">
+        {/* Below `lg`: a native select, not the chip row this replaced. Twelve
+            wrapped chip buttons read as a wall of boxes on a phone — no
+            hierarchy, no indication there were more below the fold, and nine
+            of the twelve below the first row went unnoticed in review. A
+            select is one control with a single current value, it opens the
+            OS's own picker (the same reason the contact form's service field
+            is a native `<select>`, not a styled one), and the styling below
+            only reskins the closed control, which is the part actually on
+            the page. */}
+        <FaqCategoryPicker
+          allLabel={content.allLabel || 'All questions'}
+          totalCount={totalCount}
+          categories={categories}
+          activeCategory={activeCategory}
+          onChange={setActiveCategory}
+        />
+
+        {/* `self-start`, not just at `lg`: a grid item stretches to the row
+            height by default, which tied this rail's height to the answers
+            column and made it grow each time an answer opened. */}
+        <aside className="hidden min-w-0 self-start lg:sticky lg:top-28 lg:block">
+          <p className="mb-4 text-xs font-semibold uppercase tracking-[0.18em] text-ink-2/45">
             Categories
           </p>
-          {/* Wrapped, not scrolled. A sideways strip hides most of the
-              categories behind a gesture with nothing to indicate they are
-              there; wrapped, all twelve are on screen at once, which is what
-              the owner asked for on the landing pages' FAQ for the same
-              reason. From `lg` it becomes the vertical rail again. */}
-          <div className="flex flex-wrap gap-2 pb-2 lg:flex-col lg:flex-nowrap lg:gap-0 lg:border-l lg:border-line lg:pb-0">
+          <div className="flex flex-col border-l border-line">
             <FaqCategoryButton
               label={content.allLabel || 'All questions'}
               count={totalCount}
