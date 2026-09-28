@@ -50,9 +50,11 @@ const isImageUpload = (doc: UploadDoc) =>
  * italic, links, tables, ...) uses Payload's default converters.
  * `tone` selects the paragraph styling: `lead` is the larger intro copy
  * used right under blog titles, `body` the regular article copy.
+ * `imageSizing` selects how an `upload` node's image renders — see the
+ * `upload` converter below for the two modes.
  */
 const siteConverters =
-  (tone: 'body' | 'lead' | 'light'): JSXConvertersFunction =>
+  (tone: 'body' | 'lead' | 'light', imageSizing: 'full' | 'natural'): JSXConvertersFunction =>
   ({ defaultConverters }) => ({
     ...defaultConverters,
 
@@ -121,8 +123,17 @@ const siteConverters =
       }
     },
 
-    // Uploaded images — full article width, with the WordPress caption
-    // underneath when the media document carries one.
+    // Uploaded images, with the WordPress caption underneath when the media
+    // document carries one. Two sizing modes:
+    //
+    //   - `full` (the default, unchanged): stretched to the article column
+    //     width, cropped with `object-cover` into a 3:2 box when the media
+    //     document has no real dimensions on file.
+    //   - `natural`: rendered at the photo's own resolution (capped so it
+    //     never overflows the column on wide screens, or the viewport on
+    //     narrow ones), no cropping. Blog posts use this — a WordPress photo
+    //     that was only ever, say, 480px wide looked pixelated once it was
+    //     stretched to fill a ~960px column; at its real size it's sharp.
     upload: ({ node }) => {
       const doc = (node as { value?: unknown }).value
       if (!doc || typeof doc !== 'object') return null
@@ -138,6 +149,27 @@ const siteConverters =
         )
 
       const caption = media.caption?.trim()
+
+      if (imageSizing === 'natural') {
+        const width = media.width || 1600
+        const height = media.height || 1067
+        return (
+          <figure className="mx-auto mt-8 w-fit max-w-full md:mt-10">
+            <Image
+              src={url}
+              alt={media.alt || caption || ''}
+              width={width}
+              height={height}
+              className="h-auto max-w-full"
+              sizes={`(min-width: ${width}px) ${width}px, 100vw`}
+            />
+            {caption ? (
+              <figcaption className="mt-3 text-sm leading-6 text-ink-2/60">{caption}</figcaption>
+            ) : null}
+          </figure>
+        )
+      }
+
       return (
         <figure className="mt-8 md:mt-10">
           <div className="relative overflow-hidden bg-paper-2">
@@ -172,6 +204,7 @@ export function RichTextContent({
   data,
   className,
   tone = 'body',
+  imageSizing = 'full',
 }: {
   /** Serialized Lexical editor state from a Payload richText field. */
   data: RichTextValue
@@ -179,6 +212,14 @@ export function RichTextContent({
   className?: string
   /** Paragraph styling: `lead` for larger intro copy, `body` for article text, `light` for dark backgrounds (white/85). */
   tone?: 'body' | 'lead' | 'light'
+  /**
+   * How an embedded `upload` image renders. `full` (the default) stretches
+   * it to the column width, matching every existing caller. `natural` caps
+   * it at the photo's own resolution instead — opt in per call site rather
+   * than changing this converter's default for the ~20 other places it's
+   * already used.
+   */
+  imageSizing?: 'full' | 'natural'
 }) {
   // Cast through the component's own prop type — the precise Lexical types
   // are not importable here (see lib/richText.ts).
@@ -186,7 +227,7 @@ export function RichTextContent({
   return (
     <RichText
       data={editorState}
-      converters={siteConverters(tone)}
+      converters={siteConverters(tone, imageSizing)}
       disableContainer
       className={className}
     />

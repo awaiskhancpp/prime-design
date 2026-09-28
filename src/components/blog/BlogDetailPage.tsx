@@ -29,7 +29,7 @@ export function BlogDetailPage({ post }: { post: BlogPost }) {
             {post.content ? (
               // Free-form rich text (migrated WordPress posts).
               <div className="mt-10 md:mt-14">
-                <RichTextContent data={post.content} />
+                <RichTextContent data={post.content} imageSizing="natural" />
               </div>
             ) : (
               <div className="mt-10 grid gap-16 md:mt-14 md:gap-24">

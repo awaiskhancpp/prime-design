@@ -19,9 +19,15 @@ import { buildSeoMetadata } from '@/lib/seo'
  *   4. generic Payload pages,
  *   5. 404.
  *
- * Landing pages created in Payload are rendered on demand even when their
- * slugs were not known when the application was built.
+ * Landing pages and generic pages are CMS-driven: rendered on every request,
+ * like their `/[serviceSlug]/[pageSlug]` sibling, so a Payload edit — or a
+ * brand-new record, such as a page created after the app was built — appears
+ * without a rebuild. Without this, an unknown slug like a newly-created page
+ * renders once on demand and is then cached indefinitely (Next's default for
+ * a route that touches no dynamic API), so every edit after that first hit is
+ * invisible until the next deploy.
  */
+export const dynamic = 'force-dynamic'
 export const dynamicParams = true
 
 export function generateStaticParams() {

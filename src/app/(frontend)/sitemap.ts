@@ -40,6 +40,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     'team',
     'landscaping',
     'privacy-policy',
+    'book-online',
   ].map((path) => entry(`${siteUrl}/${path}`, path === '' ? 1 : 0.7))
 
   // Services and locations come from Payload only.

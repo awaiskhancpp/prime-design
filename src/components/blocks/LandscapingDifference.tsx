@@ -190,52 +190,67 @@ export function LandscapingDifference({
               <p className="text-center text-[11px] font-semibold uppercase tracking-[0.14em] text-ink-2/50">
                 More project videos
               </p>
-              <div className="mt-3 flex flex-wrap items-stretch justify-center gap-4">
-                {projectVideos.map((video, videoIndex) => {
-                  const isActive = videoIndex === index
-                  return (
-                    <button
-                      key={video.url}
-                      type="button"
-                      onClick={() => setIndex(videoIndex)}
-                      aria-label={`Play video ${videoIndex + 1}${video.speakerName ? `: ${video.speakerName}` : ''}`}
-                      aria-current={isActive}
-                      className={cn(
-                        'group relative w-32 overflow-hidden border transition-all sm:w-36',
-                        isActive
-                          ? 'border-brass opacity-100 ring-1 ring-brass'
-                          : 'border-line opacity-70 hover:opacity-100',
-                      )}
-                    >
-                      <span className="relative block aspect-video overflow-hidden bg-ink">
-                        {video.poster ? (
-                          <Image
-                            src={video.poster}
-                            alt=""
-                            aria-hidden="true"
-                            fill
-                            className="object-cover"
-                            sizes="144px"
-                          />
-                        ) : null}
-                        <span
-                          aria-hidden
-                          className={cn(
-                            'absolute inset-0 flex items-center justify-center transition-colors',
-                            isActive ? 'bg-ink/20' : 'bg-ink/45 group-hover:bg-ink/25',
-                          )}
-                        >
-                          <Play className="h-5 w-5 fill-white text-white" />
+              {/* On mobile this row was a plain flex-wrap, which just piled a
+                  handful of fixed-width thumbnails into a dull stack of
+                  centered rows. Below `sm` it now scrolls horizontally
+                  instead — one lively strip of clips to flick through.
+
+                  The scroll is contained to this row, not the page: the
+                  `-mx-4`/`px-4` on the outer div exactly cancels and restores
+                  `Container`'s own mobile gutter (see `ui/Container.tsx`), so
+                  the scrollable area's edge lines up with the rest of the
+                  section instead of bleeding into it, and `overflow-x-auto`
+                  here means only this box scrolls sideways — never `<body>`.
+                  `sm:` and up reverts to the original centered, wrapping
+                  row, unchanged. */}
+              <div className="-mx-4 overflow-x-auto px-4 pb-1 [scrollbar-width:none] sm:mx-0 sm:overflow-visible sm:px-0 sm:pb-0 [&::-webkit-scrollbar]:hidden">
+                <div className="mt-3 flex snap-x snap-mandatory items-stretch gap-4 sm:flex-wrap sm:justify-center sm:snap-none">
+                  {projectVideos.map((video, videoIndex) => {
+                    const isActive = videoIndex === index
+                    return (
+                      <button
+                        key={video.url}
+                        type="button"
+                        onClick={() => setIndex(videoIndex)}
+                        aria-label={`Play video ${videoIndex + 1}${video.speakerName ? `: ${video.speakerName}` : ''}`}
+                        aria-current={isActive}
+                        className={cn(
+                          'group relative w-32 shrink-0 snap-start overflow-hidden border transition-all sm:w-36',
+                          isActive
+                            ? 'border-brass opacity-100 ring-1 ring-brass'
+                            : 'border-line opacity-70 hover:opacity-100',
+                        )}
+                      >
+                        <span className="relative block aspect-video overflow-hidden bg-ink">
+                          {video.poster ? (
+                            <Image
+                              src={video.poster}
+                              alt=""
+                              aria-hidden="true"
+                              fill
+                              className="object-cover"
+                              sizes="144px"
+                            />
+                          ) : null}
+                          <span
+                            aria-hidden
+                            className={cn(
+                              'absolute inset-0 flex items-center justify-center transition-colors',
+                              isActive ? 'bg-ink/20' : 'bg-ink/45 group-hover:bg-ink/25',
+                            )}
+                          >
+                            <Play className="h-5 w-5 fill-white text-white" />
+                          </span>
                         </span>
-                      </span>
-                      {/* {video.speakerName ? (
-                        <span className="block truncate px-2 py-1.5 text-[11px] font-medium text-ink-2">
-                          {video.speakerName}
-                        </span>
-                      ) : null} */}
-                    </button>
-                  )
-                })}
+                        {/* {video.speakerName ? (
+                          <span className="block truncate px-2 py-1.5 text-[11px] font-medium text-ink-2">
+                            {video.speakerName}
+                          </span>
+                        ) : null} */}
+                      </button>
+                    )
+                  })}
+                </div>
               </div>
             </div>
           ) : null}
