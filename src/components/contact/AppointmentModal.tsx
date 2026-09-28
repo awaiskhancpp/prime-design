@@ -419,9 +419,58 @@ export function AppointmentScheduler({
     renderedAt.current = Date.now()
   }, [])
 
+  /**
+   * The modal is exactly as tall as the step it is showing, and animates
+   * between those heights.
+   *
+   * It used to be a flat `h-[min(660px,calc(100vh-2rem))]`, so the calendar
+   * step sat in 660px of box whether or not a date had been picked — and the
+   * moment the time slots appeared underneath the calendar, the content grew
+   * inside a box that did not, so the extra height became scroll. Measuring the
+   * content instead means the box grows with it, and `transition-[height]` is
+   * what turns that growth into the opening-up motion the slots appear with.
+   *
+   * Re-measured on every step change (the inner div is keyed on `step`, so the
+   * ref points at a fresh element) and by a ResizeObserver, which is what
+   * catches "a date was clicked, the slots are now rendered".
+   */
+  const contentRef = useRef<HTMLDivElement>(null)
+  const [contentHeight, setContentHeight] = useState<number>()
+  useEffect(() => {
+    const element = contentRef.current
+    if (!element) return
+    const sync = () =>
+      setContentHeight((previous) =>
+        previous === element.scrollHeight ? previous : element.scrollHeight,
+      )
+    sync()
+    const observer = new ResizeObserver(sync)
+    observer.observe(element)
+    return () => observer.disconnect()
+  }, [step])
+
   const dateLabel = selectedDate
     ? selectedDate.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })
     : null
+
+  /**
+   * The times the chosen day can actually take.
+   *
+   * The day carries a capacity (Booking settings → daily capacity), and the
+   * server reports what is left of it in `remaining` — so offering all five
+   * configured times while only three can be booked is what put "3 left" above
+   * five buttons. The list is the day's open times, cut to that remaining
+   * capacity, so what is on screen is exactly what can still be reserved.
+   */
+  const selectedDay = selectedDate
+    ? availability?.days.find((entry) => entry.date === dateKey(selectedDate))
+    : undefined
+  const openSlots = selectedDay
+    ? selectedDay.slots
+        .filter((option) => option.available)
+        .slice(0, selectedDay.remaining)
+        .map((option) => option.time)
+    : []
 
   const customerName = customer
     ? [customer.firstName, customer.lastName].filter(Boolean).join(' ')
@@ -613,263 +662,439 @@ export function AppointmentScheduler({
 
   return (
     <div
-      className={`relative w-full overflow-hidden border border-line bg-white shadow-xl ${
+      className={`relative w-full overflow-hidden border border-line bg-white shadow-xl transition-[height] duration-300 ease-out max-h-[calc(100vh-2rem)] ${
         step === 4 ? 'max-w-lg' : 'max-w-4xl'
-      } h-[min(660px,calc(100vh-2rem))]`}
+      }`}
+      // A px height rather than `min(…)` so the browser has two plain lengths
+      // to interpolate between; the viewport cap is `max-h-*` above.
+      style={contentHeight ? { height: contentHeight } : undefined}
     >
-      <div key={step} className="h-full animate-fade-in overflow-y-auto">
-        {step === 1 ? (
-          <div className="grid h-full md:grid-cols-[0.8fr_1.2fr]">
-            <aside className="bg-paper-2 px-8 py-6 text-center md:px-10">
-              <div className="mx-auto flex h-16 w-16 items-center justify-center">
-                <Image src="/date-and-time.svg" alt="" width={64} height={64} aria-hidden />
-              </div>
-              <h2 className="mt-4 font-display text-2xl font-semibold text-ink">
-                Select Date &amp; Time
-              </h2>
-              <p className="mt-2 text-sm leading-6 text-ink-2/65">
-                Please select date and time for your appointment
-              </p>
-              <p className="mt-12 text-sm font-semibold text-ink">Questions?</p>
-              <a className="mt-2 block text-sm text-brass-deep" href={`tel:${phoneClean}`}>
-                Call {phone}
-              </a>
-            </aside>
-            <div className="px-8 py-6 md:px-10 pt-20">
-              <p className="text-xs font-semibold uppercase tracking-[0.2em] text-brass-deep">
-                {consultation}
-              </p>
+      <div key={step} className="max-h-full animate-fade-in overflow-y-auto">
+        {/*
+          Measured from *inside* the scroller, not from the scroller itself.
+          `max-h-full` caps the scroller's box at whatever height the modal
+          already is, so when the time slots appear and the content grows the
+          box does not move and a ResizeObserver on it never fires — the modal
+          stayed put and the extra 30px became a scrollbar. The content below
+          is not capped, so its own size is the number worth watching.
+        */}
+        <div ref={contentRef}>
+          {step === 1 ? (
+            <div className="grid h-full md:grid-cols-[0.8fr_1.2fr]">
+              <aside className="bg-paper-2 px-8 py-6 text-center md:px-10">
+                <div className="mx-auto flex h-16 w-16 items-center justify-center">
+                  <Image src="/date-and-time.svg" alt="" width={64} height={64} aria-hidden />
+                </div>
+                <h2 className="mt-4 font-display text-2xl font-semibold text-ink">
+                  Select Date &amp; Time
+                </h2>
+                <p className="mt-2 text-sm leading-6 text-ink-2/65">
+                  Please select date and time for your appointment
+                </p>
+                <p className="mt-12 text-sm font-semibold text-ink">Questions?</p>
+                <a className="mt-2 block text-sm text-brass-deep" href={`tel:${phoneClean}`}>
+                  Call {phone}
+                </a>
+              </aside>
+              <div className="px-8 py-6 md:px-10 pt-10">
+                <p className="text-xs font-semibold uppercase tracking-[0.2em] text-brass-deep">
+                  {consultation}
+                </p>
 
-              <div className="mt-3">
-                {availabilityError ? (
-                  <p role="alert" className="mb-3 text-xs text-red-600">
-                    We could not load the calendar just now. Please call us and we will book you in.
-                  </p>
-                ) : null}
-                <AppointmentCalendar
-                  availability={availability}
-                  selectedDate={selectedDate}
-                  onSelect={(day) => {
-                    setSelectedDate(day)
-                    setTime(null)
-                  }}
-                />
-              </div>
+                <div className="mt-3">
+                  {availabilityError ? (
+                    <p role="alert" className="mb-3 text-xs text-red-600">
+                      We could not load the calendar just now. Please call us and we will book you
+                      in.
+                    </p>
+                  ) : null}
+                  <AppointmentCalendar
+                    availability={availability}
+                    selectedDate={selectedDate}
+                    onSelect={(day) => {
+                      setSelectedDate(day)
+                      setTime(null)
+                    }}
+                  />
+                </div>
 
-              {selectedDate ? (
-                <div key={selectedDate.toDateString()} className="animate-fade-in">
-                  <p className="mt-4 text-sm text-ink-2/70">
-                    Pick a slot for{' '}
-                    <span className="font-semibold text-brass-deep">{dateLabel}</span>
-                  </p>
-                  <div className="mt-3 grid grid-cols-2 gap-2 sm:grid-cols-3">
-                    {(
-                      availability?.days.find((entry) => entry.date === dateKey(selectedDate))
-                        ?.slots ?? []
-                    ).map((option) => {
-                      const taken = !option.available
-                      const slot = option.time
-                      return (
-                        <button
-                          key={slot}
-                          type="button"
-                          disabled={taken}
-                          onClick={() => {
-                            setTime(slot)
-                            next()
-                          }}
-                          className={`border py-1 text-xs transition-colors ${
-                            taken
-                              ? 'cursor-not-allowed border-line text-gray-300 line-through'
-                              : time === slot
+                {selectedDate ? (
+                  <div key={selectedDate.toDateString()} className="animate-fade-in">
+                    <p className="mt-4 text-sm text-ink-2/70">
+                      Pick a slot for{' '}
+                      <span className="font-semibold text-brass-deep">{dateLabel}</span>
+                    </p>
+                    {openSlots.length ? (
+                      <div className="mt-3 grid grid-cols-2 gap-2 sm:grid-cols-3">
+                        {/* Only the slots still open. A reserved slot used to be
+                          listed and struck through, so a day reading "2 left"
+                          still showed five buttons and three of them were the
+                          bookings that had already taken the capacity. */}
+                        {openSlots.map((slot) => (
+                          <button
+                            key={slot}
+                            type="button"
+                            onClick={() => {
+                              setTime(slot)
+                              next()
+                            }}
+                            className={`border py-1 text-xs transition-colors ${
+                              time === slot
                                 ? 'border-brass bg-brass text-white'
                                 : 'border-line text-ink hover:border-brass hover:text-brass-deep'
-                          }`}
-                        >
-                          {slot}
-                        </button>
-                      )
-                    })}
+                            }`}
+                          >
+                            {slot}
+                          </button>
+                        ))}
+                      </div>
+                    ) : (
+                      <p className="mt-3 text-sm text-ink-2/60">
+                        Every time on this day has just been taken. Please pick another date.
+                      </p>
+                    )}
                   </div>
-                </div>
-              ) : (
-                <p className="mt-8 text-sm text-ink-2/50">
-                  Choose a date above to see available times.
-                </p>
-              )}
-            </div>
-          </div>
-        ) : step === 2 ? (
-          <form onSubmit={submit} noValidate className="grid h-full md:grid-cols-[0.8fr_1.2fr]">
-            <aside className="bg-paper-2 px-8 py-12 text-center md:px-12">
-              <div className="mx-auto flex h-20 w-20 items-center justify-center">
-                <Image src="/information.svg" alt="" width={80} height={80} aria-hidden />
+                ) : (
+                  <p className="mt-8 text-sm text-ink-2/50">
+                    Choose a date above to see available times.
+                  </p>
+                )}
               </div>
-              <h2 className="mt-8 font-display text-3xl font-semibold text-ink">
-                Enter Your Information
-              </h2>
-              <p className="mt-3 text-base leading-7 text-ink-2/65">
-                Please enter your contact information
-              </p>
-              <p className="mt-20 text-sm font-semibold text-ink">Questions?</p>
-              <a className="mt-2 block text-base text-brass-deep" href={`tel:${phoneClean}`}>
-                Call {phone}
-              </a>
-            </aside>
-            <div className="px-8 py-8 md:px-12">
-              <h3 className="font-display text-3xl font-medium text-ink">Customer Information</h3>
-              <div className="mt-8 grid gap-3 sm:grid-cols-2">
-                <BookingField name="firstName" error={fieldErrors.firstName}>
-                  <Input
-                    name="firstName"
-                    placeholder="First Name*"
-                    defaultValue={customer?.firstName}
-                    onBlur={blur('firstName')}
-                    aria-invalid={fieldErrors.firstName ? true : undefined}
-                  />
-                </BookingField>
-                <BookingField name="lastName" error={fieldErrors.lastName}>
-                  <Input
-                    name="lastName"
-                    placeholder="Last Name*"
-                    defaultValue={customer?.lastName}
-                    onBlur={blur('lastName')}
-                    aria-invalid={fieldErrors.lastName ? true : undefined}
-                  />
-                </BookingField>
-                <BookingField name="email" error={fieldErrors.email}>
-                  <Input
-                    type="email"
-                    name="email"
-                    placeholder="Email Address*"
-                    defaultValue={customer?.email}
-                    onBlur={blur('email')}
-                    aria-invalid={fieldErrors.email ? true : undefined}
-                  />
-                </BookingField>
-                <BookingField name="phone" error={fieldErrors.phone}>
-                  <Input
-                    type="tel"
-                    name="phone"
-                    placeholder="Phone Number*"
-                    defaultValue={customer?.phone}
-                    onInput={(event) =>
-                      (event.currentTarget.value = sanitizePhone(event.currentTarget.value))
-                    }
-                    onBlur={blur('phone')}
-                    aria-invalid={fieldErrors.phone ? true : undefined}
-                  />
-                </BookingField>
-                <BookingField name="address" error={fieldErrors.address} className="sm:col-span-2">
-                  <Input
+            </div>
+          ) : step === 2 ? (
+            <form onSubmit={submit} noValidate className="grid h-full md:grid-cols-[0.8fr_1.2fr]">
+              <aside className="bg-paper-2 px-8 py-12 text-center md:px-12">
+                <div className="mx-auto flex h-20 w-20 items-center justify-center">
+                  <Image src="/information.svg" alt="" width={80} height={80} aria-hidden />
+                </div>
+                <h2 className="mt-8 font-display text-3xl font-semibold text-ink">
+                  Enter Your Information
+                </h2>
+                <p className="mt-3 text-base leading-7 text-ink-2/65">
+                  Please enter your contact information
+                </p>
+                <p className="mt-20 text-sm font-semibold text-ink">Questions?</p>
+                <a className="mt-2 block text-base text-brass-deep" href={`tel:${phoneClean}`}>
+                  Call {phone}
+                </a>
+              </aside>
+              <div className="px-8 py-8 md:px-12">
+                <h3 className="font-display text-3xl font-medium text-ink">Customer Information</h3>
+                <div className="mt-8 grid gap-3 sm:grid-cols-2">
+                  <BookingField name="firstName" error={fieldErrors.firstName}>
+                    <Input
+                      name="firstName"
+                      placeholder="First Name*"
+                      defaultValue={customer?.firstName}
+                      onBlur={blur('firstName')}
+                      aria-invalid={fieldErrors.firstName ? true : undefined}
+                    />
+                  </BookingField>
+                  <BookingField name="lastName" error={fieldErrors.lastName}>
+                    <Input
+                      name="lastName"
+                      placeholder="Last Name*"
+                      defaultValue={customer?.lastName}
+                      onBlur={blur('lastName')}
+                      aria-invalid={fieldErrors.lastName ? true : undefined}
+                    />
+                  </BookingField>
+                  <BookingField name="email" error={fieldErrors.email}>
+                    <Input
+                      type="email"
+                      name="email"
+                      placeholder="Email Address*"
+                      defaultValue={customer?.email}
+                      onBlur={blur('email')}
+                      aria-invalid={fieldErrors.email ? true : undefined}
+                    />
+                  </BookingField>
+                  <BookingField name="phone" error={fieldErrors.phone}>
+                    <Input
+                      type="tel"
+                      name="phone"
+                      placeholder="Phone Number*"
+                      defaultValue={customer?.phone}
+                      onInput={(event) =>
+                        (event.currentTarget.value = sanitizePhone(event.currentTarget.value))
+                      }
+                      onBlur={blur('phone')}
+                      aria-invalid={fieldErrors.phone ? true : undefined}
+                    />
+                  </BookingField>
+                  <BookingField
                     name="address"
-                    placeholder="Address*"
-                    defaultValue={customer?.address}
-                    onBlur={blur('address')}
-                    aria-invalid={fieldErrors.address ? true : undefined}
+                    error={fieldErrors.address}
+                    className="sm:col-span-2"
+                  >
+                    <Input
+                      name="address"
+                      placeholder="Address*"
+                      defaultValue={customer?.address}
+                      onBlur={blur('address')}
+                      aria-invalid={fieldErrors.address ? true : undefined}
+                    />
+                  </BookingField>
+                  <BookingField name="zipCode" error={fieldErrors.zipCode}>
+                    <Input
+                      name="zipCode"
+                      placeholder="Zip Code*"
+                      inputMode="numeric"
+                      defaultValue={customer?.zipCode}
+                      onInput={(event) =>
+                        (event.currentTarget.value = sanitizeZip(event.currentTarget.value))
+                      }
+                      onBlur={blur('zipCode')}
+                      aria-invalid={fieldErrors.zipCode ? true : undefined}
+                    />
+                  </BookingField>
+                  {services?.length ? (
+                    <div className="grid gap-1 sm:col-span-2">
+                      <label htmlFor="booking-service" className="sr-only">
+                        Service
+                      </label>
+                      <select
+                        id="booking-service"
+                        name="service"
+                        value={serviceSlug}
+                        onChange={(event) => setServiceSlug(event.target.value)}
+                        className="w-full appearance-none border border-line bg-white px-4 py-3 text-base text-ink focus:border-brass focus:outline-none bg-[length:12px] bg-[right_1rem_center] bg-no-repeat pr-10"
+                        style={{
+                          backgroundImage:
+                            "url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' fill='none' stroke='%2314213D' stroke-width='1.5' stroke-linecap='round'/%3E%3C/svg%3E\")",
+                        }}
+                      >
+                        <option value="">What is this about?</option>
+                        {services.map((service) => (
+                          <option key={service.slug} value={service.slug}>
+                            {service.title}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+                  ) : null}
+
+                  <BookingField
+                    name="comments"
+                    error={fieldErrors.comments}
+                    className="sm:col-span-2"
+                  >
+                    <Textarea
+                      name="comments"
+                      placeholder="Comments* (a sentence about the project)"
+                      defaultValue={customer?.comments}
+                      onBlur={blur('comments')}
+                      aria-invalid={fieldErrors.comments ? true : undefined}
+                    />
+                  </BookingField>
+                </div>
+
+                {/* Honeypot: hidden from people, irresistible to bots. */}
+                <div aria-hidden className="hidden">
+                  <label htmlFor="booking-company">Company</label>
+                  <input
+                    id="booking-company"
+                    name="company"
+                    tabIndex={-1}
+                    autoComplete="off"
+                    value={honeypot}
+                    onChange={(event) => setHoneypot(event.target.value)}
                   />
-                </BookingField>
-                <BookingField name="zipCode" error={fieldErrors.zipCode}>
-                  <Input
-                    name="zipCode"
-                    placeholder="Zip Code*"
-                    inputMode="numeric"
-                    defaultValue={customer?.zipCode}
-                    onInput={(event) =>
-                      (event.currentTarget.value = sanitizeZip(event.currentTarget.value))
-                    }
-                    onBlur={blur('zipCode')}
-                    aria-invalid={fieldErrors.zipCode ? true : undefined}
-                  />
-                </BookingField>
-                {services?.length ? (
-                  <div className="grid gap-1 sm:col-span-2">
-                    <label htmlFor="booking-service" className="sr-only">
-                      Service
-                    </label>
-                    <select
-                      id="booking-service"
-                      name="service"
-                      value={serviceSlug}
-                      onChange={(event) => setServiceSlug(event.target.value)}
-                      className="w-full appearance-none border border-line bg-white px-4 py-3 text-base text-ink focus:border-brass focus:outline-none bg-[length:12px] bg-[right_1rem_center] bg-no-repeat pr-10"
-                      style={{
-                        backgroundImage:
-                          "url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' fill='none' stroke='%2314213D' stroke-width='1.5' stroke-linecap='round'/%3E%3C/svg%3E\")",
-                      }}
-                    >
-                      <option value="">What is this about?</option>
-                      {services.map((service) => (
-                        <option key={service.slug} value={service.slug}>
-                          {service.title}
-                        </option>
-                      ))}
-                    </select>
+                </div>
+                <Captcha ref={captcha} className="mt-4" />
+                {submitError ? (
+                  <p role="alert" className="mt-3 text-sm text-red-600">
+                    {submitError}
+                  </p>
+                ) : null}
+                <div className="mt-8 flex justify-between">
+                  <Button type="button" variant="outline" onClick={back}>
+                    ← Back
+                  </Button>
+                  <Button type="submit">Next →</Button>
+                </div>
+              </div>
+            </form>
+          ) : step === 3 ? (
+            <div className="grid h-full md:grid-cols-[0.8fr_1.2fr]">
+              <aside className="bg-paper-2 px-8 py-12 text-center md:px-12">
+                <div className="mx-auto flex h-20 w-20 items-center justify-center">
+                  <Image src="/verify-information.svg" alt="" width={80} height={80} aria-hidden />
+                </div>
+                <h2 className="mt-8 font-display text-3xl font-semibold text-ink">
+                  Verify Order Details
+                </h2>
+                <p className="mt-3 text-base leading-7 text-ink-2/65">
+                  Double check your reservation details and click submit if everything is correct
+                </p>
+              </aside>
+              <div className="px-8 py-8 md:px-12">
+                <h3 className="font-display text-3xl font-medium text-ink">{consultation}</h3>
+                <p className="mt-3 text-lg text-brass-deep">
+                  {dateLabel}, {time}
+                </p>
+
+                {customer ? (
+                  <div className="mt-8 border-t border-line pt-6">
+                    <p className="text-xs font-semibold uppercase tracking-[0.2em] text-brass-deep">
+                      Customer
+                    </p>
+                    <div className="mt-4 flex items-center gap-4">
+                      <div className="flex h-11 w-11 shrink-0 items-center justify-center border border-brass/30 bg-paper-2 text-sm font-semibold text-ink">
+                        {getInitials(customerName)}
+                      </div>
+                      <div className="min-w-0">
+                        <div className="flex items-center gap-2">
+                          <p className="truncate font-display text-base font-medium text-ink">
+                            {customerName || 'Guest'}
+                          </p>
+                          <button
+                            type="button"
+                            onClick={back}
+                            aria-label="Edit customer information"
+                            className="flex h-6 w-6 shrink-0 items-center justify-center text-brass transition-colors hover:text-brass-deep"
+                          >
+                            <Pencil className="h-3.5 w-3.5" aria-hidden />
+                          </button>
+                        </div>
+                        {customer.email ? (
+                          <p className="truncate text-sm text-ink-2/65">{customer.email}</p>
+                        ) : null}
+                      </div>
+                    </div>
                   </div>
+                ) : (
+                  <div className="mt-10 border-t border-line pt-6">
+                    <p className="text-sm text-ink-2/60">
+                      Customer information will be submitted with this appointment request.
+                    </p>
+                  </div>
+                )}
+                {submitError ? (
+                  <p role="alert" className="mt-3 text-sm text-red-600">
+                    {submitError}
+                  </p>
                 ) : null}
 
-                <BookingField
-                  name="comments"
-                  error={fieldErrors.comments}
-                  className="sm:col-span-2"
-                >
-                  <Textarea
-                    name="comments"
-                    placeholder="Comments* (a sentence about the project)"
-                    defaultValue={customer?.comments}
-                    onBlur={blur('comments')}
-                    aria-invalid={fieldErrors.comments ? true : undefined}
-                  />
-                </BookingField>
-              </div>
-
-              {/* Honeypot: hidden from people, irresistible to bots. */}
-              <div aria-hidden className="hidden">
-                <label htmlFor="booking-company">Company</label>
-                <input
-                  id="booking-company"
-                  name="company"
-                  tabIndex={-1}
-                  autoComplete="off"
-                  value={honeypot}
-                  onChange={(event) => setHoneypot(event.target.value)}
-                />
-              </div>
-              <Captcha ref={captcha} className="mt-4" />
-              {submitError ? (
-                <p role="alert" className="mt-3 text-sm text-red-600">
-                  {submitError}
-                </p>
-              ) : null}
-              <div className="mt-8 flex justify-between">
-                <Button type="button" variant="outline" onClick={back}>
-                  ← Back
-                </Button>
-                <Button type="submit">Next →</Button>
+                <div className="mt-6 flex justify-between">
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={back}
+                    disabled={sending}
+                    className="flex gap-1"
+                  >
+                    <ArrowLeft /> Back
+                  </Button>
+                  <Button
+                    type="button"
+                    onClick={submitBooking}
+                    disabled={sending}
+                    className="flex gap-1"
+                  >
+                    {sending ? 'Sending…' : 'Submit'} <ArrowRight />
+                  </Button>
+                </div>
               </div>
             </div>
-          </form>
-        ) : step === 3 ? (
-          <div className="grid h-full md:grid-cols-[0.8fr_1.2fr]">
-            <aside className="bg-paper-2 px-8 py-12 text-center md:px-12">
-              <div className="mx-auto flex h-20 w-20 items-center justify-center">
-                <Image src="/verify-information.svg" alt="" width={80} height={80} aria-hidden />
+          ) : (
+            <div className="flex h-full flex-col justify-center px-8 py-10 sm:px-10">
+              <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-green-100">
+                <Check className="h-8 w-8 text-green-600" strokeWidth={3} aria-hidden />
               </div>
-              <h2 className="mt-8 font-display text-3xl font-semibold text-ink">
-                Verify Order Details
+              <h2 className="mt-6 text-center font-display text-3xl font-semibold text-ink">
+                Appointment Confirmed
               </h2>
-              <p className="mt-3 text-base leading-7 text-ink-2/65">
-                Double check your reservation details and click submit if everything is correct
+              <p className="mt-2 text-center text-base text-ink-2/60">
+                We look forward to seeing you.
               </p>
-            </aside>
-            <div className="px-8 py-8 md:px-12">
-              <h3 className="font-display text-3xl font-medium text-ink">{consultation}</h3>
-              <p className="mt-3 text-lg text-brass-deep">
-                {dateLabel}, {time}
-              </p>
+              <div className="mt-5 flex justify-center">
+                <span className="border border-line bg-paper-2 px-3 py-1 text-xs font-semibold uppercase tracking-wide text-ink-2/70">
+                  Order #<span className="text-ink">{orderId}</span>
+                </span>
+              </div>
+
+              <div className="mt-8 border-t border-line" />
+
+              {showQr && qrCodeUrl ? (
+                <div className="border-b border-line py-8 text-center">
+                  <img
+                    src={qrCodeUrl}
+                    alt="QR code that adds this appointment to your calendar"
+                    width={220}
+                    height={220}
+                    className="mx-auto"
+                  />
+                  <p className="mx-auto mt-6 max-w-xs bg-amber-100 px-4 py-3 text-sm leading-6 text-amber-900">
+                    Point your smartphone camera at this QR code and it will automatically add this
+                    appointment to your calendar
+                  </p>
+                  <button
+                    type="button"
+                    onClick={() => setShowQr(false)}
+                    className="mt-4 text-sm font-semibold text-brass-deep hover:text-brass"
+                  >
+                    Hide QR
+                  </button>
+                </div>
+              ) : null}
+
+              <div className="flex items-start justify-between gap-4 py-6">
+                <div className="flex items-start gap-4">
+                  <div className="flex w-14 shrink-0 flex-col items-center border border-line py-1.5 text-center">
+                    <span className="font-display text-xl font-semibold text-ink">
+                      {selectedDate?.getDate()}
+                    </span>
+                    <span className="text-[11px] uppercase text-ink-2/60">
+                      {selectedDate ? MONTH_LABELS[selectedDate.getMonth()].slice(0, 3) : ''}
+                    </span>
+                  </div>
+                  <div>
+                    <p className="font-display text-lg font-medium text-ink">{consultation}</p>
+                    <p className="mt-1 text-sm text-ink-2/60">
+                      {dateLabel}, {time}
+                    </p>
+                  </div>
+                </div>
+                {!showQr && qrCodeUrl ? (
+                  <button
+                    type="button"
+                    onClick={() => setShowQr(true)}
+                    className="flex shrink-0 flex-col items-center gap-1"
+                  >
+                    <img src={qrCodeUrl} alt="" width={56} height={56} aria-hidden />
+                    <span className="text-xs font-semibold text-brass-deep underline underline-offset-2 hover:text-brass">
+                      Show QR
+                    </span>
+                  </button>
+                ) : null}
+              </div>
+
+              <div className="flex flex-wrap gap-3">
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  onClick={downloadIcs}
+                  className="flex items-center gap-2"
+                >
+                  <CalendarPlus className="h-4 w-4" aria-hidden /> Add to Calendar
+                </Button>
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  onClick={() => window.print()}
+                  className="flex items-center gap-2"
+                >
+                  <Printer className="h-4 w-4" aria-hidden /> Print
+                </Button>
+              </div>
+
+              <div className="mt-8 border-t border-line" />
 
               {customer ? (
-                <div className="mt-8 border-t border-line pt-6">
+                <div className="pt-6">
                   <p className="text-xs font-semibold uppercase tracking-[0.2em] text-brass-deep">
                     Customer
                   </p>
@@ -878,19 +1103,9 @@ export function AppointmentScheduler({
                       {getInitials(customerName)}
                     </div>
                     <div className="min-w-0">
-                      <div className="flex items-center gap-2">
-                        <p className="truncate font-display text-base font-medium text-ink">
-                          {customerName || 'Guest'}
-                        </p>
-                        <button
-                          type="button"
-                          onClick={back}
-                          aria-label="Edit customer information"
-                          className="flex h-6 w-6 shrink-0 items-center justify-center text-brass transition-colors hover:text-brass-deep"
-                        >
-                          <Pencil className="h-3.5 w-3.5" aria-hidden />
-                        </button>
-                      </div>
+                      <p className="truncate font-display text-base font-medium text-ink">
+                        {customerName || 'Guest'}
+                      </p>
                       {customer.email ? (
                         <p className="truncate text-sm text-ink-2/65">{customer.email}</p>
                       ) : null}
@@ -898,171 +1113,23 @@ export function AppointmentScheduler({
                   </div>
                 </div>
               ) : (
-                <div className="mt-10 border-t border-line pt-6">
+                <div className="pt-6">
                   <p className="text-sm text-ink-2/60">
                     Customer information will be submitted with this appointment request.
                   </p>
                 </div>
               )}
-              {submitError ? (
-                <p role="alert" className="mt-3 text-sm text-red-600">
-                  {submitError}
-                </p>
-              ) : null}
 
-              <div className="mt-6 flex justify-between">
-                <Button
-                  type="button"
-                  variant="outline"
-                  onClick={back}
-                  disabled={sending}
-                  className="flex gap-1"
-                >
-                  <ArrowLeft /> Back
-                </Button>
-                <Button
-                  type="button"
-                  onClick={submitBooking}
-                  disabled={sending}
-                  className="flex gap-1"
-                >
-                  {sending ? 'Sending…' : 'Submit'} <ArrowRight />
-                </Button>
-              </div>
-            </div>
-          </div>
-        ) : (
-          <div className="flex h-full flex-col justify-center px-8 py-10 sm:px-10">
-            <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-green-100">
-              <Check className="h-8 w-8 text-green-600" strokeWidth={3} aria-hidden />
-            </div>
-            <h2 className="mt-6 text-center font-display text-3xl font-semibold text-ink">
-              Appointment Confirmed
-            </h2>
-            <p className="mt-2 text-center text-base text-ink-2/60">
-              We look forward to seeing you.
-            </p>
-            <div className="mt-5 flex justify-center">
-              <span className="border border-line bg-paper-2 px-3 py-1 text-xs font-semibold uppercase tracking-wide text-ink-2/70">
-                Order #<span className="text-ink">{orderId}</span>
-              </span>
-            </div>
-
-            <div className="mt-8 border-t border-line" />
-
-            {showQr && qrCodeUrl ? (
-              <div className="border-b border-line py-8 text-center">
-                <img
-                  src={qrCodeUrl}
-                  alt="QR code that adds this appointment to your calendar"
-                  width={220}
-                  height={220}
-                  className="mx-auto"
-                />
-                <p className="mx-auto mt-6 max-w-xs bg-amber-100 px-4 py-3 text-sm leading-6 text-amber-900">
-                  Point your smartphone camera at this QR code and it will automatically add this
-                  appointment to your calendar
-                </p>
-                <button
-                  type="button"
-                  onClick={() => setShowQr(false)}
-                  className="mt-4 text-sm font-semibold text-brass-deep hover:text-brass"
-                >
-                  Hide QR
-                </button>
-              </div>
-            ) : null}
-
-            <div className="flex items-start justify-between gap-4 py-6">
-              <div className="flex items-start gap-4">
-                <div className="flex w-14 shrink-0 flex-col items-center border border-line py-1.5 text-center">
-                  <span className="font-display text-xl font-semibold text-ink">
-                    {selectedDate?.getDate()}
-                  </span>
-                  <span className="text-[11px] uppercase text-ink-2/60">
-                    {selectedDate ? MONTH_LABELS[selectedDate.getMonth()].slice(0, 3) : ''}
-                  </span>
+              {onDone && (
+                <div className="mt-10 flex justify-center">
+                  <Button type="button" onClick={onDone}>
+                    Done
+                  </Button>
                 </div>
-                <div>
-                  <p className="font-display text-lg font-medium text-ink">{consultation}</p>
-                  <p className="mt-1 text-sm text-ink-2/60">
-                    {dateLabel}, {time}
-                  </p>
-                </div>
-              </div>
-              {!showQr && qrCodeUrl ? (
-                <button
-                  type="button"
-                  onClick={() => setShowQr(true)}
-                  className="flex shrink-0 flex-col items-center gap-1"
-                >
-                  <img src={qrCodeUrl} alt="" width={56} height={56} aria-hidden />
-                  <span className="text-xs font-semibold text-brass-deep underline underline-offset-2 hover:text-brass">
-                    Show QR
-                  </span>
-                </button>
-              ) : null}
+              )}
             </div>
-
-            <div className="flex flex-wrap gap-3">
-              <Button
-                type="button"
-                variant="outline"
-                size="sm"
-                onClick={downloadIcs}
-                className="flex items-center gap-2"
-              >
-                <CalendarPlus className="h-4 w-4" aria-hidden /> Add to Calendar
-              </Button>
-              <Button
-                type="button"
-                variant="outline"
-                size="sm"
-                onClick={() => window.print()}
-                className="flex items-center gap-2"
-              >
-                <Printer className="h-4 w-4" aria-hidden /> Print
-              </Button>
-            </div>
-
-            <div className="mt-8 border-t border-line" />
-
-            {customer ? (
-              <div className="pt-6">
-                <p className="text-xs font-semibold uppercase tracking-[0.2em] text-brass-deep">
-                  Customer
-                </p>
-                <div className="mt-4 flex items-center gap-4">
-                  <div className="flex h-11 w-11 shrink-0 items-center justify-center border border-brass/30 bg-paper-2 text-sm font-semibold text-ink">
-                    {getInitials(customerName)}
-                  </div>
-                  <div className="min-w-0">
-                    <p className="truncate font-display text-base font-medium text-ink">
-                      {customerName || 'Guest'}
-                    </p>
-                    {customer.email ? (
-                      <p className="truncate text-sm text-ink-2/65">{customer.email}</p>
-                    ) : null}
-                  </div>
-                </div>
-              </div>
-            ) : (
-              <div className="pt-6">
-                <p className="text-sm text-ink-2/60">
-                  Customer information will be submitted with this appointment request.
-                </p>
-              </div>
-            )}
-
-            {onDone && (
-              <div className="mt-10 flex justify-center">
-                <Button type="button" onClick={onDone}>
-                  Done
-                </Button>
-              </div>
-            )}
-          </div>
-        )}
+          )}
+        </div>
       </div>
     </div>
   )
