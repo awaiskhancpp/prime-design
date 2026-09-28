@@ -8,7 +8,21 @@
 import 'dotenv/config'
 import { createRequire } from 'node:module'
 
-const { Client } = createRequire(import.meta.url)('../node_modules/.pnpm/pg@8.20.0/node_modules/pg')
+// `pg` is only reachable through this literal nested path — it's a
+// transitive dependency (of the Postgres Payload adapter), not a direct one,
+// so neither a plain `import 'pg'` nor its `@types/pg` declarations resolve
+// here. `createRequire` resolves the real package fine at runtime; this
+// minimal shape (just the calls this script actually makes) is what lets the
+// generic `client.query<T>()` calls below type-check without them.
+type PgQueryResult<T> = { rows: T[]; rowCount: number | null }
+type PgClient = {
+  connect(): Promise<void>
+  query<T = unknown>(text: string, values?: unknown[]): Promise<PgQueryResult<T>>
+  end(): Promise<void>
+}
+const { Client } = createRequire(import.meta.url)(
+  '../node_modules/.pnpm/pg@8.20.0/node_modules/pg',
+) as { Client: new (config: { connectionString?: string }) => PgClient }
 
 const assignments = [
   { city: 'Santa Clara', mediaId: 735, filename: 'Home Remodeling in Santa Clara.png' },

@@ -1,6 +1,7 @@
 'use client'
 
 import Image from '@/components/ui/Image'
+import { usePathname } from 'next/navigation'
 import { useEffect, useMemo, useRef, useState } from 'react'
 import type { ChangeEvent, FormEvent } from 'react'
 import {
@@ -16,7 +17,6 @@ import {
 } from 'lucide-react'
 
 import { Captcha, captchaEnabled, type CaptchaHandle } from '@/components/forms/Captcha'
-import type { FormServiceOption } from '@/lib/formServices'
 import { Button } from '@/components/ui/Button'
 import { Input } from '@/components/ui/Input'
 import { Textarea } from '@/components/ui/Textarea'
@@ -194,6 +194,61 @@ const sanitizePhone = (value: string) => value.replace(/[^\d+() -]/g, '').slice(
 /** A ZIP field accepts digits and a single optional ZIP+4 dash, nothing else. */
 const sanitizeZip = (value: string) => value.replace(/[^\d-]/g, '').slice(0, 10)
 
+/**
+ * Which real service a booking is for, guessed from the page it was opened
+ * on, for the callers that don't already know (the contact page's
+ * consultation cards always pass an explicit `defaultServiceSlug`; the seven
+ * Google Ads landing pages never have, since there is no Payload field for
+ * it — WordPress kept this in LatePoint's own tables, and LatePoint was not
+ * part of the WXR export, so it was never migrated, see the `booking`
+ * block's own note in LandingPageBlocks.ts).
+ *
+ * `consultationLabel` here is not invented — it's the real, already-live
+ * label the same service's card shows on the /contact page (checked against
+ * the actual rendered cards, not guessed): the services collection has no
+ * "Home Remodeling" card at all — `home-remodeling`'s own `consultationLabel`
+ * is "New Construction Consultation", so that's what that landing page
+ * shows too. `remodeling-information` (the general, fifteen-section
+ * catch-all covering kitchen, bathroom and whole-home remodeling together)
+ * is mapped to `complete-renovation` / "Complete Renovation Consultation"
+ * per the project owner directly, not guessed from the page's own content.
+ *
+ * Five of the seven landing pages are unambiguously about one service and
+ * are listed here. The other two are deliberately left out:
+ * `outdoor-hardscape-outdoor-kitchen-information` and
+ * `siding-installation-replacement-information` have no matching row in the
+ * services collection at all (there is no outdoor or siding service) — a
+ * booking from either still submits with no service, since guessing one
+ * would misclassify the lead.
+ */
+const LANDING_PAGE_SERVICES: Record<string, { slug: string; consultationLabel: string }> = {
+  'kitchen-remodeling-information': {
+    slug: 'kitchen-remodeling',
+    consultationLabel: 'Kitchen Remodeling Consultation',
+  },
+  'bathroom-remodeling-information': {
+    slug: 'bathroom-remodeling',
+    consultationLabel: 'Bathroom Remodeling Consultation',
+  },
+  'additions-remodeling-information': {
+    slug: 'additions',
+    consultationLabel: 'Additions Consultation',
+  },
+  'home-remodeling-information': {
+    slug: 'home-remodeling',
+    consultationLabel: 'New Construction Consultation',
+  },
+  'remodeling-information': {
+    slug: 'complete-renovation',
+    consultationLabel: 'Complete Renovation Consultation',
+  },
+}
+
+function landingPageServiceFromPathname(pathname: string | null) {
+  const segment = pathname?.split('/').filter(Boolean).pop()
+  return segment ? LANDING_PAGE_SERVICES[segment] : undefined
+}
+
 type DayStatus =
   { kind: 'past' } | { kind: 'closed' } | { kind: 'full' } | { kind: 'open'; remaining: number }
 
@@ -347,30 +402,37 @@ function AppointmentCalendar({
 
 export function AppointmentScheduler({
   consultation,
-  services,
+  consultationLabel,
+  heading,
   defaultServiceSlug,
   formName,
   onDone,
   phone = '(650) 235-4863',
   phoneClean = '6502354863',
 }: {
-  consultation: string
   /**
-   * The service dropdown's options, from `resolveFormServices()`.
-   *
-   * The contact page's consultation cards already say which service is being
-   * booked, so they pass none and the field stays hidden. The landing pages'
-   * booking band does not: its `consultation` falls back to the section
-   * heading, which is how leads arrived saying they wanted a "Book Your Free
-   * Design Consultation" — a headline, not a service. Given the list, the
-   * visitor answers it themselves.
+   * The label to show, already decided by the caller (the contact page's
+   * consultation cards, e.g. "Kitchen Remodeling Consultation") — wins over
+   * everything below when set.
    */
-  services?: FormServiceOption[]
+  consultation?: string
+  /** A landing page's own `booking` block label, authored in the admin. */
+  consultationLabel?: string
   /**
-   * The service slug to submit when the caller already knows it (e.g. the
-   * consultation card that opened this booking) and so passes no `services`
-   * list — the field stays hidden, but the value it would have held still
-   * goes out with the booking instead of being lost.
+   * The landing page section's own heading — the last resort. Falling back
+   * to this used to be the only option, which is how leads arrived saying
+   * their consultation was "Book Your Free Design Consultation": a headline,
+   * not a service. Now it only shows when neither `consultationLabel` nor
+   * the service guessed from the URL (see `landingPageServiceFromPathname`)
+   * is available.
+   */
+  heading?: string
+  /**
+   * The service this booking is for, when the caller already knows it (the
+   * contact page's consultation cards, or a landing page's own service).
+   * There is no visitor-facing service picker any more — a booking with no
+   * known service just submits without one, same as always having left the
+   * old dropdown unanswered.
    */
   defaultServiceSlug?: string
   /** Recorded on the lead so the admin can tell the two entry points apart. */
@@ -420,7 +482,29 @@ export function AppointmentScheduler({
   }, [])
   const [showQr, setShowQr] = useState(false)
   const [sending, setSending] = useState(false)
-  const [serviceSlug, setServiceSlug] = useState(defaultServiceSlug ?? '')
+  // The caller's own answer wins when it has one (the contact page's
+  // consultation cards always do); everyone else — every Google Ads landing
+  // page — gets it guessed from the URL this scheduler is actually mounted
+  // on, rather than always submitting with no service at all.
+  const pathname = usePathname()
+  const landingPageService = landingPageServiceFromPathname(pathname)
+  const serviceSlug = defaultServiceSlug ?? landingPageService?.slug ?? ''
+  // What the scheduler actually calls the booking, in priority order: the
+  // caller's own decided label first, then the real, already-live label the
+  // guessed service uses on the /contact page. That comes ahead of this
+  // block's own `consultationLabel` on purpose — every `booking` block
+  // checked (kitchen, bathroom, and the general remodeling-information page)
+  // carries the exact same literal value, "Book Your Free Design
+  // Consultation", not a per-page value someone authored differently, so the
+  // real service label is more specific and should win. `consultationLabel`
+  // and `heading` stay as fallbacks for the two landing pages with no
+  // service match at all.
+  const label =
+    consultation ||
+    landingPageService?.consultationLabel ||
+    consultationLabel ||
+    heading ||
+    ''
   const [submitError, setSubmitError] = useState<string>()
   const captcha = useRef<CaptchaHandle>(null)
   const captchaToken = useRef<string | undefined>(undefined)
@@ -493,7 +577,7 @@ export function AppointmentScheduler({
 
   const icsContent =
     selectedDate && time
-      ? buildIcsContent({ date: selectedDate, slot: time, title: consultation, orderId })
+      ? buildIcsContent({ date: selectedDate, slot: time, title: label, orderId })
       : null
 
   const qrApiBase =
@@ -562,7 +646,7 @@ export function AppointmentScheduler({
           // relationship to the service, which is the answer the admin needs
           // and `consultationType` only ever approximated.
           service: serviceSlug || undefined,
-          consultationType: consultation,
+          consultationType: label,
           preferredDate: dateLabel && time ? `${dateLabel} at ${time}` : dateLabel || time || '',
           // The machine-readable pair the server validates and counts
           // capacity on. `preferredDate` above stays the human line the
@@ -695,25 +779,29 @@ export function AppointmentScheduler({
         */}
         <div ref={contentRef}>
           {step === 1 ? (
-            <div className="grid h-full md:grid-cols-[0.8fr_1.2fr]">
-              <aside className="bg-paper-2 px-8 py-6 text-center md:px-10">
-                <div className="mx-auto flex h-16 w-16 items-center justify-center">
-                  <Image src="/date-and-time.svg" alt="" width={64} height={64} aria-hidden />
+            // Sized with a floor rather than left to the calendar's own
+            // (much shorter) natural height: without one, this step sits far
+            // short of step 2's, so the modal visibly jumps in size the
+            // moment a date is picked and the form appears.
+            <div className="grid h-full md:min-h-[600px] md:grid-cols-[0.8fr_1.2fr]">
+              <aside className="bg-paper-2 px-8 py-12 text-center md:px-12">
+                <div className="mx-auto flex h-20 w-20 items-center justify-center">
+                  <Image src="/date-and-time.svg" alt="" width={80} height={80} aria-hidden />
                 </div>
-                <h2 className="mt-4 font-display text-2xl font-semibold text-ink">
+                <h2 className="mt-8 font-display text-3xl font-semibold text-ink">
                   Select Date &amp; Time
                 </h2>
-                <p className="mt-2 text-sm leading-6 text-ink-2/65">
+                <p className="mt-3 text-base leading-7 text-ink-2/65">
                   Please select date and time for your appointment
                 </p>
-                <p className="mt-12 text-sm font-semibold text-ink">Questions?</p>
-                <a className="mt-2 block text-sm text-brass-deep" href={`tel:${phoneClean}`}>
+                <p className="mt-20 text-sm font-semibold text-ink">Questions?</p>
+                <a className="mt-2 block text-base text-brass-deep" href={`tel:${phoneClean}`}>
                   Call {phone}
                 </a>
               </aside>
-              <div className="px-8 py-6 md:px-10 pt-10">
+              <div className="px-8 py-8 md:px-12">
                 <p className="text-xs font-semibold uppercase tracking-[0.2em] text-brass-deep">
-                  {consultation}
+                  {label}
                 </p>
 
                 <div className="mt-3">
@@ -863,32 +951,6 @@ export function AppointmentScheduler({
                       aria-invalid={fieldErrors.zipCode ? true : undefined}
                     />
                   </BookingField>
-                  {services?.length ? (
-                    <div className="grid gap-1 sm:col-span-2">
-                      <label htmlFor="booking-service" className="sr-only">
-                        Service
-                      </label>
-                      <select
-                        id="booking-service"
-                        name="service"
-                        value={serviceSlug}
-                        onChange={(event) => setServiceSlug(event.target.value)}
-                        className="w-full appearance-none border border-line bg-white px-4 py-3 text-base text-ink focus:border-brass focus:outline-none bg-[length:12px] bg-[right_1rem_center] bg-no-repeat pr-10"
-                        style={{
-                          backgroundImage:
-                            "url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' fill='none' stroke='%2314213D' stroke-width='1.5' stroke-linecap='round'/%3E%3C/svg%3E\")",
-                        }}
-                      >
-                        <option value="">What is this about?</option>
-                        {services.map((service) => (
-                          <option key={service.slug} value={service.slug}>
-                            {service.title}
-                          </option>
-                        ))}
-                      </select>
-                    </div>
-                  ) : null}
-
                   <BookingField
                     name="comments"
                     error={fieldErrors.comments}
@@ -955,7 +1017,7 @@ export function AppointmentScheduler({
                 </p>
               </aside>
               <div className="px-8 py-8 md:px-12">
-                <h3 className="font-display text-3xl font-medium text-ink">{consultation}</h3>
+                <h3 className="font-display text-3xl font-medium text-ink">{label}</h3>
                 <p className="mt-3 text-lg text-brass-deep">
                   {dateLabel}, {time}
                 </p>
@@ -1079,7 +1141,7 @@ export function AppointmentScheduler({
                     </span>
                   </div>
                   <div>
-                    <p className="font-display text-lg font-medium text-ink">{consultation}</p>
+                    <p className="font-display text-lg font-medium text-ink">{label}</p>
                     <p className="mt-1 text-sm text-ink-2/60">
                       {dateLabel}, {time}
                     </p>
