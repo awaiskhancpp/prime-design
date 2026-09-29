@@ -1,6 +1,6 @@
 'use client'
 
-import { usePathname } from 'next/navigation'
+import { usePathname, useRouter } from 'next/navigation'
 import { useEffect, useRef, useState, type FormEvent } from 'react'
 
 import { Button } from '@/components/ui/Button'
@@ -133,6 +133,7 @@ export function LeadForm({
   // `landingPageServiceFromPathname`'s own note. Still a normal `<select>`
   // the visitor can change either way.
   const pathname = usePathname()
+  const router = useRouter()
   const initialServiceSlug =
     defaultServiceSlug ?? landingPageServiceFromPathname(pathname)?.slug ?? ''
   const [serviceSlug, setServiceSlug] = useState(initialServiceSlug)
@@ -210,10 +211,7 @@ export function LeadForm({
         return
       }
       setDone(true)
-      setValues(EMPTY)
-      setServiceSlug(initialServiceSlug)
-      setTouched({})
-      setSubmitted(false)
+      router.push('/thank-you')
     } catch {
       setFormError('Could not reach the server. Please try again or call us.')
     } finally {

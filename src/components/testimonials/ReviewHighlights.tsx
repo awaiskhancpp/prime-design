@@ -149,100 +149,98 @@ export function ReviewHighlights({
             wall of reviews that begins with these tabs. The copy came from
             the Testimonials Spotlight section that used to sit below.
           */}
-          {content.eyebrow || content.heading || content.description ? (
-            <SectionHeader
-              align="center"
-              eyebrow={content.eyebrow}
-              title={content.heading ?? ''}
-              description={content.description}
-              className="mb-10"
-            />
-          ) : null}
+            {content.eyebrow || content.heading || content.description ? (
+              <SectionHeader
+                align="center"
+                eyebrow={content.eyebrow}
+                title={content.heading ?? ''}
+                description={content.description}
+                className="mb-10"
+              />
+            ) : null}
 
-          {/* Platform tabs. Only worth showing when more than one platform is
+            {/* Platform tabs. Only worth showing when more than one platform is
               represented — with a single source, "All" and that source are
               the same list. */}
-          {tabs.length > 1 ? (
-            <div
-              role="tablist"
-              aria-label="Filter reviews by platform"
-              className="mb-10 flex flex-wrap items-center justify-center gap-2"
-            >
-              <TabButton
-                label="All reviews"
-                count={testimonials.length}
-                active={tab === ALL}
-                onClick={() => selectTab(ALL)}
-              />
-              {tabs.map((entry) => (
+            {tabs.length > 1 ? (
+              <div
+                role="tablist"
+                aria-label="Filter reviews by platform"
+                className="mb-10 flex flex-wrap items-center justify-center gap-2"
+              >
                 <TabButton
-                  key={entry.key}
-                  label={`${entry.label} reviews`}
-                  count={entry.count}
-                  active={tab === entry.key}
-                  onClick={() => selectTab(entry.key)}
+                  label="All reviews"
+                  count={testimonials.length}
+                  active={tab === ALL}
+                  onClick={() => selectTab(ALL)}
                 />
-              ))}
-            </div>
-          ) : null}
+                {tabs.map((entry) => (
+                  <TabButton
+                    key={entry.key}
+                    label={`${entry.label} reviews`}
+                    count={entry.count}
+                    active={tab === entry.key}
+                    onClick={() => selectTab(entry.key)}
+                  />
+                ))}
+              </div>
+            ) : null}
 
-          {cards.length ? (
-            <div className="columns-1 md:columns-2 md:gap-4">
-              {cards.map((review) => (
-                <article
-                  key={review.id}
-                  className="relative mb-4 inline-block w-full break-inside-avoid border border-line bg-paper p-5 sm:p-6"
-                >
-                  <div className="flex items-center gap-4">
-                    <span className="flex h-10 w-10 shrink-0 items-center justify-center bg-paper-2 text-xs font-semibold text-ink-2">
-                      {initials(review.name)}
-                    </span>
-                    <span className="min-w-0 flex-1">
-                      <span className="block font-semibold text-ink-2">{review.name}</span>
-                      {review.source || review.timeAgo ? (
-                        <span className="mt-1 block text-xs uppercase tracking-[0.12em] text-ink-2/50">
-                          {[review.source, review.timeAgo].filter(Boolean).join(' · ')}
+            {cards.length ? (
+              <div className="columns-1 md:columns-2 md:gap-4">
+                {cards.map((review) => (
+                  <article
+                    key={review.id}
+                    className="relative mb-4 inline-block w-full break-inside-avoid border border-line bg-paper p-5 sm:p-6"
+                  >
+                    <div className="flex items-center gap-4">
+                      <span className="flex h-10 w-10 shrink-0 items-center justify-center bg-paper-2 text-xs font-semibold text-ink-2">
+                        {initials(review.name)}
+                      </span>
+                      <span className="min-w-0 flex-1">
+                        <span className="block font-semibold text-ink-2">{review.name}</span>
+                        {review.source || review.timeAgo ? (
+                          <span className="mt-1 block text-xs uppercase tracking-[0.12em] text-ink-2/50">
+                            {[review.source, review.timeAgo].filter(Boolean).join(' · ')}
+                          </span>
+                        ) : null}
+                      </span>
+                      {review.rating ? (
+                        <span
+                          className="shrink-0 text-sm tracking-[0.08em] text-brass"
+                          aria-label={`${review.rating} out of 5 stars`}
+                        >
+                          {'★'.repeat(Math.round(review.rating))}
                         </span>
                       ) : null}
-                    </span>
-                    {review.rating ? (
-                      <span
-                        className="shrink-0 text-sm tracking-[0.08em] text-brass"
-                        aria-label={`${review.rating} out of 5 stars`}
-                      >
-                        {'★'.repeat(Math.round(review.rating))}
-                      </span>
-                    ) : null}
-                  </div>
-                  <ReviewQuote
-                    quote={review.quote}
-                    sourceUrl={review.sourceUrl}
-                    isExcerpt={review.quoteIsExcerpt}
-                    source={review.source}
-                    open={openReview === review.id}
-                    onToggle={() =>
-                      setOpenReview((current) => (current === review.id ? null : review.id))
-                    }
-                  />
-                </article>
-              ))}
-            </div>
-          ) : null}
-
-          <div className="mt-10 flex flex-col items-center gap-3">
-            <p className="text-xs uppercase tracking-[0.14em] text-ink-2/45" aria-live="polite">
-              Showing {cards.length} of {filtered.length}
-            </p>
-            {remaining > 0 ? (
-              <button
-                type="button"
-                onClick={() => setShown((current) => current + pageSize)}
-                className="border border-ink/25 px-6 py-3 text-sm font-semibold text-ink-2 transition-colors hover:border-brass hover:text-brass-deep focus-visible:outline-2 focus-visible:outline-brass"
-              >
-                Load more reviews
-              </button>
+                    </div>
+                    <ReviewQuote
+                      quote={review.quote}
+                      isExcerpt={review.quoteIsExcerpt}
+                      open={openReview === review.id}
+                      onToggle={() =>
+                        setOpenReview((current) => (current === review.id ? null : review.id))
+                      }
+                    />
+                  </article>
+                ))}
+              </div>
             ) : null}
-          </div>
+
+            <div className="mt-10 flex flex-col items-center gap-3">
+              <p className="text-xs uppercase tracking-[0.14em] text-ink-2/45" aria-live="polite">
+                Showing {cards.length} of {filtered.length}
+              </p>
+              {remaining > 0 ? (
+                <button
+                  type="button"
+                  onClick={() => setShown((current) => current + pageSize)}
+                  className="border border-ink/25 px-6 py-3 text-sm font-semibold text-ink-2 transition-colors hover:border-brass hover:text-brass-deep focus-visible:outline-2 focus-visible:outline-brass"
+                >
+                  Load more reviews
+                </button>
+              ) : null}
+            </div>
           </Container>
         </div>
       ) : null}
@@ -260,115 +258,89 @@ export function ReviewHighlights({
  * `ResizeObserver` re-measures when the column width changes, so the link
  * appears and disappears with the layout rather than being decided once.
  *
- * Open, the full text renders in a raised panel over the clamped text rather
- * than growing the card. That is deliberate: this site's standing rule is that
- * expanding something must not push what is below it down the page, and in a
- * CSS-columns masonry an in-place expansion moves every card after it and
- * everything below the grid. Reserving the tallest review's worth of space
- * under the grid instead — the way `FaqExplorer` does it — would leave several
- * hundred pixels of permanent whitespace here, because the longest review runs
- * to 2,593 characters against a six-line clamp.
- *
- * The panel starts at the top of the text, not the top of the card, so the
- * reviewer's name, platform and stars stay visible while their review is open.
- * It is capped at 70% of the viewport and scrolls inside: the longest review
- * here is 2,593 characters, which rendered in full runs to about 1,130px — a
- * panel that would both run off the bottom of the screen and bury the cards
- * beneath it. Capped, it reads as a raised card and never leaves the viewport.
- *
- * The collapsed "Read more" stays in the DOM while the panel is open, holding
- * the card's height, but goes `invisible`, `aria-hidden` and out of the tab
- * order: it sits underneath the panel, so it cannot be clicked, and a control
- * that cannot be clicked must not be offered to a keyboard or a screen reader.
- * The panel carries the "Show less" that actually closes it.
+ * Open, the full text grows in the normal document flow. CSS columns then
+ * reflow the cards below it naturally; keeping one open review at a time
+ * prevents two expanded cards from competing for space. Yelp excerpts do not
+ * get a fake external "full review" link: Yelp only provides the excerpt, so
+ * there is no full text available for this component to reveal.
  */
 function ReviewQuote({
   quote,
-  sourceUrl,
   isExcerpt,
-  source,
   open,
   onToggle,
 }: {
   quote: string
-  /** The review on Yelp or Google, when we have it. */
-  sourceUrl?: string
   /** `quote` is the platform's excerpt, not the whole review. */
   isExcerpt?: boolean
-  source?: string
   open: boolean
   onToggle: () => void
 }) {
   const clampedRef = useRef<HTMLParagraphElement | null>(null)
+  const fullQuoteRef = useRef<HTMLParagraphElement | null>(null)
+  const [collapsedHeight, setCollapsedHeight] = useState<number | null>(null)
+  const [fullHeight, setFullHeight] = useState<number | null>(null)
   const [overflows, setOverflows] = useState(false)
 
   const measure = useCallback(() => {
     const element = clampedRef.current
-    if (!element) return
-    // One pixel of slack: sub-pixel line heights make an exactly-fitting
-    // paragraph report a scrollHeight a fraction taller than its box.
-    setOverflows(element.scrollHeight - element.clientHeight > 1)
-  }, [])
+    const fullQuote = fullQuoteRef.current
+    if (!element || !fullQuote) return
+
+    setFullHeight(fullQuote.scrollHeight)
+    if (!open) {
+      const nextCollapsedHeight = element.clientHeight
+      setCollapsedHeight(nextCollapsedHeight)
+      // One pixel of slack: sub-pixel line heights can make an exactly-fitting
+      // paragraph report a fraction taller than its visible box.
+      setOverflows(fullQuote.scrollHeight - nextCollapsedHeight > 1)
+    }
+  }, [open])
 
   useEffect(() => {
     measure()
     const element = clampedRef.current
+    const fullQuote = fullQuoteRef.current
     if (!element || typeof ResizeObserver === 'undefined') return
     const observer = new ResizeObserver(measure)
     observer.observe(element)
+    if (fullQuote) observer.observe(fullQuote)
     return () => observer.disconnect()
   }, [measure, quote])
 
+  const visibleMaxHeight = open ? (fullHeight ?? collapsedHeight) : collapsedHeight
+
   return (
     <div className="relative mt-6">
-      <p ref={clampedRef} className="line-clamp-6 text-base leading-7 text-ink-2/75">
-        {quote}
-      </p>
-
-      {/*
-        A truncated review cannot be expanded — there is nothing more to show.
-        Yelp's API hands over about 160 characters and keeps the rest, so the
-        only honest thing a card can offer is the review itself, where it was
-        written. Roughly three lines long, these never reach the six-line
-        clamp, so without this they would simply trail off into "..." with no
-        way to read the rest.
-      */}
-      {isExcerpt && sourceUrl ? (
-        <a
-          href={sourceUrl}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="mt-3 inline-block text-sm font-semibold text-brass-deep underline underline-offset-4 transition-colors hover:text-brass focus-visible:outline-2 focus-visible:outline-brass"
+      <div className="relative">
+        <p
+          ref={clampedRef}
+          className={cn(
+            'overflow-hidden text-base leading-7 text-ink-2/75 transition-[max-height] duration-500 ease-in-out motion-reduce:transition-none',
+            !open && 'line-clamp-6',
+          )}
+          style={visibleMaxHeight ? { maxHeight: `${visibleMaxHeight}px` } : undefined}
         >
-          Read the full review{source ? ` on ${source[0].toUpperCase()}${source.slice(1)}` : ''}
-        </a>
-      ) : overflows ? (
+          {quote}
+        </p>
+        <p
+          ref={fullQuoteRef}
+          aria-hidden
+          className="pointer-events-none invisible absolute inset-x-0 top-0 m-0 text-base leading-7 text-ink-2/75"
+        >
+          {quote}
+        </p>
+      </div>
+
+      {!isExcerpt && overflows ? (
         <button
           type="button"
           onClick={onToggle}
           aria-expanded={open}
-          aria-hidden={open}
-          tabIndex={open ? -1 : undefined}
-          className={cn(
-            'mt-3 text-sm font-semibold text-brass-deep underline underline-offset-4 transition-colors hover:text-brass focus-visible:outline-2 focus-visible:outline-brass',
-            open && 'invisible',
-          )}
+          className="mt-3 text-sm font-semibold text-brass-deep underline underline-offset-4 transition-colors hover:text-brass focus-visible:outline-2 focus-visible:outline-brass"
         >
-          Read more
+          {open ? 'Show less' : 'Read more'}
         </button>
-      ) : null}
-
-      {open ? (
-        <div className="absolute inset-x-0 top-0 z-20 max-h-[70vh] overflow-y-auto border border-brass bg-paper p-4 shadow-xl">
-          <p className="text-base leading-7 text-ink-2/75">{quote}</p>
-          <button
-            type="button"
-            onClick={onToggle}
-            className="mt-3 text-sm font-semibold text-brass-deep underline underline-offset-4 transition-colors hover:text-brass focus-visible:outline-2 focus-visible:outline-brass"
-          >
-            Show less
-          </button>
-        </div>
       ) : null}
     </div>
   )

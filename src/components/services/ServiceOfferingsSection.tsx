@@ -73,7 +73,7 @@ export function ServiceOfferingsSection({
             size="md"
             className="border-brass bg-brass text-white hover:border-brass-deep hover:bg-brass-deep"
           >
-            {primaryCta.label}
+            {primaryCta.label} {!secondaryCta && <ArrowRight />}
           </Button>
         )}
         {secondaryCta && (
