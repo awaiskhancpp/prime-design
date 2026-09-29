@@ -2,10 +2,12 @@ import React from 'react'
 import { headers } from 'next/headers'
 
 import { LandscapingCta } from '@/components/blocks/LandscapingCta'
+import { ConsultationPopup } from '@/components/contact/ConsultationPopup'
 import { LandingHeader } from '@/components/landing/LandingHeader'
 import { SiteFooter } from '@/components/layout/SiteFooter'
 import { SiteHeader } from '@/components/layout/SiteHeader'
 import { TopBanner } from '@/components/layout/TopBanner'
+import { resolveFormServices } from '@/lib/formServices'
 import { listPublishedLandingPageSlugs } from '@/lib/landingPages'
 import { resolvePageBySlug } from '@/lib/pages'
 import { getServiceLocation } from '@/lib/serviceLocations'
@@ -101,6 +103,10 @@ export default async function FrontendTemplate({ children }: { children: React.R
   const headerTone =
     segments.length === 1 && lightChromePaths.includes(segments[0]) ? 'light' : 'dark'
 
+  // Only fetched for pages that actually get the popup — bare pages return
+  // above and never reach this line.
+  const consultationServices = await resolveFormServices()
+
   return (
     <>
       <TopBanner />
@@ -110,6 +116,14 @@ export default async function FrontendTemplate({ children }: { children: React.R
       </div>
       <LandscapingCta />
       <SiteFooter />
+      {/*
+        Deliberately absent from the `bare` branch above: Google Ads landing
+        pages and service-location pages are single-purpose conversion pages
+        that already lead straight to their own booking section, and adding a
+        second, competing ask would work against that. See
+        `ConsultationPopup`'s own comment for its open/close mechanism.
+      */}
+      <ConsultationPopup services={consultationServices} />
     </>
   )
 }

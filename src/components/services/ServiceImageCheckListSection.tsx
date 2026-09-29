@@ -22,7 +22,19 @@ export function ServiceImageChecklistSection({
 }) {
   return (
     <Section className=" px-0 py-0">
-      <div className="grid min-h-[640px] lg:grid-cols-2">
+      {/*
+        `min-h-[640px]` is `lg:` only on purpose. At `lg:grid-cols-2` this is
+        one row with the image and text side by side, so the min-height sets
+        their shared row height. Below `lg` the grid collapses to a single
+        column — image row, then text row — and grid's default row-stretch
+        (`align-content: normal` behaves as `stretch` for auto-sized tracks)
+        used to divide that same 640px minimum across both stacked rows
+        anyway, ballooning the `fill`/`object-cover` image far past its own
+        360px minimum into a towering, distorted crop. Mobile doesn't need a
+        forced total height at all — the image's own `min-h-[360px]` plus the
+        text block's natural height is already the right size.
+      */}
+      <div className="grid lg:min-h-[640px] lg:grid-cols-2">
         {/* ── Left: full-bleed image, no frame, no inset ── */}
         <div className="relative min-h-[360px] lg:min-h-full">
           {/*

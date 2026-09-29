@@ -116,8 +116,16 @@ export function SiteHeader({
       const submenuId = dropdownId('mobile-menu', item.href)
       const itemLinkClass = cn(
         'flex flex-1 items-center text-white transition-colors hover:text-brass',
-        depth === 0 ? 'min-h-[104px]' : 'min-h-14',
-        depth === 0 ? 'text-[28px] font-medium tracking-tight' : 'text-lg font-medium',
+        // Row height scales with its own text rather than staying fixed at
+        // the old 104px: at 28px that height read as generous, but on a
+        // narrow phone the 80vw drawer (see below) leaves barely 190px for
+        // the label once the chevron button is subtracted, so 28px sat right
+        // at the wrapping point and looked oversized next to how little
+        // horizontal room it had. 22px keeps top-level items clearly bigger
+        // than the 18px submenu tier — still the obvious primary level —
+        // without dominating the narrow column.
+        depth === 0 ? 'min-h-[76px]' : 'min-h-14',
+        depth === 0 ? 'text-[22px] font-medium tracking-tight' : 'text-lg font-medium',
       )
 
       return (
@@ -445,7 +453,7 @@ export function SiteHeader({
               <Link
                 href="/contact"
                 onClick={() => setIsMenuOpen(false)}
-                className="flex min-h-[104px] items-center text-[28px] font-medium tracking-tight text-white transition-colors hover:text-brass"
+                className="flex min-h-[76px] items-center text-[22px] font-medium tracking-tight text-white transition-colors hover:text-brass"
               >
                 Contact
               </Link>

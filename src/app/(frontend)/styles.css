@@ -148,10 +148,25 @@ body {
 }
 
 
-button,
-input,
-textarea {
-  font: inherit;
+/*
+ * `@layer base` matters here, not just style: Tailwind's utilities
+ * (`text-[22px]`, `font-medium`, ...) live inside `@layer utilities`, and any
+ * unlayered rule always wins over a layered one regardless of specificity or
+ * source order. Written bare, this reset silently beat every component that
+ * tried to size or weight a `<button>`/`<input>`/`<textarea>` with a utility
+ * class — e.g. the mobile nav's "Resources" toggle (a `<button>`, unlike its
+ * sibling links) rendered at the browser's default 16px/400 no matter what
+ * text-size class it was given, while the identical-looking `<a>` items next
+ * to it were unaffected. Layering it puts it back where Tailwind's own
+ * Preflight would have put the same reset, so a component's own classes win
+ * again, as they do for every other element.
+ */
+@layer base {
+  button,
+  input,
+  textarea {
+    font: inherit;
+  }
 }
 
 /*
