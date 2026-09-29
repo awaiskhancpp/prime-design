@@ -43,9 +43,9 @@ export type LeadAlertInput = {
  *     Kitchen Remodeling` is legible on a lock screen without opening
  *     anything, which is where most of these are first read.
  *   - **The name is the heading**, because that is what identifies the lead.
- *   - **The call button sits above the detail**, not under it. Every other
- *     email here puts its action last; this one puts it first, because
- *     reading the message is optional and phoning back is not.
+ *   - **The message sits above the call button**, so the team sees the
+ *     customer's request immediately after the lead heading, followed by
+ *     the fastest response action.
  *   - **No contact strip.** It prints the company's own phone number and
  *     opening hours, which the person reading this already knows.
  *
@@ -84,6 +84,13 @@ export function renderLeadAlert({
   ].filter(Boolean)
 
   const bodyHtml = [
+    lead.message?.trim()
+      ? panel(
+          `<div style="font-size:11px;font-weight:600;letter-spacing:1.4px;text-transform:uppercase;color:${COLOR.brassDeep};">Message</div>
+                      <div style="margin-top:10px;font-size:15px;line-height:25px;color:${COLOR.ink2};">${escapeParagraph(lead.message.trim())}</div>`,
+        )
+      : '',
+
     phoneDigits
       ? button({ label: `Call ${lead.phone}`, href: `tel:${phoneDigits}` })
       : lead.email
@@ -96,13 +103,6 @@ export function renderLeadAlert({
       { label: 'Service', value: lead.service || '' },
       { label: 'Subject', value: lead.subject || '' },
     ]),
-
-    lead.message?.trim()
-      ? panel(
-          `<div style="font-size:11px;font-weight:600;letter-spacing:1.4px;text-transform:uppercase;color:${COLOR.brassDeep};">Message</div>
-                      <div style="margin-top:10px;font-size:15px;line-height:25px;color:${COLOR.ink2};">${escapeParagraph(lead.message.trim())}</div>`,
-        )
-      : '',
 
     meta.length
       ? `
@@ -127,6 +127,7 @@ export function renderLeadAlert({
 
   const text = textBlocks([
     `New ${noun} — ${name}`,
+    lead.message?.trim() && `MESSAGE\n${lead.message.trim()}`,
     [
       lead.phone && `Phone:   ${lead.phone}`,
       lead.email && `Email:   ${lead.email}`,
@@ -135,7 +136,6 @@ export function renderLeadAlert({
     ]
       .filter(Boolean)
       .join('\n'),
-    lead.message?.trim() && `MESSAGE\n${lead.message.trim()}`,
     meta.length > 0 && meta.join('\n'),
     textFooter(settings),
   ])
