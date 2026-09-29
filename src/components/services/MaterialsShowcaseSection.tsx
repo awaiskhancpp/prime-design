@@ -75,13 +75,13 @@ export function MaterialsShowcaseSection({
         {items.map((item, index) => (
           <div
             key={`${item.title}-${index}`}
-            className="relative aspect-[4/3] overflow-hidden bg-ink"
+            className="group relative aspect-[4/3] overflow-hidden bg-ink"
           >
             <Image
               src={item.image}
               alt={item.title}
               fill
-              className="object-cover"
+              className="object-cover transition-transform duration-700 ease-out group-hover:scale-105"
               sizes="(min-width: 640px) 50vw, 100vw"
               unoptimized={item.image.includes('/api/media/file/')}
             />

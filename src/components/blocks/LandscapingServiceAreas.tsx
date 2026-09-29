@@ -232,7 +232,7 @@ export async function LandscapingServiceAreas({
   }
 
   return (
-    <Section className="bg-white px-0 pb-0 pt-16 md:pt-24">
+    <Section className="bg-white px-0 pb-16 pt-16 md:pt-24">
       <div className="grid gap-0 lg:grid-cols-[1fr_1.4fr] mb-2 md:mb-0">
         {/* ── Left column: heading, city list, CTA ── */}
         <div className="flex flex-col justify-start pr-6 pb-6 md:pb-16 md:pr-10 lg:pr-14">

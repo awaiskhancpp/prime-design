@@ -33,8 +33,8 @@ function Portrait({
   // column as before.
   const aspectClasses =
     variant === 'modal'
-      ? 'aspect-[5/4] max-h-[38vh] md:aspect-auto md:max-h-none md:h-full md:min-h-[26rem]'
-      : 'aspect-[4/5]'
+      ? 'w-full aspect-[5/4] max-h-[38vh] md:aspect-auto md:max-h-none md:h-full md:min-h-[26rem]'
+      : 'w-full aspect-[4/5]'
 
   return (
     <div className={`relative overflow-hidden bg-ink-2 ${aspectClasses}`}>

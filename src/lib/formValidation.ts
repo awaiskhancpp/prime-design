@@ -79,6 +79,29 @@ export const usPhone: Validator = (value) => {
   return undefined
 }
 
+/**
+ * Formats digits into a US phone number as the person types: "(690) 701-1303".
+ * Composes only from the digits actually present, so it is safe to call on
+ * every keystroke rather than only at submit time — a leading country code
+ * (`1`) is dropped since North American numbers aren't otherwise shown with
+ * one, and anything past 10 digits is ignored rather than silently accepted.
+ */
+export const formatUsPhone = (value: string): string => {
+  let digits = digitsOf(value)
+  if (digits.length > 10 && digits.startsWith('1')) digits = digits.slice(1)
+  digits = digits.slice(0, 10)
+
+  if (!digits) return ''
+  const area = digits.slice(0, 3)
+  if (digits.length <= 3) return `(${area}`
+
+  const exchange = digits.slice(3, 6)
+  if (digits.length <= 6) return `(${area}) ${exchange}`
+
+  const line = digits.slice(6, 10)
+  return `(${area}) ${exchange}-${line}`
+}
+
 /** A US ZIP code: five digits, optionally followed by a four-digit ZIP+4. */
 export const usZip: Validator = (value) => {
   const trimmed = value.trim()

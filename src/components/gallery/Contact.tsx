@@ -68,7 +68,7 @@ export async function Contact({
                     href={`tel:${settings.phoneClean}`}
                     className="font-semibold text-brass-deep underline decoration-brass/40 underline-offset-4 hover:text-brass"
                   >
-                    <span className="nimbata">{settings.phoneClean}</span>
+                    <span className="nimbata">{settings.phone}</span>
                   </a>
                 </p>
 

@@ -113,7 +113,7 @@ export function ConsultationPopup({ services }: { services?: FormServiceOption[]
 
         <div className="max-h-[calc(100vh-2rem)] overflow-y-auto px-8 py-10 sm:px-10">
           <h2 className="text-center font-display text-2xl font-semibold text-ink md:text-3xl">
-            Schedule a Consultation
+            Free Consultation
           </h2>
           <p className="mx-auto mt-3 max-w-sm text-center text-sm leading-6 text-ink-2/65">
             Tell us a bit about your project and we&apos;ll be in touch to set up your free
@@ -121,9 +121,9 @@ export function ConsultationPopup({ services }: { services?: FormServiceOption[]
           </p>
 
           <LeadForm
-            className="mt-8 gap-5"
+            className="mt-6 gap-1"
             layout="stacked"
-            submitLabel="Request a Consultation"
+            submitLabel="Contact Us"
             submitClassName="w-full"
             messagePlaceholder="Tell us about your project..."
             formName="Consultation popup"

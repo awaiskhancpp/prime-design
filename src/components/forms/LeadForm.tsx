@@ -12,6 +12,7 @@ import { cn } from '@/lib/utils'
 import { Captcha, captchaEnabled, type CaptchaHandle } from './Captcha'
 import {
   email as emailRule,
+  formatUsPhone,
   minWords,
   optional,
   personName,
@@ -251,7 +252,13 @@ export function LeadForm({
           <Input type="email" autoComplete="email" {...field('email')} />
         </Field>
         <Field label="Phone*" name="phone" error={errors.phone}>
-          <Input type="tel" autoComplete="tel" placeholder="(650) 235-4863" {...field('phone')} />
+          <Input
+            type="tel"
+            autoComplete="tel"
+            placeholder="(650) 235-4863"
+            {...field('phone')}
+            onChange={(event) => setValue('phone', formatUsPhone(event.target.value))}
+          />
         </Field>
       </div>
 

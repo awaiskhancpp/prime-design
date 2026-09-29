@@ -36,7 +36,7 @@ export function ServiceImageChecklistSection({
       */}
       <div className="grid lg:min-h-[640px] lg:grid-cols-2">
         {/* ── Left: full-bleed image, no frame, no inset ── */}
-        <div className="relative min-h-[360px] lg:min-h-full">
+        <div className="relative min-h-[360px] ">
           {/*
             `sizes` must describe the source width the CROP needs, not the box
             width. This is a landscape photo (~1.6:1) covering a box that is
@@ -66,13 +66,18 @@ export function ServiceImageChecklistSection({
         {/* ── Right: heading + numbered list ── */}
         <div className="flex flex-col justify-center px-8 py-16 md:px-14 lg:py-20">
           {/* Header block */}
-          <SectionHeader eyebrow={eyebrow} title={heading} description={description} className="max-w-md" />
+          <SectionHeader
+            eyebrow={eyebrow}
+            title={heading}
+            description={description}
+            className="max-w-md"
+          />
 
           {/* Checklist */}
           {items.length ? (
-            <ul className="mt-10 space-y-0">
+            <ul className="mt-4 space-y-0">
               {items.map(({ title, description: itemDesc }, index) => (
-                <li key={title} className="grid grid-cols-[1fr_auto] border-t border-brass/20 py-6">
+                <li key={title} className="grid grid-cols-[1fr_auto] border-t border-brass/20 py-4">
                   {/* Text column */}
                   <div className="pr-6">
                     <p className="font-display text-lg font-semibold text-ink-2">{title}</p>

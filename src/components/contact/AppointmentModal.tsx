@@ -24,6 +24,7 @@ import { landingPageServiceFromPathname } from '@/lib/landingPageServices'
 import { cn } from '@/lib/utils'
 import {
   email as emailRule,
+  formatUsPhone,
   minWords,
   personName,
   streetAddress,
@@ -183,14 +184,6 @@ const dateKey = (value: Date) =>
   `${value.getFullYear()}-${String(value.getMonth() + 1).padStart(2, '0')}-${String(
     value.getDate(),
   ).padStart(2, '0')}`
-
-/**
- * A phone field accepts only the characters a phone number can contain, so
- * typing letters into it does nothing. Formatting stays freeform — the
- * validator reads digits only, so "(650) 235-4863" and "6502354863" are both
- * accepted and compared as equal.
- */
-const sanitizePhone = (value: string) => value.replace(/[^\d+() -]/g, '').slice(0, 24)
 
 /** A ZIP field accepts digits and a single optional ZIP+4 dash, nothing else. */
 const sanitizeZip = (value: string) => value.replace(/[^\d-]/g, '').slice(0, 10)
@@ -865,7 +858,7 @@ export function AppointmentScheduler({
                       placeholder="Phone Number*"
                       defaultValue={customer?.phone}
                       onInput={(event) =>
-                        (event.currentTarget.value = sanitizePhone(event.currentTarget.value))
+                        (event.currentTarget.value = formatUsPhone(event.currentTarget.value))
                       }
                       onBlur={blur('phone')}
                       aria-invalid={fieldErrors.phone ? true : undefined}

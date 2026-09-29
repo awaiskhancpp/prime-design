@@ -93,12 +93,11 @@ function ImageGrid({ images, alt }: { images: string[]; alt: string }) {
     )
   }
 
-  // 4+: staggered two-column collage. The right column is offset downward
-  // and the aspect ratios alternate, so the block reads as a composition
-  // rather than a uniform grid of square crops.
+  // 4+: staggered two-column collage. The right column remains offset
+  // downward, while both stacks keep the same internal spacing.
   return (
     <div className="grid grid-cols-2 gap-4">
-      <div className="grid gap-4">
+      <div className="grid self-start gap-4">
         <div className="relative aspect-[4/3] overflow-hidden">
           <Image src={shown[0]} alt={`${alt} 1`} fill className="object-cover" sizes="(min-width: 1024px) 22vw, 46vw" />
         </div>
@@ -106,7 +105,7 @@ function ImageGrid({ images, alt }: { images: string[]; alt: string }) {
           <Image src={shown[2]} alt={`${alt} 3`} fill className="object-cover" sizes="(min-width: 1024px) 22vw, 46vw" />
         </div>
       </div>
-      <div className="grid gap-4 md:mt-10">
+      <div className="grid self-start gap-4 md:mt-10">
         <div className="relative aspect-[3/4] overflow-hidden">
           <Image src={shown[1]} alt={`${alt} 2`} fill className="object-cover" sizes="(min-width: 1024px) 22vw, 46vw" />
         </div>
