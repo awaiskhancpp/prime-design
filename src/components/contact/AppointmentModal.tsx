@@ -18,6 +18,7 @@ import {
 
 import { Captcha, captchaEnabled, type CaptchaHandle } from '@/components/forms/Captcha'
 import { Button } from '@/components/ui/Button'
+import { useDialogFocus } from '@/lib/useDialogFocus'
 import { Input } from '@/components/ui/Input'
 import { Textarea } from '@/components/ui/Textarea'
 import { landingPageServiceFromPathname } from '@/lib/landingPageServices'
@@ -1172,11 +1173,16 @@ export function AppointmentModal({
   phoneClean,
   defaultServiceSlug,
 }: AppointmentModalProps) {
+  const dialogRef = useRef<HTMLDivElement>(null)
+  useDialogFocus(dialogRef, Boolean(consultation), onClose)
+
   if (!consultation) return null
 
   return (
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center bg-black/55 p-4"
+      ref={dialogRef}
+      tabIndex={-1}
+      className="fixed inset-0 z-50 flex items-center justify-center bg-black/55 p-4 outline-none"
       role="dialog"
       aria-modal="true"
       aria-label="Book appointment"

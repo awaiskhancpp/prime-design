@@ -16,7 +16,12 @@ import { WAVE_BACKGROUND } from '@/lib/assets'
  */
 export function LandscapingCta() {
   return (
-    <section className="relative isolate overflow-hidden bg-ink text-white">
+    // Named, so this band between the page and the footer is a region
+    // landmark rather than content outside any landmark.
+    <section
+      aria-labelledby="site-cta-heading"
+      className="relative isolate overflow-hidden bg-ink text-white"
+    >
       <Image
         src={WAVE_BACKGROUND}
         alt=""
@@ -35,7 +40,9 @@ export function LandscapingCta() {
           Need a new kitchen, bathroom, or complete home renovation?
         </p>
 
-        <h2 className="mx-auto mt-6 max-w-4xl font-display text-4xl font-medium leading-[1.08] tracking-tight sm:text-5xl lg:text-6xl">
+        <h2
+          id="site-cta-heading"
+          className="mx-auto mt-6 max-w-4xl font-display text-4xl font-medium leading-[1.08] tracking-tight sm:text-5xl lg:text-6xl">
           Silicon Valley&apos;s Luxury Home Contractor
         </h2>
 

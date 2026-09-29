@@ -54,7 +54,10 @@ export async function ServicesPage() {
                     <div className="relative aspect-[3/4] overflow-hidden bg-paper-2">
                       <Image
                         src={service.image}
-                        alt={service.title}
+                        // Decorative: the card's link already takes its name
+                        // from the title below, which would otherwise be read
+                        // twice ("Kitchen Remodeling Kitchen Remodeling").
+                        alt=""
                         fill
                         className="object-cover transition-transform duration-700 ease-out group-hover:scale-105"
                         sizes="(min-width: 1024px) 33vw, (min-width: 640px) 50vw, 100vw"

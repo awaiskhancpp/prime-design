@@ -1,10 +1,11 @@
 'use client'
 
 import Image from '@/components/ui/Image'
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { useCallback, useEffect, useId, useMemo, useRef, useState } from 'react'
 
 import { Section } from '@/components/ui/Section'
 import { SectionHeader } from '@/components/ui/SectionHeader'
+import { tabPanelProps, tabProps } from '@/lib/tabs'
 import { cn } from '@/lib/utils'
 import type { PageReviewHighlightsContent } from '@/lib/pageSections'
 import type { CollectionTestimonial } from '@/lib/testimonialsCollection.server'
@@ -52,6 +53,7 @@ export function ReviewHighlights({
     content.reviewLimit && content.reviewLimit > 0 ? content.reviewLimit : DEFAULT_PAGE_SIZE
 
   const [tab, setTab] = useState<string>(ALL)
+  const tabsId = useId()
   const [shown, setShown] = useState(pageSize)
   /**
    * The one review reading in full, if any. One at a time: two open panels in
@@ -169,6 +171,8 @@ export function ReviewHighlights({
                 className="mb-10 flex flex-wrap items-center justify-center gap-2"
               >
                 <TabButton
+                  tabsId={tabsId}
+                  tabKey={ALL}
                   label="All reviews"
                   count={testimonials.length}
                   active={tab === ALL}
@@ -177,6 +181,8 @@ export function ReviewHighlights({
                 {tabs.map((entry) => (
                   <TabButton
                     key={entry.key}
+                    tabsId={tabsId}
+                    tabKey={entry.key}
                     label={`${entry.label} reviews`}
                     count={entry.count}
                     active={tab === entry.key}
@@ -186,60 +192,62 @@ export function ReviewHighlights({
               </div>
             ) : null}
 
-            {cards.length ? (
-              <div className="columns-1 md:columns-2 md:gap-4">
-                {cards.map((review) => (
-                  <article
-                    key={review.id}
-                    className="relative mb-4 inline-block w-full break-inside-avoid border border-line bg-paper p-5 sm:p-6"
-                  >
-                    <div className="flex items-center gap-4">
-                      <span className="flex h-10 w-10 shrink-0 items-center justify-center bg-paper-2 text-xs font-semibold text-ink-2">
-                        {initials(review.name)}
-                      </span>
-                      <span className="min-w-0 flex-1">
-                        <span className="block font-semibold text-ink-2">{review.name}</span>
-                        {review.source || review.timeAgo ? (
-                          <span className="mt-1 block text-xs uppercase tracking-[0.12em] text-ink-2/50">
-                            {[review.source, review.timeAgo].filter(Boolean).join(' · ')}
+            <div {...(tabs.length > 1 ? tabPanelProps(tabsId, tab) : {})}>
+              {cards.length ? (
+                <div className="columns-1 md:columns-2 md:gap-4">
+                  {cards.map((review) => (
+                    <article
+                      key={review.id}
+                      className="relative mb-4 inline-block w-full break-inside-avoid border border-line bg-paper p-5 sm:p-6"
+                    >
+                      <div className="flex items-center gap-4">
+                        <span className="flex h-10 w-10 shrink-0 items-center justify-center bg-paper-2 text-xs font-semibold text-ink-2">
+                          {initials(review.name)}
+                        </span>
+                        <span className="min-w-0 flex-1">
+                          <span className="block font-semibold text-ink-2">{review.name}</span>
+                          {review.source || review.timeAgo ? (
+                            <span className="mt-1 block text-xs uppercase tracking-[0.12em] text-ink-2/50">
+                              {[review.source, review.timeAgo].filter(Boolean).join(' · ')}
+                            </span>
+                          ) : null}
+                        </span>
+                        {review.rating ? (
+                          <span
+                            className="shrink-0 text-sm tracking-[0.08em] text-brass"
+                            aria-label={`${review.rating} out of 5 stars`}
+                          >
+                            {'★'.repeat(Math.round(review.rating))}
                           </span>
                         ) : null}
-                      </span>
-                      {review.rating ? (
-                        <span
-                          className="shrink-0 text-sm tracking-[0.08em] text-brass"
-                          aria-label={`${review.rating} out of 5 stars`}
-                        >
-                          {'★'.repeat(Math.round(review.rating))}
-                        </span>
-                      ) : null}
-                    </div>
-                    <ReviewQuote
-                      quote={review.quote}
-                      isExcerpt={review.quoteIsExcerpt}
-                      open={openReview === review.id}
-                      onToggle={() =>
-                        setOpenReview((current) => (current === review.id ? null : review.id))
-                      }
-                    />
-                  </article>
-                ))}
-              </div>
-            ) : null}
-
-            <div className="mt-10 flex flex-col items-center gap-3">
-              <p className="text-xs uppercase tracking-[0.14em] text-ink-2/45" aria-live="polite">
-                Showing {cards.length} of {filtered.length}
-              </p>
-              {remaining > 0 ? (
-                <button
-                  type="button"
-                  onClick={() => setShown((current) => current + pageSize)}
-                  className="border border-ink/25 px-6 py-3 text-sm font-semibold text-ink-2 transition-colors hover:border-brass hover:text-brass-deep focus-visible:outline-2 focus-visible:outline-brass"
-                >
-                  Load more reviews
-                </button>
+                      </div>
+                      <ReviewQuote
+                        quote={review.quote}
+                        isExcerpt={review.quoteIsExcerpt}
+                        open={openReview === review.id}
+                        onToggle={() =>
+                          setOpenReview((current) => (current === review.id ? null : review.id))
+                        }
+                      />
+                    </article>
+                  ))}
+                </div>
               ) : null}
+
+              <div className="mt-10 flex flex-col items-center gap-3">
+                <p className="text-xs uppercase tracking-[0.14em] text-ink-2/45" aria-live="polite">
+                  Showing {cards.length} of {filtered.length}
+                </p>
+                {remaining > 0 ? (
+                  <button
+                    type="button"
+                    onClick={() => setShown((current) => current + pageSize)}
+                    className="border border-ink/25 px-6 py-3 text-sm font-semibold text-ink-2 transition-colors hover:border-brass hover:text-brass-deep focus-visible:outline-2 focus-visible:outline-brass"
+                  >
+                    Load more reviews
+                  </button>
+                ) : null}
+              </div>
             </div>
           </Container>
         </div>
@@ -347,11 +355,15 @@ function ReviewQuote({
 }
 
 function TabButton({
+  tabsId,
+  tabKey,
   label,
   count,
   active,
   onClick,
 }: {
+  tabsId: string
+  tabKey: string
   label: string
   count: number
   active: boolean
@@ -360,8 +372,7 @@ function TabButton({
   return (
     <button
       type="button"
-      role="tab"
-      aria-selected={active}
+      {...tabProps(tabsId, tabKey, active)}
       onClick={onClick}
       className={cn(
         // `font-semibold` on every state: a weight change would resize the

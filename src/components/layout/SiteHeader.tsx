@@ -8,6 +8,7 @@ import { useEffect, useRef, useState } from 'react'
 import website from '../../../website.json'
 import { Button } from '@/components/ui/Button'
 import { Container } from '@/components/ui/Container'
+import { useDialogFocus } from '@/lib/useDialogFocus'
 import { cn } from '@/lib/utils'
 
 import { BrandMark } from './BrandMark'
@@ -34,6 +35,8 @@ export function SiteHeader({
   variant?: 'full' | 'minimal'
 }) {
   const [isMenuOpen, setIsMenuOpen] = useState(false)
+  const drawerRef = useRef<HTMLElement>(null)
+  useDialogFocus(drawerRef, isMenuOpen, () => setIsMenuOpen(false))
   const [expandedMobileMenus, setExpandedMobileMenus] = useState<Set<string>>(() => new Set())
   const [expandedDesktopMenus, setExpandedDesktopMenus] = useState<Set<string>>(() => new Set())
 
@@ -215,6 +218,7 @@ export function SiteHeader({
                 className="relative z-10 flex items-center gap-2.5 text-white"
                 aria-label="Open navigation menu"
                 aria-expanded={isMenuOpen}
+                aria-controls="mobile-navigation"
               >
                 <Menu className="h-7 w-7 stroke-[2]" />
                 <span className="text-xs font-semibold uppercase tracking-[0.18em]">Menu</span>
@@ -406,6 +410,9 @@ export function SiteHeader({
           MOBILE MENU DRAWER
       ========================= */}
       <div
+        // Closed, the drawer is only translated off-screen, so without
+        // `inert` every link in it would still be a Tab stop.
+        inert={!isMenuOpen}
         className={cn(
           'fixed inset-0 z-[100] lg:hidden',
           isMenuOpen ? 'pointer-events-auto' : 'pointer-events-none',
@@ -424,8 +431,14 @@ export function SiteHeader({
 
         {/* Drawer */}
         <aside
+          ref={drawerRef}
+          id="mobile-navigation"
+          role="dialog"
+          aria-modal="true"
+          aria-label="Navigation menu"
+          tabIndex={-1}
           className={cn(
-            'absolute left-0 top-0 flex h-full w-[min(80vw,423px)] flex-col bg-[#29344F] shadow-2xl transition-transform duration-300 ease-out',
+            'absolute left-0 top-0 flex h-full w-[min(80vw,423px)] flex-col bg-[#29344F] shadow-2xl outline-none transition-transform duration-300 ease-out',
             isMenuOpen ? 'translate-x-0' : '-translate-x-full',
           )}
         >

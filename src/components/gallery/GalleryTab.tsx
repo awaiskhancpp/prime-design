@@ -1,9 +1,10 @@
 'use client'
 
-import { useMemo, useState } from 'react'
+import { useId, useMemo, useState } from 'react'
 import Image from '@/components/ui/Image'
 
 import { Section } from '@/components/ui/Section'
+import { tabPanelProps, tabProps } from '@/lib/tabs'
 import { cn } from '@/lib/utils'
 import type { GalleryCategory } from '@/lib/gallery.server'
 
@@ -30,6 +31,7 @@ export function GalleryTabs({
   )
 
   const [activeSlug, setActiveSlug] = useState(tabs[0].slug)
+  const tabsId = useId()
   const [visibleCount, setVisibleCount] = useState(PAGE_SIZE)
   const [lightboxIndex, setLightboxIndex] = useState<number | null>(null)
 
@@ -69,8 +71,7 @@ export function GalleryTabs({
           <button
             key={tab.slug}
             type="button"
-            role="tab"
-            aria-selected={tab.slug === activeSlug}
+            {...tabProps(tabsId, tab.slug, tab.slug === activeSlug)}
             onClick={() => selectTab(tab.slug)}
             className={cn(
               'relative cursor-pointer pb-4 text-xs font-semibold uppercase tracking-[0.16em] transition-colors',
@@ -94,6 +95,7 @@ export function GalleryTabs({
           the lightbox at that image's position in the full active-tab list. */}
       <div
         key={activeTab.slug}
+        {...tabPanelProps(tabsId, activeTab.slug)}
         className="mt-10 grid animate-fade-in grid-cols-2 gap-1 motion-reduce:animate-none md:grid-cols-3"
       >
         {visibleImages.map((image, index) => (

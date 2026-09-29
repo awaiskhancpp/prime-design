@@ -1,9 +1,10 @@
 'use client'
 
-import { useState } from 'react'
+import { useId, useState } from 'react'
 import { ChevronLeft, ChevronRight } from 'lucide-react'
 
 import BeforeAfterSlider from '@/components/blocks/BeforeAfterSlider'
+import { tabPanelProps, tabProps } from '@/lib/tabs'
 import { cn } from '@/lib/utils'
 
 import { VideoCarousel, type CarouselVideo } from './VideoCarousel'
@@ -125,6 +126,7 @@ export function PrimeDifferenceMedia({
   const [view, setView] = useState<'videos' | 'comparisons'>(
     hasVideos ? 'videos' : 'comparisons',
   )
+  const tabsId = useId()
 
   // Nothing to show. Returning null rather than a placeholder keeps an
   // unwired section visibly empty instead of looking populated.
@@ -146,8 +148,7 @@ export function PrimeDifferenceMedia({
           <button
             key={value}
             type="button"
-            role="tab"
-            aria-selected={showing === value}
+            {...tabProps(tabsId, value, showing === value)}
             onClick={() => setView(value)}
             className={cn(
               'border px-4 py-2 text-xs font-semibold uppercase tracking-[0.14em] transition-colors',
@@ -161,11 +162,13 @@ export function PrimeDifferenceMedia({
         ))}
       </div>
 
-      {showing === 'videos' ? (
-        <VideoCarousel videos={videos} dark />
-      ) : (
-        <ComparisonCarousel comparisons={comparisons} />
-      )}
+      <div {...tabPanelProps(tabsId, showing)}>
+        {showing === 'videos' ? (
+          <VideoCarousel videos={videos} dark />
+        ) : (
+          <ComparisonCarousel comparisons={comparisons} />
+        )}
+      </div>
     </div>
   )
 }

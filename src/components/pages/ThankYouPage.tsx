@@ -28,7 +28,7 @@ export async function ThankYouPage() {
     // overlaid header, including `SiteHeader`'s mobile bar, which ignores the
     // `tone` prop `FrontendTemplate` otherwise gets right for `/thank-you`.
     // See the CSS rule in `styles.css`.
-    <div data-light-chrome className="min-h-screen bg-white">
+    <main data-light-chrome className="min-h-screen bg-white">
       <UtilityHero
         eyebrow={hero?.eyebrow}
         display={
@@ -67,6 +67,6 @@ export async function ThankYouPage() {
       </UtilityHero>
 
       <PageSections sections={page?.layout ?? []} context={{}} />
-    </div>
+    </main>
   )
 }

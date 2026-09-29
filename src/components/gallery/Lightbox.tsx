@@ -1,8 +1,10 @@
 'use client'
 
-import { useEffect } from 'react'
+import { useEffect, useRef } from 'react'
 import Image from '@/components/ui/Image'
 import { ChevronLeft, ChevronRight, X } from 'lucide-react'
+
+import { useDialogFocus } from '@/lib/useDialogFocus'
 
 export function Lightbox({
   images,
@@ -17,9 +19,12 @@ export function Lightbox({
   onClose: () => void
   onNavigate: (nextIndex: number) => void
 }) {
+  const dialogRef = useRef<HTMLDivElement>(null)
+  // Escape, the Tab trap and focus restoration; the arrow keys stay below.
+  useDialogFocus(dialogRef, true, onClose)
+
   useEffect(() => {
     function onKeyDown(event: KeyboardEvent) {
-      if (event.key === 'Escape') onClose()
       if (event.key === 'ArrowLeft') onNavigate((index - 1 + images.length) % images.length)
       if (event.key === 'ArrowRight') onNavigate((index + 1) % images.length)
     }
@@ -33,10 +38,12 @@ export function Lightbox({
 
   return (
     <div
+      ref={dialogRef}
+      tabIndex={-1}
       role="dialog"
       aria-modal="true"
       aria-label="Image viewer"
-      className="fixed inset-0 z-50 flex items-center justify-center bg-black/75 p-4 sm:p-10"
+      className="fixed inset-0 z-50 flex items-center justify-center bg-black/75 p-4 outline-none sm:p-10"
       onClick={onClose}
     >
       <button

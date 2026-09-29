@@ -2,7 +2,15 @@
 
 import Image from '@/components/ui/Image'
 import { Star } from 'lucide-react'
-import { useCallback, useEffect, useId, useRef, useState } from 'react'
+import {
+  forwardRef,
+  useCallback,
+  useEffect,
+  useId,
+  useRef,
+  useState,
+  type RefObject,
+} from 'react'
 
 import { Section } from '@/components/ui/Section'
 
@@ -15,7 +23,8 @@ export type TestimonialCard = {
 /** The initial line budget before the supporting stack has been measured. */
 const INITIAL_LINE_CLAMP = 5
 const SUPPORTING_STACK_GAP = 20
-const SUPPORTING_TRANSITION_DURATION = '450ms'
+const SUPPORTING_TRANSITION_MS = 450
+const SUPPORTING_TRANSITION_DURATION = `${SUPPORTING_TRANSITION_MS}ms`
 const SUPPORTING_TRANSITION_TIMING = 'cubic-bezier(0.22, 1, 0.36, 1)'
 
 function Avatar({ name, avatar }: { name: string; avatar?: string }) {
@@ -61,56 +70,95 @@ function Stars() {
   )
 }
 
-function PrimaryCard({ testimonial }: { testimonial: TestimonialCard }) {
-  return (
-    <figure className="relative flex h-full flex-col bg-ink p-10 lg:p-12">
-      <span
-        className="pointer-events-none absolute right-8 top-4 select-none font-display text-[7rem] font-bold leading-none text-brass/15"
-        aria-hidden
-      >
-        &ldquo;
-      </span>
-      <Stars />
-      <blockquote className="relative z-10 mt-6 flex-1 font-display text-xl font-medium leading-[1.65] text-white/90 lg:text-2xl">
-        {testimonial.quote}
-      </blockquote>
-      <figcaption className="mt-10 flex items-center gap-3 border-t border-white/10 pt-7">
-        <Avatar name={testimonial.name} avatar={testimonial.avatar} />
-        <p className="font-semibold text-white">{testimonial.name}</p>
-      </figcaption>
-    </figure>
-  )
+const PrimaryCard = forwardRef<HTMLElement, { testimonial: TestimonialCard }>(
+  function PrimaryCard({ testimonial }, ref) {
+    return (
+      <figure ref={ref} className="relative flex h-full flex-col bg-ink p-10 lg:p-12">
+        <span
+          className="pointer-events-none absolute right-8 top-4 select-none font-display text-[7rem] font-bold leading-none text-brass/15"
+          aria-hidden
+        >
+          &ldquo;
+        </span>
+        <Stars />
+        <blockquote className="relative z-10 mt-6 flex-1 font-display text-xl font-medium leading-[1.65] text-white/90 lg:text-2xl">
+          {testimonial.quote}
+        </blockquote>
+        <figcaption className="mt-10 flex items-center gap-3 border-t border-white/10 pt-7">
+          <Avatar name={testimonial.name} avatar={testimonial.avatar} />
+          <p className="font-semibold text-white">{testimonial.name}</p>
+        </figcaption>
+      </figure>
+    )
+  },
+)
+
+/**
+ * Holds `element` at the same point on screen while the layout animates
+ * around it — the same pattern as `anchor()` in `FaqExplorer`.
+ */
+function anchor(element: HTMLElement) {
+  const top = element.getBoundingClientRect().top
+  const started = performance.now()
+  const step = () => {
+    const delta = element.getBoundingClientRect().top - top
+    if (Math.abs(delta) > 0.5) window.scrollBy(0, delta)
+    // A little past the transition, to catch the final frame.
+    if (performance.now() - started < SUPPORTING_TRANSITION_MS + 100) requestAnimationFrame(step)
+  }
+  requestAnimationFrame(step)
 }
 
+/**
+ * Everything about a card that does not depend on how tall its row is. It is
+ * measured once per width, never during the row animation, so the targets
+ * below are fixed before the motion starts rather than chased frame by frame.
+ */
 type SupportingCardMetrics = {
-  collapsedCardHeight: number
-  fullCardHeight: number
-  minCardHeight: number
+  /** Card height minus the quote: padding, stars, button, footer. */
+  chrome: number
+  lineHeight: number
+  fullQuoteHeight: number
   fullLines: number
 }
 
 type SupportingCardProps = {
   testimonial: TestimonialCard
   expanded: boolean
-  onToggle: () => void
-  onMeasure: (metrics: SupportingCardMetrics) => void
+  /**
+   * True once the open/close motion has finished. An open card then drops
+   * every computed height and sizes to its real content, so a measurement
+   * that is off can never leave the end of a review hidden.
+   */
+  settled: boolean
+  /** The number of quote lines this card shows once the motion settles. */
+  lines: number
+  index: number
+  onToggle: (card: HTMLElement, button: HTMLElement) => void
+  onMeasure: (index: number, metrics: SupportingCardMetrics) => void
 }
 
 /**
- * A supporting review card. The quote height is capped by the card's current
- * row height, so the card can give or receive lines without changing the
- * height of the testimonial section.
+ * A supporting review card. Its row height and visible line count are both
+ * decided by `SupportingCardsStack`; the card only reports its measurements
+ * and animates to the target it is given.
  */
-function SupportingCard({ testimonial, expanded, onToggle, onMeasure }: SupportingCardProps) {
+function SupportingCard({
+  testimonial,
+  expanded,
+  settled,
+  lines,
+  index,
+  onToggle,
+  onMeasure,
+}: SupportingCardProps) {
   const cardRef = useRef<HTMLElement>(null)
   const quoteFrameRef = useRef<HTMLDivElement>(null)
   const quoteRef = useRef<HTMLQuoteElement>(null)
   const fullQuoteRef = useRef<HTMLQuoteElement>(null)
   const buttonRef = useRef<HTMLButtonElement>(null)
   const captionRef = useRef<HTMLElement>(null)
-  const [fullLines, setFullLines] = useState(0)
-  const [visibleLines, setVisibleLines] = useState(INITIAL_LINE_CLAMP)
-  const [quoteMaxHeight, setQuoteMaxHeight] = useState<number | null>(null)
+  const [metrics, setMetrics] = useState<SupportingCardMetrics | null>(null)
   const panelId = useId()
 
   const measure = useCallback(() => {
@@ -122,63 +170,72 @@ function SupportingCard({ testimonial, expanded, onToggle, onMeasure }: Supporti
 
     if (!card || !quoteFrame || !quote || !fullQuote || !caption) return
 
-    const quoteStyle = getComputedStyle(quote)
-    const cardStyle = getComputedStyle(card)
-    const lineHeight = Number.parseFloat(quoteStyle.lineHeight) || 28
-    const fullQuoteHeight = fullQuote.scrollHeight
-    const measuredFullLines = Math.max(1, Math.ceil(fullQuoteHeight / lineHeight))
-    const cardRect = card.getBoundingClientRect()
-    const quoteFrameRect = quoteFrame.getBoundingClientRect()
-    const captionHeight = caption.getBoundingClientRect().height
-    const buttonStyle = buttonRef.current ? getComputedStyle(buttonRef.current) : null
-    const buttonHeight = buttonRef.current
-      ? buttonRef.current.getBoundingClientRect().height +
-        (Number.parseFloat(buttonStyle?.marginTop || '0') || 0)
+    const lineHeight = Number.parseFloat(getComputedStyle(quote).lineHeight) || 28
+    const fullQuoteHeight = fullQuote.getBoundingClientRect().height
+    const button = buttonRef.current
+    const buttonHeight = button
+      ? button.getBoundingClientRect().height +
+        (Number.parseFloat(getComputedStyle(button).marginTop) || 0)
       : 0
-    const paddingBottom = Number.parseFloat(cardStyle.paddingBottom) || 0
-    const quoteStart = quoteFrameRect.top - cardRect.top
-    const quoteSpace = Math.max(
+    const cardRect = card.getBoundingClientRect()
+    const quoteStart = quoteFrame.getBoundingClientRect().top - cardRect.top
+    // From the top of the footer to the card's outer edge: the footer, the
+    // bottom padding and the bottom border together.
+    const footer = cardRect.bottom - caption.getBoundingClientRect().top
+
+    const next: SupportingCardMetrics = {
+      chrome: quoteStart + buttonHeight + footer,
       lineHeight,
-      cardRect.height - quoteStart - buttonHeight - captionHeight - paddingBottom,
+      fullQuoteHeight,
+      fullLines: Math.max(1, Math.round(fullQuoteHeight / lineHeight)),
+    }
+
+    setMetrics((current) =>
+      current &&
+      current.chrome === next.chrome &&
+      current.lineHeight === next.lineHeight &&
+      current.fullQuoteHeight === next.fullQuoteHeight
+        ? current
+        : next,
     )
-    const availableLines = Math.max(1, Math.floor(quoteSpace / lineHeight))
-    const collapsedLines =
-      measuredFullLines > INITIAL_LINE_CLAMP ? measuredFullLines - 1 : measuredFullLines
-    const nextVisibleLines = Math.min(expanded ? measuredFullLines : collapsedLines, availableLines)
-
-    setFullLines((value) => (value === measuredFullLines ? value : measuredFullLines))
-    setVisibleLines((value) => (value === nextVisibleLines ? value : nextVisibleLines))
-    setQuoteMaxHeight((value) => {
-      const nextHeight = Math.min(fullQuoteHeight, nextVisibleLines * lineHeight)
-      return value === nextHeight ? value : nextHeight
-    })
-
-    onMeasure({
-      collapsedCardHeight:
-        quoteStart + collapsedLines * lineHeight + buttonHeight + captionHeight + paddingBottom,
-      // This is the card height needed to show the full quote, including its
-      // controls and footer. The sibling receives whatever height remains.
-      fullCardHeight: quoteStart + fullQuoteHeight + buttonHeight + captionHeight + paddingBottom,
-      // Keep at least one line available when the sibling is expanded.
-      minCardHeight: quoteStart + lineHeight + buttonHeight + captionHeight + paddingBottom,
-      fullLines: measuredFullLines,
-    })
-  }, [expanded, onMeasure])
+    onMeasure(index, next)
+  }, [index, onMeasure])
 
   useEffect(() => {
     measure()
 
-    const card = cardRef.current
     const fullQuote = fullQuoteRef.current
-    if (!card || typeof ResizeObserver === 'undefined') return
+    if (!fullQuote || typeof ResizeObserver === 'undefined') return
 
-    // Both width changes and the animated row height can change how many
-    // lines fit. Observing the card keeps the clamp in sync during the motion.
+    // The hidden full-length copy only changes size when the card's width
+    // does — not while the row animates — so this never fires mid-motion.
     const observer = new ResizeObserver(measure)
-    observer.observe(card)
-    if (fullQuote) observer.observe(fullQuote)
+    observer.observe(fullQuote)
     return () => observer.disconnect()
-  }, [measure, testimonial.quote, expanded, fullLines])
+  }, [measure, testimonial.quote])
+
+  const fullLines = metrics?.fullLines ?? 0
+  const targetLines = expanded ? Math.max(fullLines, lines) : lines
+  const showsAll = metrics !== null && targetLines >= fullLines
+
+  // The ellipsis clamp follows the target, but never ahead of the motion:
+  // when the card is gaining lines the clamp lifts at once so the text is
+  // revealed as the box opens; when it is losing lines the box closes over
+  // the text first and the clamp (and its "…") arrives once it has settled.
+  const [settledClamp, setSettledClamp] = useState<number | null>(INITIAL_LINE_CLAMP)
+  const nextClamp = showsAll ? null : targetLines
+  const growing = nextClamp === null || (settledClamp !== null && nextClamp >= settledClamp)
+  const clampLines = growing ? nextClamp : settledClamp
+  useEffect(() => {
+    const timer = window.setTimeout(() => setSettledClamp(nextClamp), SUPPORTING_TRANSITION_MS)
+    return () => window.clearTimeout(timer)
+  }, [nextClamp])
+
+  const quoteMaxHeight = metrics
+    ? showsAll
+      ? metrics.fullQuoteHeight
+      : targetLines * metrics.lineHeight
+    : INITIAL_LINE_CLAMP * 28
 
   const canToggle = fullLines > INITIAL_LINE_CLAMP
 
@@ -188,16 +245,16 @@ function SupportingCard({ testimonial, expanded, onToggle, onMeasure }: Supporti
       className="relative flex min-h-0 h-full flex-col overflow-hidden border border-line bg-white px-6 py-4"
     >
       <Stars />
-      <div ref={quoteFrameRef} className="relative mt-4 min-h-0 shrink-0">
+      <div ref={quoteFrameRef} className="relative mt-4 min-h-0 shrink overflow-hidden">
         <blockquote
           ref={quoteRef}
           id={panelId}
           className="overflow-hidden text-sm leading-7 text-ink-2/75 transition-[max-height] ease-in-out motion-reduce:transition-none"
           style={{
-            display: '-webkit-box',
+            display: clampLines === null ? 'block' : '-webkit-box',
             WebkitBoxOrient: 'vertical',
-            WebkitLineClamp: visibleLines,
-            maxHeight: quoteMaxHeight ? `${quoteMaxHeight}px` : `${INITIAL_LINE_CLAMP * 28}px`,
+            WebkitLineClamp: clampLines ?? 'none',
+            maxHeight: expanded && settled ? 'none' : `${quoteMaxHeight}px`,
             transitionDuration: SUPPORTING_TRANSITION_DURATION,
             transitionTimingFunction: SUPPORTING_TRANSITION_TIMING,
           }}
@@ -216,17 +273,19 @@ function SupportingCard({ testimonial, expanded, onToggle, onMeasure }: Supporti
         <button
           ref={buttonRef}
           type="button"
-          onClick={onToggle}
+          onClick={(event) => {
+            if (cardRef.current) onToggle(cardRef.current, event.currentTarget)
+          }}
           aria-expanded={expanded}
           aria-controls={panelId}
-          className="mt-2 self-start text-xs font-semibold uppercase tracking-[0.12em] text-brass-deep transition-colors hover:text-brass"
+          className="mt-2 shrink-0 self-start text-xs font-semibold uppercase tracking-[0.12em] text-brass-deep transition-colors hover:text-brass"
         >
           {expanded ? 'Read less' : 'Read more'}
         </button>
       ) : null}
       <figcaption
         ref={captionRef}
-        className="mt-auto flex items-center gap-3 border-t border-line pt-3"
+        className="mt-auto flex shrink-0 items-center gap-3 border-t border-line pt-3"
       >
         <Avatar name={testimonial.name} avatar={testimonial.avatar} />
         <p className="font-semibold text-ink">{testimonial.name}</p>
@@ -235,10 +294,37 @@ function SupportingCard({ testimonial, expanded, onToggle, onMeasure }: Supporti
   )
 }
 
-function SupportingCardsStack({ items }: { items: TestimonialCard[] }) {
-  const stackRef = useRef<HTMLDivElement>(null)
+/**
+ * The primary card's height with its quote at natural size, i.e. the height
+ * the row would have if the supporting stack asked for nothing. The quote is
+ * `flex-1`, so it is released for one synchronous read and restored before
+ * the browser paints.
+ */
+function naturalPrimaryHeight(card: HTMLElement) {
+  const quote = card.querySelector('blockquote')
+  const caption = card.querySelector('figcaption')
+  if (!quote || !caption) return card.getBoundingClientRect().height
+
+  const previous = quote.style.flex
+  quote.style.flex = '0 0 auto'
+  const height =
+    caption.getBoundingClientRect().bottom -
+    card.getBoundingClientRect().top +
+    (Number.parseFloat(getComputedStyle(card).paddingBottom) || 0)
+  quote.style.flex = previous
+  return height
+}
+
+function SupportingCardsStack({
+  items,
+  primaryRef,
+}: {
+  items: TestimonialCard[]
+  primaryRef: RefObject<HTMLElement | null>
+}) {
   const [expandedIndex, setExpandedIndex] = useState<number | null>(null)
-  const [stackHeight, setStackHeight] = useState(0)
+  const [settled, setSettled] = useState(true)
+  const [baseHeight, setBaseHeight] = useState(0)
   const [desktop, setDesktop] = useState(false)
   const [metrics, setMetrics] = useState<Record<number, SupportingCardMetrics>>({})
 
@@ -247,10 +333,9 @@ function SupportingCardsStack({ items }: { items: TestimonialCard[] }) {
       const previous = current[index]
       if (
         previous &&
-        previous.collapsedCardHeight === next.collapsedCardHeight &&
-        previous.fullCardHeight === next.fullCardHeight &&
-        previous.minCardHeight === next.minCardHeight &&
-        previous.fullLines === next.fullLines
+        previous.chrome === next.chrome &&
+        previous.lineHeight === next.lineHeight &&
+        previous.fullQuoteHeight === next.fullQuoteHeight
       ) {
         return current
       }
@@ -268,65 +353,120 @@ function SupportingCardsStack({ items }: { items: TestimonialCard[] }) {
     return () => media.removeEventListener('change', update)
   }, [])
 
+  // The stack is sized from the primary card's *natural* height rather than
+  // from the row, because the row grows when an open review needs more room
+  // than the primary card offers — measuring the row would feed that back.
   useEffect(() => {
-    const stack = stackRef.current
-    if (!stack || typeof ResizeObserver === 'undefined') return
+    const primary = primaryRef.current
+    if (!primary || typeof ResizeObserver === 'undefined') return
 
-    const update = () => setStackHeight(stack.getBoundingClientRect().height)
+    const update = () => setBaseHeight(naturalPrimaryHeight(primary))
     update()
     const observer = new ResizeObserver(update)
-    observer.observe(stack)
+    observer.observe(primary)
     return () => observer.disconnect()
-  }, [])
+  }, [primaryRef])
 
-  const templateRows = (() => {
-    if (!desktop || items.length !== 2 || stackHeight <= SUPPORTING_STACK_GAP) return undefined
+  // Once the motion has run its course, hand the open card back to its real
+  // content height (see `settled` on SupportingCard).
+  useEffect(() => {
+    if (settled) return
+    const timer = window.setTimeout(() => setSettled(true), SUPPORTING_TRANSITION_MS + 50)
+    return () => window.clearTimeout(timer)
+  }, [settled, expandedIndex])
 
-    const availableHeight = stackHeight - SUPPORTING_STACK_GAP
-    const equalRow = availableHeight / 2
+  const toggle = (index: number, card: HTMLElement, button: HTMLElement) => {
+    const opening = expandedIndex !== index
+    // Opening: the review's first line stays where the reader is looking
+    // while it grows downward. Closing: the button stays under the pointer
+    // instead of being left above the viewport.
+    anchor(opening ? card : button)
+    // Two steps, so the motion always starts from pixel values: first leave
+    // the settled (content-sized) state for the computed heights of the
+    // current state, then — once that has been painted — move to the target.
+    // CSS cannot animate from `auto` / `none`.
+    setSettled(false)
+    requestAnimationFrame(() =>
+      requestAnimationFrame(() => setExpandedIndex(opening ? index : null)),
+    )
+  }
+
+  const collapsedLines = (m: SupportingCardMetrics) =>
+    m.fullLines > INITIAL_LINE_CLAMP ? m.fullLines - 1 : m.fullLines
+  const cardHeight = (m: SupportingCardMetrics, lines: number) => m.chrome + lines * m.lineHeight
+  const fullCardHeight = (m: SupportingCardMetrics) => m.chrome + m.fullQuoteHeight
+
+  const rows = (() => {
+    if (!desktop || items.length !== 2 || baseHeight <= SUPPORTING_STACK_GAP) return null
+
+    const availableHeight = baseHeight - SUPPORTING_STACK_GAP
     const first = metrics[0]
     const second = metrics[1]
-    if (expandedIndex === null) {
-      if (!first || !second) return `${equalRow}px ${equalRow}px`
+    if (!first || !second) return null
 
-      const collapsedTotal = first.collapsedCardHeight + second.collapsedCardHeight
+    if (expandedIndex === null) {
+      const firstCollapsed = cardHeight(first, collapsedLines(first))
+      const secondCollapsed = cardHeight(second, collapsedLines(second))
       const recipientIndex = first.fullLines >= second.fullLines ? 0 : 1
-      const recipient = recipientIndex === 0 ? first : second
-      const other = recipientIndex === 0 ? second : first
+      const [recipient, recipientCollapsed, other, otherCollapsed] =
+        recipientIndex === 0
+          ? [first, firstCollapsed, second, secondCollapsed]
+          : [second, secondCollapsed, first, firstCollapsed]
       const recipientHeight = Math.max(
-        recipient.minCardHeight,
+        cardHeight(recipient, 1),
         Math.min(
-          availableHeight - other.minCardHeight,
-          collapsedTotal < availableHeight
-            ? availableHeight - other.collapsedCardHeight
-            : recipient.collapsedCardHeight,
+          availableHeight - cardHeight(other, 1),
+          firstCollapsed + secondCollapsed < availableHeight
+            ? availableHeight - otherCollapsed
+            : recipientCollapsed,
         ),
       )
       const otherHeight = Math.max(0, availableHeight - recipientHeight)
-      return recipientIndex === 0
-        ? `${recipientHeight}px ${otherHeight}px`
-        : `${otherHeight}px ${recipientHeight}px`
+      return recipientIndex === 0 ? [recipientHeight, otherHeight] : [otherHeight, recipientHeight]
     }
 
+    // The open card always gets the full height of its quote, so nothing is
+    // left behind an ellipsis. The sibling takes whatever the primary card's
+    // height leaves, down to its one-line minimum; if the open review needs
+    // more than that, the whole row grows to fit it.
     const active = metrics[expandedIndex]
     const sibling = metrics[expandedIndex === 0 ? 1 : 0]
-    if (!active || !sibling) return `${equalRow}px ${equalRow}px`
-
-    // The open card gets the height it needs. If it needs more than the
-    // stack can provide, the sibling is reduced to its one-line minimum;
-    // otherwise the sibling receives all remaining space.
-    const activeHeight = Math.max(
-      active.minCardHeight,
-      Math.min(active.fullCardHeight, availableHeight - sibling.minCardHeight),
-    )
-    const siblingHeight = Math.max(0, availableHeight - activeHeight)
-    return expandedIndex === 0
-      ? `${activeHeight}px ${siblingHeight}px`
-      : `${siblingHeight}px ${activeHeight}px`
+    const activeHeight = fullCardHeight(active)
+    const siblingHeight = Math.max(cardHeight(sibling, 1), availableHeight - activeHeight)
+    return expandedIndex === 0 ? [activeHeight, siblingHeight] : [siblingHeight, activeHeight]
   })()
 
+  const linesFor = (index: number) => {
+    const m = metrics[index]
+    if (!m) return INITIAL_LINE_CLAMP
+    if (expandedIndex === index) return m.fullLines
+    if (!rows) return Math.min(m.fullLines, INITIAL_LINE_CLAMP)
+    const fit = Math.floor((rows[index] - m.chrome) / m.lineHeight + 0.01)
+    return Math.max(1, Math.min(m.fullLines, fit))
+  }
+
+  const contentSized = settled && expandedIndex !== null
+  const stackHeight = rows && !contentSized ? rows[0] + rows[1] + SUPPORTING_STACK_GAP : undefined
+  // Settled open: the open card's row is `auto` (its real content), the
+  // sibling keeps its computed height, and any space left beside the primary
+  // card is absorbed by the auto row.
+  const templateRows = rows
+    ? contentSized
+      ? expandedIndex === 0
+        ? `auto ${rows[1]}px`
+        : `${rows[0]}px auto`
+      : `${rows[0]}px ${rows[1]}px`
+    : undefined
+
   return (
-    <div ref={stackRef} className="min-h-0 lg:h-full">
+    <div
+      className="min-h-0 transition-[height] ease-in-out motion-reduce:transition-none lg:h-full"
+      style={{
+        height: stackHeight,
+        transitionDuration: SUPPORTING_TRANSITION_DURATION,
+        transitionTimingFunction: SUPPORTING_TRANSITION_TIMING,
+      }}
+    >
       <div
         className="grid min-h-0 gap-5 lg:h-full lg:grid-rows-2 transition-[grid-template-rows] ease-in-out motion-reduce:transition-none"
         style={{
@@ -340,11 +480,33 @@ function SupportingCardsStack({ items }: { items: TestimonialCard[] }) {
             key={`${testimonial.name}-${index}`}
             testimonial={testimonial}
             expanded={expandedIndex === index}
-            onToggle={() => setExpandedIndex((current) => (current === index ? null : index))}
-            onMeasure={(next) => updateMetrics(index, next)}
+            settled={settled}
+            lines={linesFor(index)}
+            onToggle={(card, button) => toggle(index, card, button)}
+            index={index}
+            onMeasure={updateMetrics}
           />
         ))}
       </div>
+    </div>
+  )
+}
+
+function TestimonialCardsGrid({
+  primary,
+  rest,
+}: {
+  primary: TestimonialCard
+  rest: TestimonialCard[]
+}) {
+  const primaryRef = useRef<HTMLElement>(null)
+
+  return (
+    <div className="grid items-stretch gap-5 lg:grid-cols-[1.15fr_1fr]">
+      <div className="min-h-0">
+        <PrimaryCard ref={primaryRef} testimonial={primary} />
+      </div>
+      <SupportingCardsStack items={rest} primaryRef={primaryRef} />
     </div>
   )
 }
@@ -373,12 +535,7 @@ export function ServiceTestimonialCardsSection({ items }: { items: TestimonialCa
   return (
     <Section className="">
       <div className="mx-auto max-w-6xl">
-        <div className="grid items-stretch gap-5 lg:grid-cols-[1.15fr_1fr]">
-          <div className="min-h-0">
-            <PrimaryCard testimonial={primary} />
-          </div>
-          <SupportingCardsStack items={rest} />
-        </div>
+        <TestimonialCardsGrid primary={primary} rest={rest} />
       </div>
     </Section>
   )

@@ -30,10 +30,13 @@ export async function TeamPage() {
   const [members, page] = await Promise.all([resolveTeamMembers(), resolvePageBySlug('team')])
 
   return (
-    <div data-light-chrome className="min-h-screen bg-white">
-      <PageSections sections={page?.layout ?? []} context={{ members }} />
+    <main data-light-chrome className="min-h-screen bg-white">
+      <PageSections
+        sections={page?.layout ?? []}
+        context={{ members, teamHeadingLevel: 'h1' }}
+      />
       <Contact />
       <LandscapingServiceAreas />
-    </div>
+    </main>
   )
 }

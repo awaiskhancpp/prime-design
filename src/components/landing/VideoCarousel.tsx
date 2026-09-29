@@ -1,8 +1,9 @@
 'use client'
 
-import { useState } from 'react'
+import { useId, useState } from 'react'
 import { ChevronLeft, ChevronRight } from 'lucide-react'
 
+import { tabPanelProps, tabProps } from '@/lib/tabs'
 import { cn } from '@/lib/utils'
 import { VideoPlayer } from '@/components/ui/VideoPlayer'
 
@@ -20,6 +21,7 @@ export function VideoCarousel({
   dark?: boolean
 }) {
   const [index, setIndex] = useState(0)
+  const tabsId = useId()
   const active = videos[index]
 
   if (!active) return null
@@ -40,13 +42,15 @@ export function VideoCarousel({
           only owns moving between clips. Keyed on the url so switching clip
           remounts the element rather than swapping the source underneath a
           player that still thinks it is mid-playback. */}
-      <VideoPlayer
-        key={active.url}
-        src={active.url}
-        poster={active.poster}
-        label={active.caption || 'video'}
-        className={cn('aspect-video w-full border', dark ? 'border-white/10' : 'border-line')}
-      />
+      <div {...(videos.length > 1 ? tabPanelProps(tabsId, index) : {})}>
+        <VideoPlayer
+          key={active.url}
+          src={active.url}
+          poster={active.poster}
+          label={active.caption || 'video'}
+          className={cn('aspect-video w-full border', dark ? 'border-white/10' : 'border-line')}
+        />
+      </div>
 
       {/* Carousel chrome only: prev, numbered tabs, next. */}
       <div className="mt-4 flex items-center justify-center gap-2">
@@ -66,10 +70,9 @@ export function VideoCarousel({
                 <button
                   key={video.url}
                   type="button"
-                  role="tab"
+                  {...tabProps(tabsId, i, i === index)}
                   onClick={() => goTo(i)}
                   aria-label={video.caption || `Video ${i + 1}`}
-                  aria-selected={i === index}
                   className={cn(
                     'flex h-9 w-9 items-center justify-center border text-sm font-medium transition-colors',
                     i === index

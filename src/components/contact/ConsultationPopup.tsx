@@ -1,10 +1,11 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { X } from 'lucide-react'
 
 import { LeadForm } from '@/components/forms/LeadForm'
 import type { FormServiceOption } from '@/lib/formServices'
+import { useDialogFocus } from '@/lib/useDialogFocus'
 
 /** How long after the page mounts the popup appears. */
 const OPEN_DELAY_MS = 4000
@@ -58,6 +59,8 @@ const SESSION_KEY = 'consultation-popup-shown'
  */
 export function ConsultationPopup({ services }: { services?: FormServiceOption[] }) {
   const [open, setOpen] = useState(false)
+  const dialogRef = useRef<HTMLDivElement>(null)
+  useDialogFocus(dialogRef, open, () => setOpen(false))
 
   useEffect(() => {
     let alreadyShown = false
@@ -80,20 +83,13 @@ export function ConsultationPopup({ services }: { services?: FormServiceOption[]
     return () => clearTimeout(timer)
   }, [])
 
-  useEffect(() => {
-    if (!open) return
-    const onKeyDown = (event: KeyboardEvent) => {
-      if (event.key === 'Escape') setOpen(false)
-    }
-    window.addEventListener('keydown', onKeyDown)
-    return () => window.removeEventListener('keydown', onKeyDown)
-  }, [open])
-
   if (!open) return null
 
   return (
     <div
-      className="fixed inset-0 z-[110] flex items-center justify-center bg-black/55 p-4 animate-fade-in"
+      ref={dialogRef}
+      tabIndex={-1}
+      className="fixed inset-0 z-[110] flex items-center justify-center bg-black/55 p-4 outline-none animate-fade-in"
       role="dialog"
       aria-modal="true"
       aria-label="Schedule a consultation"

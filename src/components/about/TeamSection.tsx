@@ -1,13 +1,14 @@
 'use client'
 
 import Image from '@/components/ui/Image'
-import { useState, type ReactNode } from 'react'
+import { useRef, useState, type ReactNode } from 'react'
 
 import { Button } from '@/components/ui/Button'
 import { Container } from '@/components/ui/Container'
 import { HighlightedText } from '@/components/ui/HighlightedText'
 import type { PageTeamIntroContent } from '@/lib/pageSections'
 import type { AboutTeamMember } from '@/lib/team'
+import { useDialogFocus } from '@/lib/useDialogFocus'
 import { ArrowRight, X } from 'lucide-react'
 
 type TeamMember = {
@@ -90,8 +91,11 @@ export function TeamSection({
   bodyContent,
   introBodyContent,
   members,
+  headingLevel: Heading = 'h2',
 }: {
   teamIntro?: PageTeamIntroContent
+  /** `h1` when this section opens the page; see `PageSectionContext`. */
+  headingLevel?: 'h1' | 'h2'
   /** Rich-text body rendered by the server (RichTextContent). */
   bodyContent?: ReactNode
   /** Rich-text intro body rendered by the server (RichTextContent). */
@@ -100,6 +104,8 @@ export function TeamSection({
   members?: AboutTeamMember[]
 }) {
   const [selectedMember, setSelectedMember] = useState<TeamMember | null>(null)
+  const dialogRef = useRef<HTMLDivElement>(null)
+  useDialogFocus(dialogRef, selectedMember !== null, () => setSelectedMember(null))
 
   const displayTeam: TeamMember[] = (members ?? []).map((member) => ({
     name: member.name,
@@ -124,12 +130,12 @@ export function TeamSection({
           <p className="text-xs font-semibold uppercase tracking-[0.24em] text-brass-deep">
             {teamIntro?.eyebrow}
           </p>
-          <h2 className="mt-4 font-display text-5xl font-medium leading-none tracking-tight text-ink-2 md:text-7xl">
+          <Heading className="mt-4 font-display text-5xl font-medium leading-none tracking-tight text-ink-2 md:text-7xl">
             <HighlightedText
               text={teamIntro?.heading ?? ''}
               highlight={teamIntro?.headingHighlight}
             />
-          </h2>
+          </Heading>
           <div className="mx-auto mt-6 max-w-2xl text-base leading-7 text-ink-2/70">
             {bodyContent}
           </div>
@@ -181,6 +187,8 @@ export function TeamSection({
           }}
         >
           <div
+            ref={dialogRef}
+            tabIndex={-1}
             role="dialog"
             aria-modal="true"
             aria-labelledby="team-member-name"
@@ -189,7 +197,7 @@ export function TeamSection({
             // is taller than its scroll container overflows *upward*, where
             // scrolling cannot reach it. That is what cut the "Prime Design &
             // Build" line and the top of the portrait off on a phone.
-            className="relative grid max-h-[90vh] w-full max-w-4xl items-start overflow-y-auto overscroll-contain bg-paper shadow-2xl md:grid-cols-[0.95fr_1.05fr] md:items-stretch"
+            className="relative grid max-h-[90vh] w-full max-w-4xl items-start overflow-y-auto outline-none overscroll-contain bg-paper shadow-2xl md:grid-cols-[0.95fr_1.05fr] md:items-stretch"
           >
             <button
               type="button"
@@ -197,7 +205,7 @@ export function TeamSection({
               aria-label="Close team member details"
               className="absolute right-4 top-4 z-10 flex h-10 w-10 items-center justify-center border border-ink/20 bg-paper text-ink hover:bg-ink hover:text-white"
             >
-              <X />
+              <X aria-hidden />
             </button>
             <Portrait member={selectedMember} variant="modal" />
             <div className="flex flex-col justify-start p-6 sm:p-8 md:justify-center md:p-12">

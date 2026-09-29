@@ -1,8 +1,9 @@
 'use client'
 
-import { useState } from 'react'
+import { useId, useState } from 'react'
 
 import { Section } from '@/components/ui/Section'
+import { tabPanelProps, tabProps } from '@/lib/tabs'
 import { cn } from '@/lib/utils'
 import { GalleryGrid } from './GalleryGrid'
 
@@ -27,6 +28,7 @@ export function LandingGalleryTabs({
 }) {
   const usableTabs = tabs.filter((tab) => tab.images.length > 0)
   const [activeIndex, setActiveIndex] = useState(0)
+  const tabsId = useId()
 
   if (!usableTabs.length) return null
   const active = usableTabs[Math.min(activeIndex, usableTabs.length - 1)]
@@ -59,8 +61,7 @@ export function LandingGalleryTabs({
             <button
               key={tab.label}
               type="button"
-              role="tab"
-              aria-selected={index === activeIndex}
+              {...tabProps(tabsId, index, index === activeIndex)}
               onClick={() => setActiveIndex(index)}
               className={cn(
                 'cursor-pointer border px-6 py-4 text-sm font-semibold transition-colors',
@@ -75,7 +76,12 @@ export function LandingGalleryTabs({
         </div>
       ) : null}
 
-      <div key={active.label} className="mt-6 animate-fade-in motion-reduce:animate-none">
+      <div
+        key={active.label}
+        // A tab panel only while there are tabs to label it.
+        {...(usableTabs.length > 1 ? tabPanelProps(tabsId, activeIndex) : {})}
+        className="mt-6 animate-fade-in motion-reduce:animate-none"
+      >
         <GalleryGrid images={active.images} altPrefix={active.label} lightbox={lightbox} />
       </div>
     </Section>

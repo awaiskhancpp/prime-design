@@ -14,7 +14,7 @@ export async function SearchResultsPage({ query }: { query: string }) {
     // overlaid header, including `SiteHeader`'s mobile bar, which ignores the
     // `tone` prop `FrontendTemplate` otherwise gets right for `/search`. See
     // the CSS rule in `styles.css`.
-    <div data-light-chrome className="min-h-screen bg-white">
+    <main data-light-chrome className="min-h-screen bg-white">
       <section className="bg-white py-16 md:py-24 lg:py-28">
         <Container>
           <p className="text-xs font-semibold uppercase tracking-[0.24em] text-brass-deep">
@@ -50,7 +50,7 @@ export async function SearchResultsPage({ query }: { query: string }) {
           </div>
         </Container>
       </section>
-    </div>
+    </main>
   )
 }
 

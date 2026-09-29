@@ -52,6 +52,11 @@ export type PageSectionContext = {
   isGoogleAdsPage?: boolean
   services?: Service[]
   members?: AboutTeamMember[]
+  /**
+   * `h1` where the team section opens the page (/team, which has no hero);
+   * `h2` by default, under a page hero that already carries the `h1` (/about).
+   */
+  teamHeadingLevel?: 'h1' | 'h2'
   galleryCategories?: GalleryCategory[]
   phone?: string
   socialLinks?: SiteSettingsValue['socialLinks']
@@ -165,6 +170,7 @@ function PageSectionNode({
         <TeamSection
           teamIntro={section.content}
           members={context.members}
+          headingLevel={context.teamHeadingLevel}
           bodyContent={
             section.content.body ? <RichTextContent data={section.content.body} /> : undefined
           }

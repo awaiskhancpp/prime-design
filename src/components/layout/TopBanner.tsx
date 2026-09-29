@@ -120,7 +120,12 @@ export async function TopBanner({ className, location, locationHref }: TopBanner
   const displayHours = siteSettings.hours || siteSettings.company?.hours || website.header.hours
 
   return (
-    <div className={cn('relative z-20 w-full bg-ink text-white/90', className)}>
+    // `aside`, not `div`: this strip sits above the header, outside every
+    // other landmark, so without one a screen reader's landmark list skips it.
+    <aside
+      aria-label="Contact details"
+      className={cn('relative z-20 w-full bg-ink text-white/90', className)}
+    >
       {/* Thin gold hairline */}
       <div className="h-px w-full bg-gradient-to-r from-transparent via-brass/50 to-transparent" />
 
@@ -188,6 +193,6 @@ export async function TopBanner({ className, location, locationHref }: TopBanner
           </div>
         </div>
       </Container>
-    </div>
+    </aside>
   )
 }
