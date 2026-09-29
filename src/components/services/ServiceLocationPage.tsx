@@ -6,7 +6,7 @@ import { ServiceOfferingsSection } from './ServiceOfferingsSection'
 import { ServiceVideoSection } from './ServiceVideoSection'
 import { ServiceLocationHeroForm } from './ServiceLocationHeroForm'
 import { ServiceDontSettleSection } from './sections/ServiceDontSettleSection'
-import { ServiceSiliconValleyLovesSection } from './sections/ServiceSiliconValleyLovesSection'
+import { ProjectsTrustIntro } from '@/components/projects/ProjectsTrustIntro'
 import { ServiceTestimonialCardsSection } from './sections/ServiceTestimonialCardsSection'
 import type { ServiceLocation } from '@/lib/serviceLocations'
 import type { ServiceDetail } from '@/lib/services'
@@ -38,7 +38,7 @@ const fill = (text: string | undefined, serviceTitle: string, city: string) =>
  *   6. ProjectsReviews (ReviewsSection)
  *   7. ServicePrimeDifferenceSection
  *   8. ServiceTestimonialCardsSection
- *   9. ServiceSiliconValleyLovesSection
+ *   9. ProjectsTrustIntro ("Silicon Valley Loves" trust section)
  *  10. gallery Contact
  *
  * plus ServiceLocationFooter at the bottom. Each city's section content is
@@ -220,6 +220,17 @@ export function ServiceLocationPage({
 
   // Silicon Valley Loves — service-location override → service defaults
   // (Payload only; the section renders nothing without them).
+  //
+  // Rendered with `ProjectsTrustIntro` (the same "projects-page design" the
+  // parent service pages already switched to in `ServiceDetailPage`) rather
+  // than the older `ServiceSiliconValleyLovesSection` this file used to call
+  // — that component lays every stat out in an even divide-x row, which
+  // reads as an unbalanced, oddly narrow strip when there is only the one
+  // real stat this section has ever had (the 4.9 Google rating). The
+  // location-page schema has no `stats.showStars` or `buttons` fields of its
+  // own (city pages have never overridden this section — it's a company-wide
+  // trust badge, not something that varies by city), so both come from the
+  // parent service's content, same as the stats/body/image fallback below.
   const locLoves = entry.siliconValleyLoves
   const svcLoves = service.siliconValleyLoves
   const siliconValleyLoves = {
@@ -228,6 +239,7 @@ export function ServiceLocationPage({
     body: locLoves?.body ?? svcLoves?.body,
     image: locLoves?.image ?? svcLoves?.image,
     stats: locLoves?.stats?.length ? locLoves.stats : svcLoves?.stats,
+    buttons: svcLoves?.buttons,
   }
 
   return (
@@ -327,7 +339,14 @@ export function ServiceLocationPage({
         ) : null}
 
         {enabled('silicon-valley-loves') ? (
-          <ServiceSiliconValleyLovesSection content={siliconValleyLoves} />
+          <ProjectsTrustIntro
+            eyebrow={siliconValleyLoves.eyebrow}
+            heading={siliconValleyLoves.heading}
+            body={siliconValleyLoves.body}
+            image={siliconValleyLoves.image}
+            stats={siliconValleyLoves.stats}
+            buttons={siliconValleyLoves.buttons}
+          />
         ) : null}
 
         {/* No poster: the WordPress contact section's <video> defines only a

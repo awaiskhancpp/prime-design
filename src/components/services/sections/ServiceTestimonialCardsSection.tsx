@@ -121,12 +121,12 @@ function SupportingCard({ testimonial }: { testimonial: TestimonialCard }) {
   }, [measure, testimonial.quote])
 
   return (
-    <figure className="flex h-full flex-col border border-line bg-white p-8">
+    <figure className="flex h-full flex-col border border-line bg-white px-6 py-4">
       <Stars />
       <blockquote
         ref={quoteRef}
         id={panelId}
-        className={cn('mt-5 text-sm leading-7 text-ink-2/75', !expanded && LINE_CLAMP)}
+        className={cn('mt-4 text-sm leading-7 text-ink-2/75', !expanded && LINE_CLAMP)}
       >
         &ldquo;{testimonial.quote}&rdquo;
       </blockquote>
@@ -136,12 +136,12 @@ function SupportingCard({ testimonial }: { testimonial: TestimonialCard }) {
           onClick={() => setExpanded((value) => !value)}
           aria-expanded={expanded}
           aria-controls={panelId}
-          className="mt-3 self-start text-xs font-semibold uppercase tracking-[0.12em] text-brass-deep transition-colors hover:text-brass"
+          className="mt-2 self-start text-xs font-semibold uppercase tracking-[0.12em] text-brass-deep transition-colors hover:text-brass"
         >
           {expanded ? 'Read less' : 'Read more'}
         </button>
       ) : null}
-      <figcaption className="mt-auto flex items-center gap-3 border-t border-line pt-6">
+      <figcaption className="mt-auto flex items-center gap-3 border-t border-line pt-3">
         <Avatar name={testimonial.name} avatar={testimonial.avatar} />
         <p className="font-semibold text-ink">{testimonial.name}</p>
       </figcaption>

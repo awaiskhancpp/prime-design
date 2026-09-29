@@ -1,5 +1,7 @@
 import 'server-only'
 
+import { isTurnstileKey } from './captchaKeys'
+
 /**
  * reCAPTCHA verification.
  *
@@ -23,7 +25,10 @@ export type RecaptchaResult = {
   error?: string
 }
 
-export const isRecaptchaConfigured = () => Boolean(process.env.RECAPTCHA_SECRET_KEY)
+export const isRecaptchaConfigured = () => {
+  const secret = process.env.RECAPTCHA_SECRET_KEY
+  return Boolean(secret && !isTurnstileKey(secret))
+}
 
 export async function verifyRecaptcha(
   token: string | undefined,

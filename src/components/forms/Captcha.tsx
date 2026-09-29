@@ -4,6 +4,7 @@ import { Turnstile, type TurnstileInstance } from '@marsidev/react-turnstile'
 import { useEffect, useImperativeHandle, useRef, useState, type Ref } from 'react'
 
 import { cn } from '@/lib/utils'
+import { isTurnstileKey } from '@/lib/captchaKeys'
 import { Recaptcha } from './Recaptcha'
 
 /**
@@ -32,7 +33,10 @@ const WIDGET_WIDTH = 300
 const WIDGET_HEIGHT = 65
 
 const turnstileSiteKey = () => process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY
-const recaptchaSiteKey = () => process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY
+const recaptchaSiteKey = () => {
+  const key = process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY
+  return isTurnstileKey(key) ? undefined : key
+}
 
 /**
  * Turnstile cannot run on `localhost`.
@@ -73,7 +77,7 @@ export function Captcha({
   // Decided after mount, never during render: the server has no `window`, so
   // testing the hostname inline would render the widget on the server and skip
   // it on the client, and React would throw the tree away on hydration.
-  const [skipOnLocalhost, setSkipOnLocalhost] = useState(false)
+  const [skipOnLocalhost, setSkipOnLocalhost] = useState<boolean | null>(null)
   // On the next frame rather than in the effect body, which
   // `react-hooks/set-state-in-effect` rejects — the same pattern the maps use
   // for their in-view flag. One frame of a widget that is about to be removed
@@ -120,6 +124,11 @@ export function Captcha({
     }),
     [siteKey, recaptchaToken],
   )
+
+  // Wait until the browser-only hostname check completes. This prevents the
+  // reCAPTCHA child from mounting for one frame on localhost, where captcha
+  // is intentionally disabled.
+  if (skipOnLocalhost === null) return null
 
   if (skipOnLocalhost) {
     return (

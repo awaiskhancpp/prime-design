@@ -1,6 +1,7 @@
 'use client'
 
 import { useEffect, useRef } from 'react'
+import { isTurnstileKey } from '@/lib/captchaKeys'
 
 /**
  * reCAPTCHA v2 checkbox.
@@ -17,11 +18,11 @@ import { useEffect, useRef } from 'react'
 declare global {
   interface Window {
     grecaptcha?: {
-      render: (
+      render?: (
         container: HTMLElement,
         options: { sitekey: string; callback: (token: string) => void; 'expired-callback': () => void },
       ) => number
-      reset: (widgetId?: number) => void
+      reset?: (widgetId?: number) => void
     }
     onRecaptchaLoaded?: () => void
   }
@@ -30,7 +31,8 @@ declare global {
 const SCRIPT_ID = 'recaptcha-v2-script'
 
 export function Recaptcha({ onToken }: { onToken: (token: string | undefined) => void }) {
-  const siteKey = process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY
+  const configuredSiteKey = process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY
+  const siteKey = isTurnstileKey(configuredSiteKey) ? undefined : configuredSiteKey
   const container = useRef<HTMLDivElement | null>(null)
   const widgetId = useRef<number | null>(null)
 
@@ -42,7 +44,7 @@ export function Recaptcha({ onToken }: { onToken: (token: string | undefined) =>
     // from the effect — there is no React state to keep in step.
     const renderWidget = () => {
       if (cancelled || !container.current || widgetId.current !== null) return
-      if (!window.grecaptcha) return
+      if (typeof window.grecaptcha?.render !== 'function') return
       widgetId.current = window.grecaptcha.render(container.current, {
         sitekey: siteKey,
         callback: (token) => onToken(token),
@@ -50,7 +52,7 @@ export function Recaptcha({ onToken }: { onToken: (token: string | undefined) =>
       })
     }
 
-    if (window.grecaptcha) {
+    if (typeof window.grecaptcha?.render === 'function') {
       renderWidget()
       return () => {
         cancelled = true

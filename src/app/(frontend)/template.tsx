@@ -47,6 +47,23 @@ import { getServiceLocation } from '@/lib/serviceLocations'
  * stays false and every landing and service-location page silently grows the
  * chrome back. That is a failure worth shouting about rather than absorbing,
  * so it is logged below instead of being quietly treated as a normal page.
+ *
+ * The template remounting per navigation is what makes the *server-side*
+ * computation above correct on every request — confirmed by instrumenting
+ * this file directly: the server re-runs and correctly recomputes `bare` for
+ * every request, including a client-side one. It does not, on its own,
+ * guarantee the *client* applies that fresh output. Reproduced case: clicking
+ * a bare page's logo (`ServiceLocationHeader`, service-location pages) to go
+ * to "/" left TopBanner/SiteHeader/LandscapingCta/SiteFooter missing until a
+ * hard refresh, even though the server-side render for that exact request was
+ * provably correct — the client kept the previous (bare) page's template
+ * output on screen instead of the newly returned one. Disabling the link's
+ * prefetch did not help, which rules out a prefetch-cache explanation. The
+ * fix that worked is in `BrandMark`: its `forceReload` prop renders a plain
+ * `<a>` instead of `next/link`'s `<Link>` for this one escape-hatch link, so
+ * the browser does a full navigation and never asks the client router to
+ * reuse anything. Any other link a bare page renders to a normally-chromed
+ * destination (or vice versa) is a candidate for the same fix.
  */
 export default async function FrontendTemplate({ children }: { children: React.ReactNode }) {
   const headersList = await headers()
