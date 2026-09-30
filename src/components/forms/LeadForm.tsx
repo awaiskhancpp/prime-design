@@ -1,13 +1,12 @@
 'use client'
 
-import { usePathname, useRouter } from 'next/navigation'
+import { useRouter } from 'next/navigation'
 import { useEffect, useRef, useState, type FormEvent } from 'react'
 
 import { Button } from '@/components/ui/Button'
 import { Input } from '@/components/ui/Input'
 import { Textarea } from '@/components/ui/Textarea'
 import type { FormServiceOption } from '@/lib/formServices'
-import { landingPageServiceFromPathname } from '@/lib/landingPageServices'
 import { cn } from '@/lib/utils'
 import { Captcha, captchaEnabled, type CaptchaHandle } from './Captcha'
 import {
@@ -127,15 +126,11 @@ export function LeadForm({
   // The chosen service's slug. Its own state rather than a member of
   // `values`: everything in there is a validated free-text field, and this is
   // a closed list that cannot be typed into or be wrong. Seeded from
-  // `defaultServiceSlug` when the caller already knows it (a service page, a
-  // service-location page), or else guessed from the URL for the Google Ads
-  // landing pages that render this same form and never pass one — see
-  // `landingPageServiceFromPathname`'s own note. Still a normal `<select>`
-  // the visitor can change either way.
-  const pathname = usePathname()
+  // `defaultServiceSlug` when the caller knows it (a service page, a
+  // service-location page, or a Google Ads landing page's own `service`
+  // field). Still a normal `<select>` the visitor can change either way.
   const router = useRouter()
-  const initialServiceSlug =
-    defaultServiceSlug ?? landingPageServiceFromPathname(pathname)?.slug ?? ''
+  const initialServiceSlug = defaultServiceSlug ?? ''
   const [serviceSlug, setServiceSlug] = useState(initialServiceSlug)
   // Captcha tokens are single-use and time-limited, so the token is read from
   // the widget at submit time rather than mirrored into React state when the

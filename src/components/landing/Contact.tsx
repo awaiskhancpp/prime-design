@@ -13,10 +13,13 @@ export function LandingContact({
   heading,
   description,
   id,
+  serviceSlug,
 }: {
   eyebrow?: string
   heading?: string
   description?: string
+  /** The landing page's service, preselected in the form's service list. */
+  serviceSlug?: string
   /**
    * The Bricks `_cssId` of the source section — `contact_form` on pages
    * whose "Schedule a Free Consultation" buttons link to `#contact_form`.
@@ -31,6 +34,7 @@ export function LandingContact({
       linkAddresses={false}
       // Ads traffic is worth separating from the rest in the admin list.
       formName="Landing page estimate form"
+      defaultServiceSlug={serviceSlug}
     />
   )
 

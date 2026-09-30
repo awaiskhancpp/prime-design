@@ -9,9 +9,18 @@ export type LandingPageBlock = {
   [key: string]: unknown
 }
 
+/** The service a landing page advertises, as its forms need it. */
+export type LandingPageService = {
+  slug: string
+  /** The service's contact-page card label, e.g. "Kitchen Remodeling Consultation". */
+  consultationLabel?: string
+}
+
 export type LandingPage = {
   title: string
   slug: string
+  /** Set on the landing page record; see `LandingPages.service`. */
+  service?: LandingPageService
   status: 'draft' | 'published'
   template: 'default' | 'information'
   hero?: {
@@ -49,6 +58,7 @@ type PayloadLandingPage = {
     backgroundMedia?: unknown
   } | null
   sections?: Array<Record<string, unknown>> | null
+  service?: { slug?: string | null; consultationLabel?: string | null } | number | null
   cta?: LandingPage['cta']
   campaignTracking?: LandingPage['campaignTracking']
   seo?: LandingPage['seo']
@@ -134,6 +144,13 @@ export async function resolveLandingPage(slug: string): Promise<LandingPage | un
         }
       : undefined,
     sections: normalizeBlocks(record.sections),
+    service:
+      record.service && typeof record.service === 'object' && record.service.slug
+        ? {
+            slug: record.service.slug,
+            consultationLabel: record.service.consultationLabel || undefined,
+          }
+        : undefined,
     cta: record.cta,
     campaignTracking: record.campaignTracking,
     seo: record.seo,

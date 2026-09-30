@@ -40,6 +40,19 @@ function serviceFor(href: string): number | undefined {
   return id
 }
 
+async function pageFor(href: string): Promise<number> {
+  const slug = href.replace(/^\/+|\/+$/g, '')
+  const { docs: pages } = await payload.find({
+    collection: 'pages',
+    where: { slug: { equals: slug } },
+    depth: 0,
+    limit: 1,
+  })
+  const page = pages[0] as { id: number } | undefined
+  if (!page) throw new Error(`No page for link "${href}"`)
+  return page.id
+}
+
 type NavSource = { label: string; href: string; children?: NavSource[] }
 
 const link = ({ label, href }: NavSource) => {
@@ -69,7 +82,8 @@ const data = {
       return { label, service }
     }),
     copyright: website.footer.copyright,
-    privacyPolicyUrl: website.footer.privacyPolicyHref,
+    // The WordPress footer's wording, linked to the Pages record it names.
+    privacyPolicy: { label: 'Privacy Policy', page: await pageFor(website.footer.privacyPolicyHref) },
   },
 }
 

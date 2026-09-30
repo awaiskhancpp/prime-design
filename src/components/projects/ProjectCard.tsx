@@ -9,8 +9,8 @@ import type { Project } from '@/lib/projects'
  *
  * ── Why it looks like this ────────────────────────────────────────────────
  *
- * The work is the subject, so the photograph is the card and the copy sits on
- * it. Until now this grid used `ui/PhotoPlateCard` — a photo with a paper
+ * The work is the subject, so the photograph leads and the copy follows it.
+ * Until now this grid used `ui/PhotoPlateCard` — a photo with a paper
  * plate of copy beneath it, carrying a category, a headline, a two-line
  * standfirst and a footer. That is the shape of an article, and it made the
  * portfolio read as a blog index. The plate has moved to `BlogCard`, where it
@@ -18,10 +18,11 @@ import type { Project } from '@/lib/projects'
  *
  * It is deliberately not the homepage's project tile either, which lays its
  * copy over a gradient that covers the whole frame and prints the excerpt.
- * Here the copy sits in a solid ink band pinned to the foot of the picture, so
- * the photograph above it is never veiled, and the category rides on the image
- * as a brass chip rather than being another line of text. Three portfolio
- * surfaces, three treatments — but see the note at the foot of this comment.
+ * Here the copy sits in a solid ink band *below* the picture, never on it, so
+ * no part of the photograph is hidden behind text, and the category rides on
+ * the image as a brass chip rather than being another line of text. Three
+ * portfolio surfaces, three treatments — but see the note at the foot of this
+ * comment.
  *
  * ── What the content is ───────────────────────────────────────────────────
  *
@@ -35,8 +36,12 @@ import type { Project } from '@/lib/projects'
  *               rather than flowed: unreserved, it was what made the old grid
  *               ragged.
  *
- * `4/5` portrait: rooms photograph tall, and the frame gives the band
- * something to sit against without eating the picture.
+ * The photograph has its own `3/2` frame because that is the shape the
+ * pictures are: all eighteen featured images are landscape, 1.44–1.63 wide
+ * to 1 tall, nearly every one exactly 3:2. The card used to be a `4/5`
+ * portrait with the band laid over the lower part of the picture, which
+ * cropped each photograph to about half its width and then covered the
+ * bottom of what was left. At 3:2 the whole photograph shows, uncovered.
  *
  * KNOWN DUPLICATE, flagged rather than fixed here: `blocks/HomeProjects.tsx`
  * builds its own project tile inline — same idea, gradient instead of a band,
@@ -66,40 +71,38 @@ export function ProjectCard({
 }) {
   const body = (
     <>
-      <Image
-        src={project.heroImage}
-        alt={project.title}
-        fill
-        className="object-cover transition-transform duration-700 ease-out group-hover:scale-105"
-        sizes="(min-width: 1280px) 33vw, (min-width: 640px) 50vw, 100vw"
-      />
+      {/* The zoom stays inside this frame, so it never spills over the copy. */}
+      <div className="relative aspect-[3/2] shrink-0 overflow-hidden">
+        <Image
+          src={project.heroImage}
+          alt={project.title}
+          fill
+          className="object-cover transition-transform duration-700 ease-out group-hover:scale-105"
+          sizes="(min-width: 1280px) 33vw, (min-width: 640px) 50vw, 100vw"
+        />
 
-      {project.category ? (
-        <span className="absolute left-4 top-4 z-10 bg-brass px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.16em] text-ink">
-          {project.category}
-        </span>
-      ) : null}
+        {project.category ? (
+          <span className="absolute left-4 top-4 bg-brass px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.16em] text-ink">
+            {project.category}
+          </span>
+        ) : null}
+      </div>
 
       {/*
-        A solid band rather than a gradient over the whole frame: the picture
-        stays a picture, and the copy has a ground of its own that does not
-        depend on what the photograph happens to be doing behind it.
-
-        Fully opaque, not the 95% it started at. At two lines of 13px body
-        copy the difference is not subtle — the Prime watermark printed on
-        some of these photographs showed through the band behind the text.
-        The card's hover affordances are the photograph's zoom, the arrow's
-        slide and the brass "View"; the band does not need to join in.
+        A solid band under the picture rather than a gradient over it: the
+        picture stays a picture, and the copy has a ground of its own that does
+        not depend on what the photograph happens to be doing. The card's hover
+        affordances are the photograph's zoom, the arrow's slide and the brass
+        "View"; the band does not need to join in.
       */}
-      <div className="relative z-10 mt-auto bg-ink p-4 sm:p-5">
+      <div className="flex flex-1 flex-col bg-ink p-4 sm:p-5">
         {/*
           Both blocks below are reserved at exactly two lines, and that is the
-          whole point of this card's layout. The frame is a fixed 4:5, so the
-          band is pinned to the bottom and grows upward — which means a
-          two-line title lifts its band's top edge above its neighbours', and a
-          row reads as one card up, one card down. Reserving the lines pins the
-          band's top edge, the description and the footer to the same height on
-          every card in the row, whatever length the copy happens to be.
+          whole point of this card's layout. The photograph is a fixed 3:2, so
+          the band's top edge is level across a row already; reserving the lines
+          is what keeps the description, the footer and the card's bottom edge
+          level too, whatever length the copy happens to be. Unreserved, a
+          two-line title would push its card taller than its neighbours.
 
           `leading-6` / `md:leading-7` rather than `leading-snug` so the
           reserve is a round number that cannot drift from the type: two lines
@@ -120,11 +123,11 @@ export function ProjectCard({
           only six of the eighteen carry a real description on the original
           site and nothing is invented to fill the rest.
         */}
-        <p className="mt-2 line-clamp-2 min-h-10 text-[13px] leading-5 text-white/65">
+        <p className="mb-3 mt-2 line-clamp-2 min-h-10 text-[13px] leading-5 text-white/65">
           {project.description || project.excerpt || project.summary}
         </p>
 
-        <div className="mt-3 flex items-end justify-between gap-3 border-t border-white/10 pt-3">
+        <div className="mt-auto flex items-end justify-between gap-3 border-t border-white/10 pt-3">
           <span className="min-w-0 truncate text-[11px] font-medium uppercase tracking-[0.14em] text-white/55">
             {place(project.location)}
           </span>
@@ -142,7 +145,7 @@ export function ProjectCard({
     </>
   )
 
-  const frame = 'group relative flex aspect-[4/5] flex-col justify-end overflow-hidden bg-ink'
+  const frame = 'group relative flex h-full flex-col overflow-hidden bg-ink'
 
   if (!linked) {
     return <article className={frame}>{body}</article>

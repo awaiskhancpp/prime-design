@@ -146,12 +146,14 @@ export async function SiteFooter() {
       <Container className="relative">
         <div className="flex flex-nowrap items-center justify-between gap-2 border-t border-white/10 py-6 text-[10px] leading-5 text-white/45 sm:text-xs">
           <p className="whitespace-nowrap">{copyright}</p>
-          <Link
-            href={navigation.footer.privacyPolicyHref}
-            className="w-fit shrink-0 whitespace-nowrap transition-colors hover:text-white"
-          >
-            Privacy Policy
-          </Link>
+          {navigation.footer.privacyPolicy ? (
+            <Link
+              href={navigation.footer.privacyPolicy.href}
+              className="w-fit shrink-0 whitespace-nowrap transition-colors hover:text-white"
+            >
+              {navigation.footer.privacyPolicy.label}
+            </Link>
+          ) : null}
         </div>
       </Container>
     </footer>

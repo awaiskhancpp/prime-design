@@ -1,5 +1,6 @@
 import { AppointmentScheduler } from '@/components/contact/AppointmentModal'
 import { Section } from '@/components/ui/Section'
+import type { LandingPageService } from '@/lib/landingPages'
 import { resolveSiteSettings } from '@/lib/siteSettings'
 
 /**
@@ -13,12 +14,15 @@ export async function LandingBookingSection({
   eyebrow,
   heading,
   consultationLabel,
+  service,
   id,
 }: {
   eyebrow?: string
   heading?: string
   /** What the scheduler says is being booked; see the block's own note. */
   consultationLabel?: string
+  /** The landing page's service: what is booked, and the label it books under. */
+  service?: LandingPageService
   id?: string
 }) {
   const settings = await resolveSiteSettings()
@@ -38,10 +42,11 @@ export async function LandingBookingSection({
       ) : null}
       <div className={eyebrow || heading ? 'mt-8 flex justify-center' : 'flex justify-center'}>
         <AppointmentScheduler
-          // Passed separately, not pre-merged, so AppointmentScheduler can
-          // prefer the real service name it guesses from the URL over this
-          // section's own heading — see its own note on why the heading used
-          // to be the only fallback, and what that produced.
+          // The service's own contact-page label wins over this block's
+          // label and heading (see AppointmentScheduler's note on why the
+          // heading used to be the only fallback, and what that produced).
+          consultation={service?.consultationLabel}
+          defaultServiceSlug={service?.slug}
           consultationLabel={consultationLabel}
           heading={heading}
           formName="Landing page booking"

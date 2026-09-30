@@ -5,7 +5,6 @@ import Image from '@/components/ui/Image'
 import Link from 'next/link'
 import { useEffect, useRef, useState } from 'react'
 
-import website from '../../../website.json'
 import { Button } from '@/components/ui/Button'
 import { Container } from '@/components/ui/Container'
 import type { NavItem } from '@/lib/navigation'
@@ -31,16 +30,21 @@ function dropdownId(prefix: string, href: string) {
 export function SiteHeader({
   tone = 'dark',
   variant = 'full',
-  nav = website.nav,
+  nav,
+  phone,
+  phoneClean,
 }: {
   tone?: 'dark' | 'light'
   variant?: 'full' | 'minimal'
+  /** The menu, from the Navigation global (`resolveNavigation`). */
+  nav: NavItem[]
   /**
-   * The menu, from the Navigation global (`resolveNavigation`, fetched by the
-   * frontend template). Defaults to the `website.json` values it was seeded
-   * from, for a caller with no server data to pass.
+   * The phone number from Site Settings (`resolveSiteSettings`). Passed in by
+   * the frontend template because this is a client component and cannot read
+   * Payload itself.
    */
-  nav?: NavItem[]
+  phone: string
+  phoneClean: string
 }) {
   const [isMenuOpen, setIsMenuOpen] = useState(false)
   const drawerRef = useRef<HTMLElement>(null)
@@ -395,7 +399,7 @@ export function SiteHeader({
             ) : null}
 
             <div className="flex items-center gap-5">
-              <DesktopPhone tone={effectiveTone} />
+              <DesktopPhone tone={effectiveTone} phone={phone} phoneClean={phoneClean} />
 
               <Button
                 href={isMinimal ? '#contact' : '/contact'}
@@ -501,11 +505,15 @@ export function SiteHeader({
    DESKTOP PHONE
 ========================= */
 
-function DesktopPhone({ tone }: { tone: 'dark' | 'light' }) {
-  // Static phone (same value the CMS site-settings resolves to) — the header
-  // is a client component and must not import the server-only Payload config.
-  const phone = website.footer.phone
-  const phoneClean = phone.replace(/[^\d+]/g, '')
+function DesktopPhone({
+  tone,
+  phone,
+  phoneClean,
+}: {
+  tone: 'dark' | 'light'
+  phone: string
+  phoneClean: string
+}) {
   const isLight = tone === 'light'
 
   return (

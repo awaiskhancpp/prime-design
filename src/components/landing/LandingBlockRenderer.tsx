@@ -28,7 +28,7 @@ import { LandingTestimonialsSection } from '@/components/landing/LandingTestimon
 import { LandingFaqBlockSection } from './LandingFaqBlockSection'
 import { richTextHasContent, richTextToPlainText, type RichTextValue } from '@/lib/richText'
 import { RichTextContent } from '@/components/rich-text/RichTextContent'
-import type { LandingPageBlock } from '@/lib/landingPages'
+import type { LandingPageBlock, LandingPageService } from '@/lib/landingPages'
 
 type Block = LandingPageBlock & Record<string, unknown>
 
@@ -506,7 +506,12 @@ function RepairServicesBlock({ block }: { block: Block }) {
   )
 }
 
-type Renderer = ({ block }: { block: Block }) => ReactNode
+/**
+ * `service` is the landing page's own service (`LandingPages.service`), for
+ * the blocks whose forms book something. Other callers of the shared registry
+ * (service pages) do not pass it.
+ */
+type Renderer = ({ block, service }: { block: Block; service?: LandingPageService }) => ReactNode
 
 export const landingBlockRegistry: Record<string, Renderer> = {
   hero: HeroBlock,
@@ -712,23 +717,25 @@ export const landingBlockRegistry: Record<string, Renderer> = {
     }
     return <TestimonialsSpotlightSection heading={text(block.heading) || undefined} />
   },
-  booking: ({ block }) => (
+  booking: ({ block, service }) => (
     <LandingBookingSection
       eyebrow={text(block.eyebrow)}
       heading={text(block.heading)}
       consultationLabel={text(block.consultationLabel)}
+      service={service}
       // The WordPress hero and CTA buttons link to `#contact_form`, which is
       // the booking section's own Bricks CSS id. Without it those buttons
       // are dead links on an ads landing page.
       id={text(block.anchorId)}
     />
   ),
-  'contact-form': ({ block }) => (
+  'contact-form': ({ block, service }) => (
     <LandingContact
       eyebrow={text(block.eyebrow)}
       heading={text(block.heading)}
       description={text(block.description)}
       id={text(block.anchorId)}
+      serviceSlug={service?.slug}
     />
   ),
   'video-carousel': VideoCarouselBlock,
@@ -798,7 +805,13 @@ function referencedAnchors(sections: LandingPageBlock[]): string[] {
  * conversion section. Nothing is added when the page already resolves, so a
  * page whose data is complete renders exactly as before.
  */
-export function LandingBlockRenderer({ sections }: { sections: LandingPageBlock[] }) {
+export function LandingBlockRenderer({
+  sections,
+  service,
+}: {
+  sections: LandingPageBlock[]
+  service?: LandingPageService
+}) {
   const provided = new Set<string>()
   for (const section of sections) {
     const block = section as Block
@@ -824,7 +837,7 @@ export function LandingBlockRenderer({ sections }: { sections: LandingPageBlock[
         const block = section as Block
         const Renderer = sharedSectionRegistry[block.blockType]
         const rendered = Renderer ? (
-          <Renderer key={`${block.sourceId || block.blockType}-${index}`} block={block} />
+          <Renderer key={`${block.sourceId || block.blockType}-${index}`} block={block} service={service} />
         ) : (
           <UnsupportedLandingBlock key={`${block.blockType}-${index}`} block={block} />
         )

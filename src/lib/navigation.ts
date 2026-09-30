@@ -12,7 +12,8 @@ export type NavigationValue = {
     quickLinks: FooterLink[]
     serviceLinks: FooterLink[]
     copyright: string
-    privacyPolicyHref: string
+    /** Absent when its label or page is missing, so nothing half-empty renders. */
+    privacyPolicy?: FooterLink
   }
 }
 
@@ -27,7 +28,7 @@ const localNavigation: NavigationValue = {
     quickLinks: website.footer.quickLinks,
     serviceLinks: website.footer.serviceLinks,
     copyright: website.footer.copyright,
-    privacyPolicyHref: website.footer.privacyPolicyHref,
+    privacyPolicy: { label: 'Privacy Policy', href: website.footer.privacyPolicyHref },
   },
 }
 
@@ -45,7 +46,10 @@ type PayloadNavigation = {
     quickLinks?: Array<{ label?: string | null; url?: string | null }> | null
     serviceLinks?: PayloadLink[] | null
     copyright?: string | null
-    privacyPolicyUrl?: string | null
+    privacyPolicy?: {
+      label?: string | null
+      page?: { slug?: string | null } | number | null
+    } | null
   } | null
 }
 
@@ -60,6 +64,15 @@ function toLink(link: PayloadLink): FooterLink | undefined {
   const label = link.label?.trim()
   const href = hrefOf(link)
   return label && href ? { label, href } : undefined
+}
+
+/** A Pages record lives at `/<slug>`, which is how the privacy page is routed. */
+function privacyLink(
+  link: NonNullable<PayloadNavigation['footer']>['privacyPolicy'],
+): FooterLink | undefined {
+  const label = link?.label?.trim()
+  const slug = typeof link?.page === 'object' ? link.page?.slug : undefined
+  return label && slug ? { label, href: `/${slug}` } : undefined
 }
 
 const present = <T,>(value: T | undefined): value is T => value !== undefined
@@ -105,7 +118,7 @@ export async function resolveNavigation(): Promise<NavigationValue> {
         .filter(present),
       serviceLinks: (nav.footer?.serviceLinks ?? []).map(toLink).filter(present),
       copyright: nav.footer?.copyright?.trim() ?? '',
-      privacyPolicyHref: nav.footer?.privacyPolicyUrl?.trim() ?? '',
+      privacyPolicy: privacyLink(nav.footer?.privacyPolicy),
     },
   }
 }

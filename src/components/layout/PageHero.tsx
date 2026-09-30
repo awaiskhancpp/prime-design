@@ -1,7 +1,6 @@
 import Image from '@/components/ui/Image'
 import type { ReactNode } from 'react'
 
-import { SiteHeader } from '@/components/layout/SiteHeader'
 import { Button } from '@/components/ui/Button'
 import { Container } from '@/components/ui/Container'
 import { HeroImagePairSlider, type HeroSlide } from './HeroImagePairSlider'
@@ -52,10 +51,6 @@ type PageHeroProps = {
   }
 
   children?: ReactNode
-
-  showHeader?: boolean
-
-  headerVariant?: 'full' | 'minimal'
 }
 
 export function PageHero({
@@ -71,8 +66,6 @@ export function PageHero({
   align = 'left',
   cta,
   children,
-  showHeader = false,
-  headerVariant = 'full',
 }: PageHeroProps) {
   const isCentered = align === 'center'
   const videoSourceList = videoSources?.length
@@ -158,7 +151,6 @@ export function PageHero({
           OPTIONAL HEADER
           ========================================================= */}
 
-      {showHeader ? <SiteHeader variant={headerVariant} tone="dark" /> : null}
 
       {/* =========================================================
           HERO CONTENT

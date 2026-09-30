@@ -68,6 +68,25 @@ export const LandingPages: CollectionConfig = {
       ],
     },
     {
+      /**
+       * The service this page advertises. Its booking and contact forms book
+       * that service and show its consultation label from the contact page
+       * ("Kitchen Remodeling Consultation", …). Empty for a page with no
+       * matching service (outdoor/hardscape, siding): a booking there is sent
+       * with no service rather than a guessed one.
+       *
+       * This replaces `src/lib/landingPageServices.ts`, which guessed the
+       * service from the URL and kept its own copy of each label in code.
+       */
+      name: 'service',
+      type: 'relationship',
+      relationTo: 'services',
+      admin: {
+        description:
+          'The service this page advertises. Its booking form books this service. Leave empty if none fits.',
+      },
+    },
+    {
       type: 'tabs',
       tabs: [
         {

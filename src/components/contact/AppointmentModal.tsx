@@ -1,7 +1,6 @@
 'use client'
 
 import Image from '@/components/ui/Image'
-import { usePathname } from 'next/navigation'
 import { useEffect, useMemo, useRef, useState } from 'react'
 import type { ChangeEvent, FormEvent } from 'react'
 import {
@@ -21,7 +20,6 @@ import { Button } from '@/components/ui/Button'
 import { useDialogFocus } from '@/lib/useDialogFocus'
 import { Input } from '@/components/ui/Input'
 import { Textarea } from '@/components/ui/Textarea'
-import { landingPageServiceFromPathname } from '@/lib/landingPageServices'
 import { cn } from '@/lib/utils'
 import {
   email as emailRule,
@@ -362,9 +360,8 @@ export function AppointmentScheduler({
    * The landing page section's own heading — the last resort. Falling back
    * to this used to be the only option, which is how leads arrived saying
    * their consultation was "Book Your Free Design Consultation": a headline,
-   * not a service. Now it only shows when neither `consultationLabel` nor
-   * the service guessed from the URL (see `landingPageServiceFromPathname`)
-   * is available.
+   * not a service. Now it only shows when there is neither a service label
+   * (`consultation`) nor a block label (`consultationLabel`).
    */
   heading?: string
   /**
@@ -422,29 +419,19 @@ export function AppointmentScheduler({
   }, [])
   const [showQr, setShowQr] = useState(false)
   const [sending, setSending] = useState(false)
-  // The caller's own answer wins when it has one (the contact page's
-  // consultation cards always do); everyone else — every Google Ads landing
-  // page — gets it guessed from the URL this scheduler is actually mounted
-  // on, rather than always submitting with no service at all.
-  const pathname = usePathname()
-  const landingPageService = landingPageServiceFromPathname(pathname)
-  const serviceSlug = defaultServiceSlug ?? landingPageService?.slug ?? ''
-  // What the scheduler actually calls the booking, in priority order: the
-  // caller's own decided label first, then the real, already-live label the
-  // guessed service uses on the /contact page. That comes ahead of this
-  // block's own `consultationLabel` on purpose — every `booking` block
-  // checked (kitchen, bathroom, and the general remodeling-information page)
-  // carries the exact same literal value, "Book Your Free Design
-  // Consultation", not a per-page value someone authored differently, so the
-  // real service label is more specific and should win. `consultationLabel`
-  // and `heading` stay as fallbacks for the two landing pages with no
-  // service match at all.
-  const label =
-    consultation ||
-    landingPageService?.consultationLabel ||
-    consultationLabel ||
-    heading ||
-    ''
+  // The service is always the caller's: the contact page's consultation
+  // cards, or a landing page's own `service` field. With neither, the booking
+  // submits with no service rather than a guessed one.
+  const serviceSlug = defaultServiceSlug ?? ''
+  // What the scheduler calls the booking, in priority order: the service's
+  // own contact-page label (`consultation`) first. That comes ahead of a
+  // landing page `booking` block's own `consultationLabel` on purpose — every
+  // block checked (kitchen, bathroom, and the general remodeling-information
+  // page) carries the same literal "Book Your Free Design Consultation", not
+  // a per-page value someone authored, so the service label is more specific.
+  // `consultationLabel` and `heading` stay as fallbacks for the two landing
+  // pages with no service at all.
+  const label = consultation || consultationLabel || heading || ''
   const [submitError, setSubmitError] = useState<string>()
   const captcha = useRef<CaptchaHandle>(null)
   const captchaToken = useRef<string | undefined>(undefined)

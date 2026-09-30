@@ -77,6 +77,8 @@ import * as migration_20260930_120000_reviews_collection from './20260930_120000
 import * as migration_20260930_130000_review_services from './20260930_130000_review_services'
 import * as migration_20260930_140000_navigation_global from './20260930_140000_navigation_global'
 import * as migration_20260930_150000_navigation_nested_names from './20260930_150000_navigation_nested_names'
+import * as migration_20260930_160000_navigation_privacy_link from './20260930_160000_navigation_privacy_link'
+import * as migration_20260930_170000_landing_page_service from './20260930_170000_landing_page_service'
 
 export const migrations = [
   {
@@ -473,5 +475,15 @@ export const migrations = [
     up: migration_20260930_150000_navigation_nested_names.up,
     down: migration_20260930_150000_navigation_nested_names.down,
     name: '20260930_150000_navigation_nested_names',
+  },
+  {
+    up: migration_20260930_160000_navigation_privacy_link.up,
+    down: migration_20260930_160000_navigation_privacy_link.down,
+    name: '20260930_160000_navigation_privacy_link',
+  },
+  {
+    up: migration_20260930_170000_landing_page_service.up,
+    down: migration_20260930_170000_landing_page_service.down,
+    name: '20260930_170000_landing_page_service',
   },
 ]

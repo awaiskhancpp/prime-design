@@ -275,12 +275,6 @@ without asking — each was a decision, not a migration error.
   footer links to the same page): they live in the Navigation global
   (`src/globals/Navigation.ts`), editable per place.
 
-- **The Home Remodeling consultation card is "Home Remodeling Consultation";
-  WordPress titles it "New Construction Consultation".** The card books a
-  Home Remodeling consultation, so it is named for that service. The value is
-  the service's `consultationLabel`; `src/lib/landingPageServices.ts` repeats
-  it for the `home-remodeling-information` landing page.
-
 ## 9. Known debt — don't silently "fix" it, but do know it's there
 
 - Homepage components are split between a `Landscaping*` naming scheme and a `Home*` one

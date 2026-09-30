@@ -97,7 +97,17 @@ export const Navigation: GlobalConfig = {
           type: 'text',
           admin: { description: 'The year in it is replaced with the current year when the page is shown.' },
         },
-        { name: 'privacyPolicyUrl', type: 'text', label: 'Privacy policy link' },
+        {
+          // The legal link in the footer's bottom row. It names the page
+          // record rather than a copied path, like the service links do.
+          name: 'privacyPolicy',
+          type: 'group',
+          label: 'Privacy policy link',
+          fields: [
+            { name: 'label', type: 'text', required: true, defaultValue: 'Privacy Policy' },
+            { name: 'page', type: 'relationship', relationTo: 'pages', required: true },
+          ],
+        },
       ],
     },
   ],

@@ -3482,6 +3482,10 @@ export interface LandingPage {
   slug: string;
   status?: ('draft' | 'published') | null;
   template?: 'information' | null;
+  /**
+   * The service this page advertises. Its booking form books this service. Leave empty if none fits.
+   */
+  service?: (number | null) | Service;
   hero: {
     eyebrow?: string | null;
     heading: string;
@@ -7040,6 +7044,7 @@ export interface LandingPagesSelect<T extends boolean = true> {
   slug?: T;
   status?: T;
   template?: T;
+  service?: T;
   hero?:
     | T
     | {
@@ -8334,7 +8339,7 @@ export interface Navigation {
         }[]
       | null;
   };
-  footer?: {
+  footer: {
     quickLinks?:
       | {
           label: string;
@@ -8353,7 +8358,10 @@ export interface Navigation {
      * The year in it is replaced with the current year when the page is shown.
      */
     copyright?: string | null;
-    privacyPolicyUrl?: string | null;
+    privacyPolicy: {
+      label: string;
+      page: number | Page;
+    };
   };
   updatedAt?: string | null;
   createdAt?: string | null;
@@ -8595,7 +8603,12 @@ export interface NavigationSelect<T extends boolean = true> {
               id?: T;
             };
         copyright?: T;
-        privacyPolicyUrl?: T;
+        privacyPolicy?:
+          | T
+          | {
+              label?: T;
+              page?: T;
+            };
       };
   updatedAt?: T;
   createdAt?: T;

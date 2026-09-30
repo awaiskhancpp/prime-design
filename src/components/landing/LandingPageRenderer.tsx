@@ -5,7 +5,7 @@ export function LandingPageRenderer({ page }: { page: LandingPage }) {
   return (
     <div className="min-h-screen bg-white">
       <main>
-        <LandingBlockRenderer sections={page.sections} />
+        <LandingBlockRenderer sections={page.sections} service={page.service} />
       </main>
     </div>
   )
