@@ -38,7 +38,6 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     // Were missing: indexable pages with their own WordPress SEO that no
     // crawler could reach from the sitemap.
     'team',
-    'landscaping',
     'privacy-policy',
     'book-online',
   ].map((path) => entry(`${siteUrl}/${path}`, path === '' ? 1 : 0.7))

@@ -51,6 +51,11 @@ export async function BlogPage() {
               <RichTextContent data={estimateBlock.content.body} tone="light" />
             ) : undefined
           }
+          cta={
+            estimateBlock.content.label && estimateBlock.content.href
+              ? { label: estimateBlock.content.label, href: estimateBlock.content.href }
+              : undefined
+          }
         />
       ) : null}
       <ProjectsReviewsSection />

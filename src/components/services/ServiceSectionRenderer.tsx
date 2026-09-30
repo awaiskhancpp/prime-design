@@ -417,6 +417,12 @@ function renderVideo(block: RawBlock, headingText: string): RenderedSection | nu
   }
 }
 
+/** A block's first button with both a label and a URL, or nothing. */
+function firstButton(block: RawBlock): { label: string; href: string } | undefined {
+  const button = blocks(block.buttons).find((item) => str(item.label) && str(item.url))
+  return button ? { label: str(button.label), href: str(button.url) } : undefined
+}
+
 /**
  * `cta` — the Finance "One-Stop Hub" section: heading + body + button at the
  * end, with the WordPress image on the right (the Finance-Prime-Kitchens
@@ -753,6 +759,7 @@ export function renderSection(
             ) : undefined
           }
           description={descriptionRich(block) ? undefined : descriptionText(block) || undefined}
+          cta={firstButton(block)}
         />
       ),
     }

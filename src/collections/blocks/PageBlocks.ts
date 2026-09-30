@@ -48,8 +48,18 @@ export const PageBlocks: Block[] = [
       // Rich text so the band can carry the contact link and the phone
       // number as real links (see `20260919_130000_cta_body_rich_text`).
       { name: 'body', type: 'richText' },
-      { name: 'label', type: 'text' },
-      { name: 'href', type: 'text' },
+      {
+        name: 'label',
+        type: 'text',
+        label: 'Button label',
+        admin: { description: 'The band\'s button, e.g. "Get started". Empty shows no button.' },
+      },
+      {
+        name: 'href',
+        type: 'text',
+        label: 'Button link',
+        admin: { description: 'Where the button goes, e.g. /contact.' },
+      },
     ],
   },
 ]

@@ -82,6 +82,7 @@ import * as migration_20260930_170000_landing_page_service from './20260930_1700
 import * as migration_20260930_200000_baseline_schema_alignment from './20260930_200000_baseline_schema_alignment'
 import * as migration_20260930_210000_default_og_image from './20260930_210000_default_og_image'
 import * as migration_20260930_213308_site_settings_service_region from './20260930_213308_site_settings_service_region'
+import * as migration_20260930_220000_estimate_cta_buttons from './20260930_220000_estimate_cta_buttons'
 
 export const migrations = [
   {
@@ -503,5 +504,10 @@ export const migrations = [
     up: migration_20260930_213308_site_settings_service_region.up,
     down: migration_20260930_213308_site_settings_service_region.down,
     name: '20260930_213308_site_settings_service_region',
+  },
+  {
+    up: migration_20260930_220000_estimate_cta_buttons.up,
+    down: migration_20260930_220000_estimate_cta_buttons.down,
+    name: '20260930_220000_estimate_cta_buttons',
   },
 ]

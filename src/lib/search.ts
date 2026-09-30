@@ -61,12 +61,6 @@ const staticPages: SearchResult[] = [
   },
   { title: 'Finance', url: '/finance', section: 'Pages', excerpt: 'Flexible financing options.' },
   {
-    title: 'Landscaping',
-    url: '/landscaping',
-    section: 'Pages',
-    excerpt: 'Outdoor living and hardscape.',
-  },
-  {
     title: 'Remodeling Information',
     url: '/remodeling-information',
     section: 'Pages',

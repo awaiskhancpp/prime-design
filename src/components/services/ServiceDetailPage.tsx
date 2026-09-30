@@ -545,7 +545,9 @@ export function ServiceTemplate({ service }: { service: ServiceDetail }) {
     },
     {
       key: 'estimate',
-      node: cmsSlotNodes.get('estimate') ?? (sections.estimate ? <ServiceEstimateCta /> : null),
+      // Only the CMS block: a band with no heading, copy or button is not a
+      // fallback worth rendering.
+      node: cmsSlotNodes.get('estimate') ?? null,
     },
     {
       key: 'client-approach',
