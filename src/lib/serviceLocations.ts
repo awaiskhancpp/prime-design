@@ -1,7 +1,7 @@
 import { getPayload } from 'payload'
 import configPromise from '@payload-config'
 import { resolveServiceDetail, type ServiceDetail } from './services'
-import { richTextHasContent, type RichTextValue } from './richText'
+import type { RichTextValue } from './richText'
 import {
   inherit,
   mapDontSettle,
@@ -136,9 +136,6 @@ export async function getServiceLocation(serviceSlug: string, locationSlugValue:
     // page falls back to the parent service, then the built-in template).
     const textOr = (value: string | null | undefined) =>
       typeof value === 'string' && value.trim() ? value : undefined
-    /** A rich-text field, or undefined when it holds only an empty paragraph. */
-    const richTextOr = (value: unknown): RichTextValue | undefined =>
-      richTextHasContent(value as RichTextValue) ? (value as RichTextValue) : undefined
     /** A button, only when it has both halves — a label with no target is a
      *  dead control, and a target with no label is invisible. */
     const ctaOr = (value: { label?: string | null; href?: string | null } | null | undefined) => {
