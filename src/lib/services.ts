@@ -25,7 +25,12 @@ export type Service = {
   /** Payload "Featured on homepage" checkbox. */
   featured?: boolean
   showInConsultationForm?: boolean
-  sectionOrder?: string[]
+  /**
+   * Services → Page layout: the page's sections, top to bottom, each with its
+   * Show switch. Empty means the page has not been laid out in the CMS and
+   * falls back to the per-slug tables in code.
+   */
+  pageSections?: Array<{ section: string; enabled: boolean }>
 }
 
 /**
@@ -353,7 +358,7 @@ type PayloadServiceRecord = {
     buttons?: Array<{ label?: string; url?: string }> | null
   } | null
   sections?: Array<Record<string, unknown>> | null
-  sectionOrder?: Array<{ section?: string | null }> | null
+  sectionOrder?: Array<{ section?: string | null; enabled?: boolean | null }> | null
   seo?: ServiceDetail['seo']
   showInConsultationForm?: boolean | null
 }
@@ -651,9 +656,9 @@ export async function resolveServiceDetail(slug: string): Promise<ServiceDetail 
           ? withSharedDefaults(block, shared.estimateBand)
           : block,
       ),
-    sectionOrder: record.sectionOrder
-      ?.map((item) => item.section)
-      .filter((item): item is string => Boolean(item)),
+    pageSections: record.sectionOrder?.flatMap((item) =>
+      item.section ? [{ section: item.section, enabled: item.enabled !== false }] : [],
+    ),
   }
 }
 

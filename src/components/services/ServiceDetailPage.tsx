@@ -109,7 +109,29 @@ const SLOT_KEY_ALIASES: Record<string, string> = {
 export function ServiceTemplate({ service }: { service: ServiceDetail }) {
   // ---- 1. Resolve layout flags and curated content ----------------------
 
-  const sections = getServicePageSections(service.slug)
+  // Services → Page layout, when the page has one: the sections it shows,
+  // in order. It overrides the per-slug flags below, so switching a section
+  // on in the admin really renders it and switching it off really hides it.
+  const layout = service.pageSections?.length ? service.pageSections : undefined
+  const shownKeys = new Set(layout?.filter((row) => row.enabled).map((row) => row.section))
+  const flags = getServicePageSections(service.slug)
+  const on = (key: string, flag: boolean) => (layout ? shownKeys.has(key) : flag)
+  const sections = {
+    ...flags,
+    homeRepairCategories: on('home-repair-categories', flags.homeRepairCategories),
+    realHomes: on('real-homes', flags.realHomes),
+    process: on('process', flags.process),
+    gallery: on('gallery', flags.gallery),
+    craftsmanship: on('craftsmanship', flags.craftsmanship),
+    faq: on('faq', flags.faq),
+    siliconValleyLoves: on('silicon-valley-loves', flags.siliconValleyLoves),
+    reviews: on('reviews', flags.reviews),
+    contact: on('contact', flags.contact),
+    // Which "why choose us" design is a variant, not a section switch: the
+    // section itself is on when the list shows it.
+    whyChooseUs: on('why-choose-us', flags.whyChooseUs || flags.homeRepairWhyChooseUs) && !flags.homeRepairWhyChooseUs,
+    homeRepairWhyChooseUs: on('why-choose-us', flags.homeRepairWhyChooseUs) && flags.homeRepairWhyChooseUs,
+  }
 
   // Section orders/conditions in this file are keyed by the WordPress
   // `-silicon-valley` slugs, while the service records carry the base slug
@@ -746,8 +768,8 @@ export function ServiceTemplate({ service }: { service: ServiceDetail }) {
   // (e.g. `european-kitchen`). `slugKey`/`slugMatches` are declared above the
   // section nodes so both the conditions and this lookup can use them.
 
-  const order: string[] = service.sectionOrder?.length
-    ? service.sectionOrder
+  const order: string[] = layout
+    ? layout.filter((row) => row.enabled).map((row) => row.section)
     : (PAGE_SECTION_ORDERS[service.slug] ??
       PAGE_SECTION_ORDERS[slugKey] ??
       PAGE_SECTION_ORDERS[`${slugKey}-silicon-valley`] ?? [...FALLBACK_SECTION_ORDER])
@@ -774,6 +796,9 @@ export function ServiceTemplate({ service }: { service: ServiceDetail }) {
 
   const orderedSections = sectionNodes
     .filter(({ node }) => node !== null)
+    // With a Page layout, the list is the page: a section it does not show
+    // does not render, whatever content it has.
+    .filter(({ key }) => !layout || shownKeys.has(key))
     .sort((a, b) => rank(a.key) - rank(b.key))
 
   return (
@@ -782,7 +807,11 @@ export function ServiceTemplate({ service }: { service: ServiceDetail }) {
         <ServiceHero service={service} />
         {sections.videoFirst ? <div>{videoSection}</div> : null}
         {orderedSections.map(({ key, node }) => (
-          <div key={key}>{node}</div>
+          // `data-section` names the slot, the same key the Page sections
+          // list in the admin uses.
+          <div key={key} data-section={key}>
+            {node}
+          </div>
         ))}
       </main>
     </div>

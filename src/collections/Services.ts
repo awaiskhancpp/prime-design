@@ -121,44 +121,81 @@ export const Services: CollectionConfig = {
       },
     },
 
-    // Legacy migration fields (hidden from admin UI, but kept before tabs to preserve Drizzle table naming order)
-    {
-      name: 'sectionOrder',
-      type: 'array',
-      admin: {
-        condition: () => false,
-      },
-      fields: [
-        {
-          name: 'section',
-          type: 'select',
-          required: true,
-          options: [
-            'hero',
-            'intro',
-            'video',
-            'process',
-            'offerings',
-            'gallery',
-            'quote',
-            'craftsmanship',
-            'real-homes',
-            'why-choose-us',
-            'faq',
-            'estimate',
-            'reviews',
-            'silicon-valley-loves',
-            'home-repair-categories',
-            'contact',
-          ],
-        },
-      ],
-    },
-
     // Main workspace organized in tabs
     {
       type: 'tabs',
       tabs: [
+        {
+          label: 'Page layout',
+          description:
+            'Which sections this page shows, top to bottom. Drag to reorder; untick to hide. A section only appears if it has content — its CMS block (Page Builder) or its tab here.',
+          fields: [
+            {
+              /**
+               * The page's section list. Each service page used to be laid out
+               * by two tables in code — which sections it showed
+               * (`servicePageLayout.ts`) and in what order
+               * (`PAGE_SECTION_ORDERS` in ServiceDetailPage) — so a section
+               * could only be moved or hidden by a developer. Seeded with the
+               * exact order every page rendered before; empty falls back to
+               * those tables. Stored as `sectionOrder` (the column this field
+               * already had, unused and hidden).
+               */
+              name: 'sectionOrder',
+              type: 'array',
+              label: 'Page sections',
+              labels: { singular: 'Section', plural: 'Sections' },
+              admin: { initCollapsed: false },
+              fields: [
+                {
+                  type: 'row',
+                  fields: [
+                    {
+                      name: 'section',
+                      type: 'select',
+                      required: true,
+                      admin: { width: '75%' },
+                      options: [
+                        { label: 'Intro / overview', value: 'intro' },
+                        { label: 'Video', value: 'video' },
+                        { label: 'Free-estimate band', value: 'estimate' },
+                        { label: 'Offerings (sub-service cards)', value: 'offerings' },
+                        { label: 'Process', value: 'process' },
+                        { label: 'Client-Centered Approach', value: 'client-approach' },
+                        { label: 'Gallery', value: 'gallery' },
+                        { label: 'Craftsmanship', value: 'craftsmanship' },
+                        { label: 'Real Homes, Real Stories', value: 'real-homes' },
+                        { label: 'Why Choose Us', value: 'why-choose-us' },
+                        { label: 'Prime Difference', value: 'prime-difference' },
+                        { label: 'Prime Kitchens', value: 'prime-kitchens' },
+                        { label: 'Image + checklist', value: 'image-checklist' },
+                        { label: 'Icon checklist + gallery', value: 'icon-checklist-gallery' },
+                        { label: 'Materials showcase', value: 'materials-showcase' },
+                        { label: 'Testimonial cards', value: 'testimonial-cards' },
+                        { label: 'Quote', value: 'quote' },
+                        { label: 'FAQ', value: 'faq' },
+                        { label: 'Silicon Valley Loves', value: 'silicon-valley-loves' },
+                        { label: 'Reviews', value: 'reviews' },
+                        { label: 'Contact form', value: 'contact' },
+                        { label: 'Service areas (map)', value: 'service-areas' },
+                        { label: 'Areas we service (city strip)', value: 'areas-we-service' },
+                        { label: 'Home repair categories', value: 'home-repair-categories' },
+                        { label: 'Other Page Builder sections', value: 'cms-body' },
+                      ],
+                    },
+                    {
+                      name: 'enabled',
+                      type: 'checkbox',
+                      label: 'Show',
+                      defaultValue: true,
+                      admin: { width: '25%' },
+                    },
+                  ],
+                },
+              ],
+            },
+          ],
+        },
         {
           label: 'Page Builder (Sections)',
           description:

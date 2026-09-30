@@ -319,22 +319,32 @@ export interface Service {
   sectionOrder?:
     | {
         section:
-          | 'hero'
           | 'intro'
           | 'video'
-          | 'process'
+          | 'estimate'
           | 'offerings'
+          | 'process'
+          | 'client-approach'
           | 'gallery'
-          | 'quote'
           | 'craftsmanship'
           | 'real-homes'
           | 'why-choose-us'
+          | 'prime-difference'
+          | 'prime-kitchens'
+          | 'image-checklist'
+          | 'icon-checklist-gallery'
+          | 'materials-showcase'
+          | 'testimonial-cards'
+          | 'quote'
           | 'faq'
-          | 'estimate'
-          | 'reviews'
           | 'silicon-valley-loves'
+          | 'reviews'
+          | 'contact'
+          | 'service-areas'
+          | 'areas-we-service'
           | 'home-repair-categories'
-          | 'contact';
+          | 'cms-body';
+        enabled?: boolean | null;
         id?: string | null;
       }[]
     | null;
@@ -4876,6 +4886,7 @@ export interface ServicesSelect<T extends boolean = true> {
     | T
     | {
         section?: T;
+        enabled?: T;
         id?: T;
       };
   sections?:
