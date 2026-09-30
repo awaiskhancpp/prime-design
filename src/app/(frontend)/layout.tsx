@@ -33,17 +33,18 @@ const outfit = Outfit({
  * route rather than disappearing on pages that define their own metadata.
  */
 export async function generateMetadata(): Promise<Metadata> {
-  const analytics = await resolveAnalytics()
+  const [analytics, settings] = await Promise.all([resolveAnalytics(), resolveSiteSettings()])
   const verification = verificationMetadata(analytics.verification)
 
   return {
     metadataBase: new URL(SITE_URL),
+    // Site Settings' SEO group; it used to be saved and never read, with
+    // the default description typed out here instead.
     title: {
-      default: SITE_NAME,
+      default: settings.seo?.metaTitle || SITE_NAME,
       template: `%s`,
     },
-    description:
-      'Prime Design & Build — thoughtful spaces, carefully built in Silicon Valley.',
+    description: settings.seo?.metaDescription,
     /**
      * The WordPress site icon, at the exact sizes WordPress publishes.
      *

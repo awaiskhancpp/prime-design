@@ -520,6 +520,14 @@ export const landingBlockRegistry: Record<string, Renderer> = {
       eyebrow={text(block.eyebrow)}
       heading={text(block.heading)}
       description={text(block.description)}
+      // `description` is rich text on this block, which `text()` reads as
+      // undefined — so the copy on six of the seven landing pages was saved
+      // and never shown.
+      body={
+        richTextHasContent(block.description as RichTextValue) ? (
+          <RichTextContent data={block.description as RichTextValue} />
+        ) : undefined
+      }
       cta={button(block.buttons)}
       image={mediaUrl(block.media)}
     />
@@ -592,6 +600,7 @@ export const landingBlockRegistry: Record<string, Renderer> = {
         checklist={features}
         videos={videos}
         comparisons={comparisons}
+        backgroundImage={mediaUrl(block.media)}
       />
     )
   },
@@ -659,7 +668,11 @@ export const landingBlockRegistry: Record<string, Renderer> = {
       eyebrow={text(block.eyebrow)}
       heading={text(block.heading)}
       body={text(block.description)}
+      // The button used to be dropped: only the href was passed, and the
+      // component renders a button only when it also has a label.
       link={button(block.buttons)?.href}
+      label={button(block.buttons)?.label}
+      backgroundImage={mediaUrl(block.media)}
     />
   ),
   'find-us': ({ block }) => (

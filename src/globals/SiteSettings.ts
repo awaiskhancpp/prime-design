@@ -39,12 +39,21 @@ export const SiteSettings: GlobalConfig = {
           admin: { description: 'Working hours line, e.g. "Open: 8am - 6pm (Mon - Fri)".' },
         },
         {
+          name: 'serviceRegion',
+          type: 'text',
+          label: 'Service region',
+          admin: {
+            description:
+              'The location text in the top banner, e.g. "Silicon Valley". Empty hides the location.',
+          },
+        },
+        {
           name: 'mapsUrl',
           type: 'text',
           label: 'Google Maps link',
           admin: {
             description:
-              'Where the location text in the top banner links to — your Google Business Profile / Maps listing URL.',
+              'Where the location text in the top banner links to. Empty uses the first address\'s link below.',
           },
         },
         {

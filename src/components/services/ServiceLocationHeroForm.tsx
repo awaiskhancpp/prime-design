@@ -143,7 +143,7 @@ export async function ServiceLocationHeroForm({
   const settings = await resolveSiteSettings()
   const heroBackground = await resolveHeroBackground()
   const fill = (text: string) =>
-    text.replaceAll('{City}', location.name).replaceAll('{Company}', 'Prime Design & Build')
+    text.replaceAll('{City}', location.name).replaceAll('{Company}', settings.name)
   const phone = settings.phone
   const phoneHref = `tel:${settings.phoneClean}`
   const tickerItem = `${service.title.toUpperCase()} · ${location.name.toUpperCase()} · CALL NOW`

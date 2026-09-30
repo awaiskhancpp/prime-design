@@ -1,3 +1,5 @@
+import { cache } from 'react'
+
 import website from '../../website.json'
 
 /**
@@ -88,6 +90,18 @@ export type SiteSettingsValue = {
     yelpRating?: number
     yelpReviewCount?: number
   }
+  /**
+   * Site-wide SEO defaults: what a page gets when its own SEO group leaves a
+   * value empty. `defaultOgImage` is the social image of last resort.
+   */
+  seo?: {
+    metaTitle?: string
+    metaDescription?: string
+    ogTitle?: string
+    ogDescription?: string
+    ogImage?: string
+  }
+  defaultOgImage?: string
 }
 
 /** `latitude`/`longitude` drive this area's pin on the coverage map. They are
@@ -185,6 +199,14 @@ type PayloadSiteSettings = {
     yelpRating?: number | null
     yelpReviewCount?: number | null
   } | null
+  seo?: {
+    metaTitle?: string | null
+    metaDescription?: string | null
+    ogTitle?: string | null
+    ogDescription?: string | null
+    ogImage?: { url?: string | null } | number | null
+  } | null
+  defaultOgImage?: { url?: string | null } | number | null
 }
 
 /** Payload stores a `number` field as Postgres `numeric`, which comes back as
@@ -200,7 +222,13 @@ const textOr = (value: string | null | undefined) =>
 const mediaUrl = (value: { url?: string | null } | number | null | undefined) =>
   value && typeof value === 'object' && typeof value.url === 'string' ? value.url : undefined
 
-export async function resolveSiteAreas(): Promise<SiteArea[]> {
+/**
+ * Both resolvers are wrapped in React's `cache()`: the layout, the template,
+ * the header, the footer and the page itself each ask for the settings, and
+ * without it every one of those was its own `findGlobal` round-trip on the
+ * same request.
+ */
+export const resolveSiteAreas = cache(async (): Promise<SiteArea[]> => {
   if (!process.env.DATABASE_URL) return localAreas
 
   const [{ getPayload }, { default: configPromise }] = await payloadImports()
@@ -237,9 +265,9 @@ export async function resolveSiteAreas(): Promise<SiteArea[]> {
     .filter((area) => area.name)
 
   return areas?.length ? areas : localAreas
-}
+})
 
-export async function resolveSiteSettings(): Promise<SiteSettingsValue> {
+export const resolveSiteSettings = cache(async (): Promise<SiteSettingsValue> => {
   if (!process.env.DATABASE_URL) return localSettings
 
   const [{ getPayload }, { default: configPromise }] = await payloadImports()
@@ -320,5 +348,17 @@ export async function resolveSiteSettings(): Promise<SiteSettingsValue> {
           yelpReviewCount: numberOr(settings.reviews.yelpReviewCount),
         }
       : undefined,
+    // Until now nothing read either of these, so the SEO group and the
+    // default social image in Site Settings were saved and ignored.
+    seo: settings.seo
+      ? {
+          metaTitle: textOr(settings.seo.metaTitle),
+          metaDescription: textOr(settings.seo.metaDescription),
+          ogTitle: textOr(settings.seo.ogTitle),
+          ogDescription: textOr(settings.seo.ogDescription),
+          ogImage: mediaUrl(settings.seo.ogImage),
+        }
+      : undefined,
+    defaultOgImage: mediaUrl(settings.defaultOgImage),
   }
-}
+})

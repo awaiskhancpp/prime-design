@@ -1,4 +1,5 @@
 import { ArrowRight } from 'lucide-react'
+import type { ReactNode } from 'react'
 import Image from '@/components/ui/Image'
 
 import { Button } from '@/components/ui/Button'
@@ -18,6 +19,7 @@ export function LandingCtaSection({
   eyebrow,
   heading,
   description,
+  body,
   cta,
   image,
 }: {
@@ -25,6 +27,12 @@ export function LandingCtaSection({
   /** Optional — some source CTA sections are a bare button band. */
   heading?: string
   description?: string
+  /**
+   * The block's `description` when it is rich text (it is on every landing
+   * page: "Contact us here or reach us at (650) 235-4863" carries two
+   * links). Wins over `description`.
+   */
+  body?: ReactNode
   cta?: { label: string; href: string }
   image?: string
 }) {
@@ -52,7 +60,11 @@ export function LandingCtaSection({
           {heading ? (
             <h2 className="mt-3 font-display text-3xl font-medium md:text-5xl">{heading}</h2>
           ) : null}
-          {description ? <p className="mt-4 text-base leading-7">{description}</p> : null}
+          {body ? (
+            <div className="mt-4 text-base leading-7 [&_p]:text-ink [&>p:first-child]:mt-0">{body}</div>
+          ) : description ? (
+            <p className="mt-4 text-base leading-7">{description}</p>
+          ) : null}
           {cta ? (
             <Button
               href={cta.href}

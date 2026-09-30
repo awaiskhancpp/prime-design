@@ -198,7 +198,7 @@ export const capacityFor = (key: string, rules: BookingRules) =>
  * cannot widen the window.
  */
 export async function resolveAvailability(now = new Date()): Promise<{
-  rules: Pick<BookingRules, 'slots' | 'bookingWindowDays' | 'minNoticeHours'>
+  rules: Pick<BookingRules, 'slots' | 'bookingWindowDays' | 'minNoticeHours' | 'appointmentMinutes'>
   lastBookableDate: string
   days: BookingDay[]
 }> {
@@ -253,6 +253,7 @@ export async function resolveAvailability(now = new Date()): Promise<{
       slots: rules.slots,
       bookingWindowDays: rules.bookingWindowDays,
       minNoticeHours: rules.minNoticeHours,
+      appointmentMinutes: rules.appointmentMinutes,
     },
     lastBookableDate: dateKey(end),
     days,

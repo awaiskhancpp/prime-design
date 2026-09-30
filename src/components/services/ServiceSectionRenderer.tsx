@@ -403,6 +403,15 @@ function renderVideo(block: RawBlock, headingText: string): RenderedSection | nu
         description={str(block.description)}
         videoUrl={videoUrl}
         poster={mediaUrl(block.poster)}
+        // The video-story fields (`videoStoryFields`) the section already
+        // renders on landing pages; they were never passed here.
+        summary={
+          richTextHasContent(block.summary as RichTextValue) ? (
+            <RichTextContent data={block.summary as RichTextValue} />
+          ) : undefined
+        }
+        speakerName={str(block.speakerName) || undefined}
+        speakerRole={str(block.speakerRole) || undefined}
       />
     ),
   }

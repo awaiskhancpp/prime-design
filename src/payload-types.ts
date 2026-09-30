@@ -8094,7 +8094,11 @@ export interface SiteSetting {
      */
     hours?: string | null;
     /**
-     * Where the location text in the top banner links to — your Google Business Profile / Maps listing URL.
+     * The location text in the top banner, e.g. "Silicon Valley". Empty hides the location.
+     */
+    serviceRegion?: string | null;
+    /**
+     * Where the location text in the top banner links to. Empty uses the first address's link below.
      */
     mapsUrl?: string | null;
     addresses?:
@@ -8447,6 +8451,7 @@ export interface SiteSettingsSelect<T extends boolean = true> {
         phoneCta?: T;
         license?: T;
         hours?: T;
+        serviceRegion?: T;
         mapsUrl?: T;
         addresses?:
           | T

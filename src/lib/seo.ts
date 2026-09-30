@@ -1,5 +1,7 @@
 import type { Metadata } from 'next'
 
+import { resolveSiteSettings } from './siteSettings'
+
 /** Site name suffix used in default `<title>` values. */
 export const SITE_NAME = 'Prime Design & Build'
 
@@ -76,17 +78,15 @@ export type SeoOptions = {
   image?: string | null
 }
 
-/** Falls back to the site-wide social image when a page has none of its own. */
+/**
+ * The social image when neither the page nor Site Settings has one — the
+ * WordPress default (`Prime-Kitchens-Open-Graph.gif`, 1200×630). Only reached
+ * without a database; with one, Site Settings' `defaultOgImage` decides.
+ */
 const DEFAULT_OG_IMAGE = '/api/media/file/Prime-Kitchens-Open-Graph.gif'
 
-const imageFrom = (seo: SeoFields | undefined, override?: string | null): string => {
-  if (override) return absoluteUrl(override)
-  const value =
-    seo?.ogImage && typeof seo.ogImage === 'object' && 'url' in seo.ogImage
-      ? seo.ogImage.url
-      : undefined
-  return absoluteUrl(value || DEFAULT_OG_IMAGE)
-}
+const mediaUrlOf = (value: SeoFields['ogImage']): string | undefined =>
+  value && typeof value === 'object' && 'url' in value ? value.url || undefined : undefined
 
 /**
  * Build full page metadata from a Payload SEO field group.
@@ -99,19 +99,30 @@ const imageFrom = (seo: SeoFields | undefined, override?: string | null): string
  *   built from `path`.
  * - Open Graph and Twitter tags mirror the WordPress output.
  */
-export function buildSeoMetadata(
+export async function buildSeoMetadata(
   seo: SeoFields | undefined,
   fallbacks: { title: string; description?: string },
   options: SeoOptions = {},
-): Metadata {
+): Promise<Metadata> {
+  // Site Settings' SEO group is the last layer before the code: a page with
+  // no description of its own and no fallback copy gets the site's, and the
+  // social image falls back to the one chosen there.
+  const site = await resolveSiteSettings()
   const fallbackTitle = clean(fallbacks.title) || SITE_NAME
   const suffixed = fallbackTitle.toLowerCase().endsWith(SITE_NAME.toLowerCase())
     ? fallbackTitle
     : `${fallbackTitle} | ${SITE_NAME}`
   const title = clean(seo?.metaTitle) || suffixed
-  const description = clean(seo?.metaDescription) || clean(fallbacks.description)
+  const description =
+    clean(seo?.metaDescription) || clean(fallbacks.description) || clean(site.seo?.metaDescription)
   const canonical = clean(seo?.canonicalUrl) || (options.path ? absoluteUrl(options.path) : undefined)
-  const image = imageFrom(seo, options.image)
+  const image = absoluteUrl(
+    options.image ||
+      mediaUrlOf(seo?.ogImage) ||
+      site.defaultOgImage ||
+      site.seo?.ogImage ||
+      DEFAULT_OG_IMAGE,
+  )
   const ogTitle = clean(seo?.ogTitle) || title
   const ogDescription = clean(seo?.ogDescription) || description
 
@@ -147,7 +158,7 @@ export function buildSeoMetadata(
 export function serviceMetadata(
   service?: { title: string; description?: string; seo?: SeoFields } | null,
   options: SeoOptions = {},
-): Metadata {
-  if (!service) return {}
+): Promise<Metadata> {
+  if (!service) return Promise.resolve({})
   return buildSeoMetadata(service.seo, { title: service.title, description: service.description }, options)
 }
