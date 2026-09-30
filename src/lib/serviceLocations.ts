@@ -73,7 +73,8 @@ export type ServiceLocation = {
     heading?: string
     body?: string
     image?: string
-    stats?: Array<{ value?: string; label?: string; detail?: string }>
+    stats?: Array<{ value?: string; label?: string; detail?: string; showStars?: boolean }>
+    buttons?: Array<{ label: string; url: string; variant?: string }>
   }
   testimonialCards?: {
     items?: Array<{ name: string; quote?: string; avatar?: string }>
@@ -155,7 +156,7 @@ export async function getServiceLocation(serviceSlug: string, locationSlugValue:
       description: textOr(doc.locationVideo?.description),
       tagline: textOr(doc.locationVideo?.tagline),
       videoUrl: textOr(doc.locationVideo?.videoUrl),
-      poster: textOr(doc.locationVideo?.poster),
+      poster: mediaUrl(doc.locationVideo?.poster),
     })
     const dontSettle = compact({
       eyebrow: textOr(doc.dontSettle?.eyebrow),
@@ -163,7 +164,7 @@ export async function getServiceLocation(serviceSlug: string, locationSlugValue:
       headingAccent: textOr(doc.dontSettle?.headingAccent),
       body: textOr(doc.dontSettle?.body),
       ctaLabel: textOr(doc.dontSettle?.ctaLabel),
-      image: textOr(doc.dontSettle?.image),
+      image: mediaUrl(doc.dontSettle?.image),
     })
     const primeDifference = compact({
       eyebrow: textOr(doc.primeDifference?.eyebrow),
@@ -203,20 +204,26 @@ export async function getServiceLocation(serviceSlug: string, locationSlugValue:
       heading: textOr(doc.quote?.heading),
       quote: textOr(doc.quote?.quote),
       attribution: textOr(doc.quote?.attribution),
-      image: textOr(doc.quote?.image),
+      image: mediaUrl(doc.quote?.image),
     })
     const siliconValleyLoves = compact({
       eyebrow: textOr(doc.siliconValleyLoves?.eyebrow),
       heading: textOr(doc.siliconValleyLoves?.heading),
       body: textOr(doc.siliconValleyLoves?.body),
-      image: textOr(doc.siliconValleyLoves?.image),
+      image: mediaUrl(doc.siliconValleyLoves?.image),
       stats: (doc.siliconValleyLoves?.stats ?? [])
         .map((stat) => ({
           value: textOr(stat.value),
           label: textOr(stat.label),
           detail: textOr(stat.detail),
+          showStars: Boolean(stat.showStars),
         }))
         .filter((stat) => Boolean(stat.value || stat.label || stat.detail)),
+      buttons: (doc.siliconValleyLoves?.buttons ?? []).flatMap((button) =>
+        textOr(button.label) && textOr(button.url)
+          ? [{ label: button.label, url: button.url, variant: textOr(button.variant) }]
+          : [],
+      ),
     })
     const testimonialCards = compact({
       // Linked Testimonials documents, populated at depth 2.

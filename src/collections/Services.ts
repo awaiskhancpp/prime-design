@@ -1,5 +1,11 @@
 import type { CollectionConfig, CollectionSlug } from 'payload'
 import { SEOFields } from './fields/SEO'
+import {
+  locationHeroGroup,
+  quoteGroup,
+  siliconValleyLovesGroup,
+  testimonialCardsGroup,
+} from './fields/sectionGroups'
 import { servicePageBlocks } from '../blocks/LandingPageBlocks'
 
 export const Services: CollectionConfig = {
@@ -353,116 +359,20 @@ export const Services: CollectionConfig = {
                 },
               ],
             },
-            {
-              name: 'locationHero',
-              type: 'group',
+            locationHeroGroup({
               label: 'Location Hero Copy',
-              admin: {
-                description:
-                  'Hero copy above the quote form on this service’s city pages. WordPress keeps it on the family template (kitchen/bathroom/home) rather than per city, so this is the default all 45 city pages inherit. Use {City} for the city name and {Company} for the company name — both are substituted when the page renders. A city can override any field on its own record; empty here falls back to the built-in template.',
-              },
-              fields: [
-                {
-                  name: 'lede',
-                  type: 'text',
-                  admin: {
-                    description:
-                      'Small brass line above the H1. {City} / {Company} are substituted.',
-                  },
-                },
-                {
-                  name: 'body',
-                  type: 'textarea',
-                  admin: {
-                    description: 'Paragraph under the H1. {City} / {Company} are substituted.',
-                  },
-                },
-                {
-                  name: 'formSubject',
-                  type: 'text',
-                  admin: {
-                    description:
-                      'Completes “Let’s talk about your dream …” beside the form — e.g. “kitchen”.',
-                  },
-                },
-                {
-                  name: 'blurbs',
-                  type: 'array',
-                  admin: {
-                    description:
-                      'The three captions under the hero feature photos, paired in order with Location Page Feature Images. {City} / {Company} are substituted.',
-                  },
-                  fields: [{ name: 'text', type: 'text' }],
-                },
-              ],
-            },
-            {
-              name: 'quote',
-              type: 'group',
+              description:
+                'Hero copy above the quote form on this service’s city pages. WordPress keeps it on the family template (kitchen/bathroom/home) rather than per city, so this is the default all 45 city pages inherit. Use {City} for the city name and {Company} for the company name — both are substituted when the page renders. A city can override any field on its own record.',
+            }),
+            quoteGroup({
               label: 'Quote Section',
-              admin: {
-                description:
-                  'Structured "Crafting Your Dream Home, Our Promise" pull-quote section.',
-              },
-              fields: [
-                { name: 'heading', type: 'text' },
-                { name: 'quote', type: 'textarea' },
-                { name: 'attribution', type: 'text' },
-                { name: 'image', type: 'upload', relationTo: 'media' },
-              ],
-            },
-            {
-              name: 'siliconValleyLoves',
-              type: 'group',
+              description: 'Structured "Crafting Your Dream Home, Our Promise" pull-quote section.',
+            }),
+            siliconValleyLovesGroup({
               label: 'Silicon Valley Loves Section',
-              admin: {
-                description:
-                  'The trust section ("Silicon Valley loves working with us!") rendered with the projects-page design. All content is authored here — nothing is hardcoded.',
-              },
-              fields: [
-                { name: 'eyebrow', type: 'text' },
-                { name: 'heading', type: 'text' },
-                { name: 'body', type: 'textarea' },
-                { name: 'image', type: 'upload', relationTo: 'media' },
-                {
-                  name: 'stats',
-                  type: 'array',
-                  admin: {
-                    description:
-                      'The floating stat card (e.g. rating / review count / projects built). Add one row per block.',
-                  },
-                  fields: [
-                    { name: 'value', type: 'text' },
-                    { name: 'label', type: 'text' },
-                    { name: 'detail', type: 'text' },
-                    {
-                      name: 'showStars',
-                      type: 'checkbox',
-                      defaultValue: false,
-                      admin: { description: 'Render five stars above the value (for ratings).' },
-                    },
-                  ],
-                },
-                {
-                  name: 'buttons',
-                  type: 'array',
-                  admin: { description: 'Call-to-action buttons under the copy.' },
-                  fields: [
-                    { name: 'label', type: 'text', required: true },
-                    { name: 'url', type: 'text', required: true },
-                    {
-                      name: 'variant',
-                      type: 'select',
-                      defaultValue: 'outline',
-                      options: [
-                        { label: 'Outlined', value: 'outline' },
-                        { label: 'Brass (filled)', value: 'brass' },
-                      ],
-                    },
-                  ],
-                },
-              ],
-            },
+              description:
+                'The trust section ("Silicon Valley loves working with us!"), rendered with the projects-page design. City pages use it wherever their own copy of this section is empty.',
+            }),
             {
               name: 'whyChooseUs',
               type: 'group',
@@ -651,15 +561,7 @@ export const Services: CollectionConfig = {
                 {
                   name: 'images',
                   type: 'array',
-                  fields: [
-                    {
-                      name: 'url',
-                      type: 'text',
-                      admin: {
-                        description: 'Image URL (original WordPress URL or a /public path).',
-                      },
-                    },
-                  ],
+                  fields: [{ name: 'image', type: 'upload', relationTo: 'media', required: true }],
                 },
               ],
             },
@@ -675,7 +577,7 @@ export const Services: CollectionConfig = {
                 { name: 'eyebrow', type: 'text' },
                 { name: 'heading', type: 'text' },
                 { name: 'description', type: 'textarea' },
-                { name: 'image', type: 'text' },
+                { name: 'image', type: 'upload', relationTo: 'media' },
                 {
                   name: 'items',
                   type: 'array',
@@ -686,31 +588,12 @@ export const Services: CollectionConfig = {
                 },
               ],
             },
-            {
-              name: 'testimonialCards',
-              type: 'group',
+            testimonialCardsGroup({
               label: 'Testimonial Cards Section',
-              admin: {
-                description:
-                  'Three testimonial cards — the Shaker Kitchen page testimonial grid.',
-              },
-              fields: [
-                {
-                  /**
-                   * Picked from the Testimonials collection. This used to be
-                   * an array of name/quote/avatar copied onto every page, so
-                   * the same three testimonials were stored 46 times.
-                   */
-                  name: 'testimonials',
-                  type: 'relationship',
-                  relationTo: 'testimonials',
-                  hasMany: true,
-                  admin: {
-                    description: 'The testimonials to show, in order. The first is the large dark card.',
-                  },
-                },
-              ],
-            },
+              description: 'Three testimonial cards — the Shaker Kitchen page testimonial grid.',
+              testimonialsDescription:
+                'The testimonials to show, in order. The first is the large dark card.',
+            }),
             {
               name: 'materialsShowcase',
               type: 'group',
@@ -727,7 +610,7 @@ export const Services: CollectionConfig = {
                   name: 'items',
                   type: 'array',
                   fields: [
-                    { name: 'image', type: 'text' },
+                    { name: 'image', type: 'upload', relationTo: 'media' },
                     { name: 'title', type: 'text', required: true },
                     { name: 'description', type: 'textarea' },
                   ],

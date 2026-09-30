@@ -1396,7 +1396,7 @@ export interface Service {
       | null;
   };
   /**
-   * Hero copy above the quote form on this service’s city pages. WordPress keeps it on the family template (kitchen/bathroom/home) rather than per city, so this is the default all 45 city pages inherit. Use {City} for the city name and {Company} for the company name — both are substituted when the page renders. A city can override any field on its own record; empty here falls back to the built-in template.
+   * Hero copy above the quote form on this service’s city pages. WordPress keeps it on the family template (kitchen/bathroom/home) rather than per city, so this is the default all 45 city pages inherit. Use {City} for the city name and {Company} for the company name — both are substituted when the page renders. A city can override any field on its own record.
    */
   locationHero?: {
     /**
@@ -1412,7 +1412,7 @@ export interface Service {
      */
     formSubject?: string | null;
     /**
-     * The three captions under the hero feature photos, paired in order with Location Page Feature Images. {City} / {Company} are substituted.
+     * The three captions under the hero feature photos, in order. {City} / {Company} are substituted.
      */
     blurbs?:
       | {
@@ -1431,7 +1431,7 @@ export interface Service {
     image?: (number | null) | Media;
   };
   /**
-   * The trust section ("Silicon Valley loves working with us!") rendered with the projects-page design. All content is authored here — nothing is hardcoded.
+   * The trust section ("Silicon Valley loves working with us!"), rendered with the projects-page design. City pages use it wherever their own copy of this section is empty.
    */
   siliconValleyLoves?: {
     eyebrow?: string | null;
@@ -1439,7 +1439,7 @@ export interface Service {
     body?: string | null;
     image?: (number | null) | Media;
     /**
-     * The floating stat card (e.g. rating / review count / projects built). Add one row per block.
+     * The floating stat card (e.g. rating / review count / projects built). One row per figure.
      */
     stats?:
       | {
@@ -1578,10 +1578,7 @@ export interface Service {
       | null;
     images?:
       | {
-          /**
-           * Image URL (original WordPress URL or a /public path).
-           */
-          url?: string | null;
+          image: number | Media;
           id?: string | null;
         }[]
       | null;
@@ -1593,7 +1590,7 @@ export interface Service {
     eyebrow?: string | null;
     heading?: string | null;
     description?: string | null;
-    image?: string | null;
+    image?: (number | null) | Media;
     items?:
       | {
           title: string;
@@ -1620,7 +1617,7 @@ export interface Service {
     description?: string | null;
     items?:
       | {
-          image?: string | null;
+          image?: (number | null) | Media;
           title: string;
           description?: string | null;
           id?: string | null;
@@ -1764,7 +1761,7 @@ export interface ServiceLocation {
   service: number | Service;
   location: number | Location;
   /**
-   * Hero copy above the quote form. Use {City} for the city name and {Company} for the company name — both are substituted when the page renders. Leave a field empty to inherit the parent service’s hero copy, then the built-in WordPress family template.
+   * Hero copy above the quote form. Use {City} for the city name and {Company} for the company name — both are substituted when the page renders. Leave a field empty to inherit the parent service’s hero copy.
    */
   locationHero?: {
     /**
@@ -1780,7 +1777,7 @@ export interface ServiceLocation {
      */
     formSubject?: string | null;
     /**
-     * The three captions under the hero feature photos. {City} / {Company} are substituted.
+     * The three captions under the hero feature photos, in order. {City} / {Company} are substituted.
      */
     blurbs?:
       | {
@@ -1798,7 +1795,7 @@ export interface ServiceLocation {
     description?: string | null;
     tagline?: string | null;
     videoUrl?: string | null;
-    poster?: string | null;
+    poster?: (number | null) | Media;
   };
   /**
    * "Don't Settle for a Mediocre…" intro section. Use {City} and {ServiceTitle} placeholders.
@@ -1812,7 +1809,7 @@ export interface ServiceLocation {
     /**
      * Side image. WordPress uses the same photo (attachment 579, 11.png) on all three family templates. Empty falls back to the page hero, which is the city marketing graphic — not what WordPress shows.
      */
-    image?: string | null;
+    image?: (number | null) | Media;
   };
   /**
    * The sub-service cards section. The cards themselves come from the parent service; these are this page's own buttons.
@@ -1842,7 +1839,7 @@ export interface ServiceLocation {
     heading?: string | null;
     quote?: string | null;
     attribution?: string | null;
-    image?: string | null;
+    image?: (number | null) | Media;
   };
   /**
    * "The Prime Difference" section (heading + checklist + reason cards + review logos).
@@ -1889,6 +1886,9 @@ export interface ServiceLocation {
             };
             [k: string]: unknown;
           } | null;
+          /**
+           * A site icon, e.g. /customer-satisfaction.svg.
+           */
           image?: string | null;
           id?: string | null;
         }[]
@@ -1900,16 +1900,37 @@ export interface ServiceLocation {
      */
     testimonials?: (number | Testimonial)[] | null;
   };
+  /**
+   * Leave a field empty to use the parent service’s.
+   */
   siliconValleyLoves?: {
     eyebrow?: string | null;
     heading?: string | null;
     body?: string | null;
-    image?: string | null;
+    image?: (number | null) | Media;
+    /**
+     * The floating stat card (e.g. rating / review count / projects built). One row per figure.
+     */
     stats?:
       | {
           value?: string | null;
           label?: string | null;
           detail?: string | null;
+          /**
+           * Render five stars above the value (for ratings).
+           */
+          showStars?: boolean | null;
+          id?: string | null;
+        }[]
+      | null;
+    /**
+     * Call-to-action buttons under the copy.
+     */
+    buttons?:
+      | {
+          label: string;
+          url: string;
+          variant?: ('outline' | 'brass') | null;
           id?: string | null;
         }[]
       | null;
@@ -5536,7 +5557,7 @@ export interface ServicesSelect<T extends boolean = true> {
         images?:
           | T
           | {
-              url?: T;
+              image?: T;
               id?: T;
             };
       };
@@ -5731,6 +5752,15 @@ export interface ServiceLocationsSelect<T extends boolean = true> {
               value?: T;
               label?: T;
               detail?: T;
+              showStars?: T;
+              id?: T;
+            };
+        buttons?:
+          | T
+          | {
+              label?: T;
+              url?: T;
+              variant?: T;
               id?: T;
             };
       };

@@ -320,20 +320,20 @@ type PayloadServiceRecord = {
     eyebrow?: string | null
     heading?: string | null
     items?: Array<{ icon?: string | null; title?: string; description?: string | null }> | null
-    images?: Array<{ url?: string | null }> | null
+    images?: Array<{ image?: PayloadMedia | number | null }> | null
   } | null
   imageChecklist?: {
     eyebrow?: string | null
     heading?: string | null
     description?: string | null
-    image?: string | null
+    image?: PayloadMedia | number | null
     items?: Array<{ title?: string; description?: string | null }> | null
   } | null
   materialsShowcase?: {
     eyebrow?: string | null
     heading?: string | null
     description?: string | null
-    items?: Array<{ image?: string | null; title?: string; description?: string | null }> | null
+    items?: Array<{ image?: PayloadMedia | number | null; title?: string; description?: string | null }> | null
   } | null
   testimonialCards?: {
     /** Testimonials documents; populated at depth 2, a bare id otherwise. */
@@ -595,7 +595,7 @@ export async function resolveServiceDetail(slug: string): Promise<ServiceDetail 
             description: item.description ?? undefined,
           })),
           images: record.iconChecklistGallery.images
-            ?.map((image) => image.url)
+            ?.map((item) => payloadImageUrl(item.image))
             .filter((url): url is string => Boolean(url)),
         }
       : undefined,
@@ -604,7 +604,7 @@ export async function resolveServiceDetail(slug: string): Promise<ServiceDetail 
           eyebrow: record.imageChecklist.eyebrow ?? undefined,
           heading: record.imageChecklist.heading ?? undefined,
           description: record.imageChecklist.description ?? undefined,
-          image: record.imageChecklist.image ?? undefined,
+          image: payloadImageUrl(record.imageChecklist.image),
           items: record.imageChecklist.items?.map((item) => ({
             title: item.title || '',
             description: item.description ?? undefined,
@@ -617,7 +617,7 @@ export async function resolveServiceDetail(slug: string): Promise<ServiceDetail 
           heading: record.materialsShowcase.heading ?? undefined,
           description: record.materialsShowcase.description ?? undefined,
           items: record.materialsShowcase.items?.map((item) => ({
-            image: item.image ?? undefined,
+            image: payloadImageUrl(item.image),
             title: item.title || '',
             description: item.description ?? undefined,
           })),
