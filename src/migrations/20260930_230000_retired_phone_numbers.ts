@@ -32,6 +32,6 @@ export async function up({ db }: MigrateUpArgs): Promise<void> {
   `)
 }
 
-export async function down({ db }: MigrateDownArgs): Promise<void> {
+export async function down(_args: MigrateDownArgs): Promise<void> {
   // Not reversed: the old number is out of service.
 }
