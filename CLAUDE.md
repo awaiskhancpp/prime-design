@@ -192,6 +192,14 @@ pinned with `dbName` (`SERVICE_BLOCK_TABLES` in `src/blocks/LandingPageBlocks.ts
 A `DROP TABLE` of a table with rows in a generated migration is always a
 reason to stop and look.
 
+**Removing blocks shifts relationships.** A relationship inside a block is
+stored by the block's *index*: `services_rels.path =
+'sections.6.categories.0.faqOrder'`. Deleting blocks from a list (a block
+type, or rows) moves every later block down, and the generated migration does
+not rewrite those paths — the relationship silently lands on the wrong
+section. See `20260930_220900_renumber_service_section_rels` for the fix
+pattern; run it before the drop.
+
 **Never edit, rewrite or delete an existing migration file to make a diff
 come out clean.** They have already run against production; rewriting them
 makes the applied state and the file history disagree.
