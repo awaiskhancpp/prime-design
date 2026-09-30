@@ -60,13 +60,13 @@ export function ServiceLocationPage({
   const serviceTitle = serviceTitleOf(entry.serviceSlug)
   const city = entry.location.name
 
-  // Video — service-location tab content (pre-filled from the WordPress
-  // source). No static fallback — the section only renders Payload content.
+  // Video — resolved city → service → Shared Sections in
+  // `lib/serviceLocations`. No static fallback.
   const locVideo = entry.locationVideo
   const video = locVideo?.videoUrl
     ? {
         eyebrow: fill(locVideo.eyebrow, serviceTitle, city),
-        title: fill(locVideo.title, serviceTitle, city) || serviceTitle,
+        title: fill(locVideo.title, serviceTitle, city),
         description: fill(locVideo.description, serviceTitle, city),
         tagline: fill(locVideo.tagline, serviceTitle, city),
         videoUrl: locVideo.videoUrl,
@@ -79,13 +79,15 @@ export function ServiceLocationPage({
       }
     : undefined
 
-  // "Don't Settle" — service-location tab content only.
+  // "Don't Settle" — resolved city → service → Shared Sections.
   const locDontSettle = entry.dontSettle
   const dontSettle = locDontSettle?.body
     ? {
-        eyebrow: fill(locDontSettle.eyebrow, serviceTitle, city) || `${service.title} in ${city}`,
-        heading: fill(locDontSettle.heading, serviceTitle, city) || "Don't Settle for a Mediocre",
-        headingAccent: fill(locDontSettle.headingAccent, serviceTitle, city) || city,
+        // Every word from Payload (city → service → Shared Sections); the
+        // defaults that used to be typed out here are gone.
+        eyebrow: fill(locDontSettle.eyebrow, serviceTitle, city) || '',
+        heading: fill(locDontSettle.heading, serviceTitle, city) || '',
+        headingAccent: fill(locDontSettle.headingAccent, serviceTitle, city) || '',
         body: fill(locDontSettle.body, serviceTitle, city) || '',
         // WordPress uses one photo here on all three family templates
         // (attachment 579). `service.image` is the city marketing graphic, so

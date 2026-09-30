@@ -138,3 +138,79 @@ export const testimonialCardsGroup = ({
     },
   ],
 })
+
+/** The city-page video section. `{City}` / `{ServiceTitle}` are substituted. */
+export const locationVideoGroup = ({ label, description }: GroupOptions): Field => ({
+  name: 'locationVideo',
+  type: 'group',
+  label,
+  admin: { description },
+  fields: [
+    { name: 'eyebrow', type: 'text' },
+    { name: 'title', type: 'text' },
+    { name: 'description', type: 'textarea' },
+    { name: 'tagline', type: 'text' },
+    { name: 'videoUrl', type: 'text' },
+    { name: 'poster', type: 'upload', relationTo: 'media' },
+  ],
+})
+
+/** The city-page "Don't Settle for a Mediocre…" intro. `{City}` / `{ServiceTitle}` are substituted. */
+export const dontSettleGroup = ({ label, description }: GroupOptions): Field => ({
+  name: 'dontSettle',
+  type: 'group',
+  label,
+  admin: { description },
+  fields: [
+    { name: 'eyebrow', type: 'text' },
+    { name: 'heading', type: 'text' },
+    { name: 'headingAccent', type: 'text' },
+    { name: 'body', type: 'textarea' },
+    { name: 'ctaLabel', type: 'text', label: 'Button text' },
+    {
+      name: 'image',
+      type: 'upload',
+      relationTo: 'media',
+      admin: {
+        description:
+          'Side image. WordPress uses the same photo (attachment 579, 11.png) on all three family templates.',
+      },
+    },
+  ],
+})
+
+/** The city-page "The Prime Difference" section (checklist + four reason cards). */
+export const locationPrimeDifferenceGroup = ({ label, description }: GroupOptions): Field => ({
+  name: 'primeDifference',
+  type: 'group',
+  label,
+  admin: { description },
+  fields: [
+    { name: 'eyebrow', type: 'text' },
+    { name: 'heading', type: 'text' },
+    // Rich text: the WordPress original emphasises a phrase in this paragraph
+    // ("we are the <b>unrivaled experts</b>").
+    { name: 'body', type: 'richText' },
+    {
+      name: 'checklist',
+      type: 'array',
+      fields: [{ name: 'text', type: 'text' }],
+    },
+    {
+      name: 'reasons',
+      type: 'array',
+      fields: [
+        { name: 'title', type: 'text', required: true },
+        { name: 'description', type: 'richText' },
+        {
+          // A path to a site icon in /public, not a Media document: the brass
+          // versions of WordPress's black icons (CLAUDE.md §8c).
+          name: 'image',
+          type: 'text',
+          label: 'Icon path',
+          admin: { description: 'A site icon, e.g. /customer-satisfaction.svg.' },
+        },
+      ],
+    },
+  ],
+})

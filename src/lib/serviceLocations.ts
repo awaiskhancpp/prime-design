@@ -2,6 +2,16 @@ import { getPayload } from 'payload'
 import configPromise from '@payload-config'
 import { resolveServiceDetail, type ServiceDetail } from './services'
 import { richTextHasContent, type RichTextValue } from './richText'
+import {
+  inherit,
+  mapDontSettle,
+  mapLocationVideo,
+  mapPrimeDifference,
+  mapQuote,
+  mapSiliconValleyLoves,
+  mapTestimonialCards,
+  resolveSharedCitySections,
+} from './sharedSections'
 import type {
   Location as PayloadLocation,
   Service as PayloadService,
@@ -150,40 +160,25 @@ export async function getServiceLocation(serviceSlug: string, locationSlugValue:
         .map((blurb) => textOr(blurb.text))
         .filter((text): text is string => Boolean(text)),
     })
-    const locationVideo = compact({
-      eyebrow: textOr(doc.locationVideo?.eyebrow),
-      title: textOr(doc.locationVideo?.title),
-      description: textOr(doc.locationVideo?.description),
-      tagline: textOr(doc.locationVideo?.tagline),
-      videoUrl: textOr(doc.locationVideo?.videoUrl),
-      poster: mediaUrl(doc.locationVideo?.poster),
-    })
-    const dontSettle = compact({
-      eyebrow: textOr(doc.dontSettle?.eyebrow),
-      heading: textOr(doc.dontSettle?.heading),
-      headingAccent: textOr(doc.dontSettle?.headingAccent),
-      body: textOr(doc.dontSettle?.body),
-      ctaLabel: textOr(doc.dontSettle?.ctaLabel),
-      image: mediaUrl(doc.dontSettle?.image),
-    })
-    const primeDifference = compact({
-      eyebrow: textOr(doc.primeDifference?.eyebrow),
-      heading: textOr(doc.primeDifference?.heading),
-      // `richTextHasContent` rather than a truthiness check: an untouched
-      // Lexical editor saves one empty paragraph, which would otherwise
-      // render as a blank line where the paragraph used to be.
-      body: richTextOr(doc.primeDifference?.body),
-      checklist: (doc.primeDifference?.checklist ?? [])
-        .map((item) => textOr(item.text))
-        .filter((item): item is string => Boolean(item)),
-      reasons: (doc.primeDifference?.reasons ?? [])
-        .filter((reason) => Boolean(reason.title))
-        .map((reason) => ({
-          icon: reason.image ?? undefined,
-          title: reason.title,
-          body: richTextOr(reason.description),
-        })),
-    })
+    // Six sections resolve field by field: this city's own value, then its
+    // service's (the kitchen / bathroom / home family), then the Shared
+    // Sections global. See `lib/sharedSections.ts`.
+    const shared = await resolveSharedCitySections()
+    const serviceRaw = relatedService as unknown as Record<string, Record<string, unknown> | null>
+    const locationVideo = inherit(
+      mapLocationVideo(doc.locationVideo as never),
+      mapLocationVideo(serviceRaw.locationVideo),
+      shared.locationVideo,
+    )
+    const dontSettle = inherit(
+      mapDontSettle(doc.dontSettle as never),
+      mapDontSettle(serviceRaw.dontSettle),
+      shared.dontSettle,
+    )
+    const primeDifference = inherit(
+      mapPrimeDifference(doc.primeDifference as never),
+      shared.primeDifference,
+    )
     const offerings = compact({
       heading: textOr(doc.offerings?.heading),
       description: textOr(doc.offerings?.description),
@@ -200,44 +195,17 @@ export async function getServiceLocation(serviceSlug: string, locationSlugValue:
       primaryCta: ctaOr(doc.offerings?.primaryCta),
       secondaryCta: ctaOr(doc.offerings?.secondaryCta),
     })
-    const quote = compact({
-      heading: textOr(doc.quote?.heading),
-      quote: textOr(doc.quote?.quote),
-      attribution: textOr(doc.quote?.attribution),
-      image: mediaUrl(doc.quote?.image),
-    })
-    const siliconValleyLoves = compact({
-      eyebrow: textOr(doc.siliconValleyLoves?.eyebrow),
-      heading: textOr(doc.siliconValleyLoves?.heading),
-      body: textOr(doc.siliconValleyLoves?.body),
-      image: mediaUrl(doc.siliconValleyLoves?.image),
-      stats: (doc.siliconValleyLoves?.stats ?? [])
-        .map((stat) => ({
-          value: textOr(stat.value),
-          label: textOr(stat.label),
-          detail: textOr(stat.detail),
-          showStars: Boolean(stat.showStars),
-        }))
-        .filter((stat) => Boolean(stat.value || stat.label || stat.detail)),
-      buttons: (doc.siliconValleyLoves?.buttons ?? []).flatMap((button) =>
-        textOr(button.label) && textOr(button.url)
-          ? [{ label: button.label, url: button.url, variant: textOr(button.variant) }]
-          : [],
-      ),
-    })
-    const testimonialCards = compact({
-      // Linked Testimonials documents, populated at depth 2.
-      items: (doc.testimonialCards?.testimonials ?? [])
-        .filter(
-          (item): item is Exclude<typeof item, number> =>
-            typeof item === 'object' && item !== null && Boolean(item.name),
-        )
-        .map((item) => ({
-          name: item.name,
-          quote: textOr(item.quote),
-          avatar: item.image && typeof item.image === 'object' ? textOr(item.image.url) : undefined,
-        })),
-    })
+    const quote = inherit(mapQuote(doc.quote as never), serviceDetail.quote, shared.quote)
+    const siliconValleyLoves = inherit(
+      mapSiliconValleyLoves(doc.siliconValleyLoves as never),
+      serviceDetail.siliconValleyLoves,
+      shared.siliconValleyLoves,
+    )
+    const testimonialCards = inherit(
+      mapTestimonialCards(doc.testimonialCards as never),
+      serviceDetail.testimonialCards,
+      shared.testimonialCards,
+    )
     const sectionOverrides = Array.isArray(
       (doc as unknown as { sectionOverrides?: unknown }).sectionOverrides,
     )

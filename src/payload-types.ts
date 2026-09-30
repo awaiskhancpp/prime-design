@@ -134,11 +134,13 @@ export interface Config {
   fallbackLocale: null;
   globals: {
     'site-settings': SiteSetting;
+    'shared-sections': SharedSection;
     navigation: Navigation;
     'booking-settings': BookingSetting;
   };
   globalsSelect: {
     'site-settings': SiteSettingsSelect<false> | SiteSettingsSelect<true>;
+    'shared-sections': SharedSectionsSelect<false> | SharedSectionsSelect<true>;
     navigation: NavigationSelect<false> | NavigationSelect<true>;
     'booking-settings': BookingSettingsSelect<false> | BookingSettingsSelect<true>;
   };
@@ -1446,6 +1448,31 @@ export interface Service {
       | null;
   };
   /**
+   * For this service’s city pages. Use {City} and {ServiceTitle}. A city page’s own value wins; empty here uses Shared Sections.
+   */
+  dontSettle?: {
+    eyebrow?: string | null;
+    heading?: string | null;
+    headingAccent?: string | null;
+    body?: string | null;
+    ctaLabel?: string | null;
+    /**
+     * Side image. WordPress uses the same photo (attachment 579, 11.png) on all three family templates.
+     */
+    image?: (number | null) | Media;
+  };
+  /**
+   * For this service’s city pages. Use {City} and {ServiceTitle}. A city page’s own value wins; empty here uses Shared Sections.
+   */
+  locationVideo?: {
+    eyebrow?: string | null;
+    title?: string | null;
+    description?: string | null;
+    tagline?: string | null;
+    videoUrl?: string | null;
+    poster?: (number | null) | Media;
+  };
+  /**
    * Structured "Crafting Your Dream Home, Our Promise" pull-quote section.
    */
   quote?: {
@@ -1814,7 +1841,7 @@ export interface ServiceLocation {
       | null;
   };
   /**
-   * Video shown on the location page. Use {City} for the city name and {ServiceTitle} for the service name.
+   * Video shown on the location page. Use {City} for the city name and {ServiceTitle} for the service name. Empty fields inherit from the parent service, then from Shared Sections (Settings).
    */
   locationVideo?: {
     eyebrow?: string | null;
@@ -1825,7 +1852,7 @@ export interface ServiceLocation {
     poster?: (number | null) | Media;
   };
   /**
-   * "Don't Settle for a Mediocre…" intro section. Use {City} and {ServiceTitle} placeholders.
+   * "Don't Settle for a Mediocre…" intro section. Use {City} and {ServiceTitle} placeholders. Empty fields inherit from the parent service, then from Shared Sections (Settings).
    */
   dontSettle?: {
     eyebrow?: string | null;
@@ -1834,7 +1861,7 @@ export interface ServiceLocation {
     body?: string | null;
     ctaLabel?: string | null;
     /**
-     * Side image. WordPress uses the same photo (attachment 579, 11.png) on all three family templates. Empty falls back to the page hero, which is the city marketing graphic — not what WordPress shows.
+     * Side image. WordPress uses the same photo (attachment 579, 11.png) on all three family templates.
      */
     image?: (number | null) | Media;
   };
@@ -1862,6 +1889,9 @@ export interface ServiceLocation {
       href?: string | null;
     };
   };
+  /**
+   * Empty fields inherit from the parent service, then from Shared Sections (Settings).
+   */
   quote?: {
     heading?: string | null;
     quote?: string | null;
@@ -1869,7 +1899,7 @@ export interface ServiceLocation {
     image?: (number | null) | Media;
   };
   /**
-   * "The Prime Difference" section (heading + checklist + reason cards + review logos).
+   * "The Prime Difference" section (checklist + reason cards). Empty fields inherit from Shared Sections (Settings).
    */
   primeDifference?: {
     eyebrow?: string | null;
@@ -1923,12 +1953,12 @@ export interface ServiceLocation {
   };
   testimonialCards?: {
     /**
-     * The testimonials to show, in order. Empty falls back to the parent service’s selection.
+     * The testimonials to show, in order. Empty falls back to the parent service’s selection, then to Shared Sections.
      */
     testimonials?: (number | Testimonial)[] | null;
   };
   /**
-   * Leave a field empty to use the parent service’s.
+   * Empty fields inherit from the parent service, then from Shared Sections (Settings).
    */
   siliconValleyLoves?: {
     eyebrow?: string | null;
@@ -5497,6 +5527,26 @@ export interface ServicesSelect<T extends boolean = true> {
               id?: T;
             };
       };
+  dontSettle?:
+    | T
+    | {
+        eyebrow?: T;
+        heading?: T;
+        headingAccent?: T;
+        body?: T;
+        ctaLabel?: T;
+        image?: T;
+      };
+  locationVideo?:
+    | T
+    | {
+        eyebrow?: T;
+        title?: T;
+        description?: T;
+        tagline?: T;
+        videoUrl?: T;
+        poster?: T;
+      };
   quote?:
     | T
     | {
@@ -7648,6 +7698,133 @@ export interface SiteSetting {
   createdAt?: string | null;
 }
 /**
+ * Copy shared by every page of a kind. A page that fills a field of its own shows that instead.
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "shared-sections".
+ */
+export interface SharedSection {
+  id: number;
+  locationVideo?: {
+    eyebrow?: string | null;
+    title?: string | null;
+    description?: string | null;
+    tagline?: string | null;
+    videoUrl?: string | null;
+    poster?: (number | null) | Media;
+  };
+  dontSettle?: {
+    eyebrow?: string | null;
+    heading?: string | null;
+    headingAccent?: string | null;
+    body?: string | null;
+    ctaLabel?: string | null;
+    /**
+     * Side image. WordPress uses the same photo (attachment 579, 11.png) on all three family templates.
+     */
+    image?: (number | null) | Media;
+  };
+  quote?: {
+    heading?: string | null;
+    quote?: string | null;
+    attribution?: string | null;
+    image?: (number | null) | Media;
+  };
+  primeDifference?: {
+    eyebrow?: string | null;
+    heading?: string | null;
+    body?: {
+      root: {
+        type: string;
+        children: {
+          type: any;
+          version: number;
+          [k: string]: unknown;
+        }[];
+        direction: ('ltr' | 'rtl') | null;
+        format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+        indent: number;
+        version: number;
+      };
+      [k: string]: unknown;
+    } | null;
+    checklist?:
+      | {
+          text?: string | null;
+          id?: string | null;
+        }[]
+      | null;
+    reasons?:
+      | {
+          title: string;
+          description?: {
+            root: {
+              type: string;
+              children: {
+                type: any;
+                version: number;
+                [k: string]: unknown;
+              }[];
+              direction: ('ltr' | 'rtl') | null;
+              format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+              indent: number;
+              version: number;
+            };
+            [k: string]: unknown;
+          } | null;
+          /**
+           * A site icon, e.g. /customer-satisfaction.svg.
+           */
+          image?: string | null;
+          id?: string | null;
+        }[]
+      | null;
+  };
+  testimonialCards?: {
+    /**
+     * The testimonials to show, in order.
+     */
+    testimonials?: (number | Testimonial)[] | null;
+  };
+  siliconValleyLoves?: {
+    eyebrow?: string | null;
+    heading?: string | null;
+    body?: string | null;
+    image?: (number | null) | Media;
+    /**
+     * The floating stat card (e.g. rating / review count / projects built). One row per figure.
+     */
+    stats?:
+      | {
+          value?: string | null;
+          label?: string | null;
+          detail?: string | null;
+          /**
+           * Render five stars above the value (for ratings).
+           */
+          showStars?: boolean | null;
+          id?: string | null;
+        }[]
+      | null;
+    /**
+     * Call-to-action buttons under the copy.
+     */
+    buttons?:
+      | {
+          label: string;
+          /**
+           * A page (/contact), a section on this page (#contact), a full URL, or tel: / mailto:.
+           */
+          url: string;
+          variant?: ('outline' | 'brass') | null;
+          id?: string | null;
+        }[]
+      | null;
+  };
+  updatedAt?: string | null;
+  createdAt?: string | null;
+}
+/**
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "navigation".
  */
@@ -7909,6 +8086,94 @@ export interface SiteSettingsSelect<T extends boolean = true> {
         ogTitle?: T;
         ogDescription?: T;
         ogImage?: T;
+      };
+  updatedAt?: T;
+  createdAt?: T;
+  globalType?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "shared-sections_select".
+ */
+export interface SharedSectionsSelect<T extends boolean = true> {
+  locationVideo?:
+    | T
+    | {
+        eyebrow?: T;
+        title?: T;
+        description?: T;
+        tagline?: T;
+        videoUrl?: T;
+        poster?: T;
+      };
+  dontSettle?:
+    | T
+    | {
+        eyebrow?: T;
+        heading?: T;
+        headingAccent?: T;
+        body?: T;
+        ctaLabel?: T;
+        image?: T;
+      };
+  quote?:
+    | T
+    | {
+        heading?: T;
+        quote?: T;
+        attribution?: T;
+        image?: T;
+      };
+  primeDifference?:
+    | T
+    | {
+        eyebrow?: T;
+        heading?: T;
+        body?: T;
+        checklist?:
+          | T
+          | {
+              text?: T;
+              id?: T;
+            };
+        reasons?:
+          | T
+          | {
+              title?: T;
+              description?: T;
+              image?: T;
+              id?: T;
+            };
+      };
+  testimonialCards?:
+    | T
+    | {
+        testimonials?: T;
+      };
+  siliconValleyLoves?:
+    | T
+    | {
+        eyebrow?: T;
+        heading?: T;
+        body?: T;
+        image?: T;
+        stats?:
+          | T
+          | {
+              value?: T;
+              label?: T;
+              detail?: T;
+              showStars?: T;
+              id?: T;
+            };
+        buttons?:
+          | T
+          | {
+              label?: T;
+              url?: T;
+              variant?: T;
+              id?: T;
+            };
       };
   updatedAt?: T;
   createdAt?: T;

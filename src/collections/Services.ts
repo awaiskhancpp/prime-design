@@ -1,7 +1,9 @@
 import type { CollectionConfig, CollectionSlug } from 'payload'
 import { SEOFields } from './fields/SEO'
 import {
+  dontSettleGroup,
   locationHeroGroup,
+  locationVideoGroup,
   quoteGroup,
   siliconValleyLovesGroup,
   testimonialCardsGroup,
@@ -363,6 +365,20 @@ export const Services: CollectionConfig = {
               label: 'Location Hero Copy',
               description:
                 'Hero copy above the quote form on this service’s city pages. WordPress keeps it on the family template (kitchen/bathroom/home) rather than per city, so this is the default all 45 city pages inherit. Use {City} for the city name and {Company} for the company name — both are substituted when the page renders. A city can override any field on its own record.',
+            }),
+            // The lines of the city-page intro and video that differ between
+            // the kitchen, bathroom and home families (each constant across
+            // that family's 15 cities). A city page's own value wins; empty
+            // here falls through to Shared Sections.
+            dontSettleGroup({
+              label: 'City Page Defaults — “Don’t Settle” Section',
+              description:
+                'For this service’s city pages. Use {City} and {ServiceTitle}. A city page’s own value wins; empty here uses Shared Sections.',
+            }),
+            locationVideoGroup({
+              label: 'City Page Defaults — Video Section',
+              description:
+                'For this service’s city pages. Use {City} and {ServiceTitle}. A city page’s own value wins; empty here uses Shared Sections.',
             }),
             quoteGroup({
               label: 'Quote Section',

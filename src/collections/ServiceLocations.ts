@@ -1,7 +1,10 @@
 import type { CollectionBeforeValidateHook, CollectionConfig, CollectionSlug } from 'payload'
 import { SEOFields } from './fields/SEO'
 import {
+  dontSettleGroup,
   locationHeroGroup,
+  locationPrimeDifferenceGroup,
+  locationVideoGroup,
   quoteGroup,
   siliconValleyLovesGroup,
   testimonialCardsGroup,
@@ -80,92 +83,6 @@ const sectionOverrideFields = [
     },
   },
 ]
-
-const locationVideoField = {
-  name: 'locationVideo',
-  type: 'group' as const,
-  label: 'Video Section',
-  admin: {
-    description:
-      'Video shown on the location page. Use {City} for the city name and {ServiceTitle} for the service name.',
-  },
-  fields: [
-    { name: 'eyebrow', type: 'text' as const },
-    { name: 'title', type: 'text' as const },
-    { name: 'description', type: 'textarea' as const },
-    { name: 'tagline', type: 'text' as const },
-    { name: 'videoUrl', type: 'text' as const },
-    { name: 'poster', type: 'upload' as const, relationTo: 'media' as const },
-  ],
-}
-
-const dontSettleField = {
-  name: 'dontSettle',
-  type: 'group' as const,
-  label: 'Dont Settle Section',
-  admin: {
-    description:
-      '"Don\'t Settle for a Mediocre…" intro section. Use {City} and {ServiceTitle} placeholders.',
-  },
-  fields: [
-    { name: 'eyebrow', type: 'text' as const },
-    { name: 'heading', type: 'text' as const },
-    { name: 'headingAccent', type: 'text' as const },
-    { name: 'body', type: 'textarea' as const },
-    { name: 'ctaLabel', type: 'text' as const },
-    {
-      name: 'image',
-      type: 'upload' as const,
-      relationTo: 'media' as const,
-      admin: {
-        description:
-          'Side image. WordPress uses the same photo (attachment 579, 11.png) on all three family templates. Empty falls back to the page hero, which is the city marketing graphic — not what WordPress shows.',
-      },
-    },
-  ],
-}
-
-const primeDifferenceField = {
-  name: 'primeDifference',
-  type: 'group' as const,
-  label: 'Prime Difference Section',
-  admin: {
-    description:
-      '"The Prime Difference" section (heading + checklist + reason cards + review logos).',
-  },
-  fields: [
-    { name: 'eyebrow', type: 'text' as const },
-    { name: 'heading', type: 'text' as const },
-    // Rich text, not a textarea: the WordPress original emphasises a phrase
-    // inside this paragraph ("we are the <b>unrivaled experts</b>"), which a
-    // plain string cannot carry, and editors were otherwise unable to bold or
-    // link anything in the one paragraph that sells the section.
-    { name: 'body', type: 'richText' as const },
-    {
-      name: 'checklist',
-      type: 'array' as const,
-      fields: [{ name: 'text', type: 'text' as const }],
-    },
-    {
-      name: 'reasons',
-      type: 'array' as const,
-      fields: [
-        { name: 'title', type: 'text' as const, required: true },
-        // Also rich text, for the same reason and so the four cards are
-        // editable in the same way as the paragraph above them.
-        { name: 'description', type: 'richText' as const },
-        {
-          // A path to a site icon in /public, not a Media document: the brass
-          // versions of WordPress's black icons (CLAUDE.md §8c).
-          name: 'image',
-          type: 'text' as const,
-          label: 'Icon path',
-          admin: { description: 'A site icon, e.g. /customer-satisfaction.svg.' },
-        },
-      ],
-    },
-  ],
-}
 
 /**
  * The two buttons under the sub-service cards.
@@ -247,23 +164,46 @@ const offeringsField = {
  * its own copies of these groups inside its own tabs. It stays exported so the
  * grouping is reviewable in one place.
  */
+const locationVideoField = locationVideoGroup({
+  label: 'Video Section',
+  description:
+    'Video shown on the location page. Use {City} for the city name and {ServiceTitle} for the service name. Empty fields inherit from the parent service, then from Shared Sections (Settings).',
+})
+
+const dontSettleField = dontSettleGroup({
+  label: 'Dont Settle Section',
+  description:
+    '"Don\'t Settle for a Mediocre…" intro section. Use {City} and {ServiceTitle} placeholders. Empty fields inherit from the parent service, then from Shared Sections (Settings).',
+})
+
+const primeDifferenceField = locationPrimeDifferenceGroup({
+  label: 'Prime Difference Section',
+  description:
+    '"The Prime Difference" section (checklist + reason cards). Empty fields inherit from Shared Sections (Settings).',
+})
+
 const locationHeroField = locationHeroGroup({
   label: 'Hero Section',
   description:
     'Hero copy above the quote form. Use {City} for the city name and {Company} for the company name — both are substituted when the page renders. Leave a field empty to inherit the parent service’s hero copy.',
 })
 
-const quoteField = quoteGroup({ label: 'Quote Section' })
+const quoteField = quoteGroup({
+  label: 'Quote Section',
+  description:
+    'Empty fields inherit from the parent service, then from Shared Sections (Settings).',
+})
 
 const siliconValleyLovesField = siliconValleyLovesGroup({
   label: 'Silicon Valley Loves Section',
-  description: 'Leave a field empty to use the parent service’s.',
+  description:
+    'Empty fields inherit from the parent service, then from Shared Sections (Settings).',
 })
 
 const testimonialCardsField = testimonialCardsGroup({
   label: 'Testimonial Cards Section',
   testimonialsDescription:
-    'The testimonials to show, in order. Empty falls back to the parent service’s selection.',
+    'The testimonials to show, in order. Empty falls back to the parent service’s selection, then to Shared Sections.',
 })
 
 export const locationPageSectionFields = [
