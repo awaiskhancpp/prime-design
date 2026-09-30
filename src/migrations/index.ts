@@ -97,6 +97,7 @@ import * as migration_20260930_231628_shared_landing_sections from './20260930_2
 import * as migration_20260930_231700_shared_landing_content from './20260930_231700_shared_landing_content'
 import * as migration_20260930_233906_shared_service_defaults from './20260930_233906_shared_service_defaults'
 import * as migration_20260930_234000_shared_service_content from './20260930_234000_shared_service_content'
+import * as migration_20260930_234500_siding_faq_apostrophe from './20260930_234500_siding_faq_apostrophe'
 
 export const migrations = [
   {
@@ -593,5 +594,10 @@ export const migrations = [
     up: migration_20260930_234000_shared_service_content.up,
     down: migration_20260930_234000_shared_service_content.down,
     name: '20260930_234000_shared_service_content',
+  },
+  {
+    up: migration_20260930_234500_siding_faq_apostrophe.up,
+    down: migration_20260930_234500_siding_faq_apostrophe.down,
+    name: '20260930_234500_siding_faq_apostrophe',
   },
 ]
