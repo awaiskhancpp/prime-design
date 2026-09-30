@@ -154,67 +154,45 @@ Required, every time:
 3. Confirm the specific named gaps for that task (if any were identified going in) are
    actually closed, one by one — not just that the general shape of the page looks complete.
 
-## 8b. Migrations: `migrate:create` is BLOCKED
+## 8b. Migrations: generate them, then check them against the database
 
-**Do not run `payload migrate:create`, and do not work around the guard by
-invoking the binary directly (`pnpm payload migrate:create`).** The
-`migrate:create` package script is wired to `scripts/block-migrate-create.mjs`,
-which prints this reason and exits non-zero.
+`migrate:create` was blocked until 2026-09-30 because the newest `.json`
+schema snapshot was 55 migrations out of date (every migration after
+`20260914_180701_video_story_fields` was hand-written SQL with no snapshot), so
+a generated migration would have read those tables as removals and emitted
+`DROP`/`RENAME` against live data.
 
-**Why.** There are 40 migration `.ts` files but only 25 `.json` schema
-snapshots. Payload generates a migration by diffing the current config against
-the *newest* snapshot — which is
-`20260914_180701_video_story_fields.json`. Every migration written after that
-date was hand-written SQL with no snapshot, so the snapshot has no knowledge of
-the tables and columns they added. Running `migrate:create` today would read
-those as *removals* and emit SQL that DROPs them, or mis-read them as renames
-and issue `RENAME` against live tables. `payload.config.ts` sets `push: false`,
-so nothing auto-syncs; the danger is entirely in that one command.
+That is fixed. `20260930_200000_baseline_schema_alignment` ships a snapshot
+generated from the config itself, plus the small SQL needed to make the
+database match it (missing indexes, two varchar→enum columns, NOT NULLs). It
+was built on a restored copy of production and verified there: after it,
+`migrate:create --skip-empty` produces nothing. The guard script is gone.
 
-Applying migrations (`pnpm payload migrate`) is unaffected and stays safe.
+How to change the schema from now on:
 
-### The 17 migrations with no snapshot
+1. Change the config.
+2. `pnpm migrate:create <name>` — review the generated `up` line by line
+   before applying. If it prompts "created or renamed?", the answer is almost
+   always *create*; a rename prompt you did not expect means the config is
+   dropping something.
+3. `pnpm payload migrate`, then `pnpm schema:check`
+   (`scripts/schema-drift.ts`): it compares the config with the **real
+   database** — tables, columns, types, nullability, enums, indexes, foreign
+   keys — rather than with a snapshot. The only expected output is the known
+   orphans below.
 
-```
-20260827_024700_service_content_blocks
-20260827_025500_services_media_relation
-20260827_030500_services_hero_fields
-20260828_010000_services_video_upload
-20260829_000000_service_checklist_icon_feature_list_blocks
-20260906_000000_landing_sub_services_heading_optional
-20260906_010000_project_grid_eyebrow_icon
-20260915_120000_difference_video_posters
-20260916_010000_services_hero_image_secondary
-20260916_120000_trust_section_fields
-20260916_130000_craftsmanship_cta
-20260916_140000_repair_category_eyebrow
-20260916_150000_testimonials_page_sections
-20260917_120000_faq_index_section
-20260917_130000_consultations_section
-20260917_140000_contact_submissions
-20260917_150000_service_consultation_image
-```
+**Known orphans (in the database, not in the config).** Left from earlier
+schema shapes; they hold data, so dropping them is a separate, approved
+change: `gallery_categories_images`, `service_locations_testimonial_cards_items`,
+`services_blocks_benefit_cards(_items)`, `services_blocks_craftsmanship(_images,
+_items)`, `services_prime_difference_checklist`, `services_prime_difference_reasons`,
+`services_testimonial_cards_items`, `services_blocks_video.eyebrow`, and the
+`services.dont_settle_*`, `services.location_video_*` and
+`services.prime_difference_*` columns.
 
-### Lifting the block
-
-The block is lifted **only** after a baseline snapshot has been restored, and
-that work happens on a throwaway branch against a restored copy of production —
-never against the live database:
-
-1. Restore a copy of the production database somewhere disposable.
-2. On a throwaway branch, run `payload migrate:create --skip-empty` against
-   that copy to emit a fresh schema snapshot.
-3. Confirm the generated migration is a no-op (an empty `up`). If it is not,
-   the diff is showing where the hand-written SQL and the Payload config
-   disagree — fix the config, not the old migrations.
-4. Commit only the new `.json` snapshot plus the empty baseline migration, and
-   record it as applied.
-5. Remove the guard from `package.json` in that same change.
-
-**Never edit, rewrite or delete an existing migration file to make the diff
+**Never edit, rewrite or delete an existing migration file to make a diff
 come out clean.** They have already run against production; rewriting them
-makes the applied state and the file history disagree, which is worse than the
-missing snapshots.
+makes the applied state and the file history disagree.
 
 ## 8c. Accepted divergences from the WordPress source
 

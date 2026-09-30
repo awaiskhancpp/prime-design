@@ -79,6 +79,7 @@ import * as migration_20260930_140000_navigation_global from './20260930_140000_
 import * as migration_20260930_150000_navigation_nested_names from './20260930_150000_navigation_nested_names'
 import * as migration_20260930_160000_navigation_privacy_link from './20260930_160000_navigation_privacy_link'
 import * as migration_20260930_170000_landing_page_service from './20260930_170000_landing_page_service'
+import * as migration_20260930_200000_baseline_schema_alignment from './20260930_200000_baseline_schema_alignment'
 
 export const migrations = [
   {
@@ -485,5 +486,10 @@ export const migrations = [
     up: migration_20260930_170000_landing_page_service.up,
     down: migration_20260930_170000_landing_page_service.down,
     name: '20260930_170000_landing_page_service',
+  },
+  {
+    up: migration_20260930_200000_baseline_schema_alignment.up,
+    down: migration_20260930_200000_baseline_schema_alignment.down,
+    name: '20260930_200000_baseline_schema_alignment',
   },
 ]
