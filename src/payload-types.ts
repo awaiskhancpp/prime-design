@@ -2710,31 +2710,6 @@ export interface Page {
             blockType: 'link-list';
           }
         | {
-            eyebrow?: string | null;
-            heading: string;
-            body: string;
-            id?: string | null;
-            blockName?: string | null;
-            blockType: 'content';
-          }
-        | {
-            eyebrow?: string | null;
-            heading: string;
-            body: string;
-            image?: (number | null) | Media;
-            imageSide?: ('left' | 'right') | null;
-            id?: string | null;
-            blockName?: string | null;
-            blockType: 'image-text';
-          }
-        | {
-            heading?: string | null;
-            images?: (number | Media)[] | null;
-            id?: string | null;
-            blockName?: string | null;
-            blockType: 'gallery';
-          }
-        | {
             heading: string;
             body?: {
               root: {
@@ -6184,34 +6159,6 @@ export interface PagesSelect<T extends boolean = true> {
                     href?: T;
                     id?: T;
                   };
-              id?: T;
-              blockName?: T;
-            };
-        content?:
-          | T
-          | {
-              eyebrow?: T;
-              heading?: T;
-              body?: T;
-              id?: T;
-              blockName?: T;
-            };
-        'image-text'?:
-          | T
-          | {
-              eyebrow?: T;
-              heading?: T;
-              body?: T;
-              image?: T;
-              imageSide?: T;
-              id?: T;
-              blockName?: T;
-            };
-        gallery?:
-          | T
-          | {
-              heading?: T;
-              images?: T;
               id?: T;
               blockName?: T;
             };

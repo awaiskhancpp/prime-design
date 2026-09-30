@@ -134,15 +134,6 @@ export type PageWhyChooseUsContent = {
   reasons: Array<{ icon?: string; title: string; body?: string }>
 }
 
-export type PageGenericContent = { eyebrow?: string; heading: string; body: string }
-
-export type PageImageTextContent = PageGenericContent & {
-  image?: string
-  imageSide: 'left' | 'right'
-}
-
-export type PageGalleryContent = { heading?: string; images: string[] }
-
 export type PageCtaContent = {
   heading: string
   /** Rich text — this band's copy carries links. */
@@ -242,9 +233,6 @@ export type PageSection =
   | { type: 'consultations'; content: PageConsultationsContent }
   | { type: 'service-areas'; content: { heading?: string } }
   | { type: 'custom'; content: CustomSectionContent }
-  | { type: 'content'; content: PageGenericContent }
-  | { type: 'image-text'; content: PageImageTextContent }
-  | { type: 'gallery'; content: PageGalleryContent }
   | { type: 'cta'; content: PageCtaContent }
   | { type: 'policy'; content: PagePolicyContent }
   | { type: 'next-steps'; content: PageNextStepsContent }
@@ -603,37 +591,6 @@ export function toPageSection(block: PageBlock): PageSection | undefined {
         ),
       }
 
-    // The generic blocks that existed before the sections were added.
-    case 'content':
-      return {
-        type: 'content',
-        content: {
-          eyebrow: optionalText(block.eyebrow),
-          heading: text(block.heading),
-          body: text(block.body),
-        },
-      }
-    case 'image-text':
-      return {
-        type: 'image-text',
-        content: {
-          eyebrow: optionalText(block.eyebrow),
-          heading: text(block.heading),
-          body: text(block.body),
-          image: mediaUrl(block.image),
-          imageSide: block.imageSide === 'left' ? 'left' : 'right',
-        },
-      }
-    case 'gallery':
-      return {
-        type: 'gallery',
-        content: {
-          heading: optionalText(block.heading),
-          images: (Array.isArray(block.images) ? block.images : [])
-            .map((image) => mediaUrl(image))
-            .filter((image): image is string => Boolean(image)),
-        },
-      }
     case 'cta':
       return {
         type: 'cta',
