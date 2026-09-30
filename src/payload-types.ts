@@ -369,6 +369,9 @@ export interface Service {
             buttons?:
               | {
                   label: string;
+                  /**
+                   * A page (/contact), a section on this page (#contact), a full URL, or tel: / mailto:.
+                   */
                   url: string;
                   variant?: ('primary' | 'secondary' | 'text' | 'outline') | null;
                   openInNewTab?: boolean | null;
@@ -419,6 +422,9 @@ export interface Service {
             buttons?:
               | {
                   label: string;
+                  /**
+                   * A page (/contact), a section on this page (#contact), a full URL, or tel: / mailto:.
+                   */
                   url: string;
                   variant?: ('primary' | 'secondary' | 'text' | 'outline') | null;
                   openInNewTab?: boolean | null;
@@ -580,6 +586,9 @@ export interface Service {
                   };
                   link?: {
                     label?: string | null;
+                    /**
+                     * A page (/contact), a section on this page (#contact), a full URL, or tel: / mailto:.
+                     */
                     url?: string | null;
                     openInNewTab?: boolean | null;
                   };
@@ -657,6 +666,9 @@ export interface Service {
                   };
                   link?: {
                     label?: string | null;
+                    /**
+                     * A page (/contact), a section on this page (#contact), a full URL, or tel: / mailto:.
+                     */
                     url?: string | null;
                     openInNewTab?: boolean | null;
                   };
@@ -702,6 +714,9 @@ export interface Service {
                   };
                   link?: {
                     label?: string | null;
+                    /**
+                     * A page (/contact), a section on this page (#contact), a full URL, or tel: / mailto:.
+                     */
                     url?: string | null;
                     openInNewTab?: boolean | null;
                   };
@@ -800,6 +815,9 @@ export interface Service {
                   };
                   link?: {
                     label?: string | null;
+                    /**
+                     * A page (/contact), a section on this page (#contact), a full URL, or tel: / mailto:.
+                     */
                     url?: string | null;
                     openInNewTab?: boolean | null;
                   };
@@ -839,6 +857,9 @@ export interface Service {
                   location?: (number | null) | Location;
                   link?: {
                     label?: string | null;
+                    /**
+                     * A page (/contact), a section on this page (#contact), a full URL, or tel: / mailto:.
+                     */
                     url?: string | null;
                     openInNewTab?: boolean | null;
                   };
@@ -955,6 +976,9 @@ export interface Service {
             buttons?:
               | {
                   label: string;
+                  /**
+                   * A page (/contact), a section on this page (#contact), a full URL, or tel: / mailto:.
+                   */
                   url: string;
                   variant?: ('primary' | 'secondary' | 'text' | 'outline') | null;
                   openInNewTab?: boolean | null;
@@ -1459,6 +1483,9 @@ export interface Service {
     buttons?:
       | {
           label: string;
+          /**
+           * A page (/contact), a section on this page (#contact), a full URL, or tel: / mailto:.
+           */
           url: string;
           variant?: ('outline' | 'brass') | null;
           id?: string | null;
@@ -1929,6 +1956,9 @@ export interface ServiceLocation {
     buttons?:
       | {
           label: string;
+          /**
+           * A page (/contact), a section on this page (#contact), a full URL, or tel: / mailto:.
+           */
           url: string;
           variant?: ('outline' | 'brass') | null;
           id?: string | null;
@@ -2012,6 +2042,9 @@ export interface Page {
   id: number;
   title: string;
   slug: string;
+  /**
+   * This page’s hero. (Pages that open with a Hero section in the layout use that instead, and this group is hidden.)
+   */
   hero?: {
     eyebrow?: string | null;
     heading?: string | null;
@@ -2019,6 +2052,9 @@ export interface Page {
     image?: (number | null) | Media;
     cta?: {
       label?: string | null;
+      /**
+       * A page (/contact), a section on this page (#contact), a full URL, or tel: / mailto:.
+       */
       href?: string | null;
     };
   };
@@ -2064,6 +2100,9 @@ export interface Page {
             videoUrl?: string | null;
             cta?: {
               label?: string | null;
+              /**
+               * A page (/contact), a section on this page (#contact), a full URL, or tel: / mailto:.
+               */
               href?: string | null;
               style?: ('filled' | 'outlined') | null;
               showCalendarIcon?: boolean | null;
@@ -2214,6 +2253,9 @@ export interface Page {
                     [k: string]: unknown;
                   } | null;
                   ctaLabel?: string | null;
+                  /**
+                   * A page (/contact), a section on this page (#contact), a full URL, or tel: / mailto:.
+                   */
                   ctaHref?: string | null;
                   beforeImage?: (number | null) | Media;
                   afterImage?: (number | null) | Media;
@@ -2273,6 +2315,9 @@ export interface Page {
               [k: string]: unknown;
             } | null;
             ctaLabel?: string | null;
+            /**
+             * A page (/contact), a section on this page (#contact), a full URL, or tel: / mailto:.
+             */
             ctaHref?: string | null;
             introHeading?: string | null;
             introSubheading?: string | null;
@@ -2320,6 +2365,9 @@ export interface Page {
             image?: (number | null) | Media;
             imageSecondary?: (number | null) | Media;
             ctaLabel?: string | null;
+            /**
+             * A page (/contact), a section on this page (#contact), a full URL, or tel: / mailto:.
+             */
             ctaHref?: string | null;
             id?: string | null;
             blockName?: string | null;
@@ -2382,6 +2430,9 @@ export interface Page {
             poster?: (number | null) | Media;
             badge?: (number | null) | Media;
             ctaLabel?: string | null;
+            /**
+             * A page (/contact), a section on this page (#contact), a full URL, or tel: / mailto:.
+             */
             ctaHref?: string | null;
             /**
              * Short summary or quote from the video. Renders under the player, like a testimonial.
@@ -2594,6 +2645,9 @@ export interface Page {
               [k: string]: unknown;
             } | null;
             ctaLabel?: string | null;
+            /**
+             * A page (/contact), a section on this page (#contact), a full URL, or tel: / mailto:.
+             */
             ctaHref?: string | null;
             /**
              * Small line beside the button ("Ready to talk?").
@@ -2646,6 +2700,9 @@ export interface Page {
             buttons?:
               | {
                   label: string;
+                  /**
+                   * A page (/contact), a section on this page (#contact), a full URL, or tel: / mailto:.
+                   */
                   href: string;
                   id?: string | null;
                 }[]
@@ -2701,6 +2758,9 @@ export interface Page {
             links?:
               | {
                   label: string;
+                  /**
+                   * A page (/contact), a section on this page (#contact), a full URL, or tel: / mailto:.
+                   */
                   href: string;
                   id?: string | null;
                 }[]
@@ -3174,6 +3234,9 @@ export interface LandingPage {
         buttons?:
           | {
               label: string;
+              /**
+               * A page (/contact), a section on this page (#contact), a full URL, or tel: / mailto:.
+               */
               url: string;
               variant?: ('primary' | 'secondary' | 'text' | 'outline') | null;
               openInNewTab?: boolean | null;
@@ -3224,6 +3287,9 @@ export interface LandingPage {
         buttons?:
           | {
               label: string;
+              /**
+               * A page (/contact), a section on this page (#contact), a full URL, or tel: / mailto:.
+               */
               url: string;
               variant?: ('primary' | 'secondary' | 'text' | 'outline') | null;
               openInNewTab?: boolean | null;
@@ -3274,6 +3340,9 @@ export interface LandingPage {
         buttons?:
           | {
               label: string;
+              /**
+               * A page (/contact), a section on this page (#contact), a full URL, or tel: / mailto:.
+               */
               url: string;
               variant?: ('primary' | 'secondary' | 'text' | 'outline') | null;
               openInNewTab?: boolean | null;
@@ -3529,6 +3598,9 @@ export interface LandingPage {
               };
               link?: {
                 label?: string | null;
+                /**
+                 * A page (/contact), a section on this page (#contact), a full URL, or tel: / mailto:.
+                 */
                 url?: string | null;
                 openInNewTab?: boolean | null;
               };
@@ -3606,6 +3678,9 @@ export interface LandingPage {
               };
               link?: {
                 label?: string | null;
+                /**
+                 * A page (/contact), a section on this page (#contact), a full URL, or tel: / mailto:.
+                 */
                 url?: string | null;
                 openInNewTab?: boolean | null;
               };
@@ -3651,6 +3726,9 @@ export interface LandingPage {
               };
               link?: {
                 label?: string | null;
+                /**
+                 * A page (/contact), a section on this page (#contact), a full URL, or tel: / mailto:.
+                 */
                 url?: string | null;
                 openInNewTab?: boolean | null;
               };
@@ -3749,6 +3827,9 @@ export interface LandingPage {
               };
               link?: {
                 label?: string | null;
+                /**
+                 * A page (/contact), a section on this page (#contact), a full URL, or tel: / mailto:.
+                 */
                 url?: string | null;
                 openInNewTab?: boolean | null;
               };
@@ -3788,6 +3869,9 @@ export interface LandingPage {
               location?: (number | null) | Location;
               link?: {
                 label?: string | null;
+                /**
+                 * A page (/contact), a section on this page (#contact), a full URL, or tel: / mailto:.
+                 */
                 url?: string | null;
                 openInNewTab?: boolean | null;
               };
@@ -3904,6 +3988,9 @@ export interface LandingPage {
         buttons?:
           | {
               label: string;
+              /**
+               * A page (/contact), a section on this page (#contact), a full URL, or tel: / mailto:.
+               */
               url: string;
               variant?: ('primary' | 'secondary' | 'text' | 'outline') | null;
               openInNewTab?: boolean | null;
@@ -7440,6 +7527,9 @@ export interface SiteSetting {
     buttons?:
       | {
           label: string;
+          /**
+           * A page (/contact), a section on this page (#contact), a full URL, or tel: / mailto:.
+           */
           url: string;
           variant?: ('outline' | 'brass') | null;
           id?: string | null;

@@ -1,6 +1,7 @@
 import type { GlobalConfig } from 'payload'
 import { AnalyticsFields } from '@/collections/fields/Analytics'
 import { SEOFields } from '@/collections/fields/SEO'
+import { buttonTextField, linkUrlField } from '../fields/Shared'
 
 export const SiteSettings: GlobalConfig = {
   slug: 'site-settings',
@@ -171,8 +172,8 @@ export const SiteSettings: GlobalConfig = {
           name: 'buttons',
           type: 'array',
           fields: [
-            { name: 'label', type: 'text', required: true },
-            { name: 'url', type: 'text', required: true },
+            buttonTextField('label', true),
+            linkUrlField('url', true),
             {
               name: 'variant',
               type: 'select',

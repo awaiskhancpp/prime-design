@@ -2,6 +2,7 @@ import type { Block, Field } from 'payload'
 
 import { videoStoryFields } from '../fields/videoStory'
 import { customSectionBlock } from './SharedBlocks'
+import { buttonTextField, linkUrlField } from '../../fields/Shared'
 
 /**
  * The page sections, shared by every page in the Pages collection.
@@ -70,8 +71,8 @@ export const heroBlock: Block = {
       name: 'cta',
       type: 'group',
       fields: [
-        { name: 'label', type: 'text' },
-        { name: 'href', type: 'text' },
+        buttonTextField('label'),
+        linkUrlField('href'),
         {
           name: 'style',
           type: 'select',
@@ -205,8 +206,8 @@ export const featureBlocksBlock: Block = {
       fields: [
         { name: 'title', type: 'text' },
         { name: 'body', type: 'richText' },
-        { name: 'ctaLabel', type: 'text' },
-        { name: 'ctaHref', type: 'text' },
+        buttonTextField('ctaLabel'),
+        linkUrlField('ctaHref'),
         { name: 'beforeImage', type: 'upload', relationTo: 'media' },
         { name: 'afterImage', type: 'upload', relationTo: 'media' },
       ],
@@ -233,8 +234,8 @@ export const teamIntroBlock: Block = {
     { name: 'heading', type: 'text' },
     headingHighlight('exceptional'),
     { name: 'body', type: 'richText' },
-    { name: 'ctaLabel', type: 'text' },
-    { name: 'ctaHref', type: 'text' },
+    buttonTextField('ctaLabel'),
+    linkUrlField('ctaHref'),
     { name: 'introHeading', type: 'text' },
     { name: 'introSubheading', type: 'text' },
     { name: 'introBody', type: 'richText' },
@@ -251,8 +252,8 @@ export const guidingPrincipleBlock: Block = {
     { name: 'body', type: 'richText' },
     { name: 'image', type: 'upload', relationTo: 'media' },
     { name: 'imageSecondary', type: 'upload', relationTo: 'media' },
-    { name: 'ctaLabel', type: 'text' },
-    { name: 'ctaHref', type: 'text' },
+    buttonTextField('ctaLabel'),
+    linkUrlField('ctaHref'),
   ],
 }
 
@@ -292,8 +293,8 @@ export const expertsBlock: Block = {
     { name: 'video', type: 'upload', relationTo: 'media' },
     { name: 'poster', type: 'upload', relationTo: 'media' },
     { name: 'badge', type: 'upload', relationTo: 'media' },
-    { name: 'ctaLabel', type: 'text' },
-    { name: 'ctaHref', type: 'text' },
+    buttonTextField('ctaLabel'),
+    linkUrlField('ctaHref'),
     ...videoStoryFields(),
   ],
 }
@@ -511,8 +512,8 @@ export const testimonialsSpotlightBlock: Block = {
     { name: 'eyebrow', type: 'text' },
     { name: 'heading', type: 'text' },
     { name: 'body', type: 'richText' },
-    { name: 'ctaLabel', type: 'text' },
-    { name: 'ctaHref', type: 'text' },
+    buttonTextField('ctaLabel'),
+    linkUrlField('ctaHref'),
     {
       name: 'ctaNote',
       type: 'text',
@@ -685,8 +686,8 @@ export const linkListBlock: Block = {
       name: 'links',
       type: 'array',
       fields: [
-        { name: 'label', type: 'text', required: true },
-        { name: 'href', type: 'text', required: true },
+        buttonTextField('label', true),
+        linkUrlField('href', true),
       ],
     },
   ],

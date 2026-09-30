@@ -1,4 +1,5 @@
 import type { Field } from 'payload'
+import { buttonTextField, linkUrlField } from '../../fields/Shared'
 
 /**
  * Section groups that a service and its city pages both carry.
@@ -101,8 +102,8 @@ export const siliconValleyLovesGroup = ({ label, description }: GroupOptions): F
       type: 'array',
       admin: { description: 'Call-to-action buttons under the copy.' },
       fields: [
-        { name: 'label', type: 'text', required: true },
-        { name: 'url', type: 'text', required: true },
+        buttonTextField('label', true),
+        linkUrlField('url', true),
         {
           name: 'variant',
           type: 'select',

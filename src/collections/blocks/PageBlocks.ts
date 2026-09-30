@@ -24,13 +24,13 @@ export const PageBlocks: Block[] = [
       {
         name: 'label',
         type: 'text',
-        label: 'Button label',
+        label: 'Button text',
         admin: { description: 'The band\'s button, e.g. "Get started". Empty shows no button.' },
       },
       {
         name: 'href',
         type: 'text',
-        label: 'Button link',
+        label: 'Link',
         admin: { description: 'Where the button goes, e.g. /contact.' },
       },
     ],

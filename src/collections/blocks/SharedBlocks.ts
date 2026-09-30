@@ -1,4 +1,5 @@
 import type { Block } from 'payload'
+import { buttonTextField, linkUrlField } from '../../fields/Shared'
 
 /**
  * Generic section, available on every blocks-based page.
@@ -44,8 +45,8 @@ export const customSectionBlock: Block = {
           'Optional. The first button renders filled, the second one outlined.',
       },
       fields: [
-        { name: 'label', type: 'text', required: true },
-        { name: 'href', type: 'text', required: true },
+        buttonTextField('label', true),
+        linkUrlField('href', true),
       ],
     },
   ],

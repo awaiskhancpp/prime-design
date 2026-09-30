@@ -1,12 +1,41 @@
-import type { Field } from 'payload'
+import type { Field, TextField } from 'payload'
+
+/**
+ * The two halves of every button and link on the site, labelled the same way
+ * wherever they appear.
+ *
+ * The stored names differ by schema — `url` in the landing and service
+ * blocks, `href` in the page sections, `ctaHref` where a section has a single
+ * button — because each was named when its block was first built, and the
+ * names are database columns that scripts write to. Editors never see those
+ * names, only these labels, so the admin speaks one vocabulary without
+ * moving any data.
+ */
+export const buttonTextField = (name = 'label', required = false): TextField => ({
+  name,
+  type: 'text',
+  label: 'Button text',
+  required,
+})
+
+export const linkUrlField = (name = 'url', required = false): TextField => ({
+  name,
+  type: 'text',
+  label: 'Link',
+  required,
+  admin: {
+    description:
+      'A page (/contact), a section on this page (#contact), a full URL, or tel: / mailto:.',
+  },
+})
 
 export const buttonGroupFields = (): Field[] => [
   {
     name: 'buttons',
     type: 'array',
     fields: [
-      { name: 'label', type: 'text', required: true },
-      { name: 'url', type: 'text', required: true },
+      buttonTextField('label', true),
+      linkUrlField('url', true),
       { name: 'variant', type: 'select', options: ['primary', 'secondary', 'text', 'outline'] },
       { name: 'openInNewTab', type: 'checkbox', defaultValue: false },
     ],
@@ -14,8 +43,8 @@ export const buttonGroupFields = (): Field[] => [
 ]
 
 export const linkFields = (): Field[] => [
-  { name: 'label', type: 'text' },
-  { name: 'url', type: 'text' },
+  buttonTextField('label'),
+  linkUrlField('url'),
   { name: 'openInNewTab', type: 'checkbox', defaultValue: false },
 ]
 
