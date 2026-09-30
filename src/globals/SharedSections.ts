@@ -8,6 +8,22 @@ import {
   siliconValleyLovesGroup,
   testimonialCardsGroup,
 } from '../collections/fields/sectionGroups'
+import { featureCardFields, linkFields, mediaReferenceFields } from '../fields/Shared'
+
+/**
+ * A landing-page block's shared defaults. Field names match the block's own,
+ * so `LandingBlockRenderer` can fill an empty block field from here and the
+ * section components render it unchanged.
+ */
+const landingDefaults = (name: string, label: string, fields: GlobalConfig['fields']) => ({
+  name,
+  type: 'group' as const,
+  label,
+  admin: {
+    description: 'Used by every landing page whose section leaves these fields empty.',
+  },
+  fields,
+})
 
 /**
  * Sections that read the same on every page of a kind, stored once.
@@ -50,6 +66,42 @@ export const SharedSections: GlobalConfig = {
               testimonialsDescription: 'The testimonials to show, in order.',
             }),
             siliconValleyLovesGroup({ label: 'Silicon Valley Loves Section' }),
+          ],
+        },
+        {
+          label: 'Landing pages',
+          description:
+            'The seven Google Ads landing pages. Each of these sections read the same on every page that has it; a page’s own section shows its own value instead wherever it fills one in.',
+          fields: [
+            landingDefaults('landingPrimeDifference', 'Prime Difference Section', [
+              { name: 'eyebrow', type: 'text' },
+              { name: 'heading', type: 'text' },
+              { name: 'features', type: 'array', fields: featureCardFields() },
+            ]),
+            landingDefaults('landingExperienceDifference', 'Experience Difference Section', [
+              { name: 'eyebrow', type: 'text' },
+              { name: 'heading', type: 'text' },
+              { name: 'features', type: 'array', fields: featureCardFields() },
+            ]),
+            landingDefaults('landingServiceAreas', 'Service Areas Section', [
+              { name: 'eyebrow', type: 'text' },
+              { name: 'heading', type: 'text' },
+              {
+                name: 'areas',
+                type: 'array',
+                fields: [
+                  { name: 'label', type: 'text', required: true },
+                  { name: 'location', type: 'relationship', relationTo: 'locations' },
+                  { name: 'link', type: 'group', fields: linkFields() },
+                ],
+              },
+              { name: 'regionHeading', type: 'text' },
+              ...mediaReferenceFields('mapMedia'),
+            ]),
+            landingDefaults('landingLuxuryCta', 'Luxury CTA Section', [{ name: 'heading', type: 'text' }]),
+            landingDefaults('landingFindUs', 'Find Us Section', [
+              { name: 'heading', type: 'text' },
+            ]),
           ],
         },
       ],

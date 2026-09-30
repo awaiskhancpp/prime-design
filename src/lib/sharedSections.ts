@@ -181,3 +181,59 @@ export const resolveSharedCitySections = cache(async (): Promise<SharedCitySecti
     siliconValleyLoves: mapSiliconValleyLoves(g.siliconValleyLoves),
   }
 })
+
+/**
+ * The Shared Sections global's landing-page defaults, keyed by the block type
+ * they fill, in the block's own raw shape (same field names, depth 2).
+ */
+export const resolveSharedLandingDefaults = cache(
+  async (): Promise<Record<string, Record<string, unknown>>> => {
+    if (!process.env.DATABASE_URL) return {}
+    const [{ getPayload }, { default: configPromise }] = await Promise.all([
+      import('payload'),
+      import('@payload-config'),
+    ])
+    const payload = await getPayload({ config: configPromise })
+    const g = (await payload.findGlobal({ slug: 'shared-sections', depth: 2 })) as unknown as Record<
+      string,
+      Record<string, unknown> | null
+    >
+    const byBlock: Record<string, string> = {
+      'prime-difference': 'landingPrimeDifference',
+      'experience-difference': 'landingExperienceDifference',
+      'service-areas': 'landingServiceAreas',
+      'luxury-cta': 'landingLuxuryCta',
+      'find-us': 'landingFindUs',
+    }
+    return Object.fromEntries(
+      Object.entries(byBlock).flatMap(([blockType, key]) => (g[key] ? [[blockType, g[key]!]] : [])),
+    )
+  },
+)
+
+/** Whether a stored block value counts as "not filled in". */
+const isEmpty = (value: unknown): boolean => {
+  if (value === undefined || value === null) return true
+  if (typeof value === 'string') return !value.trim()
+  if (Array.isArray(value)) return value.length === 0
+  if (typeof value === 'object') {
+    return Object.entries(value as Record<string, unknown>)
+      .filter(([key]) => key !== 'id')
+      .every(([, entry]) => isEmpty(entry))
+  }
+  return false
+}
+
+/** A block with every empty field filled from its shared defaults. */
+export function withSharedDefaults<T extends Record<string, unknown>>(
+  block: T,
+  defaults: Record<string, unknown> | undefined,
+): T {
+  if (!defaults) return block
+  const filled: Record<string, unknown> = { ...block }
+  for (const [key, value] of Object.entries(defaults)) {
+    if (key === 'id') continue
+    if (isEmpty(filled[key]) && !isEmpty(value)) filled[key] = value
+  }
+  return filled as T
+}

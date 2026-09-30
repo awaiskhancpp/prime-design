@@ -1072,10 +1072,18 @@ export interface Service {
         | {
             eyebrow?: string | null;
             heading: string;
+            /**
+             * Empty uses the phone number in Site Settings.
+             */
             phone?: string | null;
+            /**
+             * Empty uses the email in Site Settings.
+             */
             email?: string | null;
+            /**
+             * One office per line. Empty uses the addresses in Site Settings.
+             */
             address?: string | null;
-            mapUrl?: string | null;
             /**
              * One pin per office on the map below the cards. Leave empty and the map is not shown; the addresses above still are.
              */
@@ -3734,9 +3742,18 @@ export interface LandingPage {
         blockType: 'sub-services';
       }
     | {
+        /**
+         * Empty uses Shared Sections (Settings).
+         */
         eyebrow?: string | null;
-        heading: string;
+        /**
+         * Empty uses Shared Sections (Settings).
+         */
+        heading?: string | null;
         description?: string | null;
+        /**
+         * Empty uses Shared Sections (Settings).
+         */
         features?:
           | {
               title: string;
@@ -3835,9 +3852,18 @@ export interface LandingPage {
         blockType: 'prime-difference';
       }
     | {
+        /**
+         * Empty uses Shared Sections (Settings).
+         */
         eyebrow?: string | null;
-        heading: string;
+        /**
+         * Empty uses Shared Sections (Settings).
+         */
+        heading?: string | null;
         description?: string | null;
+        /**
+         * Empty uses Shared Sections (Settings).
+         */
         features?:
           | {
               title: string;
@@ -3890,9 +3916,18 @@ export interface LandingPage {
         blockType: 'experience-difference';
       }
     | {
+        /**
+         * Empty uses Shared Sections (Settings).
+         */
         eyebrow?: string | null;
-        heading: string;
+        /**
+         * Empty uses Shared Sections (Settings).
+         */
+        heading?: string | null;
         description?: string | null;
+        /**
+         * Empty uses Shared Sections (Settings).
+         */
         areas?:
           | {
               label: string;
@@ -3908,6 +3943,9 @@ export interface LandingPage {
               id?: string | null;
             }[]
           | null;
+        /**
+         * Empty uses Shared Sections (Settings).
+         */
         regionHeading?: string | null;
         mapMedia?: {
           asset?: (number | null) | Media;
@@ -4006,7 +4044,10 @@ export interface LandingPage {
       }
     | {
         eyebrow?: string | null;
-        heading: string;
+        /**
+         * Empty uses Shared Sections (Settings).
+         */
+        heading?: string | null;
         description?: string | null;
         media?: {
           asset?: (number | null) | Media;
@@ -4111,11 +4152,22 @@ export interface LandingPage {
       }
     | {
         eyebrow?: string | null;
-        heading: string;
+        /**
+         * Empty uses Shared Sections (Settings).
+         */
+        heading?: string | null;
+        /**
+         * Empty uses the phone number in Site Settings.
+         */
         phone?: string | null;
+        /**
+         * Empty uses the email in Site Settings.
+         */
         email?: string | null;
+        /**
+         * One office per line. Empty uses the addresses in Site Settings.
+         */
         address?: string | null;
-        mapUrl?: string | null;
         /**
          * One pin per office on the map below the cards. Leave empty and the map is not shown; the addresses above still are.
          */
@@ -5354,7 +5406,6 @@ export interface ServicesSelect<T extends boolean = true> {
               phone?: T;
               email?: T;
               address?: T;
-              mapUrl?: T;
               mapPins?:
                 | T
                 | {
@@ -7183,7 +7234,6 @@ export interface LandingPagesSelect<T extends boolean = true> {
               phone?: T;
               email?: T;
               address?: T;
-              mapUrl?: T;
               mapPins?:
                 | T
                 | {
@@ -7821,6 +7871,118 @@ export interface SharedSection {
         }[]
       | null;
   };
+  /**
+   * Used by every landing page whose section leaves these fields empty.
+   */
+  landingPrimeDifference?: {
+    eyebrow?: string | null;
+    heading?: string | null;
+    features?:
+      | {
+          title: string;
+          description?: string | null;
+          icon?: {
+            iconMedia?: (number | null) | Media;
+            iconLibrary?: string | null;
+            iconName?: string | null;
+            sourceSvgUrl?: string | null;
+          };
+          media?: {
+            asset?: (number | null) | Media;
+            alt?: string | null;
+            caption?: string | null;
+            sourceAttachmentId?: number | null;
+            sourceUrl?: string | null;
+          };
+          link?: {
+            label?: string | null;
+            /**
+             * A page (/contact), a section on this page (#contact), a full URL, or tel: / mailto:.
+             */
+            url?: string | null;
+            openInNewTab?: boolean | null;
+          };
+          id?: string | null;
+        }[]
+      | null;
+  };
+  /**
+   * Used by every landing page whose section leaves these fields empty.
+   */
+  landingExperienceDifference?: {
+    eyebrow?: string | null;
+    heading?: string | null;
+    features?:
+      | {
+          title: string;
+          description?: string | null;
+          icon?: {
+            iconMedia?: (number | null) | Media;
+            iconLibrary?: string | null;
+            iconName?: string | null;
+            sourceSvgUrl?: string | null;
+          };
+          media?: {
+            asset?: (number | null) | Media;
+            alt?: string | null;
+            caption?: string | null;
+            sourceAttachmentId?: number | null;
+            sourceUrl?: string | null;
+          };
+          link?: {
+            label?: string | null;
+            /**
+             * A page (/contact), a section on this page (#contact), a full URL, or tel: / mailto:.
+             */
+            url?: string | null;
+            openInNewTab?: boolean | null;
+          };
+          id?: string | null;
+        }[]
+      | null;
+  };
+  /**
+   * Used by every landing page whose section leaves these fields empty.
+   */
+  landingServiceAreas?: {
+    eyebrow?: string | null;
+    heading?: string | null;
+    areas?:
+      | {
+          label: string;
+          location?: (number | null) | Location;
+          link?: {
+            label?: string | null;
+            /**
+             * A page (/contact), a section on this page (#contact), a full URL, or tel: / mailto:.
+             */
+            url?: string | null;
+            openInNewTab?: boolean | null;
+          };
+          id?: string | null;
+        }[]
+      | null;
+    regionHeading?: string | null;
+    mapMedia?: {
+      asset?: (number | null) | Media;
+      alt?: string | null;
+      caption?: string | null;
+      sourceAttachmentId?: number | null;
+      sourceUrl?: string | null;
+    };
+  };
+  /**
+   * Used by every landing page whose section leaves these fields empty.
+   */
+  landingLuxuryCta?: {
+    heading?: string | null;
+  };
+  /**
+   * Used by every landing page whose section leaves these fields empty.
+   */
+  landingFindUs?: {
+    heading?: string | null;
+  };
   updatedAt?: string | null;
   createdAt?: string | null;
 }
@@ -8174,6 +8336,120 @@ export interface SharedSectionsSelect<T extends boolean = true> {
               variant?: T;
               id?: T;
             };
+      };
+  landingPrimeDifference?:
+    | T
+    | {
+        eyebrow?: T;
+        heading?: T;
+        features?:
+          | T
+          | {
+              title?: T;
+              description?: T;
+              icon?:
+                | T
+                | {
+                    iconMedia?: T;
+                    iconLibrary?: T;
+                    iconName?: T;
+                    sourceSvgUrl?: T;
+                  };
+              media?:
+                | T
+                | {
+                    asset?: T;
+                    alt?: T;
+                    caption?: T;
+                    sourceAttachmentId?: T;
+                    sourceUrl?: T;
+                  };
+              link?:
+                | T
+                | {
+                    label?: T;
+                    url?: T;
+                    openInNewTab?: T;
+                  };
+              id?: T;
+            };
+      };
+  landingExperienceDifference?:
+    | T
+    | {
+        eyebrow?: T;
+        heading?: T;
+        features?:
+          | T
+          | {
+              title?: T;
+              description?: T;
+              icon?:
+                | T
+                | {
+                    iconMedia?: T;
+                    iconLibrary?: T;
+                    iconName?: T;
+                    sourceSvgUrl?: T;
+                  };
+              media?:
+                | T
+                | {
+                    asset?: T;
+                    alt?: T;
+                    caption?: T;
+                    sourceAttachmentId?: T;
+                    sourceUrl?: T;
+                  };
+              link?:
+                | T
+                | {
+                    label?: T;
+                    url?: T;
+                    openInNewTab?: T;
+                  };
+              id?: T;
+            };
+      };
+  landingServiceAreas?:
+    | T
+    | {
+        eyebrow?: T;
+        heading?: T;
+        areas?:
+          | T
+          | {
+              label?: T;
+              location?: T;
+              link?:
+                | T
+                | {
+                    label?: T;
+                    url?: T;
+                    openInNewTab?: T;
+                  };
+              id?: T;
+            };
+        regionHeading?: T;
+        mapMedia?:
+          | T
+          | {
+              asset?: T;
+              alt?: T;
+              caption?: T;
+              sourceAttachmentId?: T;
+              sourceUrl?: T;
+            };
+      };
+  landingLuxuryCta?:
+    | T
+    | {
+        heading?: T;
+      };
+  landingFindUs?:
+    | T
+    | {
+        heading?: T;
       };
   updatedAt?: T;
   createdAt?: T;

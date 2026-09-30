@@ -93,6 +93,8 @@ import * as migration_20260930_225122_retire_generic_page_blocks from './2026093
 import * as migration_20260930_230000_retired_phone_numbers from './20260930_230000_retired_phone_numbers'
 import * as migration_20260930_230419_shared_sections_global from './20260930_230419_shared_sections_global'
 import * as migration_20260930_230500_shared_sections_content from './20260930_230500_shared_sections_content'
+import * as migration_20260930_231628_shared_landing_sections from './20260930_231628_shared_landing_sections'
+import * as migration_20260930_231700_shared_landing_content from './20260930_231700_shared_landing_content'
 
 export const migrations = [
   {
@@ -569,5 +571,15 @@ export const migrations = [
     up: migration_20260930_230500_shared_sections_content.up,
     down: migration_20260930_230500_shared_sections_content.down,
     name: '20260930_230500_shared_sections_content',
+  },
+  {
+    up: migration_20260930_231628_shared_landing_sections.up,
+    down: migration_20260930_231628_shared_landing_sections.down,
+    name: '20260930_231628_shared_landing_sections',
+  },
+  {
+    up: migration_20260930_231700_shared_landing_content.up,
+    down: migration_20260930_231700_shared_landing_content.down,
+    name: '20260930_231700_shared_landing_content',
   },
 ]

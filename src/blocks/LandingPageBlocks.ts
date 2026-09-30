@@ -27,6 +27,8 @@ const base = (slug: string, singular: string, fields: Block['fields']): Block =>
   fields: [...fields, ...provenanceFields()],
 })
 
+const INHERITS_NOTE_TEXT = 'Empty uses Shared Sections (Settings).'
+
 const text = (name: string, required = false) => ({ name, type: 'text' as const, required })
 const description = (name = 'description') => ({ name, type: 'textarea' as const })
 
@@ -225,10 +227,15 @@ export const landingPageBlocks: Block[] = [
     },
   ]),
   base('prime-difference', 'Prime Difference', [
-    text('eyebrow'),
-    text('heading', true),
+    { ...text('eyebrow'), admin: { description: INHERITS_NOTE_TEXT } },
+    { ...text('heading'), admin: { description: INHERITS_NOTE_TEXT } },
     description(),
-    { name: 'features', type: 'array' as const, fields: featureCardFields() },
+    {
+      name: 'features',
+      type: 'array' as const,
+      fields: featureCardFields(),
+      admin: { description: INHERITS_NOTE_TEXT },
+    },
     {
       name: 'checklist',
       type: 'array' as const,
@@ -283,19 +290,25 @@ export const landingPageBlocks: Block[] = [
     ...mediaReferenceFields(),
   ]),
   base('experience-difference', 'Experience Difference', [
-    text('eyebrow'),
-    text('heading', true),
+    { ...text('eyebrow'), admin: { description: INHERITS_NOTE_TEXT } },
+    { ...text('heading'), admin: { description: INHERITS_NOTE_TEXT } },
     description(),
-    { name: 'features', type: 'array' as const, fields: featureCardFields() },
+    {
+      name: 'features',
+      type: 'array' as const,
+      fields: featureCardFields(),
+      admin: { description: INHERITS_NOTE_TEXT },
+    },
     ...mediaReferenceFields(),
   ]),
   base('service-areas', 'Service Areas', [
-    text('eyebrow'),
-    text('heading', true),
+    { ...text('eyebrow'), admin: { description: INHERITS_NOTE_TEXT } },
+    { ...text('heading'), admin: { description: INHERITS_NOTE_TEXT } },
     description(),
     {
       name: 'areas',
       type: 'array' as const,
+      admin: { description: INHERITS_NOTE_TEXT },
       fields: [
         text('label', true),
         { name: 'location', type: 'relationship' as const, relationTo: 'locations' as const },
@@ -305,7 +318,7 @@ export const landingPageBlocks: Block[] = [
     // The WordPress section ends with a state map and its caption
     // ("California" over `ca-cities.png`). Without these the image and the
     // heading were dropped on import.
-    text('regionHeading'),
+    { ...text('regionHeading'), admin: { description: INHERITS_NOTE_TEXT } },
     ...mediaReferenceFields('mapMedia'),
   ]),
   base('repair-services', 'Repair Services', [
@@ -341,7 +354,7 @@ export const landingPageBlocks: Block[] = [
   ]),
   base('luxury-cta', 'Luxury CTA', [
     text('eyebrow'),
-    text('heading', true),
+    { ...text('heading'), admin: { description: INHERITS_NOTE_TEXT } },
     description(),
     ...mediaReferenceFields(),
     ...buttonGroupFields(),
@@ -388,15 +401,30 @@ export const landingPageBlocks: Block[] = [
   ]),
   base('find-us', 'Find Us', [
     text('eyebrow'),
-    text('heading', true),
+    { ...text('heading'), admin: { description: INHERITS_NOTE_TEXT } },
     // Bare values only — no "Call Us" / "Email Now" / "Address" captions.
     // The section supplies those labels itself, and a stored value that
     // repeats them renders as "Call Us Call Us (650) 235-4863" and produces
     // a `mailto:` containing the caption.
-    text('phone'),
-    text('email'),
-    { name: 'address', type: 'textarea' as const },
-    text('mapUrl'),
+    //
+    // Empty uses Site Settings (company phone, email, office addresses): all
+    // seven landing pages stored the same copy of those, so a new number
+    // meant eight edits. Fill a field only for a page that should differ.
+    {
+      name: 'phone',
+      type: 'text' as const,
+      admin: { description: 'Empty uses the phone number in Site Settings.' },
+    },
+    {
+      name: 'email',
+      type: 'text' as const,
+      admin: { description: 'Empty uses the email in Site Settings.' },
+    },
+    {
+      name: 'address',
+      type: 'textarea' as const,
+      admin: { description: 'One office per line. Empty uses the addresses in Site Settings.' },
+    },
     // Where the offices sit on the map under the cards. The map used to be a
     // Google Maps embed addressed by the first line of `address`, which meant
     // Google re-geocoded a postal address on every page load and the section
@@ -542,9 +570,39 @@ const SERVICE_BLOCK_TABLES: Record<string, string> = {
   video: 'services_blocks_video_2',
 }
 
+/**
+ * Landing pages fill these blocks' empty fields from Shared Sections; service
+ * pages do not, so on a service page the fields keep their original meaning:
+ * no "Empty uses Shared Sections" note, and the heading stays required.
+ */
+const SHARED_ON_LANDING_ONLY = new Set([
+  'prime-difference',
+  'experience-difference',
+  'service-areas',
+  'luxury-cta',
+  'find-us',
+])
+const INHERITS_NOTE = INHERITS_NOTE_TEXT
+const withoutSharedDefaults = (block: Block): Block =>
+  SHARED_ON_LANDING_ONLY.has(block.slug)
+    ? {
+        ...block,
+        fields: block.fields.map((field) => {
+          if (!('name' in field)) return field
+          const admin =
+            field.admin && 'description' in field.admin && field.admin.description === INHERITS_NOTE
+              ? { ...field.admin, description: undefined }
+              : field.admin
+          const required = field.name === 'heading' ? { required: true } : {}
+          return { ...field, admin, ...required } as typeof field
+        }),
+      }
+    : block
+
 export const servicePageBlocks: Block[] = landingPageBlocks
   .filter((block) => !LANDING_ONLY_ON_SERVICES.has(block.slug))
   .map((block) => (block.slug === 'faq' ? serviceFaqBlock : block))
+  .map(withoutSharedDefaults)
   .map((block) =>
     SERVICE_BLOCK_TABLES[block.slug] ? { ...block, dbName: SERVICE_BLOCK_TABLES[block.slug] } : block,
   )

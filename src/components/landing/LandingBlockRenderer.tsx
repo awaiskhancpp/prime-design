@@ -28,6 +28,8 @@ import { LandingFaqBlockSection } from './LandingFaqBlockSection'
 import { richTextHasContent, richTextToPlainText, type RichTextValue } from '@/lib/richText'
 import { RichTextContent } from '@/components/rich-text/RichTextContent'
 import type { LandingPageBlock, LandingPageService } from '@/lib/landingPages'
+import { resolveSharedLandingDefaults, withSharedDefaults } from '@/lib/sharedSections'
+import { resolveSiteSettings } from '@/lib/siteSettings'
 
 type Block = LandingPageBlock & Record<string, unknown>
 
@@ -398,6 +400,31 @@ function GalleryCarouselBlock({ block }: { block: Block }) {
 }
 
 /**
+ * "Find us". Phone, email and addresses come from Site Settings unless the
+ * block fills its own — every landing page used to carry a copy of them.
+ */
+async function FindUsBlock({ block }: { block: Block }) {
+  const settings = await resolveSiteSettings()
+  return (
+    <LandingFindUs
+      eyebrow={text(block.eyebrow)}
+      heading={text(block.heading)}
+      phone={text(block.phone) || settings.phone}
+      email={text(block.email) || settings.email}
+      address={text(block.address) || settings.addresses.map((entry) => entry.address).join('\n')}
+      // One pin per office, as real coordinates — the map is drawn from these
+      // rather than from a geocoder reading the addresses back.
+      mapPins={(Array.isArray(block.mapPins) ? block.mapPins : [])
+        .map((pin) => pin as Record<string, unknown>)
+        .map((pin) => ({
+          latitude: typeof pin.latitude === 'number' ? pin.latitude : undefined,
+          longitude: typeof pin.longitude === 'number' ? pin.longitude : undefined,
+        }))}
+    />
+  )
+}
+
+/**
  * `service` is the landing page's own service (`LandingPages.service`), for
  * the blocks whose forms book something. Other callers of the shared registry
  * (service pages) do not pass it.
@@ -566,23 +593,7 @@ export const landingBlockRegistry: Record<string, Renderer> = {
       backgroundImage={mediaUrl(block.media)}
     />
   ),
-  'find-us': ({ block }) => (
-    <LandingFindUs
-      eyebrow={text(block.eyebrow)}
-      heading={text(block.heading)}
-      phone={text(block.phone)}
-      email={text(block.email)}
-      address={text(block.address)}
-      // One pin per office, as real coordinates — the map is drawn from these
-      // rather than from a geocoder reading the addresses back.
-      mapPins={(Array.isArray(block.mapPins) ? block.mapPins : [])
-        .map((pin) => pin as Record<string, unknown>)
-        .map((pin) => ({
-          latitude: typeof pin.latitude === 'number' ? pin.latitude : undefined,
-          longitude: typeof pin.longitude === 'number' ? pin.longitude : undefined,
-        }))}
-    />
-  ),
+  'find-us': FindUsBlock,
   faq: FaqBlock,
   // `landing-testimonials` — the structured version WordPress authors on the
   // Google-Ads landing pages ("Our Happy Customers"). When the block carries
@@ -708,13 +719,23 @@ function referencedAnchors(sections: LandingPageBlock[]): string[] {
  * conversion section. Nothing is added when the page already resolves, so a
  * page whose data is complete renders exactly as before.
  */
-export function LandingBlockRenderer({
-  sections,
+export async function LandingBlockRenderer({
+  sections: storedSections,
   service,
 }: {
   sections: LandingPageBlock[]
   service?: LandingPageService
 }) {
+  // Sections that read the same on every landing page (Prime Difference,
+  // Experience Difference, Service Areas, the luxury CTA and Find Us
+  // headings) are stored once in Shared Sections; a block's empty fields are
+  // filled from there before anything renders, so the section components are
+  // unchanged. A field the page fills in itself wins.
+  const sharedDefaults = await resolveSharedLandingDefaults()
+  const sections = storedSections.map((section) =>
+    withSharedDefaults(section as Block, sharedDefaults[section.blockType]),
+  ) as LandingPageBlock[]
+
   const provided = new Set<string>()
   for (const section of sections) {
     const block = section as Block
