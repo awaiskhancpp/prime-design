@@ -12,21 +12,6 @@ import type { RichTextValue } from './richText'
 export type FaqItem = { question: string; answer: string | RichTextValue }
 export type FaqCategory = { title: string; items: FaqItem[] }
 
-// Which Payload FAQ category feeds each service page. The Q&A itself comes
-// from the `faqs` collection — no static copy.
-export const serviceFaqCategories: Record<string, { categoryTitle: string }> = {
-  'kitchen-remodeling': { categoryTitle: 'Kitchen Remodel Questions' },
-  'custom-kitchen': { categoryTitle: 'Custom Kitchen Questions' },
-  'european-kitchen': { categoryTitle: 'European Kitchen Questions' },
-  'shaker-kitchen': { categoryTitle: 'Shaker Kitchen Questions' },
-  'bathroom-remodeling': { categoryTitle: 'Bathroom Remodel Questions' },
-  'home-remodeling': { categoryTitle: 'Home Remodel Questions' },
-  'complete-renovation': { categoryTitle: 'Complete Renovations Questions' },
-  adu: { categoryTitle: 'ADU Questions' },
-  additions: { categoryTitle: 'Room Additions Questions' },
-  finance: { categoryTitle: 'Finance Questions' },
-}
-
 /**
  * Specific questions, in the order given.
  *
@@ -64,6 +49,30 @@ export async function getFaqItemsById(ids: Array<number | string>): Promise<FaqI
   }
 }
 
+/** Every question in one FAQ category, in the category's own `sortOrder`. */
+export async function getFaqItemsForCategory(categoryId: number | string): Promise<FaqItem[]> {
+  if (!process.env.DATABASE_URL) return []
+  try {
+    const { getPayload } = await import('payload')
+    const configPromise = (await import('@payload-config')).default
+    const payload = await getPayload({ config: configPromise })
+    const faqs = await payload.find({
+      collection: 'faqs',
+      where: { category: { equals: categoryId } },
+      sort: 'sortOrder',
+      depth: 0,
+      limit: 200,
+    })
+    return (faqs.docs as Array<{ question?: string; answer?: unknown }>)
+      .filter((doc) => doc.question && doc.answer)
+      .map((doc) => ({ question: doc.question as string, answer: doc.answer as RichTextValue }))
+  } catch (error) {
+    console.error(`getFaqItemsForCategory: could not load FAQs for category ${categoryId}`, error)
+    return []
+  }
+}
+
+/** Every question in the category with this title (the landing pages' FAQ blocks name it). */
 export async function getFaqItems(categoryTitle: string): Promise<FaqItem[]> {
   if (!process.env.DATABASE_URL) return []
   try {
@@ -77,17 +86,7 @@ export async function getFaqItems(categoryTitle: string): Promise<FaqItem[]> {
       limit: 1,
     })
     const catId = (category.docs[0] as { id?: number | string } | undefined)?.id
-    if (!catId) return []
-    const faqs = await payload.find({
-      collection: 'faqs',
-      where: { category: { equals: catId } },
-      sort: 'sortOrder',
-      depth: 0,
-      limit: 200,
-    })
-    return (faqs.docs as Array<{ question?: string; answer?: unknown }>)
-      .filter((doc) => doc.question && doc.answer)
-      .map((doc) => ({ question: doc.question as string, answer: doc.answer as RichTextValue }))
+    return catId ? getFaqItemsForCategory(catId) : []
   } catch (error) {
     console.error(`getFaqItems: could not load FAQs for category "${categoryTitle}"`, error)
     return []

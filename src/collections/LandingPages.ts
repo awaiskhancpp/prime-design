@@ -1,6 +1,5 @@
 import type { CollectionConfig } from 'payload'
 import { landingPageBlocks } from '../blocks/LandingPageBlocks'
-import { buttonGroupFields } from '../fields/Shared'
 import { SEOFields } from './fields/SEO'
 
 /**
@@ -35,7 +34,7 @@ export const LandingPages: CollectionConfig = {
   slug: 'landing-pages',
   admin: {
     useAsTitle: 'title',
-    defaultColumns: ['title', 'slug', 'status', 'template'],
+    defaultColumns: ['title', 'slug', 'status', 'service'],
     description: 'Google Ads landing pages with ordered, reusable content sections.',
     group: 'Marketing',
   },
@@ -45,26 +44,15 @@ export const LandingPages: CollectionConfig = {
     // be hidden behind a tab that is not open.
     { name: 'title', type: 'text', required: true },
     { name: 'slug', type: 'text', required: true, unique: true, index: true },
+    // `template` (one option, never read) and the Campaign tab's UTM group
+    // (never read) are gone: fields that do nothing when filled in.
     {
-      type: 'row',
-      fields: [
-        {
-          name: 'status',
-          type: 'select',
-          defaultValue: 'draft',
-          options: [
-            { label: 'Draft', value: 'draft' },
-            { label: 'Published', value: 'published' },
-          ],
-          admin: { width: '50%' },
-        },
-        {
-          name: 'template',
-          type: 'select',
-          defaultValue: 'information',
-          options: [{ label: 'Information Page', value: 'information' }],
-          admin: { width: '50%' },
-        },
+      name: 'status',
+      type: 'select',
+      defaultValue: 'draft',
+      options: [
+        { label: 'Draft', value: 'draft' },
+        { label: 'Published', value: 'published' },
       ],
     },
     {
@@ -90,29 +78,9 @@ export const LandingPages: CollectionConfig = {
       type: 'tabs',
       tabs: [
         {
-          label: 'Hero',
-          description:
-            'The first screen: the headline, the copy under it, the background video or image, and the buttons.',
-          fields: [
-            {
-              name: 'hero',
-              type: 'group',
-              label: false,
-              fields: [
-                { name: 'eyebrow', type: 'text' },
-                { name: 'heading', type: 'text', required: true },
-                { name: 'description', type: 'textarea' },
-                { name: 'backgroundMedia', type: 'upload', relationTo: 'media' },
-                { name: 'foregroundMedia', type: 'upload', relationTo: 'media' },
-                ...buttonGroupFields(),
-              ],
-            },
-          ],
-        },
-        {
           label: 'Sections',
           description:
-            'The page, in the order it renders. Drag a row to move a section; the row label is the section’s own heading. Pages deliberately differ from one another — a section missing here is missing from that page, not broken.',
+            'The page, in the order it renders — the first section is the hero. Drag a row to move a section; the row label is the section’s own heading. Pages deliberately differ from one another — a section missing here is missing from that page, not broken.',
           fields: [
             {
               name: 'sections',
@@ -125,24 +93,6 @@ export const LandingPages: CollectionConfig = {
                 // list reads as the page itself.
                 initCollapsed: true,
               },
-            },
-          ],
-        },
-        {
-          label: 'Campaign',
-          description: 'UTM values for the ads that point at this page.',
-          fields: [
-            {
-              name: 'campaignTracking',
-              type: 'group',
-              label: false,
-              fields: [
-                { name: 'campaignName', type: 'text' },
-                { name: 'source', type: 'text' },
-                { name: 'medium', type: 'text' },
-                { name: 'term', type: 'text' },
-                { name: 'content', type: 'text' },
-              ],
             },
           ],
         },

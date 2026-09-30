@@ -1,158 +1,6 @@
-import type { Block, CollectionConfig, CollectionSlug } from 'payload'
+import type { CollectionConfig, CollectionSlug } from 'payload'
 import { SEOFields } from './fields/SEO'
-import { videoStoryFields } from './fields/videoStory'
 import { servicePageBlocks } from '../blocks/LandingPageBlocks'
-
-const textItems = (name = 'items') => ({
-  name,
-  type: 'array' as const,
-  fields: [{ name: 'text', type: 'textarea' as const, required: true }],
-})
-
-const imageField = { name: 'image', type: 'upload' as const, relationTo: 'media' as const }
-
-export const serviceContentBlocks: Block[] = [
-  {
-    slug: 'intro',
-    labels: { singular: 'Intro', plural: 'Intro' },
-    fields: [
-      { name: 'eyebrow', type: 'text', required: false },
-      { name: 'heading', type: 'text', required: true },
-      { name: 'body', type: 'textarea', required: true },
-      imageField,
-      { name: 'imageSide', type: 'select', defaultValue: 'right', options: ['left', 'right'] },
-    ],
-  },
-  {
-    slug: 'feature-list',
-    labels: { singular: 'Feature List', plural: 'Feature Lists' },
-    fields: [{ name: 'heading', type: 'text', required: true }, textItems()],
-  },
-  {
-    slug: 'benefits',
-    labels: { singular: 'Benefits', plural: 'Benefits' },
-    fields: [{ name: 'heading', type: 'text', required: true }, textItems()],
-  },
-  {
-    slug: 'process',
-    labels: { singular: 'Process', plural: 'Processes' },
-    fields: [
-      { name: 'heading', type: 'text', required: true },
-      {
-        name: 'steps',
-        type: 'array',
-        fields: [
-          { name: 'title', type: 'text', required: true },
-          { name: 'description', type: 'textarea', required: true },
-          imageField,
-        ],
-      },
-    ],
-  },
-  {
-    slug: 'image-text',
-    labels: { singular: 'Image and Text', plural: 'Image and Text' },
-    fields: [
-      { name: 'eyebrow', type: 'text' },
-      { name: 'heading', type: 'text', required: true },
-      { name: 'body', type: 'textarea', required: true },
-      imageField,
-      { name: 'imageSide', type: 'select', defaultValue: 'left', options: ['left', 'right'] },
-    ],
-  },
-  {
-    slug: 'gallery',
-    labels: { singular: 'Gallery', plural: 'Galleries' },
-    fields: [
-      { name: 'heading', type: 'text' },
-      { name: 'images', type: 'upload', relationTo: 'media', hasMany: true },
-    ],
-  },
-  {
-    slug: 'sub-services',
-    labels: { singular: 'Sub-services', plural: 'Sub-services' },
-    fields: [
-      { name: 'heading', type: 'text', required: true },
-      {
-        name: 'items',
-        type: 'array',
-        fields: [
-          { name: 'title', type: 'text', required: true },
-          { name: 'description', type: 'textarea', required: true },
-          imageField,
-          { name: 'link', type: 'text' },
-        ],
-      },
-    ],
-  },
-  {
-    slug: 'video',
-    labels: { singular: 'Video', plural: 'Videos' },
-    fields: [
-      { name: 'heading', type: 'text' },
-      {
-        name: 'video',
-        type: 'upload',
-        relationTo: 'media',
-        admin: {
-          description: 'Optional uploaded video. If empty, the external video URL can be used.',
-        },
-      },
-      { name: 'videoUrl', type: 'text' },
-      { name: 'poster', type: 'upload', relationTo: 'media' },
-      ...videoStoryFields(),
-    ],
-  },
-  {
-    slug: 'icon-feature-list',
-    labels: {
-      singular: 'Feature List with Titles (e.g. "The Power of Customization")',
-      plural: 'Feature Lists with Titles',
-    },
-    fields: [
-      { name: 'heading', type: 'text', required: true },
-      { name: 'intro', type: 'textarea' },
-      imageField,
-      { name: 'imageSide', type: 'select', defaultValue: 'left', options: ['left', 'right'] },
-      {
-        name: 'items',
-        type: 'array',
-        minRows: 1,
-        fields: [
-          { name: 'title', type: 'text', required: true },
-          { name: 'description', type: 'textarea', required: true },
-        ],
-      },
-    ],
-  },
-  {
-    slug: 'checklist',
-    labels: { singular: 'Feature Checklist (image + checklist)', plural: 'Feature Checklists' },
-    fields: [
-      { name: 'eyebrow', type: 'text' },
-      { name: 'heading', type: 'text', required: true },
-      {
-        name: 'description',
-        type: 'text',
-        admin: {
-          description:
-            'Short italic lead-in line above the checklist, e.g. "Unleash the Beauty and Durability:"',
-        },
-      },
-      imageField,
-      { name: 'imageSide', type: 'select', defaultValue: 'left', options: ['left', 'right'] },
-      textItems(),
-    ],
-  },
-  {
-    slug: 'quote',
-    labels: { singular: 'Quote', plural: 'Quotes' },
-    fields: [
-      { name: 'quote', type: 'textarea', required: true },
-      { name: 'attribution', type: 'text' },
-    ],
-  },
-]
 
 export const Services: CollectionConfig = {
   slug: 'services',
@@ -297,14 +145,6 @@ export const Services: CollectionConfig = {
           ],
         },
       ],
-    },
-    {
-      name: 'contentBlocks',
-      type: 'blocks',
-      blocks: serviceContentBlocks,
-      admin: {
-        condition: () => false,
-      },
     },
 
     // Main workspace organized in tabs
@@ -897,22 +737,21 @@ export const Services: CollectionConfig = {
           ],
         },
         {
-          label: 'SEO & Relations',
-          description: 'Search engine metadata and related pages.',
+          label: 'FAQs & SEO',
+          description: 'Which questions the FAQ section shows, and search engine metadata.',
           fields: [
             {
-              name: 'faqs',
+              // Replaces a hardcoded slug → category map in `lib/faq.server.ts`
+              // and a `faqs` relationship nothing read. The questions
+              // themselves live in the FAQs collection, under this category.
+              name: 'faqCategory',
               type: 'relationship',
-              relationTo: 'faqs',
-              hasMany: true,
-              admin: { description: 'Select FAQs relevant to this service' },
-            },
-            {
-              name: 'relatedServices',
-              type: 'relationship',
-              relationTo: 'services' as CollectionSlug,
-              hasMany: true,
-              admin: { description: 'Select services to recommend alongside this one' },
+              relationTo: 'faq-categories',
+              label: 'FAQ category',
+              admin: {
+                description:
+                  'The FAQ section on this page lists every question in this category, in its own order. Empty hides the section.',
+              },
             },
             ...SEOFields,
           ],

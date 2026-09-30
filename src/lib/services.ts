@@ -59,7 +59,8 @@ export type ServiceDetail = Service & {
   heroVideoUrl?: string
   /** Second hero image — when set, the hero renders the two-image crossfade. */
   heroImageSecondary?: string
-  contentBlocks?: ServiceContentBlock[]
+  /** The FAQs-collection category this page's FAQ section lists (Services → FAQs & SEO). */
+  faqCategoryId?: number | string
   sections?: Array<{ blockType: string; [key: string]: unknown }>
   /**
    * CMS-authored rich text for the overview lists (Key Features / Benefits /
@@ -181,63 +182,6 @@ export type ServiceDetail = Service & {
 
 export type ServiceContentItem = { text: string }
 export type ServiceContentStep = { title: string; description: string; image?: string }
-export type ServiceContentBlock =
-  | {
-      blockType: 'intro'
-      eyebrow?: string
-      heading: string
-      body: string
-      image?: string
-      imageSide?: 'left' | 'right'
-      items?: ServiceContentItem[]
-    }
-  | {
-      blockType: 'image-text'
-      eyebrow?: string
-      heading: string
-      body: string
-      image?: string
-      imageSide?: 'left' | 'right'
-      items?: ServiceContentItem[]
-    }
-  | { blockType: 'feature-list'; heading: string; items: ServiceContentItem[] }
-  | { blockType: 'benefits'; heading: string; items: ServiceContentItem[] }
-  | { blockType: 'process'; heading: string; steps: ServiceContentStep[] }
-  | { blockType: 'gallery'; heading?: string; images: string[] }
-  | {
-      blockType: 'sub-services'
-      heading: string
-      items: Array<{ title: string; description: string; image?: string; link?: string }>
-    }
-  | {
-      blockType: 'video'
-      heading?: string
-      videoUrl: string
-      poster?: string
-      /** What the video says (CMS summary) + optional on-screen attribution. */
-      summary?: RichTextValue
-      speakerName?: string
-      speakerRole?: string
-    }
-  | { blockType: 'quote'; quote: string; attribution?: string }
-  | {
-      blockType: 'icon-feature-list'
-      heading: string
-      intro?: string
-      image?: string
-      imageSide?: 'left' | 'right'
-      items: Array<{ title: string; description: string }>
-    }
-  | {
-      blockType: 'checklist'
-      eyebrow?: string
-      heading: string
-      description?: string
-      image?: string
-      imageSide?: 'left' | 'right'
-      items: ServiceContentItem[]
-    }
-
 export const servicePathAliases: Record<string, string> = {
   'shaker-kitchen': 'shaker-kitchen-silicon-valley',
   'shaker-kitchens': 'shaker-kitchen-silicon-valley',
@@ -297,6 +241,7 @@ type PayloadServiceRecord = {
   featured?: boolean | null
   /** Populated to a full doc at `depth: 2`; a bare id otherwise. */
   parentService?: { slug?: string | null } | number | null
+  faqCategory?: { id?: number | string | null } | number | string | null
   /** Rich text overview fields (Key Features / Benefits / Process steps). */
   overview?: {
     keyFeatures?: unknown
@@ -406,7 +351,6 @@ type PayloadServiceRecord = {
     video?: number | PayloadMedia | null
     buttons?: Array<{ label?: string; url?: string }> | null
   } | null
-  contentBlocks?: Array<Record<string, unknown>> | null
   sections?: Array<Record<string, unknown>> | null
   sectionOrder?: Array<{ section?: string | null }> | null
   seo?: ServiceDetail['seo']
@@ -419,143 +363,6 @@ const payloadImageUrl = (value: unknown) => {
   // Prefer the file's own URL (Vercel Blob or local upload); fall back to
   // the original WordPress source URL for media that was never uploaded.
   return obj.url || obj.source_url || undefined
-}
-
-export function normalizePayloadBlocks(
-  value: PayloadServiceRecord['contentBlocks'],
-): ServiceContentBlock[] | undefined {
-  if (!value?.length) return undefined
-  return value.flatMap((block): ServiceContentBlock[] => {
-    const blockType = block.blockType
-    if (blockType === 'intro' || blockType === 'image-text')
-      return [
-        {
-          blockType,
-          eyebrow: typeof block.eyebrow === 'string' ? block.eyebrow : undefined,
-          heading: String(block.heading || ''),
-          body: String(block.body || ''),
-          image: payloadImageUrl(block.image),
-          imageSide: block.imageSide === 'left' ? 'left' : 'right',
-        },
-      ] as ServiceContentBlock[]
-    if (blockType === 'feature-list' || blockType === 'benefits')
-      return [
-        {
-          blockType,
-          heading: String(block.heading || ''),
-          items: Array.isArray(block.items)
-            ? block.items.map((item) => ({
-                text: String((item as Record<string, unknown>).text || ''),
-              }))
-            : [],
-        },
-      ] as ServiceContentBlock[]
-    if (blockType === 'process')
-      return [
-        {
-          blockType,
-          heading: String(block.heading || ''),
-          steps: Array.isArray(block.steps)
-            ? block.steps.map((step) => {
-                const item = step as Record<string, unknown>
-                return {
-                  title: String(item.title || ''),
-                  description: String(item.description || ''),
-                  image: payloadImageUrl(item.image),
-                }
-              })
-            : [],
-        },
-      ] as ServiceContentBlock[]
-    if (blockType === 'gallery')
-      return [
-        {
-          blockType,
-          heading: typeof block.heading === 'string' ? block.heading : undefined,
-          images: Array.isArray(block.images)
-            ? block.images.map(payloadImageUrl).filter((image): image is string => Boolean(image))
-            : [],
-        },
-      ] as ServiceContentBlock[]
-    if (blockType === 'sub-services')
-      return [
-        {
-          blockType,
-          heading: String(block.heading || ''),
-          items: Array.isArray(block.items)
-            ? block.items.map((item) => {
-                const entry = item as Record<string, unknown>
-                return {
-                  title: String(entry.title || ''),
-                  description: String(entry.description || ''),
-                  image: payloadImageUrl(entry.image),
-                  link: typeof entry.link === 'string' ? entry.link : undefined,
-                }
-              })
-            : [],
-        },
-      ] as ServiceContentBlock[]
-    if (blockType === 'video') {
-      const videoUrl =
-        payloadImageUrl(block.video) || (typeof block.videoUrl === 'string' ? block.videoUrl : '')
-      if (!videoUrl) return []
-      return [
-        {
-          blockType,
-          heading: typeof block.heading === 'string' ? block.heading : undefined,
-          videoUrl,
-          poster: payloadImageUrl(block.poster),
-          summary: (block.summary ?? undefined) as RichTextValue | undefined,
-          speakerName: typeof block.speakerName === 'string' ? block.speakerName : undefined,
-          speakerRole: typeof block.speakerRole === 'string' ? block.speakerRole : undefined,
-        },
-      ] as ServiceContentBlock[]
-    }
-    if (blockType === 'icon-feature-list')
-      return [
-        {
-          blockType,
-          heading: String(block.heading || ''),
-          intro: typeof block.intro === 'string' ? block.intro : undefined,
-          image: payloadImageUrl(block.image),
-          imageSide: block.imageSide === 'right' ? 'right' : 'left',
-          items: Array.isArray(block.items)
-            ? block.items.map((item) => {
-                const entry = item as Record<string, unknown>
-                return {
-                  title: String(entry.title || ''),
-                  description: String(entry.description || ''),
-                }
-              })
-            : [],
-        },
-      ] as ServiceContentBlock[]
-    if (blockType === 'checklist')
-      return [
-        {
-          blockType,
-          eyebrow: typeof block.eyebrow === 'string' ? block.eyebrow : undefined,
-          heading: String(block.heading || ''),
-          description: typeof block.description === 'string' ? block.description : undefined,
-          image: payloadImageUrl(block.image),
-          imageSide: block.imageSide === 'right' ? 'right' : 'left',
-          items: Array.isArray(block.items)
-            ? block.items.map((item) => ({
-                text: String((item as Record<string, unknown>).text || ''),
-              }))
-            : [],
-        },
-      ] as ServiceContentBlock[]
-    if (blockType === 'quote')
-      return [
-        {
-          blockType,
-          quote: String(block.quote || ''),
-          attribution: typeof block.attribution === 'string' ? block.attribution : undefined,
-        },
-      ] as ServiceContentBlock[]
-    return []
-  }) as unknown as ServiceContentBlock[]
 }
 
 export async function resolveServiceDetail(slug: string): Promise<ServiceDetail | undefined> {
@@ -627,7 +434,10 @@ export async function resolveServiceDetail(slug: string): Promise<ServiceDetail 
     eyebrow: record.hero?.eyebrow || '',
     image: payloadImageUrl(record.hero?.image) || base.image,
     heroVideoUrl: payloadImageUrl(record.hero?.video) || base.heroVideoUrl,
-    contentBlocks: normalizePayloadBlocks(record.contentBlocks),
+    faqCategoryId:
+      record.faqCategory && typeof record.faqCategory === 'object'
+        ? record.faqCategory.id ?? undefined
+        : record.faqCategory ?? undefined,
     // Rich text overview lists: only include fields with real content so
     // empty editor states keep the static fallback lists.
     overviewRich: record.overview

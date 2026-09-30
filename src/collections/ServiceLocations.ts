@@ -33,26 +33,45 @@ const ensureUniqueServiceLocation: CollectionBeforeValidateHook = async ({
   return data
 }
 
+/**
+ * A city page's per-section switches. `sectionKey` is one of the sections
+ * `ServiceLocationPage` actually checks — it used to be free text, so a typo
+ * silently did nothing. The heading/body/video overrides that used to sit
+ * here were never rendered and have been removed; `image` is read by the
+ * intro section.
+ */
 const sectionOverrideFields = [
   {
     name: 'sectionKey',
-    type: 'text' as const,
+    type: 'select' as const,
     required: true,
-    admin: {
-      description:
-        'Use the inherited section sourceId for repeated block types; a block type may be used for unique sections.',
-    },
+    options: [
+      { label: 'Intro ("Don\'t Settle for a Mediocre…")', value: 'intro' },
+      { label: 'Video', value: 'video' },
+      { label: 'Offerings (sub-service cards)', value: 'offerings' },
+      { label: 'Quote', value: 'quote' },
+      { label: 'Prime Difference', value: 'prime-difference' },
+      { label: 'Reviews', value: 'reviews' },
+      { label: 'Testimonial cards', value: 'testimonial-cards' },
+      { label: 'Silicon Valley loves', value: 'silicon-valley-loves' },
+      { label: 'Contact form', value: 'contact' },
+    ],
   },
   {
     name: 'enabled',
     type: 'checkbox' as const,
     defaultValue: true,
-    admin: { description: 'Turn this inherited section on or off for this location.' },
+    admin: { description: 'Turn this section on or off for this location.' },
   },
-  { name: 'heading', type: 'text' as const },
-  { name: 'body', type: 'textarea' as const },
-  { name: 'image', type: 'upload' as const, relationTo: 'media' as const },
-  { name: 'videoUrl', type: 'text' as const },
+  {
+    name: 'image',
+    type: 'upload' as const,
+    relationTo: 'media' as const,
+    admin: {
+      description: 'Intro only: replaces the section\'s photo on this city page.',
+      condition: (_: unknown, siblingData: { sectionKey?: string }) => siblingData?.sectionKey === 'intro',
+    },
+  },
 ]
 
 /**
@@ -423,10 +442,6 @@ export const ServiceLocations: CollectionConfig = {
               },
             },
             { name: 'featuredImage', type: 'upload', relationTo: 'media' },
-            { name: 'heroHeading', type: 'text' },
-            { name: 'heroDescription', type: 'textarea' },
-            { name: 'intro', type: 'textarea' },
-            { name: 'content', type: 'richText' },
             {
               name: 'sectionOverrides',
               type: 'array',

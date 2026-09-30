@@ -21,7 +21,6 @@ export const Pages: CollectionConfig = {
         { name: 'heading', type: 'text' },
         { name: 'description', type: 'textarea' },
         { name: 'image', type: 'upload', relationTo: 'media' },
-        { name: 'video', type: 'upload', relationTo: 'media' },
         {
           name: 'cta',
           type: 'group',

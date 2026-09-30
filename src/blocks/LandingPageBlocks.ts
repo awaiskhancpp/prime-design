@@ -438,29 +438,6 @@ export const landingPageBlocks: Block[] = [
       ],
     },
   ]),
-  base('testimonials', 'Testimonials', [
-    text('heading'),
-    {
-      name: 'providers',
-      type: 'array' as const,
-      fields: [
-        text('name', true),
-        text('shortcode'),
-        text('collectionId'),
-        {
-          name: 'reviews',
-          type: 'array' as const,
-          fields: [
-            text('reviewer'),
-            { name: 'rating', type: 'number' as const },
-            { name: 'body', type: 'textarea' as const },
-            { name: 'date', type: 'date' as const },
-            text('sourceId'),
-          ],
-        },
-      ],
-    },
-  ]),
   base('landing-testimonials', 'Landing Testimonials', [
     text('eyebrow'),
     text('heading'),
@@ -537,6 +514,37 @@ const serviceFaqBlock: Block = base('faq', 'FAQ', [
   },
 ])
 
+/**
+ * Not offered on service pages at all: the service hero is the collection's
+ * own Hero group (`ServiceHero` renders it). Every service used to carry a
+ * `hero` block as well — a stale copy of the same heading, copy and buttons
+ * that nothing rendered (`ServiceDetailPage` filtered it out), so an edit to
+ * it did nothing.
+ */
+const LANDING_ONLY_ON_SERVICES = new Set([...LANDING_ONLY_BLOCK_SLUGS, 'hero'])
+
+/**
+ * Table names these four blocks already have in the services schema.
+ *
+ * The Services collection used to have a second, hidden block list
+ * (`contentBlocks`) that reused the slugs `gallery`, `image-text`,
+ * `sub-services` and `video` with different fields. Payload stores one table
+ * per block slug per collection, so it gave these Page Builder blocks their own
+ * `…_2` tables and left the plain names to the hidden list. With that list
+ * gone the default names would be the plain ones again, which a migration can
+ * only reach by dropping the `_2` tables and their rows. Pinning the names
+ * keeps the data exactly where it is.
+ */
+const SERVICE_BLOCK_TABLES: Record<string, string> = {
+  gallery: 'services_blocks_gallery_2',
+  'image-text': 'services_blocks_image_text_2',
+  'sub-services': 'services_blocks_sub_services_2',
+  video: 'services_blocks_video_2',
+}
+
 export const servicePageBlocks: Block[] = landingPageBlocks
-  .filter((block) => !LANDING_ONLY_BLOCK_SLUGS.has(block.slug))
+  .filter((block) => !LANDING_ONLY_ON_SERVICES.has(block.slug))
   .map((block) => (block.slug === 'faq' ? serviceFaqBlock : block))
+  .map((block) =>
+    SERVICE_BLOCK_TABLES[block.slug] ? { ...block, dbName: SERVICE_BLOCK_TABLES[block.slug] } : block,
+  )

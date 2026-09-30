@@ -20,9 +20,6 @@ export type ServiceLocation = {
   location: Location
   slug: string
   seoDescription?: string
-  heroHeading?: string
-  heroDescription?: string
-  intro?: string
   featuredImage?: string
   sectionOverrides?: ServiceLocationSectionOverride[]
   /** Location-page section overrides — empty = inherit from the parent service. */
@@ -86,10 +83,7 @@ export type ServiceLocation = {
 export type ServiceLocationSectionOverride = {
   sectionKey: string
   enabled?: boolean
-  heading?: string
-  body?: string
   image?: string
-  videoUrl?: string
 }
 
 export async function getServiceLocation(serviceSlug: string, locationSlugValue: string) {
@@ -244,10 +238,7 @@ export async function getServiceLocation(serviceSlug: string, locationSlugValue:
           .map((override) => ({
             sectionKey: String(override.sectionKey || ''),
             enabled: override.enabled !== false,
-            heading: typeof override.heading === 'string' ? override.heading : undefined,
-            body: typeof override.body === 'string' ? override.body : undefined,
             image: mediaUrl(override.image),
-            videoUrl: typeof override.videoUrl === 'string' ? override.videoUrl : undefined,
           }))
           .filter((override) => Boolean(override.sectionKey))
       : undefined
@@ -261,10 +252,12 @@ export async function getServiceLocation(serviceSlug: string, locationSlugValue:
         relatedLocation.seo?.metaDescription ||
         relatedLocation.seoDescription ||
         serviceDetail.lead,
-      seo: doc.seo || relatedLocation.seo || relatedService.seo,
-      heroHeading: doc.heroHeading || undefined,
-      heroDescription: doc.heroDescription || undefined,
-      intro: doc.intro || undefined,
+      // The city page's own SEO only. Every one of the 45 records carries a
+      // title, description and canonical of its own; the old
+      // `doc.seo || location.seo || service.seo` never fell through anyway
+      // (Payload returns the group as an object even when it is empty), and
+      // inheriting would hand a city page the service's canonical URL.
+      seo: doc.seo,
       featuredImage: mediaUrl(doc.featuredImage),
       sectionOverrides,
       locationHero,
@@ -277,9 +270,6 @@ export async function getServiceLocation(serviceSlug: string, locationSlugValue:
       testimonialCards,
       service: {
         ...serviceDetail,
-        title: doc.heroHeading || serviceDetail.title,
-        eyebrow: doc.heroHeading || serviceDetail.eyebrow,
-        lead: doc.heroDescription || doc.intro || serviceDetail.lead,
         image:
           mediaUrl(doc.featuredImage) ||
           mediaUrl(relatedLocation.featuredImage) ||

@@ -187,7 +187,6 @@ export type PageFaqIndexContent = {
   eyebrow?: string
   heading?: string
   description?: string
-  searchPlaceholder?: string
   allLabel?: string
   emptyMessage?: string
 }
@@ -589,7 +588,6 @@ export function toPageSection(block: PageBlock): PageSection | undefined {
           eyebrow: optionalText(block.eyebrow),
           heading: optionalText(block.heading),
           description: optionalText(block.description),
-          searchPlaceholder: optionalText(block.searchPlaceholder),
           allLabel: optionalText(block.allLabel),
           emptyMessage: optionalText(block.emptyMessage),
         },

@@ -1,4 +1,3 @@
-import Link from 'next/link'
 import type { ReactNode } from 'react'
 
 import { LandscapingServiceAreas } from '@/components/blocks/LandscapingServiceAreas'
@@ -398,114 +397,6 @@ function GalleryCarouselBlock({ block }: { block: Block }) {
   return <GalleryBlock block={{ ...block, groups: [], items: block.items }} />
 }
 
-function FeatureBlock({ block }: { block: Block }) {
-  const features = Array.isArray(block.features)
-    ? block.features
-        .map((item) => item as Record<string, unknown>)
-        .filter((item) => text(item.title))
-    : []
-  if (!text(block.heading)) return <UnsupportedLandingBlock block={block} />
-  return (
-    <Section className="bg-ink-2 text-white">
-      <p className="text-xs font-semibold uppercase tracking-[0.2em] text-brass">
-        {text(block.eyebrow)}
-      </p>
-      <h2 className="mt-3 font-display text-3xl font-medium md:text-5xl">{text(block.heading)}</h2>
-      {text(block.description) ? (
-        <p className="mt-4 max-w-3xl text-white/75">{text(block.description)}</p>
-      ) : null}
-      {features.length ? (
-        <div className="mt-8 grid gap-4 md:grid-cols-2">
-          {features.map((item) => (
-            <article key={text(item.title)} className="border border-white/10 p-5">
-              <h3 className="font-display text-xl">{text(item.title)}</h3>
-              {text(item.description) ? (
-                <p className="mt-2 text-sm leading-6 text-white/75">{text(item.description)}</p>
-              ) : null}
-            </article>
-          ))}
-        </div>
-      ) : null}
-    </Section>
-  )
-}
-
-function ServiceAreasBlock({ block }: { block: Block }) {
-  const areas = Array.isArray(block.areas)
-    ? block.areas.map((item) => item as Record<string, unknown>).filter((item) => text(item.label))
-    : []
-  if (!areas.length || !text(block.heading)) return <UnsupportedLandingBlock block={block} />
-  return (
-    <Section>
-      <p className="text-xs font-semibold uppercase tracking-[0.2em] text-brass">
-        {text(block.eyebrow)}
-      </p>
-      <h2 className="mt-3 font-display text-3xl font-medium text-ink md:text-5xl">
-        {text(block.heading)}
-      </h2>
-      <div className="mt-8 flex flex-wrap gap-3">
-        {areas.map((area) => {
-          const link = area.link as Record<string, unknown> | undefined
-          const label = text(area.label)!
-          return link?.url ? (
-            <Link
-              key={label}
-              href={text(link.url)!}
-              className="border border-line px-4 py-3 text-sm text-ink"
-            >
-              {label}
-            </Link>
-          ) : (
-            <span key={label} className="border border-line px-4 py-3 text-sm text-ink">
-              {label}
-            </span>
-          )
-        })}
-      </div>
-    </Section>
-  )
-}
-
-function RepairServicesBlock({ block }: { block: Block }) {
-  const categories = Array.isArray(block.categories)
-    ? block.categories
-        .map((item) => item as Record<string, unknown>)
-        .filter((item) => text(item.title))
-    : []
-  if (!categories.length || !text(block.heading)) return <UnsupportedLandingBlock block={block} />
-  return (
-    <Section>
-      <h2 className="font-display text-3xl font-medium text-ink md:text-5xl">
-        {text(block.heading)}
-      </h2>
-      {text(block.description) ? (
-        <p className="mt-4 max-w-3xl text-ink-2/75">{text(block.description)}</p>
-      ) : null}
-      <div className="mt-8 grid gap-6 md:grid-cols-2">
-        {categories.map((category) => (
-          <article key={text(category.title)} className="border border-line bg-white p-6">
-            <h3 className="font-display text-2xl text-ink">{text(category.title)}</h3>
-            {richTextToPlainText(category.description) ? (
-              <p className="mt-3 text-sm leading-6 text-ink-2/75">
-                {richTextToPlainText(category.description)}
-              </p>
-            ) : null}
-            {Array.isArray(category.features) ? (
-              <ul className="mt-4 list-disc space-y-2 pl-5 text-sm text-ink-2/75">
-                {category.features.map((feature) => (
-                  <li key={text((feature as Record<string, unknown>).text)}>
-                    {text((feature as Record<string, unknown>).text)}
-                  </li>
-                ))}
-              </ul>
-            ) : null}
-          </article>
-        ))}
-      </div>
-    </Section>
-  )
-}
-
 /**
  * `service` is the landing page's own service (`LandingPages.service`), for
  * the blocks whose forms book something. Other callers of the shared registry
@@ -693,7 +584,6 @@ export const landingBlockRegistry: Record<string, Renderer> = {
     />
   ),
   faq: FaqBlock,
-  testimonials: () => <TestimonialsSpotlightSection />,
   // `landing-testimonials` — the structured version WordPress authors on the
   // Google-Ads landing pages ("Our Happy Customers"). When the block carries
   // providers with reviews it renders the CMS-driven provider-tabs marquee;

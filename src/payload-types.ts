@@ -336,225 +336,11 @@ export interface Service {
         id?: string | null;
       }[]
     | null;
-  contentBlocks?:
-    | (
-        | {
-            eyebrow?: string | null;
-            heading: string;
-            body: string;
-            image?: (number | null) | Media;
-            imageSide?: ('left' | 'right') | null;
-            id?: string | null;
-            blockName?: string | null;
-            blockType: 'intro';
-          }
-        | {
-            heading: string;
-            items?:
-              | {
-                  text: string;
-                  id?: string | null;
-                }[]
-              | null;
-            id?: string | null;
-            blockName?: string | null;
-            blockType: 'feature-list';
-          }
-        | {
-            heading: string;
-            items?:
-              | {
-                  text: string;
-                  id?: string | null;
-                }[]
-              | null;
-            id?: string | null;
-            blockName?: string | null;
-            blockType: 'benefits';
-          }
-        | {
-            heading: string;
-            steps?:
-              | {
-                  title: string;
-                  description: string;
-                  image?: (number | null) | Media;
-                  id?: string | null;
-                }[]
-              | null;
-            id?: string | null;
-            blockName?: string | null;
-            blockType: 'process';
-          }
-        | {
-            eyebrow?: string | null;
-            heading: string;
-            body: string;
-            image?: (number | null) | Media;
-            imageSide?: ('left' | 'right') | null;
-            id?: string | null;
-            blockName?: string | null;
-            blockType: 'image-text';
-          }
-        | {
-            heading?: string | null;
-            images?: (number | Media)[] | null;
-            id?: string | null;
-            blockName?: string | null;
-            blockType: 'gallery';
-          }
-        | {
-            heading: string;
-            items?:
-              | {
-                  title: string;
-                  description: string;
-                  image?: (number | null) | Media;
-                  link?: string | null;
-                  id?: string | null;
-                }[]
-              | null;
-            id?: string | null;
-            blockName?: string | null;
-            blockType: 'sub-services';
-          }
-        | {
-            heading?: string | null;
-            /**
-             * Optional uploaded video. If empty, the external video URL can be used.
-             */
-            video?: (number | null) | Media;
-            videoUrl?: string | null;
-            poster?: (number | null) | Media;
-            /**
-             * Short summary or quote from the video. Renders under the player, like a testimonial.
-             */
-            summary?: {
-              root: {
-                type: string;
-                children: {
-                  type: any;
-                  version: number;
-                  [k: string]: unknown;
-                }[];
-                direction: ('ltr' | 'rtl') | null;
-                format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
-                indent: number;
-                version: number;
-              };
-              [k: string]: unknown;
-            } | null;
-            /**
-             * Only when the video names the speaker (on-screen lower-third or the source page). Leave empty if unknown.
-             */
-            speakerName?: string | null;
-            /**
-             * e.g. "Homeowner", "Co-Owner", "Project Manager".
-             */
-            speakerRole?: string | null;
-            id?: string | null;
-            blockName?: string | null;
-            blockType: 'video';
-          }
-        | {
-            heading: string;
-            intro?: string | null;
-            image?: (number | null) | Media;
-            imageSide?: ('left' | 'right') | null;
-            items?:
-              | {
-                  title: string;
-                  description: string;
-                  id?: string | null;
-                }[]
-              | null;
-            id?: string | null;
-            blockName?: string | null;
-            blockType: 'icon-feature-list';
-          }
-        | {
-            eyebrow?: string | null;
-            heading: string;
-            /**
-             * Short italic lead-in line above the checklist, e.g. "Unleash the Beauty and Durability:"
-             */
-            description?: string | null;
-            image?: (number | null) | Media;
-            imageSide?: ('left' | 'right') | null;
-            items?:
-              | {
-                  text: string;
-                  id?: string | null;
-                }[]
-              | null;
-            id?: string | null;
-            blockName?: string | null;
-            blockType: 'checklist';
-          }
-        | {
-            quote: string;
-            attribution?: string | null;
-            id?: string | null;
-            blockName?: string | null;
-            blockType: 'quote';
-          }
-      )[]
-    | null;
   /**
    * Visual page blocks. Click "Add Block" below to compose your page.
    */
   sections?:
     | (
-        | {
-            eyebrow?: string | null;
-            heading: string;
-            description?: string | null;
-            backgroundMedia?: {
-              asset?: (number | null) | Media;
-              alt?: string | null;
-              caption?: string | null;
-              sourceAttachmentId?: number | null;
-              sourceUrl?: string | null;
-            };
-            backgroundVideo?: {
-              asset?: (number | null) | Media;
-              alt?: string | null;
-              caption?: string | null;
-              sourceAttachmentId?: number | null;
-              sourceUrl?: string | null;
-            };
-            foregroundMedia?: {
-              asset?: (number | null) | Media;
-              alt?: string | null;
-              caption?: string | null;
-              sourceAttachmentId?: number | null;
-              sourceUrl?: string | null;
-            };
-            buttons?:
-              | {
-                  label: string;
-                  url: string;
-                  variant?: ('primary' | 'secondary' | 'text' | 'outline') | null;
-                  openInNewTab?: boolean | null;
-                  id?: string | null;
-                }[]
-              | null;
-            sourceId?: string | null;
-            sourceElementType?: string | null;
-            sourceAttachmentId?: number | null;
-            sourceMetadata?:
-              | {
-                  [k: string]: unknown;
-                }
-              | unknown[]
-              | string
-              | number
-              | boolean
-              | null;
-            id?: string | null;
-            blockName?: string | null;
-            blockType: 'hero';
-          }
         | {
             eyebrow?: string | null;
             heading?: string | null;
@@ -1297,42 +1083,6 @@ export interface Service {
             blockType: 'find-us';
           }
         | {
-            heading?: string | null;
-            providers?:
-              | {
-                  name: string;
-                  shortcode?: string | null;
-                  collectionId?: string | null;
-                  reviews?:
-                    | {
-                        reviewer?: string | null;
-                        rating?: number | null;
-                        body?: string | null;
-                        date?: string | null;
-                        sourceId?: string | null;
-                        id?: string | null;
-                      }[]
-                    | null;
-                  id?: string | null;
-                }[]
-              | null;
-            sourceId?: string | null;
-            sourceElementType?: string | null;
-            sourceAttachmentId?: number | null;
-            sourceMetadata?:
-              | {
-                  [k: string]: unknown;
-                }
-              | unknown[]
-              | string
-              | number
-              | boolean
-              | null;
-            id?: string | null;
-            blockName?: string | null;
-            blockType: 'testimonials';
-          }
-        | {
             eyebrow?: string | null;
             heading?: string | null;
             description?: string | null;
@@ -1878,13 +1628,9 @@ export interface Service {
       | null;
   };
   /**
-   * Select FAQs relevant to this service
+   * The FAQ section on this page lists every question in this category, in its own order. Empty hides the section.
    */
-  faqs?: (number | Faq)[] | null;
-  /**
-   * Select services to recommend alongside this one
-   */
-  relatedServices?: (number | Service)[] | null;
+  faqCategory?: (number | null) | FaqCategory;
   /**
    * Search-engine and social-share metadata. Titles and descriptions are migrated from the WordPress Rank Math data — keep them unique per page.
    */
@@ -2173,41 +1919,29 @@ export interface ServiceLocation {
    */
   city?: string | null;
   featuredImage?: (number | null) | Media;
-  heroHeading?: string | null;
-  heroDescription?: string | null;
-  intro?: string | null;
-  content?: {
-    root: {
-      type: string;
-      children: {
-        type: any;
-        version: number;
-        [k: string]: unknown;
-      }[];
-      direction: ('ltr' | 'rtl') | null;
-      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
-      indent: number;
-      version: number;
-    };
-    [k: string]: unknown;
-  } | null;
   /**
    * Optional location-only changes. Leave empty to inherit the complete service template.
    */
   sectionOverrides?:
     | {
+        sectionKey:
+          | 'intro'
+          | 'video'
+          | 'offerings'
+          | 'quote'
+          | 'prime-difference'
+          | 'reviews'
+          | 'testimonial-cards'
+          | 'silicon-valley-loves'
+          | 'contact';
         /**
-         * Use the inherited section sourceId for repeated block types; a block type may be used for unique sections.
-         */
-        sectionKey: string;
-        /**
-         * Turn this inherited section on or off for this location.
+         * Turn this section on or off for this location.
          */
         enabled?: boolean | null;
-        heading?: string | null;
-        body?: string | null;
+        /**
+         * Intro only: replaces the section's photo on this city page.
+         */
         image?: (number | null) | Media;
-        videoUrl?: string | null;
         id?: string | null;
       }[]
     | null;
@@ -2262,7 +1996,6 @@ export interface Page {
     heading?: string | null;
     description?: string | null;
     image?: (number | null) | Media;
-    video?: (number | null) | Media;
     cta?: {
       label?: string | null;
       href?: string | null;
@@ -2416,21 +2149,6 @@ export interface Page {
              * Word(s) of the heading to render in the accent color, e.g. "projects". Separate multiple phrases with |.
              */
             headingHighlight?: string | null;
-            body?: {
-              root: {
-                type: string;
-                children: {
-                  type: any;
-                  version: number;
-                  [k: string]: unknown;
-                }[];
-                direction: ('ltr' | 'rtl') | null;
-                format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
-                indent: number;
-                version: number;
-              };
-              [k: string]: unknown;
-            } | null;
             id?: string | null;
             blockName?: string | null;
             blockType: 'projects';
@@ -2442,21 +2160,6 @@ export interface Page {
              * Word(s) of the heading to render in the accent color, e.g. "services". Separate multiple phrases with |.
              */
             headingHighlight?: string | null;
-            body?: {
-              root: {
-                type: string;
-                children: {
-                  type: any;
-                  version: number;
-                  [k: string]: unknown;
-                }[];
-                direction: ('ltr' | 'rtl') | null;
-                format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
-                indent: number;
-                version: number;
-              };
-              [k: string]: unknown;
-            } | null;
             id?: string | null;
             blockName?: string | null;
             blockType: 'services';
@@ -2750,10 +2453,9 @@ export interface Page {
             eyebrow?: string | null;
             heading?: string | null;
             /**
-             * Line above the search field, e.g. "Browse by category or search below".
+             * Line under the heading, e.g. "Browse by category to find what you need."
              */
             description?: string | null;
-            searchPlaceholder?: string | null;
             /**
              * Label for the category that shows every question, e.g. "All questions".
              */
@@ -3028,7 +2730,13 @@ export interface Page {
               };
               [k: string]: unknown;
             } | null;
+            /**
+             * The band's button, e.g. "Get started". Empty shows no button.
+             */
             label?: string | null;
+            /**
+             * Where the button goes, e.g. /contact.
+             */
             href?: string | null;
             id?: string | null;
             blockName?: string | null;
@@ -3382,49 +3090,7 @@ export interface Blog {
     };
     [k: string]: unknown;
   } | null;
-  /**
-   * Only applies to the free-form content field above.
-   */
-  enableTOC?: boolean | null;
-  tocTitle?: string | null;
-  /**
-   * Auto-generated from H2 headings in the free-form content field.
-   */
-  tableOfContents?:
-    | {
-        anchorId?: string | null;
-        text: string;
-        id?: string | null;
-      }[]
-    | null;
-  faqHeading?: string | null;
-  faq?:
-    | {
-        question: string;
-        answer: {
-          root: {
-            type: string;
-            children: {
-              type: any;
-              version: number;
-              [k: string]: unknown;
-            }[];
-            direction: ('ltr' | 'rtl') | null;
-            format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
-            indent: number;
-            version: number;
-          };
-          [k: string]: unknown;
-        };
-        id?: string | null;
-      }[]
-    | null;
   categories?: (number | BlogCategory)[] | null;
-  /**
-   * Enter tags and press enter to add multiple tags
-   */
-  tags?: string[] | null;
-  relatedPosts?: (number | Blog)[] | null;
   seo?: {
     /**
      * Overrides the default title. Aim for 50–60 characters; source titles are not truncated.
@@ -3442,11 +3108,6 @@ export interface Blog {
     canonical_url?: string | null;
     no_index?: boolean | null;
   };
-  /**
-   * Feature on homepage
-   */
-  featured?: boolean | null;
-  readingTime?: number | null;
   createdBy?: (number | null) | User;
   updatedBy?: (number | null) | User;
   updatedAt: string;
@@ -3481,27 +3142,10 @@ export interface LandingPage {
   title: string;
   slug: string;
   status?: ('draft' | 'published') | null;
-  template?: 'information' | null;
   /**
    * The service this page advertises. Its booking form books this service. Leave empty if none fits.
    */
   service?: (number | null) | Service;
-  hero: {
-    eyebrow?: string | null;
-    heading: string;
-    description?: string | null;
-    backgroundMedia?: (number | null) | Media;
-    foregroundMedia?: (number | null) | Media;
-    buttons?:
-      | {
-          label: string;
-          url: string;
-          variant?: ('primary' | 'secondary' | 'text' | 'outline') | null;
-          openInNewTab?: boolean | null;
-          id?: string | null;
-        }[]
-      | null;
-  };
   sections: (
     | {
         eyebrow?: string | null;
@@ -4389,42 +4033,6 @@ export interface LandingPage {
         blockType: 'find-us';
       }
     | {
-        heading?: string | null;
-        providers?:
-          | {
-              name: string;
-              shortcode?: string | null;
-              collectionId?: string | null;
-              reviews?:
-                | {
-                    reviewer?: string | null;
-                    rating?: number | null;
-                    body?: string | null;
-                    date?: string | null;
-                    sourceId?: string | null;
-                    id?: string | null;
-                  }[]
-                | null;
-              id?: string | null;
-            }[]
-          | null;
-        sourceId?: string | null;
-        sourceElementType?: string | null;
-        sourceAttachmentId?: number | null;
-        sourceMetadata?:
-          | {
-              [k: string]: unknown;
-            }
-          | unknown[]
-          | string
-          | number
-          | boolean
-          | null;
-        id?: string | null;
-        blockName?: string | null;
-        blockType: 'testimonials';
-      }
-    | {
         eyebrow?: string | null;
         heading?: string | null;
         description?: string | null;
@@ -4582,13 +4190,6 @@ export interface LandingPage {
         blockType: 'gallery-carousel';
       }
   )[];
-  campaignTracking?: {
-    campaignName?: string | null;
-    source?: string | null;
-    medium?: string | null;
-    term?: string | null;
-    content?: string | null;
-  };
   /**
    * Search-engine and social-share metadata. Titles and descriptions are migrated from the WordPress Rank Math data — keep them unique per page.
    */
@@ -5098,204 +4699,9 @@ export interface ServicesSelect<T extends boolean = true> {
         section?: T;
         id?: T;
       };
-  contentBlocks?:
-    | T
-    | {
-        intro?:
-          | T
-          | {
-              eyebrow?: T;
-              heading?: T;
-              body?: T;
-              image?: T;
-              imageSide?: T;
-              id?: T;
-              blockName?: T;
-            };
-        'feature-list'?:
-          | T
-          | {
-              heading?: T;
-              items?:
-                | T
-                | {
-                    text?: T;
-                    id?: T;
-                  };
-              id?: T;
-              blockName?: T;
-            };
-        benefits?:
-          | T
-          | {
-              heading?: T;
-              items?:
-                | T
-                | {
-                    text?: T;
-                    id?: T;
-                  };
-              id?: T;
-              blockName?: T;
-            };
-        process?:
-          | T
-          | {
-              heading?: T;
-              steps?:
-                | T
-                | {
-                    title?: T;
-                    description?: T;
-                    image?: T;
-                    id?: T;
-                  };
-              id?: T;
-              blockName?: T;
-            };
-        'image-text'?:
-          | T
-          | {
-              eyebrow?: T;
-              heading?: T;
-              body?: T;
-              image?: T;
-              imageSide?: T;
-              id?: T;
-              blockName?: T;
-            };
-        gallery?:
-          | T
-          | {
-              heading?: T;
-              images?: T;
-              id?: T;
-              blockName?: T;
-            };
-        'sub-services'?:
-          | T
-          | {
-              heading?: T;
-              items?:
-                | T
-                | {
-                    title?: T;
-                    description?: T;
-                    image?: T;
-                    link?: T;
-                    id?: T;
-                  };
-              id?: T;
-              blockName?: T;
-            };
-        video?:
-          | T
-          | {
-              heading?: T;
-              video?: T;
-              videoUrl?: T;
-              poster?: T;
-              summary?: T;
-              speakerName?: T;
-              speakerRole?: T;
-              id?: T;
-              blockName?: T;
-            };
-        'icon-feature-list'?:
-          | T
-          | {
-              heading?: T;
-              intro?: T;
-              image?: T;
-              imageSide?: T;
-              items?:
-                | T
-                | {
-                    title?: T;
-                    description?: T;
-                    id?: T;
-                  };
-              id?: T;
-              blockName?: T;
-            };
-        checklist?:
-          | T
-          | {
-              eyebrow?: T;
-              heading?: T;
-              description?: T;
-              image?: T;
-              imageSide?: T;
-              items?:
-                | T
-                | {
-                    text?: T;
-                    id?: T;
-                  };
-              id?: T;
-              blockName?: T;
-            };
-        quote?:
-          | T
-          | {
-              quote?: T;
-              attribution?: T;
-              id?: T;
-              blockName?: T;
-            };
-      };
   sections?:
     | T
     | {
-        hero?:
-          | T
-          | {
-              eyebrow?: T;
-              heading?: T;
-              description?: T;
-              backgroundMedia?:
-                | T
-                | {
-                    asset?: T;
-                    alt?: T;
-                    caption?: T;
-                    sourceAttachmentId?: T;
-                    sourceUrl?: T;
-                  };
-              backgroundVideo?:
-                | T
-                | {
-                    asset?: T;
-                    alt?: T;
-                    caption?: T;
-                    sourceAttachmentId?: T;
-                    sourceUrl?: T;
-                  };
-              foregroundMedia?:
-                | T
-                | {
-                    asset?: T;
-                    alt?: T;
-                    caption?: T;
-                    sourceAttachmentId?: T;
-                    sourceUrl?: T;
-                  };
-              buttons?:
-                | T
-                | {
-                    label?: T;
-                    url?: T;
-                    variant?: T;
-                    openInNewTab?: T;
-                    id?: T;
-                  };
-              sourceId?: T;
-              sourceElementType?: T;
-              sourceAttachmentId?: T;
-              sourceMetadata?: T;
-              id?: T;
-              blockName?: T;
-            };
         cta?:
           | T
           | {
@@ -5847,35 +5253,6 @@ export interface ServicesSelect<T extends boolean = true> {
               id?: T;
               blockName?: T;
             };
-        testimonials?:
-          | T
-          | {
-              heading?: T;
-              providers?:
-                | T
-                | {
-                    name?: T;
-                    shortcode?: T;
-                    collectionId?: T;
-                    reviews?:
-                      | T
-                      | {
-                          reviewer?: T;
-                          rating?: T;
-                          body?: T;
-                          date?: T;
-                          sourceId?: T;
-                          id?: T;
-                        };
-                    id?: T;
-                  };
-              sourceId?: T;
-              sourceElementType?: T;
-              sourceAttachmentId?: T;
-              sourceMetadata?: T;
-              id?: T;
-              blockName?: T;
-            };
         'landing-testimonials'?:
           | T
           | {
@@ -6195,8 +5572,7 @@ export interface ServicesSelect<T extends boolean = true> {
               id?: T;
             };
       };
-  faqs?: T;
-  relatedServices?: T;
+  faqCategory?: T;
   seo?:
     | T
     | {
@@ -6357,19 +5733,12 @@ export interface ServiceLocationsSelect<T extends boolean = true> {
       };
   city?: T;
   featuredImage?: T;
-  heroHeading?: T;
-  heroDescription?: T;
-  intro?: T;
-  content?: T;
   sectionOverrides?:
     | T
     | {
         sectionKey?: T;
         enabled?: T;
-        heading?: T;
-        body?: T;
         image?: T;
-        videoUrl?: T;
         id?: T;
       };
   seo?:
@@ -6400,7 +5769,6 @@ export interface PagesSelect<T extends boolean = true> {
         heading?: T;
         description?: T;
         image?: T;
-        video?: T;
         cta?:
           | T
           | {
@@ -6477,7 +5845,6 @@ export interface PagesSelect<T extends boolean = true> {
               eyebrow?: T;
               heading?: T;
               headingHighlight?: T;
-              body?: T;
               id?: T;
               blockName?: T;
             };
@@ -6487,7 +5854,6 @@ export interface PagesSelect<T extends boolean = true> {
               eyebrow?: T;
               heading?: T;
               headingHighlight?: T;
-              body?: T;
               id?: T;
               blockName?: T;
             };
@@ -6639,7 +6005,6 @@ export interface PagesSelect<T extends boolean = true> {
               eyebrow?: T;
               heading?: T;
               description?: T;
-              searchPlaceholder?: T;
               allLabel?: T;
               emptyMessage?: T;
               id?: T;
@@ -6984,26 +6349,7 @@ export interface BlogSelect<T extends boolean = true> {
         id?: T;
       };
   content?: T;
-  enableTOC?: T;
-  tocTitle?: T;
-  tableOfContents?:
-    | T
-    | {
-        anchorId?: T;
-        text?: T;
-        id?: T;
-      };
-  faqHeading?: T;
-  faq?:
-    | T
-    | {
-        question?: T;
-        answer?: T;
-        id?: T;
-      };
   categories?: T;
-  tags?: T;
-  relatedPosts?: T;
   seo?:
     | T
     | {
@@ -7014,8 +6360,6 @@ export interface BlogSelect<T extends boolean = true> {
         canonical_url?: T;
         no_index?: T;
       };
-  featured?: T;
-  readingTime?: T;
   createdBy?: T;
   updatedBy?: T;
   updatedAt?: T;
@@ -7043,26 +6387,7 @@ export interface LandingPagesSelect<T extends boolean = true> {
   title?: T;
   slug?: T;
   status?: T;
-  template?: T;
   service?: T;
-  hero?:
-    | T
-    | {
-        eyebrow?: T;
-        heading?: T;
-        description?: T;
-        backgroundMedia?: T;
-        foregroundMedia?: T;
-        buttons?:
-          | T
-          | {
-              label?: T;
-              url?: T;
-              variant?: T;
-              openInNewTab?: T;
-              id?: T;
-            };
-      };
   sections?:
     | T
     | {
@@ -7756,35 +7081,6 @@ export interface LandingPagesSelect<T extends boolean = true> {
               id?: T;
               blockName?: T;
             };
-        testimonials?:
-          | T
-          | {
-              heading?: T;
-              providers?:
-                | T
-                | {
-                    name?: T;
-                    shortcode?: T;
-                    collectionId?: T;
-                    reviews?:
-                      | T
-                      | {
-                          reviewer?: T;
-                          rating?: T;
-                          body?: T;
-                          date?: T;
-                          sourceId?: T;
-                          id?: T;
-                        };
-                    id?: T;
-                  };
-              sourceId?: T;
-              sourceElementType?: T;
-              sourceAttachmentId?: T;
-              sourceMetadata?: T;
-              id?: T;
-              blockName?: T;
-            };
         'landing-testimonials'?:
           | T
           | {
@@ -7890,15 +7186,6 @@ export interface LandingPagesSelect<T extends boolean = true> {
               id?: T;
               blockName?: T;
             };
-      };
-  campaignTracking?:
-    | T
-    | {
-        campaignName?: T;
-        source?: T;
-        medium?: T;
-        term?: T;
-        content?: T;
       };
   seo?:
     | T

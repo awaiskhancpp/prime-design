@@ -39,7 +39,6 @@ import { ServiceCraftsmanshipTransformsSection } from './sections/ServiceCraftsm
 // Extracted building blocks (see each file for details).
 import { getServicePageSections } from './servicePageLayout'
 import { ServiceOverview } from './ServiceOverview'
-import { ServiceContentBlocks } from './ServiceContentBlocks'
 import {
   ServiceSectionRenderer,
   renderSection,
@@ -132,27 +131,11 @@ export function ServiceTemplate({ service }: { service: ServiceDetail }) {
 
   // ---- 2. Collect the CMS-authored content ------------------------------
 
-  const hasCmsBlocks = Boolean(service.contentBlocks?.length)
   const hasOverviewRich = Boolean(
     service.overviewRich?.keyFeatures ||
     service.overviewRich?.benefits ||
     service.overviewRich?.process,
   )
-  const cmsQuote = service.contentBlocks?.find((block) => block.blockType === 'quote')
-  const cmsVideos = service.contentBlocks?.filter((block) => block.blockType === 'video') ?? []
-
-  const contentBlocks = service.contentBlocks?.filter((block) => {
-    if (
-      block.blockType === 'video' ||
-      block.blockType === 'process' ||
-      block.blockType === 'gallery' ||
-      block.blockType === 'quote'
-    ) {
-      return false
-    }
-    return true
-  })
-
   // Non-hero CMS sections, in Payload order. The hero is excluded because
   // `ServiceHero` always renders it from the service record itself.
   const cmsContentSections = (service.sections ?? []).filter(
@@ -204,20 +187,7 @@ export function ServiceTemplate({ service }: { service: ServiceDetail }) {
     if (key.startsWith('shared-registry-')) cmsSlotNodes.delete(key)
   }
 
-  // Video section: only CMS 'video' blocks (Payload).
-  const legacyVideoSection = cmsVideos.length
-    ? cmsVideos.map((block, index) =>
-        block.blockType === 'video' ? (
-          <ServiceVideoSection
-            key={`video-${index}`}
-            title={block.heading || ''}
-            videoUrl={block.videoUrl}
-            poster={block.poster}
-          />
-        ) : null,
-      )
-    : null
-  const videoSection = cmsSlotNodes.get('video') ?? legacyVideoSection
+  const videoSection = cmsSlotNodes.get('video') ?? null
 
   // ---- 3. Build one node per section slot -------------------------------
 
@@ -232,19 +202,13 @@ export function ServiceTemplate({ service }: { service: ServiceDetail }) {
         'shaker-kitchen',
       ) ? null : !sections.homeRepairCategories && hasOverviewRich ? (
         // Rich-text overview lists (Key Features / Benefits / Process) from
-        // Payload take priority over both the legacy checklist blocks and
-        // the built-in static arrays.
+        // Payload take priority over the built-in static arrays.
         <ServiceOverview
           service={service}
           showInlineProcess={sections.inlineProcess}
           hasVisualProcess={sections.visualProcess}
         />
-      ) : !sections.homeRepairCategories && contentBlocks?.length ? (
-        <Section>
-          <ServiceContentBlocks service={service} blocks={contentBlocks} />
-        </Section>
       ) : !sections.homeRepairCategories &&
-        !hasCmsBlocks &&
         !(hasCmsSections && cmsHas('image-text', 'sub-services', 'prime-difference')) ? (
         <ServiceOverview
           service={service}
@@ -529,19 +493,12 @@ export function ServiceTemplate({ service }: { service: ServiceDetail }) {
             attribution={service.quote.attribution || ''}
             image={service.quote.image || service.image}
           />
-        ) : sections.quote && cmsQuote && cmsQuote.blockType === 'quote' ? (
-          <ServiceQuoteSection
-            heading="Our promise"
-            quote={cmsQuote.quote}
-            attribution={cmsQuote.attribution || 'Prime Design & Build'}
-            image={service.image}
-          />
         ) : null),
     },
     {
       key: 'faq',
       node:
-        cmsSlotNodes.get('faq') ?? (sections.faq ? <ServiceFaqLoader slug={service.slug} /> : null),
+        cmsSlotNodes.get('faq') ?? (sections.faq ? <ServiceFaqLoader categoryId={service.faqCategoryId} /> : null),
     },
     {
       key: 'estimate',
@@ -840,5 +797,4 @@ export const ServiceDetailPage = ServiceTemplate
 
 // Re-exported for compatibility with older imports that pulled these from
 // this file (each now lives in its own module).
-export { ServiceContentBlocks } from './ServiceContentBlocks'
 export { ServiceSectionRenderer } from './ServiceSectionRenderer'

@@ -170,7 +170,6 @@ export const projectsBlock: Block = {
     { name: 'eyebrow', type: 'text' },
     { name: 'heading', type: 'text' },
     headingHighlight('projects'),
-    { name: 'body', type: 'richText' },
   ],
 }
 
@@ -181,7 +180,6 @@ export const servicesBlock: Block = {
     { name: 'eyebrow', type: 'text' },
     { name: 'heading', type: 'text' },
     headingHighlight('services'),
-    { name: 'body', type: 'richText' },
   ],
 }
 
@@ -551,10 +549,9 @@ export const faqIndexBlock: Block = {
       name: 'description',
       type: 'textarea',
       admin: {
-        description: 'Line above the search field, e.g. "Browse by category or search below".',
+        description: 'Line under the heading, e.g. "Browse by category to find what you need."',
       },
     },
-    { name: 'searchPlaceholder', type: 'text' },
     {
       name: 'allLabel',
       type: 'text',

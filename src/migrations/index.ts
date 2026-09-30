@@ -83,6 +83,10 @@ import * as migration_20260930_200000_baseline_schema_alignment from './20260930
 import * as migration_20260930_210000_default_og_image from './20260930_210000_default_og_image'
 import * as migration_20260930_213308_site_settings_service_region from './20260930_213308_site_settings_service_region'
 import * as migration_20260930_220000_estimate_cta_buttons from './20260930_220000_estimate_cta_buttons'
+import * as migration_20260930_220800_overview_wording from './20260930_220800_overview_wording'
+import * as migration_20260930_220925_remove_dead_fields from './20260930_220925_remove_dead_fields'
+import * as migration_20260930_221000_service_faq_category from './20260930_221000_service_faq_category'
+import * as migration_20260930_221100_drop_orphaned_tables from './20260930_221100_drop_orphaned_tables'
 
 export const migrations = [
   {
@@ -509,5 +513,25 @@ export const migrations = [
     up: migration_20260930_220000_estimate_cta_buttons.up,
     down: migration_20260930_220000_estimate_cta_buttons.down,
     name: '20260930_220000_estimate_cta_buttons',
+  },
+  {
+    up: migration_20260930_220800_overview_wording.up,
+    down: migration_20260930_220800_overview_wording.down,
+    name: '20260930_220800_overview_wording',
+  },
+  {
+    up: migration_20260930_220925_remove_dead_fields.up,
+    down: migration_20260930_220925_remove_dead_fields.down,
+    name: '20260930_220925_remove_dead_fields',
+  },
+  {
+    up: migration_20260930_221000_service_faq_category.up,
+    down: migration_20260930_221000_service_faq_category.down,
+    name: '20260930_221000_service_faq_category',
+  },
+  {
+    up: migration_20260930_221100_drop_orphaned_tables.up,
+    down: migration_20260930_221100_drop_orphaned_tables.down,
+    name: '20260930_221100_drop_orphaned_tables',
   },
 ]

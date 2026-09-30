@@ -22,22 +22,17 @@ export type LandingPage = {
   /** Set on the landing page record; see `LandingPages.service`. */
   service?: LandingPageService
   status: 'draft' | 'published'
-  template: 'default' | 'information'
+  /**
+   * The page's headline and copy, for metadata fallbacks. With a database it
+   * is read from the page's first `hero` section — the one that renders.
+   * There used to be a separate Hero group as well, which nothing rendered
+   * and which had already drifted from the block on one page.
+   */
   hero?: {
-    eyebrow?: string
     heading?: string
     lead?: string
-    image?: string
   }
   sections: LandingPageBlock[]
-  cta?: { text?: string; link?: string; showForm?: boolean }
-  campaignTracking?: {
-    campaignName?: string
-    campaignSource?: string
-    campaignMedium?: string
-    campaignTerm?: string
-    campaignContent?: string
-  }
   seo?: {
     metaTitle?: string | null
     metaDescription?: string | null
@@ -50,27 +45,9 @@ type PayloadLandingPage = {
   title: string
   slug: string
   status?: LandingPage['status']
-  template?: LandingPage['template']
-  hero?: {
-    eyebrow?: string | null
-    heading?: string | null
-    description?: string | null
-    backgroundMedia?: unknown
-  } | null
   sections?: Array<Record<string, unknown>> | null
   service?: { slug?: string | null; consultationLabel?: string | null } | number | null
-  cta?: LandingPage['cta']
-  campaignTracking?: LandingPage['campaignTracking']
   seo?: LandingPage['seo']
-}
-
-function mediaUrl(value: unknown): string | undefined {
-  if (typeof value === 'string') return value
-  if (!value || typeof value !== 'object') return undefined
-
-  const record = value as Record<string, unknown>
-  if (typeof record.url === 'string') return record.url
-  return 'asset' in record ? mediaUrl(record.asset) : undefined
 }
 
 function normalizeBlocks(value: PayloadLandingPage['sections']): LandingPageBlock[] {
@@ -89,7 +66,6 @@ function fallbackLandingPage(slug: string): LandingPage | undefined {
     title: page.title,
     slug: page.slug,
     status: 'published',
-    template: 'information',
     hero: {
       heading: page.title,
       lead: page.seoDescription,
@@ -114,6 +90,13 @@ const fallbackLandingPageSlugs = [
   'remodeling-information',
 ] as const
 
+function heroFromSections(sections: PayloadLandingPage['sections']): LandingPage['hero'] {
+  const hero = sections?.find((section) => section?.blockType === 'hero')
+  if (!hero) return undefined
+  const text = (value: unknown) => (typeof value === 'string' && value.trim() ? value : undefined)
+  return { heading: text(hero.heading), lead: text(hero.description) }
+}
+
 export async function resolveLandingPage(slug: string): Promise<LandingPage | undefined> {
   if (!process.env.DATABASE_URL) {
     if (!(fallbackLandingPageSlugs as readonly string[]).includes(slug)) return undefined
@@ -134,15 +117,7 @@ export async function resolveLandingPage(slug: string): Promise<LandingPage | un
     title: record.title,
     slug: record.slug,
     status: record.status || 'draft',
-    template: record.template || 'information',
-    hero: record.hero
-      ? {
-          eyebrow: record.hero.eyebrow || undefined,
-          heading: record.hero.heading || undefined,
-          lead: record.hero.description || undefined,
-          image: mediaUrl(record.hero.backgroundMedia),
-        }
-      : undefined,
+    hero: heroFromSections(record.sections),
     sections: normalizeBlocks(record.sections),
     service:
       record.service && typeof record.service === 'object' && record.service.slug
@@ -151,8 +126,6 @@ export async function resolveLandingPage(slug: string): Promise<LandingPage | un
             consultationLabel: record.service.consultationLabel || undefined,
           }
         : undefined,
-    cta: record.cta,
-    campaignTracking: record.campaignTracking,
     seo: record.seo,
   }
 }

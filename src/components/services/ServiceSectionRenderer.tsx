@@ -1,6 +1,5 @@
 import { Fragment, type ReactNode } from 'react'
 import { Contact as GalleryContact } from '@/components/gallery/Contact'
-import { ProjectsReviewsSection } from '@/components/projects/ProjectsReviewsSection'
 import { bookableServiceSlug, type ServiceDetail } from '@/lib/services'
 import { ServiceProcessSection } from './ServiceProcessSection'
 import { ServiceOfferingsSection } from './ServiceOfferingsSection'
@@ -384,9 +383,6 @@ function renderTestimonials(
       ),
     }
   }
-  if (blockType === 'testimonials') {
-    return { key: 'reviews', node: <ProjectsReviewsSection serviceSlug={service.slug} /> }
-  }
   return null
 }
 
@@ -727,7 +723,7 @@ export function renderSection(
 
   if (blockType === 'repair-services') return renderRepairCategories(block, service)
 
-  if (blockType === 'landing-testimonials' || blockType === 'testimonials') {
+  if (blockType === 'landing-testimonials') {
     return renderTestimonials(block, headingText, blockType, service)
   }
 
@@ -787,7 +783,7 @@ export function renderSection(
       key: 'service-faq',
       node: (
         <ServiceFaqLoader
-          slug={service.slug}
+          categoryId={service.faqCategoryId}
           heading={headingText || undefined}
           description={descriptionText(block) || undefined}
           faqOrder={faqOrderFrom(block)}

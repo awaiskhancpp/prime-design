@@ -178,17 +178,19 @@ How to change the schema from now on:
 3. `pnpm payload migrate`, then `pnpm schema:check`
    (`scripts/schema-drift.ts`): it compares the config with the **real
    database** — tables, columns, types, nullability, enums, indexes, foreign
-   keys — rather than with a snapshot. The only expected output is the known
-   orphans below.
+   keys — rather than with a snapshot. Expected output: `0 difference(s)`.
+   (The leftover tables from older schema shapes were checked and dropped in
+   `20260930_221100_drop_orphaned_tables`.)
 
-**Known orphans (in the database, not in the config).** Left from earlier
-schema shapes; they hold data, so dropping them is a separate, approved
-change: `gallery_categories_images`, `service_locations_testimonial_cards_items`,
-`services_blocks_benefit_cards(_items)`, `services_blocks_craftsmanship(_images,
-_items)`, `services_prime_difference_checklist`, `services_prime_difference_reasons`,
-`services_testimonial_cards_items`, `services_blocks_video.eyebrow`, and the
-`services.dont_settle_*`, `services.location_video_*` and
-`services.prime_difference_*` columns.
+**Block table names.** Payload stores one table per block slug per
+collection. If one collection has two block definitions with the same slug
+but different fields, the second gets a `…_2` table. Removing the first then
+makes the generated migration drop the `_2` table and create a fresh one,
+**losing its rows**. The services Page Builder's `gallery`, `image-text`,
+`sub-services` and `video` blocks live in `_2` tables for this reason and are
+pinned with `dbName` (`SERVICE_BLOCK_TABLES` in `src/blocks/LandingPageBlocks.ts`).
+A `DROP TABLE` of a table with rows in a generated migration is always a
+reason to stop and look.
 
 **Never edit, rewrite or delete an existing migration file to make a diff
 come out clean.** They have already run against production; rewriting them
