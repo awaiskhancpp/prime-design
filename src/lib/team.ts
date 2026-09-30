@@ -65,8 +65,8 @@ type PayloadTeamRecord = {
   seo?: SeoFields
 }
 
-const toDetail = (record: PayloadTeamRecord): TeamMemberDetail | undefined =>
-  record.name && record.slug
+const toDetail = (record: PayloadTeamRecord | undefined): TeamMemberDetail | undefined =>
+  record?.name && record.slug
     ? {
         name: record.name,
         slug: record.slug,
@@ -93,5 +93,5 @@ export async function resolveTeamMember(slug: string): Promise<TeamMemberDetail 
     depth: 2,
     limit: 1,
   })
-  return toDetail(result.docs[0] as unknown as PayloadTeamRecord)
+  return toDetail(result.docs[0] as unknown as PayloadTeamRecord | undefined)
 }
