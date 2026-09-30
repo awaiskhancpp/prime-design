@@ -38,6 +38,14 @@ type TestimonialDoc = {
   quoteIsExcerpt?: boolean | null
 }
 
+/**
+ * Only positive reviews are ever shown: four and five stars. Every review is
+ * kept in the Reviews collection — the lower-rated ones included, so the CMS
+ * matches Yelp and Google — but none below four stars reaches a page. Every
+ * reader of the collection that renders reviews filters with this.
+ */
+export const POSITIVE_REVIEWS = { rating: { greater_than_equal: 4 } } as const
+
 const imageUrl = (value: TestimonialDoc['image']) =>
   value && typeof value === 'object' && typeof value.url === 'string' ? value.url : undefined
 
@@ -63,6 +71,7 @@ export async function resolveAllTestimonials(limit = 300): Promise<CollectionTes
     const payload = await getPayload({ config: configPromise })
     const result = await payload.find({
       collection: 'reviews',
+      where: POSITIVE_REVIEWS,
       sort: ['-featured', 'sortOrder'],
       depth: 1,
       limit,
@@ -93,7 +102,7 @@ export async function resolveFeaturedTestimonials(limit = 50): Promise<Collectio
     const payload = await getPayload({ config: configPromise })
     const result = await payload.find({
       collection: 'reviews',
-      where: { featured: { equals: true } },
+      where: { and: [{ featured: { equals: true } }, POSITIVE_REVIEWS] },
       sort: 'sortOrder',
       depth: 1,
       limit,

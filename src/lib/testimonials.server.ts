@@ -1,4 +1,5 @@
 import { testimonials } from './testimonials'
+import { POSITIVE_REVIEWS } from './testimonialsCollection.server'
 
 export type FeaturedTestimonial = {
   author: string
@@ -26,7 +27,7 @@ export async function getFeaturedTestimonials(): Promise<FeaturedTestimonial[]> 
     const payload = await getPayload({ config: configPromise })
     const result = await payload.find({
       collection: 'reviews',
-      where: { featured: { equals: true } },
+      where: { and: [{ featured: { equals: true } }, POSITIVE_REVIEWS] },
       sort: 'sortOrder',
       depth: 0,
       limit: 20,
