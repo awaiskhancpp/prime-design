@@ -2,6 +2,7 @@ import { getPayload } from 'payload'
 
 import configPromise from '@payload-config'
 import { shouldUseLocalFallback } from './runtime'
+import { resolveSharedServiceDefaults } from './sharedSections'
 
 export type ConsultationType = {
   title: string
@@ -103,6 +104,7 @@ export async function resolveConsultations(): Promise<ConsultationType[]> {
   })
 
   if (!result.docs.length) return shouldUseLocalFallback() ? fallbackConsultations : []
+  const shared = await resolveSharedServiceDefaults()
 
   const docs = result.docs as unknown as Array<PayloadConsultation & { showInConsultationForm?: boolean }>
   docs.sort((a, b) => {
@@ -117,9 +119,9 @@ export async function resolveConsultations(): Promise<ConsultationType[]> {
       // Consultation") or the automatic "{Service} Consultation" fallback.
       title: item.consultationLabel || `${item.title} Consultation`,
       slug: item.slug,
-      // The card's duration badge, from the service record. Empty means the
-      // card prints no badge rather than a number this file decided on.
-      duration: item.consultationDuration || '',
+      // The card's duration badge: the service's own, else the shared one
+      // (Settings → Shared Sections). Empty in both prints no badge.
+      duration: item.consultationDuration || shared.consultationDuration || '',
       // WordPress gives each consultation card its own photo, which is NOT the
       // service hero, so `consultationImage` wins. The hero is the fallback for
       // services that have no card image set.

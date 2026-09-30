@@ -108,7 +108,7 @@ export const Services: CollectionConfig = {
       label: 'Consultation Duration',
       admin: {
         description:
-          'Shown on the Contact page card, e.g. \u201c~1 Hour\u201d. Empty prints no duration badge.',
+          'Shown on the Contact page card, e.g. \u201c~1 Hour\u201d. Empty uses Shared Sections (Settings → Service pages).',
       },
     },
     {
@@ -335,7 +335,7 @@ export const Services: CollectionConfig = {
               label: 'Client-Centered Approach Image',
               admin: {
                 description:
-                  'Side image shown next to the "A Client-Centered Approach" section (phone mockup). Falls back to the built-in image when empty.',
+                  'Side image shown next to the "A Client-Centered Approach" section (phone mockup). Empty uses Shared Sections (Settings → Service pages).',
               },
             },
             {
@@ -447,7 +447,7 @@ export const Services: CollectionConfig = {
               label: 'Areas We Service Section',
               admin: {
                 description:
-                  'Structured "Areas we service" section (heading only; cities are linked from service-locations).',
+                  'Structured "Areas we service" section (heading only; cities are linked from service-locations). An empty heading uses Shared Sections (Settings → Service pages).',
               },
               fields: [{ name: 'heading', type: 'text' }],
             },

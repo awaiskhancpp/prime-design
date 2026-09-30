@@ -496,7 +496,14 @@ export const landingPageBlocks: Block[] = [
   base('faq', 'FAQ', [
     text('heading'),
     description(),
-    { name: 'categories', type: 'array' as const, fields: faqCategoryFields() },
+    {
+      name: 'categories',
+      type: 'array' as const,
+      // `faqOrder` names the page's questions, in the page's order, from the
+      // FAQs collection — the same record /faq shows. The inline
+      // `questions` array is only for a question that exists nowhere else.
+      fields: [...faqCategoryFields(), faqOrderField()],
+    },
   ]),
   base('video-carousel', 'Video Carousel', [
     {
@@ -525,23 +532,6 @@ export const landingPageBlocks: Block[] = [
  * than a second hand-maintained list) means a block added for landing pages
  * never silently appears in the Services admin again.
  */
-/**
- * The Services copy of the FAQ block. Identical to the landing pages' one
- * except that its categories carry `faqOrder` — see `faqOrderField`. Only the
- * service pages need it (only they show the same category as /faq in a
- * different order), and giving it to landing pages as well would mean a
- * `landing_pages_rels` table for a field nothing there would ever set.
- */
-const serviceFaqBlock: Block = base('faq', 'FAQ', [
-  text('heading'),
-  description(),
-  {
-    name: 'categories',
-    type: 'array' as const,
-    fields: [...faqCategoryFields(), faqOrderField()],
-  },
-])
-
 /**
  * Not offered on service pages at all: the service hero is the collection's
  * own Hero group (`ServiceHero` renders it). Every service used to carry a
@@ -599,10 +589,43 @@ const withoutSharedDefaults = (block: Block): Block =>
       }
     : block
 
+/**
+ * On a service page a `cta` block is one of four designs. Which one used to
+ * be guessed from the words in its heading ("one-stop hub", "let's work
+ * together", "estimate"…), so rewording a heading could silently switch the
+ * section to a different design — and an estimate band could not leave its
+ * heading empty to use the shared one. The choice is a field now.
+ */
+const withServiceCtaLayout = (block: Block): Block =>
+  block.slug === 'cta'
+    ? {
+        ...block,
+        fields: [
+          {
+            name: 'layout',
+            type: 'select' as const,
+            label: 'Layout',
+            defaultValue: 'standard',
+            options: [
+              { label: 'Free-estimate band (brass)', value: 'estimate' },
+              { label: 'Finance: one-stop hub (image + text)', value: 'finance-hub' },
+              { label: 'Finance: closing call to action', value: 'finance-cta' },
+              { label: 'Standard call to action', value: 'standard' },
+            ],
+            admin: {
+              description:
+                'The free-estimate band uses Shared Sections (Settings → Service pages) for any field left empty here.',
+            },
+          },
+          ...block.fields,
+        ],
+      }
+    : block
+
 export const servicePageBlocks: Block[] = landingPageBlocks
   .filter((block) => !LANDING_ONLY_ON_SERVICES.has(block.slug))
-  .map((block) => (block.slug === 'faq' ? serviceFaqBlock : block))
   .map(withoutSharedDefaults)
+  .map(withServiceCtaLayout)
   .map((block) =>
     SERVICE_BLOCK_TABLES[block.slug] ? { ...block, dbName: SERVICE_BLOCK_TABLES[block.slug] } : block,
   )

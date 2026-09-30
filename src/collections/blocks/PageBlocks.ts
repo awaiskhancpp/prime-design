@@ -17,7 +17,11 @@ export const PageBlocks: Block[] = [
     slug: 'cta',
     labels: { singular: 'Call to Action', plural: 'Calls to Action' },
     fields: [
-      { name: 'heading', type: 'text', required: true },
+      {
+        name: 'heading',
+        type: 'text',
+        admin: { description: 'Empty uses the free-estimate band in Shared Sections (Settings).' },
+      },
       // Rich text so the band can carry the contact link and the phone
       // number as real links (see `20260919_130000_cta_body_rich_text`).
       { name: 'body', type: 'richText' },

@@ -3,7 +3,8 @@ import { LandscapingServiceAreas } from '@/components/blocks/LandscapingServiceA
 import { PageHero } from '@/components/layout/PageHero'
 import { Section } from '@/components/ui/Section'
 import { resolveBlogPosts } from '@/lib/blog'
-import { richTextHasContent } from '@/lib/richText'
+import { richTextHasContent, type RichTextValue } from '@/lib/richText'
+import { resolveSharedServiceDefaults } from '@/lib/sharedSections'
 import { RichTextContent } from '@/components/rich-text/RichTextContent'
 import { resolvePageBySlug } from '@/lib/pages'
 import type { PageSection } from '@/lib/pageSections'
@@ -24,6 +25,25 @@ export async function BlogPage() {
   const estimateBlock = page?.layout.find(
     (section): section is Extract<PageSection, { type: 'cta' }> => section.type === 'cta',
   )
+  // The band's own fields win; anything it leaves empty is the shared
+  // free-estimate band (Settings → Shared Sections → Service pages), the same
+  // one the service pages use.
+  const shared = (await resolveSharedServiceDefaults()).estimateBand
+  const sharedButton = (Array.isArray(shared?.buttons) ? shared.buttons : [])[0] as
+    | { label?: string; url?: string }
+    | undefined
+  const estimate = {
+    heading: estimateBlock?.content.heading || (shared?.heading as string | undefined),
+    body: richTextHasContent(estimateBlock?.content.body)
+      ? estimateBlock?.content.body
+      : (shared?.description as RichTextValue | undefined),
+    cta:
+      estimateBlock?.content.label && estimateBlock.content.href
+        ? { label: estimateBlock.content.label, href: estimateBlock.content.href }
+        : sharedButton?.label && sharedButton.url
+          ? { label: sharedButton.label, href: sharedButton.url }
+          : undefined,
+  }
 
   return (
     <div className="min-h-screen bg-white">
@@ -43,19 +63,15 @@ export async function BlogPage() {
           ))}
         </div>
       </Section>
-      {estimateBlock?.content.heading ? (
+      {estimate.heading ? (
         <ServiceEstimateCta
-          heading={estimateBlock.content.heading}
+          heading={estimate.heading}
           body={
-            richTextHasContent(estimateBlock.content.body) ? (
-              <RichTextContent data={estimateBlock.content.body} tone="light" />
+            richTextHasContent(estimate.body) ? (
+              <RichTextContent data={estimate.body} tone="light" />
             ) : undefined
           }
-          cta={
-            estimateBlock.content.label && estimateBlock.content.href
-              ? { label: estimateBlock.content.label, href: estimateBlock.content.href }
-              : undefined
-          }
+          cta={estimate.cta}
         />
       ) : null}
       <ProjectsReviewsSection />

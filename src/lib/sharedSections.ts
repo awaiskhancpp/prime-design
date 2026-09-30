@@ -160,18 +160,23 @@ export type SharedCitySections = {
   siliconValleyLoves?: SiliconValleyLoves
 }
 
-/** The Shared Sections global's city-page sections, once per request. */
-export const resolveSharedCitySections = cache(async (): Promise<SharedCitySections> => {
+/** The Shared Sections global, raw at depth 2, once per request. */
+const fetchSharedSections = cache(async (): Promise<Record<string, Raw>> => {
   if (!process.env.DATABASE_URL) return {}
   const [{ getPayload }, { default: configPromise }] = await Promise.all([
     import('payload'),
     import('@payload-config'),
   ])
   const payload = await getPayload({ config: configPromise })
-  const g = (await payload.findGlobal({ slug: 'shared-sections', depth: 2 })) as unknown as Record<
+  return (await payload.findGlobal({ slug: 'shared-sections', depth: 2 })) as unknown as Record<
     string,
     Raw
   >
+})
+
+/** The Shared Sections global's city-page sections, once per request. */
+export const resolveSharedCitySections = cache(async (): Promise<SharedCitySections> => {
+  const g = await fetchSharedSections()
   return {
     locationVideo: mapLocationVideo(g.locationVideo),
     dontSettle: mapDontSettle(g.dontSettle),
@@ -188,16 +193,7 @@ export const resolveSharedCitySections = cache(async (): Promise<SharedCitySecti
  */
 export const resolveSharedLandingDefaults = cache(
   async (): Promise<Record<string, Record<string, unknown>>> => {
-    if (!process.env.DATABASE_URL) return {}
-    const [{ getPayload }, { default: configPromise }] = await Promise.all([
-      import('payload'),
-      import('@payload-config'),
-    ])
-    const payload = await getPayload({ config: configPromise })
-    const g = (await payload.findGlobal({ slug: 'shared-sections', depth: 2 })) as unknown as Record<
-      string,
-      Record<string, unknown> | null
-    >
+    const g = (await fetchSharedSections()) as Record<string, Record<string, unknown> | null>
     const byBlock: Record<string, string> = {
       'prime-difference': 'landingPrimeDifference',
       'experience-difference': 'landingExperienceDifference',
@@ -237,3 +233,24 @@ export function withSharedDefaults<T extends Record<string, unknown>>(
   }
   return filled as T
 }
+
+export type SharedServiceDefaults = {
+  /** The free-estimate band, in the `cta` block's own shape. */
+  estimateBand?: Record<string, unknown>
+  areasHeading?: string
+  consultationDuration?: string
+  clientApproachImage?: string
+}
+
+/** The Shared Sections global's service-page defaults. */
+export const resolveSharedServiceDefaults = cache(async (): Promise<SharedServiceDefaults> => {
+  const g = await fetchSharedSections()
+  const pages = (g.services ?? {}) as Record<string, unknown>
+  const band = pages.estimateBand as Record<string, unknown> | null | undefined
+  return {
+    estimateBand: band && !isEmpty(band) ? band : undefined,
+    areasHeading: textOr(pages.areasHeading),
+    consultationDuration: textOr(pages.consultationDuration),
+    clientApproachImage: mediaUrl(pages.clientApproachImage),
+  }
+})

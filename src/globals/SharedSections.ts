@@ -8,7 +8,12 @@ import {
   siliconValleyLovesGroup,
   testimonialCardsGroup,
 } from '../collections/fields/sectionGroups'
-import { featureCardFields, linkFields, mediaReferenceFields } from '../fields/Shared'
+import {
+  buttonGroupFields,
+  featureCardFields,
+  linkFields,
+  mediaReferenceFields,
+} from '../fields/Shared'
 
 /**
  * A landing-page block's shared defaults. Field names match the block's own,
@@ -98,10 +103,59 @@ export const SharedSections: GlobalConfig = {
               { name: 'regionHeading', type: 'text' },
               ...mediaReferenceFields('mapMedia'),
             ]),
-            landingDefaults('landingLuxuryCta', 'Luxury CTA Section', [{ name: 'heading', type: 'text' }]),
+            landingDefaults('landingLuxuryCta', 'Luxury CTA Section', [
+              { name: 'heading', type: 'text' },
+            ]),
             landingDefaults('landingFindUs', 'Find Us Section', [
               { name: 'heading', type: 'text' },
             ]),
+          ],
+        },
+        {
+          label: 'Service pages',
+          description:
+            'The service pages (Kitchen Remodeling, ADU, …) and the blog. Each value here is used wherever the page leaves its own empty.',
+          fields: [
+            {
+              name: 'services',
+              type: 'group',
+              label: false,
+              fields: [
+                {
+                  // Same field names as the `cta` block, so an estimate block
+                  // with empty fields is filled from here unchanged.
+                  name: 'estimateBand',
+                  type: 'group',
+                  label: 'Free-estimate band',
+                  admin: {
+                    description:
+                      'The brass “Ready to schedule your free estimate?” band on the service pages and the blog.',
+                  },
+                  fields: [
+                    { name: 'heading', type: 'text' },
+                    { name: 'description', type: 'richText' },
+                    ...buttonGroupFields(),
+                  ],
+                },
+                {
+                  name: 'areasHeading',
+                  type: 'text',
+                  label: '“Areas we service” heading',
+                },
+                {
+                  name: 'consultationDuration',
+                  type: 'text',
+                  label: 'Consultation duration',
+                  admin: { description: 'On each service’s Contact-page card, e.g. “~1 Hour”.' },
+                },
+                {
+                  name: 'clientApproachImage',
+                  type: 'upload',
+                  relationTo: 'media',
+                  label: 'Client-Centered Approach image',
+                },
+              ],
+            },
           ],
         },
       ],

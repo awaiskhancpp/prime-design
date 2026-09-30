@@ -341,15 +341,24 @@ function SubServicesBlock({ block }: { block: Block }) {
 }
 
 function FaqBlock({ block }: { block: Block }) {
-  // Only the block's own inline questions are read here. A category that names
-  // no questions is filled from the FAQs collection by LandingFaqBlockSection,
-  // so there is no hardcoded copy of the Q&A anywhere in this path.
+  // A category lists its FAQs-collection questions (`faqOrder`, in the page's
+  // order); inline questions are only for one that exists nowhere else, and
+  // a category with neither shows its whole collection category. Resolved in
+  // LandingFaqBlockSection.
   const categories = Array.isArray(block.categories)
     ? block.categories.map((category) => {
         const value = category as Record<string, unknown>
         const questions = Array.isArray(value.questions) ? value.questions : []
+        const faqOrder = (Array.isArray(value.faqOrder) ? value.faqOrder : [])
+          .map((entry) =>
+            entry && typeof entry === 'object' && 'id' in entry
+              ? (entry as { id: number | string }).id
+              : (entry as number | string),
+          )
+          .filter((id) => typeof id === 'number' || typeof id === 'string')
         return {
           title: text(value.title) || '',
+          faqOrder,
           items: questions
             .map((question) => {
               const item = question as Record<string, unknown>

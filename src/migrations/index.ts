@@ -95,6 +95,8 @@ import * as migration_20260930_230419_shared_sections_global from './20260930_23
 import * as migration_20260930_230500_shared_sections_content from './20260930_230500_shared_sections_content'
 import * as migration_20260930_231628_shared_landing_sections from './20260930_231628_shared_landing_sections'
 import * as migration_20260930_231700_shared_landing_content from './20260930_231700_shared_landing_content'
+import * as migration_20260930_233906_shared_service_defaults from './20260930_233906_shared_service_defaults'
+import * as migration_20260930_234000_shared_service_content from './20260930_234000_shared_service_content'
 
 export const migrations = [
   {
@@ -581,5 +583,15 @@ export const migrations = [
     up: migration_20260930_231700_shared_landing_content.up,
     down: migration_20260930_231700_shared_landing_content.down,
     name: '20260930_231700_shared_landing_content',
+  },
+  {
+    up: migration_20260930_233906_shared_service_defaults.up,
+    down: migration_20260930_233906_shared_service_defaults.down,
+    name: '20260930_233906_shared_service_defaults',
+  },
+  {
+    up: migration_20260930_234000_shared_service_content.up,
+    down: migration_20260930_234000_shared_service_content.down,
+    name: '20260930_234000_shared_service_content',
   },
 ]

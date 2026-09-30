@@ -1,6 +1,7 @@
 import { getPayload } from 'payload'
 import configPromise from '@payload-config'
 import { richTextHasContent, type RichTextValue } from './richText'
+import { resolveSharedServiceDefaults, withSharedDefaults } from './sharedSections'
 
 export type Service = {
   slug: string
@@ -385,6 +386,9 @@ export async function resolveServiceDetail(slug: string): Promise<ServiceDetail 
   const record =
     (await findRecord(slug)) || (normalized !== slug ? await findRecord(normalized) : undefined)
   if (!record) return undefined
+  // Values every service shares, used wherever this record leaves its own
+  // empty (Settings → Shared Sections → Service pages).
+  const shared = await resolveSharedServiceDefaults()
   // Content comes from Payload only — no static fallback copy.
   const base = {
     slug: record.slug,
@@ -475,7 +479,7 @@ export async function resolveServiceDetail(slug: string): Promise<ServiceDetail 
     clientApproach: richTextHasContent(record.clientApproach as RichTextValue)
       ? (record.clientApproach as RichTextValue)
       : undefined,
-    clientApproachImage: payloadImageUrl(record.clientApproachImage),
+    clientApproachImage: payloadImageUrl(record.clientApproachImage) || shared.clientApproachImage,
     // WordPress sets these on the family template (kitchen/bathroom/home), so
     // they live on the service and every city page in that family shares them.
     locationFeatureImages: record.locationFeatureImages
@@ -564,9 +568,9 @@ export async function resolveServiceDetail(slug: string): Promise<ServiceDetail 
               : undefined,
         }
       : undefined,
-    areasWeService: record.areasWeService
-      ? { heading: record.areasWeService.heading ?? undefined }
-      : undefined,
+    areasWeService: {
+      heading: record.areasWeService?.heading || shared.areasHeading,
+    },
     heroButtons: record.hero?.buttons?.length
       ? record.hero.buttons.map((button) => ({
           label: button.label || '',
@@ -637,10 +641,16 @@ export async function resolveServiceDetail(slug: string): Promise<ServiceDetail 
             })),
         }
       : undefined,
-    sections: record.sections?.filter(
-      (block): block is { blockType: string; [key: string]: unknown } =>
+    sections: record.sections
+      ?.filter((block): block is { blockType: string; [key: string]: unknown } =>
         Boolean(block && typeof block.blockType === 'string'),
-    ),
+      )
+      // A free-estimate band fills its empty fields from Shared Sections.
+      .map((block) =>
+        block.blockType === 'cta' && block.layout === 'estimate'
+          ? withSharedDefaults(block, shared.estimateBand)
+          : block,
+      ),
     sectionOrder: record.sectionOrder
       ?.map((item) => item.section)
       .filter((item): item is string => Boolean(item)),

@@ -309,7 +309,7 @@ export interface Service {
    */
   consultationImage?: (number | null) | Media;
   /**
-   * Shown on the Contact page card, e.g. “~1 Hour”. Empty prints no duration badge.
+   * Shown on the Contact page card, e.g. “~1 Hour”. Empty uses Shared Sections (Settings → Service pages).
    */
   consultationDuration?: string | null;
   /**
@@ -344,6 +344,10 @@ export interface Service {
   sections?:
     | (
         | {
+            /**
+             * The free-estimate band uses Shared Sections (Settings → Service pages) for any field left empty here.
+             */
+            layout?: ('estimate' | 'finance-hub' | 'finance-cta' | 'standard') | null;
             eyebrow?: string | null;
             heading?: string | null;
             description?: {
@@ -1410,7 +1414,7 @@ export interface Service {
     [k: string]: unknown;
   } | null;
   /**
-   * Side image shown next to the "A Client-Centered Approach" section (phone mockup). Falls back to the built-in image when empty.
+   * Side image shown next to the "A Client-Centered Approach" section (phone mockup). Empty uses Shared Sections (Settings → Service pages).
    */
   clientApproachImage?: (number | null) | Media;
   /**
@@ -1562,7 +1566,7 @@ export interface Service {
     };
   };
   /**
-   * Structured "Areas we service" section (heading only; cities are linked from service-locations).
+   * Structured "Areas we service" section (heading only; cities are linked from service-locations). An empty heading uses Shared Sections (Settings → Service pages).
    */
   areasWeService?: {
     heading?: string | null;
@@ -2808,7 +2812,10 @@ export interface Page {
             blockType: 'link-list';
           }
         | {
-            heading: string;
+            /**
+             * Empty uses the free-estimate band in Shared Sections (Settings).
+             */
+            heading?: string | null;
             body?: {
               root: {
                 type: string;
@@ -4264,6 +4271,10 @@ export interface LandingPage {
                 | boolean
                 | null;
               sourceId?: string | null;
+              /**
+               * Optional. Show these questions, in this order, instead of the category’s own order.
+               */
+              faqOrder?: (number | Faq)[] | null;
               id?: string | null;
             }[]
           | null;
@@ -4873,6 +4884,7 @@ export interface ServicesSelect<T extends boolean = true> {
         cta?:
           | T
           | {
+              layout?: T;
               eyebrow?: T;
               heading?: T;
               description?: T;
@@ -7300,6 +7312,7 @@ export interface LandingPagesSelect<T extends boolean = true> {
                         };
                     sourceQuery?: T;
                     sourceId?: T;
+                    faqOrder?: T;
                     id?: T;
                   };
               sourceId?: T;
@@ -7983,6 +7996,47 @@ export interface SharedSection {
   landingFindUs?: {
     heading?: string | null;
   };
+  services?: {
+    /**
+     * The brass “Ready to schedule your free estimate?” band on the service pages and the blog.
+     */
+    estimateBand?: {
+      heading?: string | null;
+      description?: {
+        root: {
+          type: string;
+          children: {
+            type: any;
+            version: number;
+            [k: string]: unknown;
+          }[];
+          direction: ('ltr' | 'rtl') | null;
+          format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+          indent: number;
+          version: number;
+        };
+        [k: string]: unknown;
+      } | null;
+      buttons?:
+        | {
+            label: string;
+            /**
+             * A page (/contact), a section on this page (#contact), a full URL, or tel: / mailto:.
+             */
+            url: string;
+            variant?: ('primary' | 'secondary' | 'text' | 'outline') | null;
+            openInNewTab?: boolean | null;
+            id?: string | null;
+          }[]
+        | null;
+    };
+    areasHeading?: string | null;
+    /**
+     * On each service’s Contact-page card, e.g. “~1 Hour”.
+     */
+    consultationDuration?: string | null;
+    clientApproachImage?: (number | null) | Media;
+  };
   updatedAt?: string | null;
   createdAt?: string | null;
 }
@@ -8450,6 +8504,28 @@ export interface SharedSectionsSelect<T extends boolean = true> {
     | T
     | {
         heading?: T;
+      };
+  services?:
+    | T
+    | {
+        estimateBand?:
+          | T
+          | {
+              heading?: T;
+              description?: T;
+              buttons?:
+                | T
+                | {
+                    label?: T;
+                    url?: T;
+                    variant?: T;
+                    openInNewTab?: T;
+                    id?: T;
+                  };
+            };
+        areasHeading?: T;
+        consultationDuration?: T;
+        clientApproachImage?: T;
       };
   updatedAt?: T;
   createdAt?: T;

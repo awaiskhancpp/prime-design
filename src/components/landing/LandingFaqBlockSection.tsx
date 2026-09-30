@@ -1,9 +1,14 @@
 import { FaqExplorer } from '@/components/faq/FaqExplorer'
-import { getFaqItems } from '@/lib/faq.server'
+import { getFaqItems, getFaqItemsById } from '@/lib/faq.server'
 import { richTextToPlainText, type RichTextValue } from '@/lib/richText'
 import type { FaqIndexCategory } from '@/lib/faqIndex.server'
 
-type ResolvedCategory = { title: string; items: Array<{ question: string; answer: string }> }
+type ResolvedCategory = {
+  title: string
+  /** FAQs-collection ids, in the order this page shows them. */
+  faqOrder?: Array<number | string>
+  items: Array<{ question: string; answer: string }>
+}
 
 /** A plain string answer, wrapped so `RichTextContent` can render it. */
 const asRichText = (value: string): RichTextValue => ({
@@ -74,7 +79,10 @@ export async function LandingFaqBlockSection({
               answer: asRichText(item.answer),
               searchText: `${item.question} ${item.answer}`.toLowerCase(),
             }))
-          : (await getFaqItems(category.title))
+          : (category.faqOrder?.length
+              ? await getFaqItemsById(category.faqOrder)
+              : await getFaqItems(category.title)
+            )
               .filter((item) => item.question && item.answer)
               .map((item) => {
                 const answer =

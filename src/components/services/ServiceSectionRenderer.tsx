@@ -722,20 +722,34 @@ export function renderSection(
     return renderTestimonials(block, headingText)
   }
 
-  if (blockType === 'cta' && headingLower.includes('one-stop hub')) {
+  // A `cta` block's design is its `layout` field. Blocks saved before that
+  // field existed fall back to the old guess from the heading's wording.
+  const ctaLayout =
+    blockType !== 'cta'
+      ? undefined
+      : str(block.layout) && str(block.layout) !== 'standard'
+        ? str(block.layout)
+        : str(block.layout) === 'standard'
+          ? 'standard'
+          : headingLower.includes('one-stop hub')
+            ? 'finance-hub'
+            : headingLower.includes("let's work together")
+              ? 'finance-cta'
+              : headingLower.includes('estimate') ||
+                  headingLower.includes('schedule') ||
+                  headingLower.includes('get started')
+                ? 'estimate'
+                : 'standard'
+
+  if (ctaLayout === 'finance-hub') {
     return renderFinanceHub(block)
   }
 
-  if (blockType === 'cta' && headingLower.includes("let's work together")) {
+  if (ctaLayout === 'finance-cta') {
     return renderFinanceCta(block)
   }
 
-  if (
-    blockType === 'cta' &&
-    (headingLower.includes('estimate') ||
-      headingLower.includes('schedule') ||
-      headingLower.includes('get started'))
-  ) {
+  if (ctaLayout === 'estimate') {
     return {
       key: 'estimate-cta',
       node: (
