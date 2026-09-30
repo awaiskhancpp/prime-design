@@ -1,44 +1,27 @@
-'use client'
+import Link from 'next/link'
+import type { ReactNode } from 'react'
 
 import Image from '@/components/ui/Image'
-import { useRef, useState, type ReactNode } from 'react'
 
 import { Button } from '@/components/ui/Button'
 import { Container } from '@/components/ui/Container'
 import { HighlightedText } from '@/components/ui/HighlightedText'
 import type { PageTeamIntroContent } from '@/lib/pageSections'
 import type { AboutTeamMember } from '@/lib/team'
-import { useDialogFocus } from '@/lib/useDialogFocus'
-import { ArrowRight, X } from 'lucide-react'
+import { ArrowRight } from 'lucide-react'
 
 type TeamMember = {
   name: string
+  slug: string
   role: string
   description?: string
   initials: string
   image?: string
 }
 
-function Portrait({
-  member,
-  variant = 'grid',
-}: {
-  member: TeamMember
-  variant?: 'grid' | 'modal'
-}) {
-  // In the modal on a phone the portrait sits above the copy, so its height
-  // is taken out of the same 90vh the text has to fit in: `4/5` would eat two
-  // thirds of the sheet. `5/4` keeps the face readable — the crop is
-  // `object-top`, so a wide frame still holds the head — and leaves the
-  // biography the room it needs. Beside the copy from `md` up it fills the
-  // column as before.
-  const aspectClasses =
-    variant === 'modal'
-      ? 'w-full aspect-[5/4] max-h-[38vh] md:aspect-auto md:max-h-none md:h-full md:min-h-[26rem]'
-      : 'w-full aspect-[4/5]'
-
+function Portrait({ member }: { member: TeamMember }) {
   return (
-    <div className={`relative overflow-hidden bg-ink-2 ${aspectClasses}`}>
+    <div className="relative aspect-[4/5] w-full overflow-hidden bg-ink-2">
       {member.image ? (
         // `alt` used to be the image URL, which is what showed up as text
         // inside the frame whenever a portrait failed to load.
@@ -46,11 +29,7 @@ function Portrait({
           src={member.image}
           alt={member.name}
           fill
-          className={
-            variant === 'grid'
-              ? 'object-cover object-top transition-transform duration-500 ease-out group-hover:scale-105'
-              : 'object-cover object-top'
-          }
+          className="object-cover object-top transition-transform duration-500 ease-out group-hover:scale-105"
         />
       ) : (
         <div className="flex h-full items-center justify-center bg-[radial-gradient(circle_at_50%_20%,#c19a5b_0%,#1f3358_46%,#14213d_100%)]">
@@ -61,10 +40,15 @@ function Portrait({
   )
 }
 
-function TeamCard({ member, onClick }: { member: TeamMember; onClick: () => void }) {
+/**
+ * A member's card links to their own page (`/team/<slug>`). It used to open
+ * a dialog with the same photo, name, role and bio — two renderings of one
+ * member, the dialog's with a typed-out company name as its eyebrow.
+ */
+function TeamCard({ member }: { member: TeamMember }) {
   return (
     <article className="group border border-line bg-white transition-colors hover:border-brass">
-      <button type="button" onClick={onClick} className="block w-full text-left">
+      <Link href={`/team/${member.slug}`} className="block w-full text-left">
         <div className="overflow-hidden">
           <Portrait member={member} />
         </div>
@@ -81,7 +65,7 @@ function TeamCard({ member, onClick }: { member: TeamMember; onClick: () => void
             <ArrowRight className="h-3.5 w-3.5" aria-hidden />
           </span>
         </div>
-      </button>
+      </Link>
     </article>
   )
 }
@@ -103,12 +87,9 @@ export function TeamSection({
   /** Team members from the Payload Team collection (falls back to the built-in list). */
   members?: AboutTeamMember[]
 }) {
-  const [selectedMember, setSelectedMember] = useState<TeamMember | null>(null)
-  const dialogRef = useRef<HTMLDivElement>(null)
-  useDialogFocus(dialogRef, selectedMember !== null, () => setSelectedMember(null))
-
   const displayTeam: TeamMember[] = (members ?? []).map((member) => ({
     name: member.name,
+    slug: member.slug,
     role: member.role,
     description: member.description,
     image: member.image,
@@ -163,7 +144,7 @@ export function TeamSection({
           </div>
 
           <div className="md:col-span-1 lg:col-span-1">
-            {ceo ? <TeamCard member={ceo} onClick={() => setSelectedMember(ceo)} /> : null}
+            {ceo ? <TeamCard member={ceo} /> : null}
           </div>
         </div>
 
@@ -172,60 +153,11 @@ export function TeamSection({
             is the same width. */}
         <div className="mt-6 grid gap-6 md:grid-cols-2 lg:grid-cols-4">
           {restOfTeam.map((member) => (
-            <TeamCard key={member.name} member={member} onClick={() => setSelectedMember(member)} />
+            <TeamCard key={member.slug} member={member} />
           ))}
         </div>
       </Container>
 
-      {/* Modal */}
-      {selectedMember && (
-        <div
-          className="fixed inset-0 z-50 flex items-center justify-center bg-ink/80 p-4"
-          role="presentation"
-          onMouseDown={(event) => {
-            if (event.target === event.currentTarget) setSelectedMember(null)
-          }}
-        >
-          <div
-            ref={dialogRef}
-            tabIndex={-1}
-            role="dialog"
-            aria-modal="true"
-            aria-labelledby="team-member-name"
-            // `items-start` matters as much as the scrolling: the copy panel
-            // below centres itself vertically, and a centred flex child that
-            // is taller than its scroll container overflows *upward*, where
-            // scrolling cannot reach it. That is what cut the "Prime Design &
-            // Build" line and the top of the portrait off on a phone.
-            className="relative grid max-h-[90vh] w-full max-w-4xl items-start overflow-y-auto outline-none overscroll-contain bg-paper shadow-2xl md:grid-cols-[0.95fr_1.05fr] md:items-stretch"
-          >
-            <button
-              type="button"
-              onClick={() => setSelectedMember(null)}
-              aria-label="Close team member details"
-              className="absolute right-4 top-4 z-10 flex h-10 w-10 items-center justify-center border border-ink/20 bg-paper text-ink hover:bg-ink hover:text-white"
-            >
-              <X aria-hidden />
-            </button>
-            <Portrait member={selectedMember} variant="modal" />
-            <div className="flex flex-col justify-start p-6 sm:p-8 md:justify-center md:p-12">
-              <p className="text-xs font-semibold uppercase tracking-[0.2em] text-brass-deep">
-                Prime Design & Build
-              </p>
-              <h2
-                id="team-member-name"
-                className="mt-4 font-display text-3xl font-medium leading-tight text-ink-2 sm:text-4xl md:mt-5 md:text-5xl md:leading-none"
-              >
-                {selectedMember.name}
-              </h2>
-              <p className="mt-3 text-lg text-ink-2/75 md:mt-4 md:text-xl">{selectedMember.role}</p>
-              <p className="mt-5 text-sm leading-7 text-ink-2/75 sm:text-base md:mt-7 md:leading-8">
-                {selectedMember.description}
-              </p>
-            </div>
-          </div>
-        </div>
-      )}
     </section>
   )
 }

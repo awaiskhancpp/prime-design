@@ -7,6 +7,8 @@ import type { SeoFields } from '@/lib/seo'
 
 export type AboutTeamMember = {
   name: string
+  /** Their page is `/team/<slug>`. */
+  slug: string
   role: string
   description?: string
   image?: string
@@ -35,6 +37,7 @@ export async function resolveTeamMembers(): Promise<AboutTeamMember[]> {
   return (
     result.docs as unknown as Array<{
       name?: string
+      slug?: string
       position?: string | null
       bio?: RichTextValue
       image?: unknown
@@ -42,16 +45,16 @@ export async function resolveTeamMembers(): Promise<AboutTeamMember[]> {
   )
     .map((record) => ({
       name: typeof record.name === 'string' ? record.name : '',
+      slug: typeof record.slug === 'string' ? record.slug : '',
       role: typeof record.position === 'string' ? record.position : '',
       description: richTextToPlainText(record.bio) || undefined,
       image: mediaUrl(record.image),
     }))
-    .filter((member) => member.name)
+    .filter((member) => member.name && member.slug)
 }
 
 /** One team member's own page (`/team/<slug>`). */
 export type TeamMemberDetail = AboutTeamMember & {
-  slug: string
   bio?: RichTextValue
   seo?: SeoFields
 }
