@@ -17,6 +17,7 @@ import { Pages } from './collections/Pages'
 import { Projects } from './collections/Projects'
 import { Redirects } from './collections/Redirects'
 import { Team } from './collections/Team'
+import { Reviews } from './collections/Reviews'
 import { Testimonials } from './collections/Testimonials'
 import { BookingSettings } from './globals/BookingSettings'
 import { SiteSettings } from './globals/SiteSettings'
@@ -52,6 +53,7 @@ export default buildConfig({
     Redirects,
     Team,
     Testimonials,
+    Reviews,
     Blog,
     BlogCategories,
     LandingPages,

@@ -852,17 +852,22 @@ export const Services: CollectionConfig = {
               label: 'Testimonial Cards Section',
               admin: {
                 description:
-                  'Three review cards (name + quote + avatar) — the Shaker Kitchen page testimonial grid.',
+                  'Three testimonial cards — the Shaker Kitchen page testimonial grid.',
               },
               fields: [
                 {
-                  name: 'items',
-                  type: 'array',
-                  fields: [
-                    { name: 'name', type: 'text', required: true },
-                    { name: 'quote', type: 'textarea' },
-                    { name: 'avatar', type: 'text' },
-                  ],
+                  /**
+                   * Picked from the Testimonials collection. This used to be
+                   * an array of name/quote/avatar copied onto every page, so
+                   * the same three testimonials were stored 46 times.
+                   */
+                  name: 'testimonials',
+                  type: 'relationship',
+                  relationTo: 'testimonials',
+                  hasMany: true,
+                  admin: {
+                    description: 'The testimonials to show, in order. The first is the large dark card.',
+                  },
                 },
               ],
             },

@@ -1,18 +1,43 @@
 import type { CollectionConfig } from 'payload'
 
-export const Testimonials: CollectionConfig = {
-  slug: 'testimonials',
+/**
+ * Google and Yelp reviews.
+ *
+ * These used to live in Testimonials alongside the site's own customer
+ * testimonials, which made one collection of 124 platform reviews and three
+ * testimonials that were not in it at all (they were copied into every page's
+ * Testimonial Cards section instead). They are two different things: a review
+ * is imported from a platform and carries that platform's excerpt flag, link
+ * and relative date; a testimonial is an endorsement the company chose to
+ * feature. Reviews feed the "See what people are saying about us" carousel,
+ * the review wall and the Testimonials page; Testimonials feed the
+ * Testimonial Cards sections.
+ */
+export const Reviews: CollectionConfig = {
+  slug: 'reviews',
   admin: {
     group: 'Content',
     useAsTitle: 'name',
-    defaultColumns: ['name', 'location', 'rating', 'featured', 'updatedAt'],
+    defaultColumns: ['name', 'source', 'location', 'rating', 'featured', 'updatedAt'],
     description:
-      'Customer testimonials, picked into each page\u2019s Testimonial Cards section. Google and Yelp reviews are in Reviews.',
+      'Google and Yelp reviews. Tick Featured to show a review in the "See what people are saying about us" carousel.',
   },
   fields: [
     { name: 'name', type: 'text', required: true },
     { name: 'quote', type: 'textarea', required: true },
-    { name: 'location', type: 'text' },
+    {
+      /**
+       * The business listing the review was left on, as a place — Google's
+       * one listing is the Campbell office (Site Settings' first address,
+       * whose link is that listing), and Yelp's four listings are named for
+       * San Jose and Santa Clara.
+       */
+      name: 'location',
+      type: 'text',
+      admin: {
+        description: 'Where the listing this review was left on is, e.g. "San Jose, CA".',
+      },
+    },
     { name: 'rating', type: 'number', min: 1, max: 5 },
     { name: 'source', type: 'text' },
     {

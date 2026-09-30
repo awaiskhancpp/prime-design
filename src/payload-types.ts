@@ -79,6 +79,7 @@ export interface Config {
     redirects: Redirect;
     team: Team;
     testimonials: Testimonial;
+    reviews: Review;
     blog: Blog;
     'blog-categories': BlogCategory;
     'landing-pages': LandingPage;
@@ -113,6 +114,7 @@ export interface Config {
     redirects: RedirectsSelect<false> | RedirectsSelect<true>;
     team: TeamSelect<false> | TeamSelect<true>;
     testimonials: TestimonialsSelect<false> | TestimonialsSelect<true>;
+    reviews: ReviewsSelect<false> | ReviewsSelect<true>;
     blog: BlogSelect<false> | BlogSelect<true>;
     'blog-categories': BlogCategoriesSelect<false> | BlogCategoriesSelect<true>;
     'landing-pages': LandingPagesSelect<false> | LandingPagesSelect<true>;
@@ -1849,17 +1851,13 @@ export interface Service {
       | null;
   };
   /**
-   * Three review cards (name + quote + avatar) — the Shaker Kitchen page testimonial grid.
+   * Three testimonial cards — the Shaker Kitchen page testimonial grid.
    */
   testimonialCards?: {
-    items?:
-      | {
-          name: string;
-          quote?: string | null;
-          avatar?: string | null;
-          id?: string | null;
-        }[]
-      | null;
+    /**
+     * The testimonials to show, in order. The first is the large dark card.
+     */
+    testimonials?: (number | Testimonial)[] | null;
   };
   /**
    * "Materials Crafted to Perfection" — four-card materials grid (Custom Kitchen page).
@@ -1974,6 +1972,34 @@ export interface Location {
      */
     ogImage?: (number | null) | Media;
   };
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * Customer testimonials, picked into each page’s Testimonial Cards section. Google and Yelp reviews are in Reviews.
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "testimonials".
+ */
+export interface Testimonial {
+  id: number;
+  name: string;
+  quote: string;
+  location?: string | null;
+  rating?: number | null;
+  source?: string | null;
+  /**
+   * Link to this review on Yelp or Google. Shown as “Read the full review” when the stored text is a truncated excerpt.
+   */
+  sourceUrl?: string | null;
+  quoteIsExcerpt?: boolean | null;
+  /**
+   * Relative date as the review platform shows it, e.g. "5 months ago". Rendered beside the source on the Testimonials page.
+   */
+  timeAgo?: string | null;
+  image?: (number | null) | Media;
+  featured?: boolean | null;
+  sortOrder?: number | null;
   updatedAt: string;
   createdAt: string;
 }
@@ -2121,14 +2147,10 @@ export interface ServiceLocation {
       | null;
   };
   testimonialCards?: {
-    items?:
-      | {
-          name: string;
-          quote?: string | null;
-          avatar?: string | null;
-          id?: string | null;
-        }[]
-      | null;
+    /**
+     * The testimonials to show, in order. Empty falls back to the parent service’s selection.
+     */
+    testimonials?: (number | Testimonial)[] | null;
   };
   siliconValleyLoves?: {
     eyebrow?: string | null;
@@ -3235,15 +3257,18 @@ export interface Team {
   createdAt: string;
 }
 /**
- * Reusable customer testimonials and review quotes.
+ * Google and Yelp reviews. Tick Featured to show a review in the "See what people are saying about us" carousel.
  *
  * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "testimonials".
+ * via the `definition` "reviews".
  */
-export interface Testimonial {
+export interface Review {
   id: number;
   name: string;
   quote: string;
+  /**
+   * Where the listing this review was left on is, e.g. "San Jose, CA".
+   */
   location?: string | null;
   rating?: number | null;
   source?: string | null;
@@ -4896,6 +4921,10 @@ export interface PayloadLockedDocument {
         value: number | Testimonial;
       } | null)
     | ({
+        relationTo: 'reviews';
+        value: number | Review;
+      } | null)
+    | ({
         relationTo: 'blog';
         value: number | Blog;
       } | null)
@@ -6139,14 +6168,7 @@ export interface ServicesSelect<T extends boolean = true> {
   testimonialCards?:
     | T
     | {
-        items?:
-          | T
-          | {
-              name?: T;
-              quote?: T;
-              avatar?: T;
-              id?: T;
-            };
+        testimonials?: T;
       };
   materialsShowcase?:
     | T
@@ -6305,14 +6327,7 @@ export interface ServiceLocationsSelect<T extends boolean = true> {
   testimonialCards?:
     | T
     | {
-        items?:
-          | T
-          | {
-              name?: T;
-              quote?: T;
-              avatar?: T;
-              id?: T;
-            };
+        testimonials?: T;
       };
   siliconValleyLoves?:
     | T
@@ -6895,6 +6910,25 @@ export interface TeamSelect<T extends boolean = true> {
  * via the `definition` "testimonials_select".
  */
 export interface TestimonialsSelect<T extends boolean = true> {
+  name?: T;
+  quote?: T;
+  location?: T;
+  rating?: T;
+  source?: T;
+  sourceUrl?: T;
+  quoteIsExcerpt?: T;
+  timeAgo?: T;
+  image?: T;
+  featured?: T;
+  sortOrder?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "reviews_select".
+ */
+export interface ReviewsSelect<T extends boolean = true> {
   name?: T;
   quote?: T;
   location?: T;

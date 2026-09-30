@@ -391,7 +391,11 @@ type PayloadServiceRecord = {
     items?: Array<{ image?: string | null; title?: string; description?: string | null }> | null
   } | null
   testimonialCards?: {
-    items?: Array<{ name?: string; quote?: string | null; avatar?: string | null }> | null
+    /** Testimonials documents; populated at depth 2, a bare id otherwise. */
+    testimonials?: Array<
+      | number
+      | { name?: string | null; quote?: string | null; image?: number | PayloadMedia | null }
+    > | null
   } | null
   hero?: {
     eyebrow?: string | null
@@ -811,11 +815,16 @@ export async function resolveServiceDetail(slug: string): Promise<ServiceDetail 
       : undefined,
     testimonialCards: record.testimonialCards
       ? {
-          items: record.testimonialCards.items?.map((item) => ({
-            name: item.name || '',
-            quote: item.quote ?? undefined,
-            avatar: item.avatar ?? undefined,
-          })),
+          // Linked Testimonials documents, populated at depth 2; a bare id
+          // (not populated) carries nothing to show and is skipped.
+          items: record.testimonialCards.testimonials
+            ?.filter((item): item is Exclude<typeof item, number> => typeof item === 'object')
+            .map((item) => ({
+              name: item.name || '',
+              quote: item.quote ?? undefined,
+              avatar:
+                item.image && typeof item.image === 'object' ? (item.image.url ?? undefined) : undefined,
+            })),
         }
       : undefined,
     sections: record.sections?.filter(

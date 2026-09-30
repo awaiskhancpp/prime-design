@@ -225,12 +225,16 @@ export async function getServiceLocation(serviceSlug: string, locationSlugValue:
         .filter((stat) => Boolean(stat.value || stat.label || stat.detail)),
     })
     const testimonialCards = compact({
-      items: (doc.testimonialCards?.items ?? [])
-        .filter((item) => Boolean(item.name))
+      // Linked Testimonials documents, populated at depth 2.
+      items: (doc.testimonialCards?.testimonials ?? [])
+        .filter(
+          (item): item is Exclude<typeof item, number> =>
+            typeof item === 'object' && item !== null && Boolean(item.name),
+        )
         .map((item) => ({
           name: item.name,
           quote: textOr(item.quote),
-          avatar: textOr(item.avatar),
+          avatar: item.image && typeof item.image === 'object' ? textOr(item.image.url) : undefined,
         })),
     })
     const sectionOverrides = Array.isArray(

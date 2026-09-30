@@ -62,7 +62,7 @@ export async function resolveAllTestimonials(limit = 300): Promise<CollectionTes
   try {
     const payload = await getPayload({ config: configPromise })
     const result = await payload.find({
-      collection: 'testimonials',
+      collection: 'reviews',
       sort: ['-featured', 'sortOrder'],
       depth: 1,
       limit,
@@ -92,7 +92,7 @@ export async function resolveFeaturedTestimonials(limit = 50): Promise<Collectio
   try {
     const payload = await getPayload({ config: configPromise })
     const result = await payload.find({
-      collection: 'testimonials',
+      collection: 'reviews',
       where: { featured: { equals: true } },
       sort: 'sortOrder',
       depth: 1,

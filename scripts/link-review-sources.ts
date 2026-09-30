@@ -88,7 +88,7 @@ console.log(
 )
 
 const payload = await getPayload({ config: configPromise })
-const { docs } = await payload.find({ collection: 'testimonials', depth: 0, limit: 500 })
+const { docs } = await payload.find({ collection: 'reviews', depth: 0, limit: 500 })
 const testimonials = docs as unknown as Array<{
   id: number
   name: string
@@ -125,7 +125,7 @@ for (const record of testimonials) {
 
   if (listOnly || dryRun) continue
   await payload.update({
-    collection: 'testimonials',
+    collection: 'reviews',
     id: record.id,
     data: { sourceUrl: match.url, quoteIsExcerpt: true } as never,
   })

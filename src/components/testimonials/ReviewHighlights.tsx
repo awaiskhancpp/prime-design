@@ -206,9 +206,11 @@ export function ReviewHighlights({
                         </span>
                         <span className="min-w-0 flex-1">
                           <span className="block font-semibold text-ink-2">{review.name}</span>
-                          {review.source || review.timeAgo ? (
+                          {review.source || review.location || review.timeAgo ? (
                             <span className="mt-1 block text-xs uppercase tracking-[0.12em] text-ink-2/50">
-                              {[review.source, review.timeAgo].filter(Boolean).join(' · ')}
+                              {[review.source, review.location, review.timeAgo]
+                                .filter(Boolean)
+                                .join(' · ')}
                             </span>
                           ) : null}
                         </span>

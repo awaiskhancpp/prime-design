@@ -288,13 +288,15 @@ const testimonialCardsField = {
   label: 'Testimonial Cards Section',
   fields: [
     {
-      name: 'items',
-      type: 'array' as const,
-      fields: [
-        { name: 'name', type: 'text' as const, required: true },
-        { name: 'quote', type: 'textarea' as const },
-        { name: 'avatar', type: 'text' as const },
-      ],
+      /** Picked from the Testimonials collection; see Services.ts. */
+      name: 'testimonials',
+      type: 'relationship' as const,
+      relationTo: 'testimonials' as const,
+      hasMany: true,
+      admin: {
+        description:
+          'The testimonials to show, in order. Empty falls back to the parent service’s selection.',
+      },
     },
   ],
 }
@@ -399,7 +401,7 @@ export const ServiceLocations: CollectionConfig = {
         {
           label: 'Testimonials',
           description:
-            'The three review cards under the reviews strip. Empty falls back to the parent service’s Testimonial Cards section.',
+            'The three testimonial cards under the reviews strip. Empty falls back to the parent service’s Testimonial Cards section.',
           fields: [testimonialCardsField],
         },
         {

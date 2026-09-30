@@ -7,6 +7,8 @@ export type FeaturedTestimonial = {
   summary: string
   /** Relative date as the review platform shows it, e.g. "5 months ago". */
   timeAgo?: string
+  /** Where the listing the review was left on is, e.g. "San Jose, CA". */
+  location?: string
 }
 
 export async function getFeaturedTestimonials(): Promise<FeaturedTestimonial[]> {
@@ -23,7 +25,7 @@ export async function getFeaturedTestimonials(): Promise<FeaturedTestimonial[]> 
     const configPromise = (await import('@payload-config')).default
     const payload = await getPayload({ config: configPromise })
     const result = await payload.find({
-      collection: 'testimonials',
+      collection: 'reviews',
       where: { featured: { equals: true } },
       sort: 'sortOrder',
       depth: 0,
@@ -35,6 +37,7 @@ export async function getFeaturedTestimonials(): Promise<FeaturedTestimonial[]> 
       rating?: number
       source?: string
       timeAgo?: string
+      location?: string
     }>).filter((doc) => doc.name && doc.quote)
     if (docs.length) {
       return docs.map((doc) => ({
@@ -43,6 +46,7 @@ export async function getFeaturedTestimonials(): Promise<FeaturedTestimonial[]> 
         rating: doc.rating ?? 5,
         summary: doc.quote as string,
         timeAgo: doc.timeAgo || undefined,
+        location: doc.location || undefined,
       }))
     }
     return []

@@ -44,6 +44,7 @@ export async function ProjectsReviewsSection({ city }: { city?: string }) {
       testimonials={testimonials}
       sourceIcons={sourceIcons}
       summary={summary}
+      profileLinks={settings.socialLinks}
       city={city}
     />
   )
