@@ -349,12 +349,7 @@ function renderRepairCategories(block: RawBlock, service: ServiceDetail): Render
  * Stories" design (when the block carries usable reviews) or the projects
  * reviews carousel. Returns null when the shared registry should handle it.
  */
-function renderTestimonials(
-  block: RawBlock,
-  headingText: string,
-  blockType: string,
-  service: ServiceDetail,
-): RenderedSection | null {
+function renderTestimonials(block: RawBlock, headingText: string): RenderedSection | null {
   const testimonials = blocks(block.providers)
     .flatMap((provider) => blocks(provider.reviews))
     .map((review) => ({
@@ -724,7 +719,7 @@ export function renderSection(
   if (blockType === 'repair-services') return renderRepairCategories(block, service)
 
   if (blockType === 'landing-testimonials') {
-    return renderTestimonials(block, headingText, blockType, service)
+    return renderTestimonials(block, headingText)
   }
 
   if (blockType === 'cta' && headingLower.includes('one-stop hub')) {

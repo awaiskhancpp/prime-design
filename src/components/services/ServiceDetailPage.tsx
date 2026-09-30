@@ -4,13 +4,11 @@ import { LandscapingServiceAreas } from '@/components/blocks/LandscapingServiceA
 import { ServiceAreasStrip } from './ServiceAreasStrip'
 import { WhyChooseUs } from '@/components/gallery/WhyChooseUs'
 import { Contact as GalleryContact } from '@/components/gallery/Contact'
-import { Section } from '@/components/ui/Section'
 import { bookableServiceSlug, type ServiceDetail } from '@/lib/services'
 
 // Section components + their curated per-slug content helpers.
 import { ServiceOfferingsSection } from './ServiceOfferingsSection'
 import { ServiceProcessSection } from './ServiceProcessSection'
-import { ServiceVideoSection } from './ServiceVideoSection'
 import { HomeRemodelingProcessSection } from './sections/HomeRemodelingProcessSection'
 import {
   ServiceHomeRepairCategoriesSection,
@@ -28,7 +26,6 @@ import { ServiceImageChecklistSection } from './ServiceImageCheckListSection'
 import { MaterialsShowcaseSection } from './MaterialsShowcaseSection'
 import { ServiceTestimonialCardsSection } from './sections/ServiceTestimonialCardsSection'
 import { ServiceClientApproachSection } from './sections/ServiceClientApproachSection'
-import { ServiceEstimateCta } from './ServiceEstimateCta'
 import { ServiceFaqLoader } from './ServiceFaqLoader'
 import { ReviewsSection } from './ReviewsSection'
 import { ServiceGallery } from './ServiceGallery'
