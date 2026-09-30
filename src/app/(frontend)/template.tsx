@@ -119,8 +119,12 @@ export default async function FrontendTemplate({ children }: { children: React.R
   // `styles.css` override recolours regardless of the (necessarily wrong)
   // tone guessed here. See the comment there.
   const lightChromePaths = ['team', 'search', 'thank-you', 'book-online']
+  // `/team/<slug>` (a member's page) opens on white as well.
+  const isTeamMemberPage = segments.length === 2 && segments[0] === 'team'
   const headerTone =
-    segments.length === 1 && lightChromePaths.includes(segments[0]) ? 'light' : 'dark'
+    (segments.length === 1 && lightChromePaths.includes(segments[0])) || isTeamMemberPage
+      ? 'light'
+      : 'dark'
 
   // Only fetched for pages that actually get the popup — bare pages return
   // above and never reach this line.

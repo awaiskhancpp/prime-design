@@ -2904,7 +2904,7 @@ export interface Redirect {
   createdAt: string;
 }
 /**
- * Team members displayed on the company page.
+ * Team members: the grids on /about and /team, and each member’s own page at /team/<slug>.
  *
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "team".
@@ -2912,6 +2912,9 @@ export interface Redirect {
 export interface Team {
   id: number;
   name: string;
+  /**
+   * The member’s page address: /team/<slug>.
+   */
   slug: string;
   position?: string | null;
   image?: (number | null) | Media;

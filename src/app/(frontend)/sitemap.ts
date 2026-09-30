@@ -56,15 +56,23 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
 
   if (process.env.DATABASE_URL) {
     const payload = await getPayload({ config: configPromise })
-    const [payloadServices, payloadLocations, payloadPages, payloadPosts, payloadProjects, payloadLandingPages] =
-      await Promise.all([
-        payload.find({ collection: 'services', depth: 1, limit: 100 }),
-        payload.find({ collection: 'service-locations', depth: 2, limit: 200 }),
-        payload.find({ collection: 'pages', depth: 0, limit: 200 }),
-        payload.find({ collection: 'blog', depth: 0, limit: 200 }),
-        payload.find({ collection: 'projects', depth: 0, limit: 200 }),
-        payload.find({ collection: 'landing-pages', depth: 0, limit: 100 }),
-      ])
+    const [
+      payloadServices,
+      payloadLocations,
+      payloadPages,
+      payloadPosts,
+      payloadProjects,
+      payloadLandingPages,
+      payloadTeam,
+    ] = await Promise.all([
+      payload.find({ collection: 'services', depth: 1, limit: 100 }),
+      payload.find({ collection: 'service-locations', depth: 2, limit: 200 }),
+      payload.find({ collection: 'pages', depth: 0, limit: 200 }),
+      payload.find({ collection: 'blog', depth: 0, limit: 200 }),
+      payload.find({ collection: 'projects', depth: 0, limit: 200 }),
+      payload.find({ collection: 'landing-pages', depth: 0, limit: 100 }),
+      payload.find({ collection: 'team', depth: 0, limit: 100 }),
+    ])
     const cmsServices = (payloadServices.docs as unknown as SitemapRecord[])
       .filter((record) => record.seo?.noIndex !== true && record.slug)
       .map((record) => entry(`${siteUrl}/services/${record.slug}`, 0.8))
@@ -108,6 +116,13 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       .filter((record) => record.seo?.noIndex !== true && record.slug)
       .map((record) => entry(`${siteUrl}/${record.slug}`, 0.7))
     if (cmsLandingPages.length || !shouldUseLocalFallback()) landingPages = cmsLandingPages
+    // Team members' pages (`/team/<slug>`). WordPress's sitemap left these
+    // out, though the pages were indexable and indexed.
+    staticPages.push(
+      ...(payloadTeam.docs as unknown as SitemapRecord[])
+        .filter((record) => record.seo?.noIndex !== true && record.slug)
+        .map((record) => entry(`${siteUrl}/team/${record.slug}`, 0.5)),
+    )
   }
 
   return [...staticPages, ...servicePages, ...kitchenPages, ...locationPages, ...landingPages]

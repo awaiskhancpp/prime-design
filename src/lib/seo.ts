@@ -152,6 +152,20 @@ export async function buildSeoMetadata(
 }
 
 /**
+ * A meta description cut from longer copy, the way Rank Math writes one when
+ * a page has none of its own: the text up to the last whole word within 158
+ * characters, with no ellipsis. Checked against the ten WordPress team pages —
+ * this reproduces every one of their descriptions exactly.
+ */
+export function metaExcerpt(text: string | undefined, max = 158): string | undefined {
+  const flat = text?.replace(/\s+/g, ' ').trim()
+  if (!flat) return undefined
+  if (flat.length <= max) return flat
+  const cut = flat.slice(0, max + 1)
+  return cut.slice(0, cut.lastIndexOf(' '))
+}
+
+/**
  * Title/description metadata for a resolved service detail. Kept for the
  * sub-service routes, which resolve a service rather than a page record.
  */
