@@ -9,6 +9,13 @@ import { ProjectsReviewsSection } from '@/components/projects/ProjectsReviewsSec
  * WordPress `{acf_city}` in the heading — and lets the one shared loader do
  * the reading.
  */
-export async function ReviewsSection({ city }: { city?: string }) {
-  return <ProjectsReviewsSection city={city} />
+export async function ReviewsSection({
+  city,
+  serviceSlug,
+}: {
+  city?: string
+  /** Picks the reviews about this service; see `getSectionReviews`. */
+  serviceSlug?: string
+}) {
+  return <ProjectsReviewsSection city={city} serviceSlug={serviceSlug} />
 }

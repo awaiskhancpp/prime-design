@@ -354,6 +354,7 @@ function renderTestimonials(
   block: RawBlock,
   headingText: string,
   blockType: string,
+  service: ServiceDetail,
 ): RenderedSection | null {
   const testimonials = blocks(block.providers)
     .flatMap((provider) => blocks(provider.reviews))
@@ -384,7 +385,7 @@ function renderTestimonials(
     }
   }
   if (blockType === 'testimonials') {
-    return { key: 'reviews', node: <ProjectsReviewsSection /> }
+    return { key: 'reviews', node: <ProjectsReviewsSection serviceSlug={service.slug} /> }
   }
   return null
 }
@@ -712,7 +713,7 @@ export function renderSection(
   if (blockType === 'repair-services') return renderRepairCategories(block, service)
 
   if (blockType === 'landing-testimonials' || blockType === 'testimonials') {
-    return renderTestimonials(block, headingText, blockType)
+    return renderTestimonials(block, headingText, blockType, service)
   }
 
   if (blockType === 'cta' && headingLower.includes('one-stop hub')) {

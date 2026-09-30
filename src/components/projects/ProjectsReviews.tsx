@@ -75,63 +75,6 @@ const AUTOPLAY_DELAY_MS = 6000
 const controlButtonClass =
   'flex h-10 w-10 items-center justify-center border border-line text-ink-2 transition-colors hover:border-brass hover:text-brass-deep'
 
-/**
- * A review's text, clamped to six lines with "Read more" only when there is
- * more to read. The six lines are reserved (`min-h-42` = 6 × `leading-7`) so
- * a two-line review occupies the same height as a long one and every card's
- * footer lands on the same line. Overflow is measured, not guessed from a
- * character count, and re-measured when the card width changes.
- */
-function ReviewText({
-  text,
-  open,
-  onToggle,
-}: {
-  text: string
-  open: boolean
-  onToggle: () => void
-}) {
-  const ref = useRef<HTMLParagraphElement>(null)
-  const [overflows, setOverflows] = useState(false)
-
-  useEffect(() => {
-    const element = ref.current
-    if (!element || typeof ResizeObserver === 'undefined') return
-    const measure = () => {
-      if (!open) setOverflows(element.scrollHeight > element.clientHeight + 1)
-    }
-    measure()
-    const observer = new ResizeObserver(measure)
-    observer.observe(element)
-    return () => observer.disconnect()
-  }, [text, open])
-
-  return (
-    <>
-      <p
-        ref={ref}
-        className={
-          open
-            ? '-mt-2 min-h-42 text-sm leading-7 text-ink-2/80'
-            : '-mt-2 line-clamp-6 min-h-42 text-sm leading-7 text-ink-2/80'
-        }
-      >
-        {text}
-      </p>
-      {overflows ? (
-        <button
-          type="button"
-          onClick={onToggle}
-          aria-expanded={open}
-          className="mt-2 text-xs font-semibold uppercase tracking-[0.12em] text-brass-deep transition-colors hover:text-brass"
-        >
-          {open ? 'Read less' : 'Read more'}
-        </button>
-      ) : null}
-    </>
-  )
-}
-
 function initials(name: string) {
   return name
     .split(' ')
@@ -181,7 +124,6 @@ export function ProjectsReviews({
   city?: string
 }) {
   const swiperRef = useRef<SwiperType | null>(null)
-  const [openReview, setOpenReview] = useState<number | null>(null)
   // No auto-advance for visitors who ask their system for reduced motion;
   // the arrows still page through the reviews.
   const [reducedMotion, setReducedMotion] = useState(false)
@@ -194,15 +136,6 @@ export function ProjectsReviews({
     media.addEventListener('change', update)
     return () => media.removeEventListener('change', update)
   }, [])
-
-  // An open review holds the carousel still until it is closed again, so the
-  // text being read does not slide away mid-sentence.
-  useEffect(() => {
-    const autoplay = swiperRef.current?.autoplay
-    if (!autoplay || reducedMotion) return
-    if (openReview === null) autoplay.start()
-    else autoplay.stop()
-  }, [openReview, reducedMotion])
 
   const totalReviews = (summary?.googleReviewCount ?? 0) + (summary?.yelpReviewCount ?? 0)
   const rating = summary?.googleRating ?? summary?.yelpRating
@@ -368,13 +301,12 @@ export function ProjectsReviews({
                     >
                       &ldquo;
                     </span>
-                    <ReviewText
-                      text={testimonial.summary}
-                      open={openReview === index}
-                      onToggle={() =>
-                        setOpenReview((current) => (current === index ? null : index))
-                      }
-                    />
+                    {/* Six lines are reserved (`min-h-42` = 6 × `leading-7`) so a
+                      two-line review occupies the same height as a long one and every
+                      card's footer lands on the same line. */}
+                    <p className="-mt-2 line-clamp-6 min-h-42 text-sm leading-7 text-ink-2/80">
+                      {testimonial.summary}
+                    </p>
                   </blockquote>
 
                   {/* ── Author footer ───────────────────────────────────── */}

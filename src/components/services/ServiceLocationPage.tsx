@@ -326,7 +326,7 @@ export function ServiceLocationPage({
           </>
         )}
 
-        {enabled('reviews') ? <ReviewsSection city={city} /> : null}
+        {enabled('reviews') ? <ReviewsSection city={city} serviceSlug={service.slug} /> : null}
 
         {enabled('testimonial-cards') && testimonialItems?.length ? (
           <ServiceTestimonialCardsSection

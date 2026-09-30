@@ -594,7 +594,7 @@ export function ServiceTemplate({ service }: { service: ServiceDetail }) {
     },
     {
       key: 'reviews',
-      node: cmsSlotNodes.get('reviews') ?? (sections.reviews ? <ReviewsSection /> : null),
+      node: cmsSlotNodes.get('reviews') ?? (sections.reviews ? <ReviewsSection serviceSlug={service.slug} /> : null),
     },
     {
       key: 'contact',

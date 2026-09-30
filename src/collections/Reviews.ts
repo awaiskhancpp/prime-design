@@ -46,14 +46,24 @@ export const Reviews: CollectionConfig = {
        *
        * It matters most for Yelp. Yelp's API returns a text *excerpt* — about
        * 160 characters, cut mid-sentence and closed with "..." — and never the
-       * full review, so 47 of the 49 Yelp reviews here are stubs. That is not
-       * a migration loss: the WordPress site shows exactly the same truncated
-       * text, because its review plugin reads the same API. Nothing on this
-       * site can recover the rest, so a truncated review offers a link to
-       * where the whole thing is instead of a dead "...".
+       * full review. The WordPress site shows exactly the same truncated text,
+       * because its review plugin reads the same API, so every Yelp review
+       * arrived here as a stub.
        *
-       * Google's API returns the full review, so Google records do not need
-       * this and are not given one.
+       * The full text was recovered by hand, not through the API: from
+       * yelp.com pages saved in a browser, and from the listing's "not
+       * currently recommended" reviews, whose embedded page data carries the
+       * whole review. Matching is on the review id (`hrid` in this URL), not
+       * on name — one reviewer has since renamed their account. As of
+       * 2026-09-30, 76 of the 82 Yelp reviews are complete.
+       *
+       * The remaining 6 cannot be recovered: Yelp has taken them down (four
+       * removed by their authors, two for violating Yelp's Terms of Service),
+       * and no archive holds a copy. Their link now opens Yelp's "This review
+       * has been removed" notice.
+       *
+       * Google's API returns the full review, so none of the 77 Google records
+       * is an excerpt.
        */
       name: 'sourceUrl',
       type: 'text',
@@ -83,6 +93,24 @@ export const Reviews: CollectionConfig = {
       },
     },
     { name: 'image', type: 'upload', relationTo: 'media' },
+    {
+      /**
+       * The service pages this review belongs on — a kitchen-and-bathroom
+       * review lists both. Sub-kitchens (European, Custom, Shaker) show their
+       * parent Kitchen Remodeling's reviews, so they are not listed here.
+       * Empty means a general review about the company, which every page
+       * shows. Main pages (Our Projects, Blog) show every review regardless.
+       */
+      name: 'services',
+      type: 'relationship',
+      relationTo: 'services',
+      hasMany: true,
+      admin: {
+        position: 'sidebar',
+        description:
+          'Which service pages show this review. Leave empty for a general review, which shows everywhere.',
+      },
+    },
     { name: 'featured', type: 'checkbox', defaultValue: false },
     { name: 'sortOrder', type: 'number', defaultValue: 0, index: true },
   ],

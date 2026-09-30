@@ -74,6 +74,7 @@ import * as migration_20260925_190000_testimonial_source_url from './20260925_19
 import * as migration_20260926_120000_site_settings_analytics from './20260926_120000_site_settings_analytics'
 import * as migration_20260929_120000_complete_analytics_configuration from './20260929_120000_complete_analytics_configuration'
 import * as migration_20260930_120000_reviews_collection from './20260930_120000_reviews_collection'
+import * as migration_20260930_130000_review_services from './20260930_130000_review_services'
 
 export const migrations = [
   {
@@ -455,5 +456,10 @@ export const migrations = [
     up: migration_20260930_120000_reviews_collection.up,
     down: migration_20260930_120000_reviews_collection.down,
     name: '20260930_120000_reviews_collection',
+  },
+  {
+    up: migration_20260930_130000_review_services.up,
+    down: migration_20260930_130000_review_services.down,
+    name: '20260930_130000_review_services',
   },
 ]

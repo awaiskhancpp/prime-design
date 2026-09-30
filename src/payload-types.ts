@@ -3282,6 +3282,10 @@ export interface Review {
    */
   timeAgo?: string | null;
   image?: (number | null) | Media;
+  /**
+   * Which service pages show this review. Leave empty for a general review, which shows everywhere.
+   */
+  services?: (number | Service)[] | null;
   featured?: boolean | null;
   sortOrder?: number | null;
   updatedAt: string;
@@ -6938,6 +6942,7 @@ export interface ReviewsSelect<T extends boolean = true> {
   quoteIsExcerpt?: T;
   timeAgo?: T;
   image?: T;
+  services?: T;
   featured?: T;
   sortOrder?: T;
   updatedAt?: T;
