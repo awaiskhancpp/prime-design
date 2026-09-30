@@ -1,15 +1,10 @@
 'use client'
 
 import Image from '@/components/ui/Image'
+import { SectionHeader } from '@/components/ui/SectionHeader'
 import { Star } from 'lucide-react'
-import { useEffect, useRef, useState } from 'react'
-import type { Swiper as SwiperType } from 'swiper'
-import { Autoplay } from 'swiper/modules'
-import { Swiper, SwiperSlide } from 'swiper/react'
 
 import { Section } from '@/components/ui/Section'
-
-import 'swiper/css'
 
 /** One review, as the `testimonials` collection hands it over. */
 export type ReviewTestimonial = {
@@ -48,9 +43,8 @@ function sourceKey(source: string): keyof ReviewSourceIcons | undefined {
 /**
  * Static platform trust badges.
  *
- * These are brand assets, not reviews or counts — there is nothing per-page
- * about them, so they stay as files in `public/social/` rather than becoming
- * four more upload fields nobody will ever change.
+ * Brand assets from `public/social/` — nothing per-page about them so they
+ * stay as files rather than becoming CMS upload fields nobody will change.
  */
 const reviewBadges = [
   { src: '/social/Yelp.png', alt: 'Yelp five-star rating' },
@@ -72,11 +66,27 @@ function initials(name: string) {
 /**
  * "See what people in {City} are saying about us".
  *
- * Purely presentational: every value — the reviews, the platform marks and the
- * headline rating — arrives as a prop from `ProjectsReviewsSection`, which
- * reads them from Payload. Nothing here falls back to a hardcoded review list,
- * because a fallback that happens to match reality is exactly how a section
- * stops being CMS-driven without anyone noticing.
+ * Redesigned as a centered heading + full-width badge strip + horizontal
+ * 3-column card grid. The Swiper has been removed in favour of a static
+ * grid — all reviews are visible at once, which performs better for trust
+ * and SEO.
+ *
+ * Section structure (top → bottom):
+ *   1. SectionHeader (size="xl", align="center") — city in brass via titleHighlight
+ *   2. Aggregate rating row — score + five stars + review count
+ *   3. Badge strip (border-y) — Yelp / Google / Houzz / BBB as static images
+ *   4. 3-column card grid
+ *
+ * Card anatomy (top → bottom):
+ *   1. 2px brass accent bar — brand colour anchor, sibling div (no CSS border-color fight)
+ *   2. ★★★★★ + platform mark (from sourceIcons, CMS-managed)
+ *   3. Large decorative " glyph (font-display, brass/15 opacity) + review text
+ *      text-sm leading-7 gives ~156 chars a comfortable 3–4 line cadence
+ *   4. Author footer pinned to bottom (mt-auto on blockquote) — initials circle + name + time-ago
+ *
+ * Badge strip placement: sits between the aggregate rating and the cards so
+ * the reader sees "4.9 stars → trusted on these platforms → here's who said it"
+ * in one top-to-bottom scan rather than having trust signals buried in a column.
  */
 export function ProjectsReviews({
   testimonials,
@@ -90,137 +100,152 @@ export function ProjectsReviews({
   /** City name for the WordPress "{acf_city}" heading on location pages. */
   city?: string
 }) {
-  const swiperRef = useRef<SwiperType | null>(null)
-  const [mounted, setMounted] = useState(false)
-
-  useEffect(() => {
-    const timer = window.setTimeout(() => setMounted(true), 0)
-    return () => window.clearTimeout(timer)
-  }, [])
-
   const totalReviews = (summary?.googleReviewCount ?? 0) + (summary?.yelpReviewCount ?? 0)
   const rating = summary?.googleRating ?? summary?.yelpRating
 
-  return (
-    <Section className="bg-white pt-0">
-      <div className="mx-auto grid  gap-10 lg:grid-cols-12 lg:items-start lg:gap-8">
-        <div className="lg:col-span-5">
-          <h2 className="font-display text-4xl font-medium leading-tight tracking-tight text-ink md:text-5xl">
-            See what people in <span className="text-brass">{city || 'Silicon Valley'}</span> are
-            saying about us
-          </h2>
-          <div className="mt-8 flex flex-wrap items-center gap-12">
-            {reviewBadges.map((badge) => (
-              <Image
-                key={badge.src}
-                src={badge.src}
-                alt={badge.alt}
-                width={90}
-                height={90}
-                className="h-auto w-auto"
-              />
-            ))}
-          </div>
-        </div>
+  // The city is the naturally highlighted phrase — titleHighlight passes it
+  // directly to HighlightedText, which renders it in brass on ink backgrounds.
+  const resolvedCity = city ?? 'Silicon Valley'
 
-        <div className="lg:col-span-7">
-          {rating || totalReviews ? (
-            <div className="flex flex-wrap items-end justify-between gap-4 border-b border-line pb-6">
-              <div>
-                <p className="text-xs font-semibold uppercase tracking-[0.16em] text-brass">
-                  What they say
-                </p>
-                <p className="mt-2 flex flex-wrap items-center gap-2 text-sm text-ink-2/70">
-                  {rating ? <span className="font-display text-2xl text-ink">{rating}</span> : null}
-                  <span className="flex items-center gap-0.5 text-brass" aria-hidden="true">
+  return (
+    <Section className="bg-white">
+
+      {/* ── Heading ──────────────────────────────────────────────────────── */}
+      {/*
+        size="xl" is documented for "the testimonials spotlight" — exactly
+        this. align="center" handles mx-auto + text-center internally so no
+        wrapper div is needed. titleHighlight renders the city in brass via
+        HighlightedText without a manual <span>.
+      */}
+      <SectionHeader
+        align="center"
+        size="xl"
+        title={`See what people in ${resolvedCity} are saying about us`}
+        titleHighlight={resolvedCity}
+      />
+
+      {/* ── Aggregate rating ─────────────────────────────────────────────── */}
+      {(rating || totalReviews > 0) ? (
+        <div className="mt-6 flex flex-wrap items-center justify-center gap-2.5">
+          {rating ? (
+            <span className="font-display text-2xl font-medium tabular-nums text-ink">
+              {rating}
+            </span>
+          ) : null}
+          <span className="flex items-center gap-0.5 text-brass" aria-hidden="true">
+            {Array.from({ length: 5 }).map((_, i) => (
+              <Star key={i} className="h-5 w-5 fill-current" />
+            ))}
+          </span>
+          {totalReviews > 0 ? (
+            <span className="text-sm text-ink-2/60">
+              — based on {totalReviews} verified reviews
+            </span>
+          ) : null}
+        </div>
+      ) : null}
+
+      {/* ── Trust badge strip ────────────────────────────────────────────── */}
+      {/*
+        Static images from public/social/ — the per-card platform marks are
+        CMS-managed (sourceIcons); these badges are brand assets that never
+        change and don't belong in the CMS.
+      */}
+      <div className="mt-10 flex flex-wrap items-center justify-center gap-10 border-y border-line py-8">
+        {reviewBadges.map((badge) => (
+          <Image
+            key={badge.src}
+            src={badge.src}
+            alt={badge.alt}
+            width={80}
+            height={80}
+            className="h-10 w-auto object-contain opacity-70 transition-opacity hover:opacity-100"
+          />
+        ))}
+      </div>
+
+      {/* ── Review grid ──────────────────────────────────────────────────── */}
+      <div className="mt-10 grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
+        {testimonials.map((testimonial, index) => {
+          const icon = sourceIcons?.[sourceKey(testimonial.source) ?? 'google']
+          return (
+            <div
+              key={`${testimonial.author}-${index}`}
+              className="flex flex-col border border-line bg-paper"
+            >
+              {/* 2px brass bar — colour anchor. A sibling <div> avoids the
+                  border-t-2 + border-line CSS ordering problem entirely. */}
+              <div aria-hidden="true" className="h-0.5 shrink-0 bg-brass" />
+
+              <div className="flex flex-1 flex-col gap-4 px-6 py-5">
+
+                {/* ── Stars + platform mark ───────────────────────────── */}
+                <div className="flex items-center justify-between">
+                  <span
+                    className="flex items-center gap-0.5 text-brass"
+                    aria-label={`${testimonial.rating} out of 5 stars`}
+                  >
                     {Array.from({ length: 5 }).map((_, i) => (
-                      <Star key={i} className="h-4 w-4 fill-current" />
+                      <Star key={i} className="h-3.5 w-3.5 fill-current" />
                     ))}
                   </span>
-                  <span>
-                    Excellent
-                    {totalReviews ? ` — based on ${totalReviews} reviews` : ''}
+
+                  {/* CMS-managed platform mark — no mark, no logo. Fine. */}
+                  {icon ? (
+                    <Image
+                      src={icon}
+                      alt={testimonial.source}
+                      width={48}
+                      height={18}
+                      className="h-4 w-auto object-contain opacity-60"
+                    />
+                  ) : null}
+                </div>
+
+                {/* ── Review text ─────────────────────────────────────── */}
+                {/*
+                  The large " glyph (font-display, brass/15) gives typographic
+                  mass without competing with copy. -mt-2 pulls the paragraph
+                  up into the glyph's optical descender space so the gap between
+                  the mark and the first word stays tight. text-sm leading-7
+                  gives ~156 chars a comfortable 3–4 line cadence at card width.
+                */}
+                <blockquote className="flex-1">
+                  <span
+                    aria-hidden="true"
+                    className="block select-none font-display text-4xl leading-none text-brass/15"
+                  >
+                    &ldquo;
                   </span>
-                </p>
+                  <p className="-mt-2 text-sm leading-7 text-ink-2/80">
+                    {testimonial.summary}
+                  </p>
+                </blockquote>
+
+                {/* ── Author footer ───────────────────────────────────── */}
+                <footer className="mt-auto flex items-center gap-3 border-t border-line pt-4">
+                  <div
+                    aria-hidden="true"
+                    className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-paper-2 font-display text-[11px] font-semibold text-ink-2"
+                  >
+                    {initials(testimonial.author)}
+                  </div>
+                  <div>
+                    <p className="text-sm font-semibold leading-snug text-ink-2">
+                      {testimonial.author}
+                    </p>
+                    {testimonial.timeAgo ? (
+                      <p className="mt-0.5 text-xs text-ink-2/50">{testimonial.timeAgo}</p>
+                    ) : null}
+                  </div>
+                </footer>
+
               </div>
             </div>
-          ) : null}
-
-          {/* Vertical ticker: 3 cards visible at once. Autoplay drives the
-              scroll — the top card exits upward and the next one slides in
-              to take its place, on a loop. */}
-          {mounted ? (
-            <Swiper
-              modules={[Autoplay]}
-              direction="vertical"
-              loop
-              onBeforeInit={(swiper) => {
-                swiperRef.current = swiper
-              }}
-              autoplay={{ delay: 1800, disableOnInteraction: false, pauseOnMouseEnter: true }}
-              speed={700}
-              spaceBetween={16}
-              slidesPerView={3}
-              className="mt-10 h-[400px]"
-            >
-              {testimonials.map((testimonial, index) => {
-                const icon = sourceIcons?.[sourceKey(testimonial.source) ?? 'google']
-                return (
-                  <SwiperSlide key={`${testimonial.author}-${index}`}>
-                    <div className="flex h-full flex-col justify-center gap-2 border border-line bg-paper px-5 py-3">
-                      <div className="flex items-center gap-3">
-                        <div
-                          aria-hidden="true"
-                          className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-paper-2 font-display text-xs text-ink-2"
-                        >
-                          {initials(testimonial.author)}
-                        </div>
-                        <div>
-                          <p className="text-sm font-semibold text-ink-2">
-                            {testimonial.author}
-                            {testimonial.timeAgo && (
-                              <span className="ml-1.5 text-xs font-normal text-ink-2/50">
-                                {testimonial.timeAgo}
-                              </span>
-                            )}
-                          </p>
-                          <div className="mt-0.5 flex items-center gap-2">
-                            <span
-                              className="flex items-center gap-0.5 text-brass"
-                              aria-label={`${testimonial.rating} out of 5 stars`}
-                            >
-                              {Array.from({ length: 5 }).map((_, i) => (
-                                <Star key={i} className="h-3 w-3 fill-current" />
-                              ))}
-                            </span>
-                            {/* The platform mark is a Media document from Site
-                                Settings; without one the card simply carries
-                                no mark rather than a hardcoded logo. */}
-                            {icon ? (
-                              <Image
-                                src={icon}
-                                alt={`${testimonial.source} review`}
-                                width={40}
-                                height={16}
-                                className="h-3.5 w-auto object-contain"
-                              />
-                            ) : null}
-                          </div>
-                        </div>
-                      </div>
-                      <p className="text-sm leading-6 text-ink-2/75 line-clamp-2">
-                        &ldquo;{testimonial.summary}&rdquo;
-                      </p>
-                    </div>
-                  </SwiperSlide>
-                )
-              })}
-            </Swiper>
-          ) : (
-            <div className="mt-10 h-[400px]" aria-hidden="true" />
-          )}
-        </div>
+          )
+        })}
       </div>
+
     </Section>
   )
 }
