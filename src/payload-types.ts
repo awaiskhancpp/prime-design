@@ -134,10 +134,12 @@ export interface Config {
   fallbackLocale: null;
   globals: {
     'site-settings': SiteSetting;
+    navigation: Navigation;
     'booking-settings': BookingSetting;
   };
   globalsSelect: {
     'site-settings': SiteSettingsSelect<false> | SiteSettingsSelect<true>;
+    navigation: NavigationSelect<false> | NavigationSelect<true>;
     'booking-settings': BookingSettingsSelect<false> | BookingSettingsSelect<true>;
   };
   locale: null;
@@ -8280,6 +8282,83 @@ export interface SiteSetting {
   createdAt?: string | null;
 }
 /**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "navigation".
+ */
+export interface Navigation {
+  id: number;
+  header?: {
+    items?:
+      | {
+          label: string;
+          /**
+           * Link to a service page. Leave empty to use the URL below instead.
+           */
+          service?: (number | null) | Service;
+          /**
+           * Used when no service is chosen, e.g. "/about". "#" makes a menu that only opens its dropdown.
+           */
+          url?: string | null;
+          dropdown?:
+            | {
+                label: string;
+                /**
+                 * Link to a service page. Leave empty to use the URL below instead.
+                 */
+                service?: (number | null) | Service;
+                /**
+                 * Used when no service is chosen, e.g. "/about". "#" makes a menu that only opens its dropdown.
+                 */
+                url?: string | null;
+                /**
+                 * A second level, e.g. the kitchen styles under Kitchen Remodeling.
+                 */
+                subItems?:
+                  | {
+                      label: string;
+                      /**
+                       * Link to a service page. Leave empty to use the URL below instead.
+                       */
+                      service?: (number | null) | Service;
+                      /**
+                       * Used when no service is chosen, e.g. "/about". "#" makes a menu that only opens its dropdown.
+                       */
+                      url?: string | null;
+                      id?: string | null;
+                    }[]
+                  | null;
+                id?: string | null;
+              }[]
+            | null;
+          id?: string | null;
+        }[]
+      | null;
+  };
+  footer?: {
+    quickLinks?:
+      | {
+          label: string;
+          url: string;
+          id?: string | null;
+        }[]
+      | null;
+    serviceLinks?:
+      | {
+          label: string;
+          service: number | Service;
+          id?: string | null;
+        }[]
+      | null;
+    /**
+     * The year in it is replaced with the current year when the page is shown.
+     */
+    copyright?: string | null;
+    privacyPolicyUrl?: string | null;
+  };
+  updatedAt?: string | null;
+  createdAt?: string | null;
+}
+/**
  * Which days and times consultations can be booked, how many per day, and how far ahead the calendar runs.
  *
  * This interface was referenced by `Config`'s JSON-Schema
@@ -8460,6 +8539,63 @@ export interface SiteSettingsSelect<T extends boolean = true> {
         ogTitle?: T;
         ogDescription?: T;
         ogImage?: T;
+      };
+  updatedAt?: T;
+  createdAt?: T;
+  globalType?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "navigation_select".
+ */
+export interface NavigationSelect<T extends boolean = true> {
+  header?:
+    | T
+    | {
+        items?:
+          | T
+          | {
+              label?: T;
+              service?: T;
+              url?: T;
+              dropdown?:
+                | T
+                | {
+                    label?: T;
+                    service?: T;
+                    url?: T;
+                    subItems?:
+                      | T
+                      | {
+                          label?: T;
+                          service?: T;
+                          url?: T;
+                          id?: T;
+                        };
+                    id?: T;
+                  };
+              id?: T;
+            };
+      };
+  footer?:
+    | T
+    | {
+        quickLinks?:
+          | T
+          | {
+              label?: T;
+              url?: T;
+              id?: T;
+            };
+        serviceLinks?:
+          | T
+          | {
+              label?: T;
+              service?: T;
+              id?: T;
+            };
+        copyright?: T;
+        privacyPolicyUrl?: T;
       };
   updatedAt?: T;
   createdAt?: T;

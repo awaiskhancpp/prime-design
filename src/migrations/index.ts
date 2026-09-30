@@ -75,6 +75,8 @@ import * as migration_20260926_120000_site_settings_analytics from './20260926_1
 import * as migration_20260929_120000_complete_analytics_configuration from './20260929_120000_complete_analytics_configuration'
 import * as migration_20260930_120000_reviews_collection from './20260930_120000_reviews_collection'
 import * as migration_20260930_130000_review_services from './20260930_130000_review_services'
+import * as migration_20260930_140000_navigation_global from './20260930_140000_navigation_global'
+import * as migration_20260930_150000_navigation_nested_names from './20260930_150000_navigation_nested_names'
 
 export const migrations = [
   {
@@ -461,5 +463,15 @@ export const migrations = [
     up: migration_20260930_130000_review_services.up,
     down: migration_20260930_130000_review_services.down,
     name: '20260930_130000_review_services',
+  },
+  {
+    up: migration_20260930_140000_navigation_global.up,
+    down: migration_20260930_140000_navigation_global.down,
+    name: '20260930_140000_navigation_global',
+  },
+  {
+    up: migration_20260930_150000_navigation_nested_names.up,
+    down: migration_20260930_150000_navigation_nested_names.down,
+    name: '20260930_150000_navigation_nested_names',
   },
 ]

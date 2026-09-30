@@ -8,6 +8,7 @@ import { useEffect, useRef, useState } from 'react'
 import website from '../../../website.json'
 import { Button } from '@/components/ui/Button'
 import { Container } from '@/components/ui/Container'
+import type { NavItem } from '@/lib/navigation'
 import { useDialogFocus } from '@/lib/useDialogFocus'
 import { cn } from '@/lib/utils'
 
@@ -21,7 +22,7 @@ import { BrandMark } from './BrandMark'
  * bar (84px); the measured value replaces it as soon as the page is at rest.
  */
 const FALLBACK_PIN_AFTER = 122
-type SiteNavItem = (typeof website.nav)[number]
+type SiteNavItem = NavItem
 
 function dropdownId(prefix: string, href: string) {
   return `${prefix}-${href.replace(/[^a-zA-Z0-9_-]/g, '-')}`
@@ -30,9 +31,16 @@ function dropdownId(prefix: string, href: string) {
 export function SiteHeader({
   tone = 'dark',
   variant = 'full',
+  nav = website.nav,
 }: {
   tone?: 'dark' | 'light'
   variant?: 'full' | 'minimal'
+  /**
+   * The menu, from the Navigation global (`resolveNavigation`, fetched by the
+   * frontend template). Defaults to the `website.json` values it was seeded
+   * from, for a caller with no server data to pass.
+   */
+  nav?: NavItem[]
 }) {
   const [isMenuOpen, setIsMenuOpen] = useState(false)
   const drawerRef = useRef<HTMLElement>(null)
@@ -106,9 +114,9 @@ export function SiteHeader({
   const isLight = effectiveTone === 'light'
   const isMinimal = variant === 'minimal'
 
-  const primaryLinks = website.nav.filter(({ label }) =>
-    ['Home', 'About', 'Services', 'Projects', 'Gallery', 'Resources'].includes(label),
-  )
+  // Contact is the button beside the menu, not a menu item. Matched on the
+  // link rather than the label so renaming an item in the CMS cannot hide it.
+  const primaryLinks = nav.filter(({ href }) => href !== '/contact')
 
   const linkClassName = isLight ? 'text-ink-2' : 'text-white'
 

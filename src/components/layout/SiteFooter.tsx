@@ -3,10 +3,10 @@ import Link from 'next/link'
 import type { ReactNode } from 'react'
 import { Clock, Mail, MapPin, Phone } from 'lucide-react'
 
-import website from '../../../website.json'
 import { BrandMark } from './BrandMark'
 import { Container } from '@/components/ui/Container'
 import { WAVE_BACKGROUND } from '@/lib/assets'
+import { resolveNavigation } from '@/lib/navigation'
 import { resolveSiteSettings } from '@/lib/siteSettings'
 
 /**
@@ -47,9 +47,9 @@ function ColumnHeading({ children }: { children: ReactNode }) {
  * faded out here instead of switching to a second flat navy block.
  */
 export async function SiteFooter() {
-  const siteSettings = await resolveSiteSettings()
+  const [siteSettings, navigation] = await Promise.all([resolveSiteSettings(), resolveNavigation()])
   const currentYear = new Date().getFullYear()
-  const copyright = website.footer.copyright.replace(/\b\d{4}\b/, String(currentYear))
+  const copyright = navigation.footer.copyright.replace(/\b\d{4}\b/, String(currentYear))
 
   return (
     <footer className="relative isolate overflow-hidden bg-ink-2 text-white">
@@ -85,7 +85,7 @@ export async function SiteFooter() {
         <div>
           <ColumnHeading>Quick links</ColumnHeading>
           <nav className="mt-5 grid gap-3.5" aria-label="Footer navigation">
-            {website.footer.quickLinks.slice(0, 5).map((item) => (
+            {navigation.footer.quickLinks.slice(0, 5).map((item) => (
               <FooterLink key={item.label} href={item.href}>
                 {item.label}
               </FooterLink>
@@ -96,7 +96,7 @@ export async function SiteFooter() {
         <div>
           <ColumnHeading>Services</ColumnHeading>
           <nav className="mt-5 grid gap-3.5" aria-label="Footer services">
-            {website.footer.serviceLinks.map((item) => (
+            {navigation.footer.serviceLinks.map((item) => (
               <FooterLink key={item.label} href={item.href}>
                 {item.label}
               </FooterLink>
@@ -147,7 +147,7 @@ export async function SiteFooter() {
         <div className="flex flex-nowrap items-center justify-between gap-2 border-t border-white/10 py-6 text-[10px] leading-5 text-white/45 sm:text-xs">
           <p className="whitespace-nowrap">{copyright}</p>
           <Link
-            href={website.footer.privacyPolicyHref}
+            href={navigation.footer.privacyPolicyHref}
             className="w-fit shrink-0 whitespace-nowrap transition-colors hover:text-white"
           >
             Privacy Policy

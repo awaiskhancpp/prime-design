@@ -8,6 +8,7 @@ import { SiteFooter } from '@/components/layout/SiteFooter'
 import { SiteHeader } from '@/components/layout/SiteHeader'
 import { TopBanner } from '@/components/layout/TopBanner'
 import { resolveFormServices } from '@/lib/formServices'
+import { resolveNavigation } from '@/lib/navigation'
 import { listPublishedLandingPageSlugs } from '@/lib/landingPages'
 import { resolvePageBySlug } from '@/lib/pages'
 import { getServiceLocation } from '@/lib/serviceLocations'
@@ -122,13 +123,16 @@ export default async function FrontendTemplate({ children }: { children: React.R
 
   // Only fetched for pages that actually get the popup — bare pages return
   // above and never reach this line.
-  const consultationServices = await resolveFormServices()
+  const [consultationServices, navigation] = await Promise.all([
+    resolveFormServices(),
+    resolveNavigation(),
+  ])
 
   return (
     <>
       <TopBanner />
       <div className="relative">
-        <SiteHeader tone={headerTone} />
+        <SiteHeader tone={headerTone} nav={navigation.header} />
         {children}
       </div>
       <LandscapingCta />

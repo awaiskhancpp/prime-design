@@ -267,6 +267,20 @@ without asking — each was a decision, not a migration error.
   `<img>` tag. They do not — the fills are literal. The script's docstring has
   been corrected.)
 
+- **The footer's "Home Remodel" links to Home Remodeling; WordPress sends it
+  to Complete Renovation.** The label says home remodel, so it goes to
+  `/services/home-remodeling`. Every other header and footer label is
+  WordPress's own wording, kept as it is even where it differs from the
+  service's title ("ADU" in the header, "ADU" and "Garage Conversion" as two
+  footer links to the same page): they live in the Navigation global
+  (`src/globals/Navigation.ts`), editable per place.
+
+- **The Home Remodeling consultation card is "Home Remodeling Consultation";
+  WordPress titles it "New Construction Consultation".** The card books a
+  Home Remodeling consultation, so it is named for that service. The value is
+  the service's `consultationLabel`; `src/lib/landingPageServices.ts` repeats
+  it for the `home-remodeling-information` landing page.
+
 ## 9. Known debt — don't silently "fix" it, but do know it's there
 
 - Homepage components are split between a `Landscaping*` naming scheme and a `Home*` one

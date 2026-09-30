@@ -20,6 +20,7 @@ import { Team } from './collections/Team'
 import { Reviews } from './collections/Reviews'
 import { Testimonials } from './collections/Testimonials'
 import { BookingSettings } from './globals/BookingSettings'
+import { Navigation } from './globals/Navigation'
 import { SiteSettings } from './globals/SiteSettings'
 import { Blog } from './collections/Blog'
 import { BlogCategories } from './collections/BlogCategories'
@@ -73,7 +74,7 @@ export default buildConfig({
   // dropping them (or worse, renaming them into new tables) — review it before
   // applying, and keep those drops out until the Pages records have been live
   // for a while.
-  globals: [SiteSettings, BookingSettings],
+  globals: [SiteSettings, Navigation, BookingSettings],
   editor: lexicalEditor(),
   secret: process.env.PAYLOAD_SECRET || '',
   typescript: {

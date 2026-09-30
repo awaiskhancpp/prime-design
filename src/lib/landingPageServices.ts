@@ -14,10 +14,10 @@
  *
  * `consultationLabel` here is not invented — it's the real, already-live
  * label the same service's card shows on the /contact page (checked against
- * the actual rendered cards, not guessed): the services collection has no
- * "Home Remodeling" card at all — `home-remodeling`'s own `consultationLabel`
- * is "New Construction Consultation", so that's what that landing page
- * shows too. `remodeling-information` (the general, fifteen-section
+ * the actual rendered cards, not guessed). `home-remodeling`'s card was
+ * titled "New Construction Consultation" on WordPress; it is now "Home
+ * Remodeling Consultation" (CLAUDE.md §8c), here and on the card alike.
+ * `remodeling-information` (the general, fifteen-section
  * catch-all covering kitchen, bathroom and whole-home remodeling together)
  * is mapped to `complete-renovation` / "Complete Renovation Consultation"
  * per the project owner directly, not guessed from the page's own content.
@@ -45,7 +45,7 @@ export const LANDING_PAGE_SERVICES: Record<string, { slug: string; consultationL
   },
   'home-remodeling-information': {
     slug: 'home-remodeling',
-    consultationLabel: 'New Construction Consultation',
+    consultationLabel: 'Home Remodeling Consultation',
   },
   'remodeling-information': {
     slug: 'complete-renovation',
