@@ -88,6 +88,7 @@ import * as migration_20260930_220900_renumber_service_section_rels from './2026
 import * as migration_20260930_220925_remove_dead_fields from './20260930_220925_remove_dead_fields'
 import * as migration_20260930_221000_service_faq_category from './20260930_221000_service_faq_category'
 import * as migration_20260930_221100_drop_orphaned_tables from './20260930_221100_drop_orphaned_tables'
+import * as migration_20260930_230000_retired_phone_numbers from './20260930_230000_retired_phone_numbers'
 
 export const migrations = [
   {
@@ -539,5 +540,10 @@ export const migrations = [
     up: migration_20260930_221100_drop_orphaned_tables.up,
     down: migration_20260930_221100_drop_orphaned_tables.down,
     name: '20260930_221100_drop_orphaned_tables',
+  },
+  {
+    up: migration_20260930_230000_retired_phone_numbers.up,
+    down: migration_20260930_230000_retired_phone_numbers.down,
+    name: '20260930_230000_retired_phone_numbers',
   },
 ]
