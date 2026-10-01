@@ -1,6 +1,6 @@
 import { getPayload } from 'payload'
 import configPromise from '@payload-config'
-import { resolveServiceDetail, type ServiceDetail } from './services'
+import { normalizeMediaUrl, resolveServiceDetail, type ServiceDetail } from './services'
 import type { RichTextValue } from './richText'
 import {
   inherit,
@@ -128,7 +128,7 @@ export async function getServiceLocation(serviceSlug: string, locationSlugValue:
     const serviceDetail = getServiceLocationDetail(baseService, city)
     const mediaUrl = (value: unknown) =>
       typeof value === 'object' && value !== null && 'url' in value && typeof value.url === 'string'
-        ? value.url
+        ? normalizeMediaUrl(value.url)
         : undefined
 
     // Map the "Location Page Sections" override groups (empty groups come

@@ -134,7 +134,7 @@ try {
           if (item.currentMediaId === item.mediaId) continue
           const result = await client.query(
             `UPDATE service_locations
-                SET featured_image_id = $1, updated_at = NOW()
+                SET featured_image_id = $1, seo_og_image_id = $1, updated_at = NOW()
               WHERE id = $2 AND service_id = $3`,
             [item.mediaId, item.recordId, serviceId],
           )

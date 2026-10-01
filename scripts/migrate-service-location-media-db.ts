@@ -91,7 +91,7 @@ try {
       imported++
     }
     if (!await exists(localPath)) throw new Error(`Media file was not materialized at ${localPath}`)
-    await client.query('UPDATE service_locations SET featured_image_id = $1, updated_at = NOW() WHERE slug = $2', [mediaId, location.slug])
+    await client.query('UPDATE service_locations SET featured_image_id = $1, seo_og_image_id = $1, updated_at = NOW() WHERE slug = $2', [mediaId, location.slug])
   }
   await client.query('COMMIT')
   const result = await client.query('SELECT COUNT(*)::int AS records, COUNT(featured_image_id)::int AS linked FROM service_locations WHERE slug LIKE \'%-in-%\'')

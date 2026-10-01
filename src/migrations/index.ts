@@ -100,6 +100,8 @@ import * as migration_20260930_234000_shared_service_content from './20260930_23
 import * as migration_20260930_234500_siding_faq_apostrophe from './20260930_234500_siding_faq_apostrophe'
 import * as migration_20260930_234944_service_page_layout from './20260930_234944_service_page_layout'
 import * as migration_20261001_000115_versions_and_opening_hours from './20261001_000115_versions_and_opening_hours'
+import * as migration_20260930_120000_replace_custom_kitchen_media from './20260930_120000_replace_custom_kitchen_media'
+import * as migration_20261001_120000_service_location_og_images from './20261001_120000_service_location_og_images'
 
 export const migrations = [
   {
@@ -611,5 +613,15 @@ export const migrations = [
     up: migration_20261001_000115_versions_and_opening_hours.up,
     down: migration_20261001_000115_versions_and_opening_hours.down,
     name: '20261001_000115_versions_and_opening_hours',
+  },
+  {
+    up: migration_20260930_120000_replace_custom_kitchen_media.up,
+    down: migration_20260930_120000_replace_custom_kitchen_media.down,
+    name: '20260930_120000_replace_custom_kitchen_media',
+  },
+  {
+    up: migration_20261001_120000_service_location_og_images.up,
+    down: migration_20261001_120000_service_location_og_images.down,
+    name: '20261001_120000_service_location_og_images',
   },
 ]

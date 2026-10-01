@@ -363,12 +363,20 @@ type PayloadServiceRecord = {
   showInConsultationForm?: boolean | null
 }
 
+/** Keep already-published media relations pointed at the replacement asset
+ * until the media-reference migration has run in the deployed database. */
+export const normalizeMediaUrl = (url: string) => {
+  const match = url.match(/Custom-Kitchen\.png([?#].*)?$/i)
+  return match ? `/api/media/file/Custom-Kitchen-new.png${match[1] || ''}` : url
+}
+
 const payloadImageUrl = (value: unknown) => {
   if (typeof value !== 'object' || value === null) return undefined
   const obj = value as { url?: string | null; source_url?: string | null }
   // Prefer the file's own URL (Vercel Blob or local upload); fall back to
   // the original WordPress source URL for media that was never uploaded.
-  return obj.url || obj.source_url || undefined
+  const url = obj.url || obj.source_url
+  return url ? normalizeMediaUrl(url) : undefined
 }
 
 export async function resolveServiceDetail(slug: string): Promise<ServiceDetail | undefined> {
@@ -590,7 +598,7 @@ export async function resolveServiceDetail(slug: string): Promise<ServiceDetail 
           passionHeading: record.primeKitchens.passionHeading ?? undefined,
           cards: record.primeKitchens.cards?.map((card) => ({
             title: card.title || '',
-            image: card.image || undefined,
+            image: card.image ? normalizeMediaUrl(card.image) : undefined,
           })),
         }
       : undefined,
@@ -642,7 +650,9 @@ export async function resolveServiceDetail(slug: string): Promise<ServiceDetail 
               name: item.name || '',
               quote: item.quote ?? undefined,
               avatar:
-                item.image && typeof item.image === 'object' ? (item.image.url ?? undefined) : undefined,
+                item.image && typeof item.image === 'object'
+                  ? (item.image.url ? normalizeMediaUrl(item.image.url) : undefined)
+                  : undefined,
             })),
         }
       : undefined,

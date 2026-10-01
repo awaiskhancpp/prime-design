@@ -17,6 +17,24 @@ const relationId = (value: unknown) =>
       ? undefined
       : String(value)
 
+const syncSeoImageToFeaturedImage: CollectionBeforeValidateHook = ({ data, originalDoc }) => {
+  if (!data) return data
+
+  // Keep the stored SEO relation aligned with Page Settings > Featured Image.
+  // Use the original value for partial updates so editing SEO text cannot
+  // accidentally leave the OG image pointing at a different media record.
+  const hasFeaturedImage = Object.prototype.hasOwnProperty.call(data, 'featuredImage')
+  const featuredImage = hasFeaturedImage ? data.featuredImage : originalDoc?.featuredImage
+  if (!hasFeaturedImage && featuredImage === undefined) return data
+
+  data.seo = {
+    ...(originalDoc?.seo ?? {}),
+    ...(data.seo ?? {}),
+    ogImage: featuredImage ?? null,
+  }
+  return data
+}
+
 const ensureUniqueServiceLocation: CollectionBeforeValidateHook = async ({
   data,
   originalDoc,
@@ -114,7 +132,7 @@ const offeringsField = {
        * They used to be read off the parent service's `sub-services` block,
        * with the city appended to each title. That was wrong in both halves.
        * The location template carries its own photographs — the kitchen pages
-       * use `Custom-Kitchen.png` / `European-Kitchen.png` /
+       * use `Custom-Kitchen-new.png` / `European-Kitchen.png` /
        * `Shaker-Kitchen.png` while the parent service page uses project
        * photos, and the bathroom pages use three specific 2023-05-05 photos,
        * not the neighbouring frames from the same series the service page
@@ -232,7 +250,7 @@ export const ServiceLocations: CollectionConfig = {
     description:
       'The small service + location record. Shared page layout comes from the frontend template.',
   },
-  hooks: { beforeValidate: [ensureUniqueServiceLocation] },
+  hooks: { beforeValidate: [ensureUniqueServiceLocation, syncSeoImageToFeaturedImage] },
   // Identity fields stay outside the tabs so the required ones are always
   // visible, whichever tab the editor is on.
   fields: [

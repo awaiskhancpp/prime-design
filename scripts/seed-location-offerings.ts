@@ -13,7 +13,7 @@ import 'dotenv/config'
  * pages against `primedesignandbuild.com`, which is still serving the
  * WordPress original, that is wrong in three ways at once:
  *
- *   images   kitchen pages use Custom-Kitchen.png / European-Kitchen.png /
+ *   images   kitchen pages use Custom-Kitchen-new.png / European-Kitchen.png /
  *            Shaker-Kitchen.png; the service page uses project photographs,
  *            and those were what we rendered. Bathroom pages use three
  *            specific photos from 2023-05-05 (…56-PM-6, …57-PM-1, …57-PM-2)
@@ -132,10 +132,16 @@ const payload = await getPayload({ config })
 /** Media documents are stored with the WordPress filename, sometimes with a
  *  `.webp` suffix added by the importer, so match on the stem. */
 const mediaCache = new Map<string, number | null>()
+const mediaFilenameAliases: Record<string, string> = {
+  // The live WordPress source still emits the old filename, but the CMS now
+  // uses the replacement asset for every Custom Kitchen card.
+  'Custom-Kitchen.png': 'Custom-Kitchen-new.png',
+}
 async function mediaIdFor(filename: string) {
   if (!filename) return null
   if (mediaCache.has(filename)) return mediaCache.get(filename)!
-  const stem = filename.replace(/\.(png|jpe?g|webp|gif)$/i, '')
+  const resolvedFilename = mediaFilenameAliases[filename] || filename
+  const stem = resolvedFilename.replace(/\.(png|jpe?g|webp|gif)$/i, '')
   const found = await payload.find({
     collection: 'media',
     where: { filename: { like: stem } },
