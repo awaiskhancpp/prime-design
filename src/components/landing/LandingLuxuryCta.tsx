@@ -52,12 +52,8 @@ export function LandingLuxuryCta({
             </h2>
           ) : null}
           {label && link ? (
-            <Button
-              href={link}
-              variant="primary"
-              className="mt-6 bg-ink text-white hover:bg-ink-2"
-            >
-              {label} →
+            <Button href={link} variant="primary" arrow className="mt-6">
+              {label}
             </Button>
           ) : null}
         </div>

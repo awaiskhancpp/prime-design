@@ -2,19 +2,20 @@ import Image from '@/components/ui/Image'
 
 import { Button } from '@/components/ui/Button'
 import { Container } from '@/components/ui/Container'
+import { heroTitleSize } from '@/components/layout/heroTitleSize'
 import type { BlogPost } from '@/lib/blog'
 
 /**
  * Blog detail hero — follows this site's established full-bleed hero
  * pattern (see LandscapingHero / ServiceHero): background image, dark
  * scrim, content overlaid and bottom-anchored. Kept shorter than the
- * marketing-page heroes (min-h-[70vh] rather than min-h-screen) since this
+ * marketing-page heroes (min-h-[70svh] rather than a full viewport) since this
  * is an article detail page — a full viewport of scroll before the actual
  * post starts would work against reading flow here.
  */
 export function BlogPostHero({ post }: { post: BlogPost }) {
   return (
-    <section className="relative isolate flex min-h-[70vh] items-end overflow-hidden bg-ink pb-14 pt-28 text-white md:pb-20">
+    <section className="relative isolate flex min-h-[70svh] items-end overflow-hidden bg-ink pb-14 pt-28 text-white md:pb-20">
       <Image
         src={post.heroImage}
         alt={post.title}
@@ -45,7 +46,11 @@ export function BlogPostHero({ post }: { post: BlogPost }) {
             ))}
           </div>
 
-          <h1 className="font-display text-4xl font-medium leading-tight tracking-tight md:text-6xl">
+          <h1
+            className={`font-display font-medium leading-tight tracking-tight ${heroTitleSize(
+              post.title.length,
+            )}`}
+          >
             {post.title}
           </h1>
 

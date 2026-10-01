@@ -1,9 +1,9 @@
 import Image from '@/components/ui/Image'
-import { ArrowRight } from 'lucide-react'
 
 import { Button } from '@/components/ui/Button'
 import { Container } from '@/components/ui/Container'
 import { HeroImagePairSlider, type HeroSlide } from '@/components/layout/HeroImagePairSlider'
+import { heroTitleSize } from '@/components/layout/heroTitleSize'
 import type { ServiceDetail } from '@/lib/services'
 
 // Real project footage already hosted for the site, used as the full
@@ -14,6 +14,7 @@ const AMBIENT_VIDEO_URL = '/api/media/file/ilay-alice-ave-kitchen.mp4'
 export function ServiceHero({ service }: { service: ServiceDetail }) {
   const heroVideo = service.heroVideoUrl
   const heroSecondary = service.heroImageSecondary
+  const heroTitle = service.heroHeading || service.title
   // Two hero images (and no video) render the pair slider: first image
   // visible, crossfade to the second, prev/next arrows only because there
   // are exactly two. A video still wins over both images.
@@ -25,8 +26,51 @@ export function ServiceHero({ service }: { service: ServiceDetail }) {
         ] as [HeroSlide, HeroSlide])
       : undefined
 
+  /**
+   * Two hero buttons share one line on a phone, and neither label wraps.
+   *
+   * That is a tight budget, so it is worth writing down where it comes from.
+   * `Container` is `px-4`, and the row's gap is 8px, so each of a pair gets
+   * `(viewport - 40) / 2`; take off `px-2` and the borders and the label has
+   * `(viewport - 40) / 2 - 18` to live in — 142px on a 360px phone. Measured
+   * in the page's own Outfit 600, the longest paired label on the site is
+   * the bathroom hero's "Get a Free Consultation" at 137px when set at 10px
+   * with `0.02em` tracking. The service heroes' default (12px, `0.1em`,
+   * `px-6`) needs 199px for the same label, which is why every one of these
+   * pairs wrapped.
+   *
+   * So below `sm` a paired button drops to `0.02em` tracking, `px-2`, and a
+   * size that tracks the viewport — 10px at 360px, rising to the normal 12px
+   * by the time there is room for it — and loses the arrow, which costs 26px
+   * of a 142px budget and is decorative here. `whitespace-nowrap` guarantees
+   * the no-wrap rule even if a future CMS label outgrows the budget.
+   *
+   * Under 360px the pair stacks instead. At 320px the label has only 122px,
+   * and no paired label on the site fits that without going below 10px,
+   * which is past readable for a button — stacking is the honest answer
+   * there rather than clipping real copy.
+   *
+   * A lone hero button is unaffected: it has the whole row, so it keeps the
+   * full type and its arrow.
+   */
+  const pairedButtonClasses = [
+    'w-full whitespace-nowrap',
+    'min-[360px]:w-auto min-[360px]:min-w-0 min-[360px]:flex-1',
+    'max-sm:px-2 max-sm:tracking-[0.02em]',
+    'max-sm:text-[clamp(0.625rem,2.78vw,0.75rem)]',
+    'max-sm:[&>svg]:hidden',
+    // The pair keeps sharing the row until `md`, and `lg`'s jump to 14px
+    // waits until then too. Released at `sm` instead, the bathroom pair
+    // needed 282px + 300px + a 16px gap in the 600px row a 640px screen
+    // has, and dropped onto two lines on exactly that width. At 12px in a
+    // shared row the widest label and its arrow come to 227px against
+    // 258px, which clears comfortably.
+    'sm:px-4 sm:text-xs',
+    'md:flex-none md:px-8 md:text-sm',
+  ].join(' ')
+
   return (
-    <section className="relative isolate flex min-h-screen items-end overflow-hidden bg-ink pb-10 pt-16 text-white lg:pb-16">
+    <section className="relative isolate flex min-h-[calc(100svh-var(--hero-offset,0px))] items-end overflow-hidden bg-ink pb-10 pt-16 text-white lg:pb-16">
       {heroVideo ? (
         <video
           className="absolute inset-0 z-0 h-full w-full object-cover"
@@ -69,30 +113,37 @@ export function ServiceHero({ service }: { service: ServiceDetail }) {
           ) : null}
           {/* Wider measure than the copy below: long WordPress headings (e.g.
               the European Kitchen slogan) otherwise wrap to four lines, which
-              pushed the whole block up to the middle of the hero. */}
-          <h1 className="max-w-4xl font-display text-5xl font-medium leading-tight tracking-tight md:text-7xl">
-            {service.heroHeading || service.title}
+              pushed the whole block up to the middle of the hero. The size
+              steps down with the heading's own length for the same reason —
+              see `heroTitleSize`. This used to be `text-5xl md:text-7xl`,
+              12px larger on a phone than every other hero and with no `sm`
+              step at all. */}
+          <h1
+            className={`max-w-4xl font-display font-medium leading-tight tracking-tight ${heroTitleSize(
+              heroTitle.length,
+            )}`}
+          >
+            {heroTitle}
           </h1>
           <p className="mt-1 lg:mt-7 max-w-xl text-base leading-7 text-white/75 md:text-lg">
             {service.lead}
           </p>
-          {/* `flex-1` on every button (mobile only, via the arbitrary child
-              selector) splits the row evenly between however many buttons
-              there are — two share it side by side instead of the second
-              wrapping to its own line, and a lone button (the sub-styles and
-              Finance currently seed just one) still fills the row rather
-              than sitting half-width. `sm:` reverts to each button's own
-              natural width, unchanged from before. */}
-          <div className="mt-4 flex flex-wrap gap-3 [&>*]:min-w-0 [&>*]:flex-1 sm:[&>*]:flex-none lg:mt-9">
-            {service.heroButtons?.map((button) => (
+          {/* A pair shares one line and never wraps — see
+              `pairedButtonClasses` above for the width budget that drives
+              it. A lone button takes the whole row. */}
+          <div className="mt-4 flex flex-wrap gap-2 sm:gap-3 lg:mt-9">
+            {service.heroButtons?.map((button, index, buttons) => (
               <Button
                 key={`${button.label}-${button.href}`}
                 href={button.href}
-                variant="primary"
+                variant="brass"
                 size="lg"
-                className="justify-center border-brass bg-brass px-3 py-2.5 text-center text-xs text-ink hover:border-brass-deep hover:bg-brass-deep hover:text-white sm:px-6 sm:py-3.5 sm:text-base"
+                arrow={index === buttons.length - 1}
+                className={
+                  buttons.length > 1 ? pairedButtonClasses : 'w-full sm:w-auto'
+                }
               >
-                {button.label} <ArrowRight className="hidden h-4 w-4 sm:inline" aria-hidden />
+                {button.label}
               </Button>
             ))}
           </div>

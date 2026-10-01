@@ -1,5 +1,4 @@
 import Image from '@/components/ui/Image'
-import { ArrowRight } from 'lucide-react'
 
 import { Button } from '@/components/ui/Button'
 import { Container } from '@/components/ui/Container'
@@ -60,16 +59,8 @@ export function LandscapingCta() {
           standards are consistently met with each project we undertake.
         </p>
 
-        <Button
-          href="/contact"
-          size="lg"
-          className="group mt-10 border-brass bg-brass text-ink hover:border-white hover:bg-white hover:text-ink"
-        >
+        <Button href="/contact" variant="brass" size="lg" arrow className="mt-10">
           Let&apos;s get started
-          <ArrowRight
-            className="h-4 w-4 transition-transform duration-300 group-hover:translate-x-1"
-            aria-hidden="true"
-          />
         </Button>
       </Container>
     </section>

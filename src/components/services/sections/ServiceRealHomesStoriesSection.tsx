@@ -1,4 +1,3 @@
-import { ArrowRight } from 'lucide-react'
 
 import { Button } from '@/components/ui/Button'
 import { Section } from '@/components/ui/Section'
@@ -91,9 +90,8 @@ export function ServiceRealHomesStoriesSection({
       </div>
 
       <div className="mt-12 flex justify-center">
-        <Button href={cta.href} variant="outline" size="md">
+        <Button href={cta.href} variant="outline" size="md" arrow>
           {cta.label}
-          <ArrowRight className="h-4 w-4" aria-hidden />
         </Button>
       </div>
     </Section>

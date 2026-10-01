@@ -122,7 +122,7 @@ export function ServiceImageTextSection({
             <RichTextLines text={description} />
           ) : null}
           {cta ? (
-            <Button href={cta.href} variant="outline" className="mt-6">
+            <Button href={cta.href} variant="outline" arrow className="mt-6">
               {cta.label}
             </Button>
           ) : null}

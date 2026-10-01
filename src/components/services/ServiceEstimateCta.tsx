@@ -1,7 +1,6 @@
-import Link from 'next/link'
 import type { ReactNode } from 'react'
-import { ArrowRight } from 'lucide-react'
 
+import { Button } from '../ui/Button'
 import { Container } from '../ui/Container'
 
 /**
@@ -50,12 +49,9 @@ export function ServiceEstimateCta({
             ) : null}
           </div>
           {cta ? (
-            <Link
-              href={cta.href}
-              className="flex items-center justify-center gap-2 bg-white px-5 py-3 text-sm font-semibold text-ink hover:bg-paper"
-            >
-              {cta.label} <ArrowRight />
-            </Link>
+            <Button href={cta.href} variant="light" arrow>
+              {cta.label}
+            </Button>
           ) : null}
         </div>
       </Container>

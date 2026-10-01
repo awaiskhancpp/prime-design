@@ -1,4 +1,3 @@
-import { ArrowRight } from 'lucide-react'
 
 import { Button } from '@/components/ui/Button'
 import { Section } from '@/components/ui/Section'
@@ -44,9 +43,13 @@ export function HomeFeatureBlocks({
                     <RichTextContent data={block.body} />
                   </div>
                   {block.ctaLabel ? (
-                    <Button href={block.ctaHref || '/contact'} variant="secondary" className="mt-7">
+                    <Button
+                      href={block.ctaHref || '/contact'}
+                      variant="secondary"
+                      arrow
+                      className="mt-7"
+                    >
                       {block.ctaLabel}
-                      <ArrowRight className="h-4 w-4" aria-hidden />
                     </Button>
                   ) : null}
                 </div>

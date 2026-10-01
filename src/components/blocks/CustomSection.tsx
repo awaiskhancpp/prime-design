@@ -1,7 +1,7 @@
 import Image from '@/components/ui/Image'
 
 import { RichTextContent } from '@/components/rich-text/RichTextContent'
-import { Button } from '@/components/ui/Button'
+import { Button, ButtonGroup } from '@/components/ui/Button'
 import { HighlightedText } from '@/components/ui/HighlightedText'
 import { Section } from '@/components/ui/Section'
 import type { CustomSectionContent } from '@/lib/sections'
@@ -42,17 +42,17 @@ export function CustomSection({ section }: { section: CustomSectionContent }) {
           ) : null}
 
           {section.buttons.length ? (
-            <div className="mt-8 flex flex-wrap gap-3">
+            <ButtonGroup className="mt-8">
               {section.buttons.map((button, index) => (
                 <Button
                   key={`${button.href}-${index}`}
                   href={button.href}
-                  variant={index === 0 ? 'primary' : 'outline'}
+                  variant={index === 0 ? 'primary' : 'secondary'}
                 >
                   {button.label}
                 </Button>
               ))}
-            </div>
+            </ButtonGroup>
           ) : null}
         </div>
 

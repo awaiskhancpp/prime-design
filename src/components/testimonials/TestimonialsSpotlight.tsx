@@ -3,7 +3,7 @@
 import Image from '@/components/ui/Image'
 import { Star } from 'lucide-react'
 
-import { Button } from '@/components/ui/Button'
+import { Button, ButtonGroup } from '@/components/ui/Button'
 import { Section } from '@/components/ui/Section'
 import { RichTextContent } from '@/components/rich-text/RichTextContent'
 import type { RichTextValue } from '@/lib/richText'
@@ -79,15 +79,10 @@ export function TestimonialsSpotlight({
             </div>
           ) : null}
           {ctaLabel || ctaNote ? (
-            <div className="mt-9 flex flex-wrap items-center gap-5">
+            <ButtonGroup className="mt-9">
               {ctaLabel && ctaHref ? (
-                <Button
-                  href={ctaHref}
-                  variant="primary"
-                  size="lg"
-                  className="border-brass bg-brass text-ink hover:border-brass-deep hover:bg-brass-deep hover:text-white"
-                >
-                  {ctaLabel} <span aria-hidden>→</span>
+                <Button href={ctaHref} variant="brass" size="lg">
+                  {ctaLabel}
                 </Button>
               ) : null}
               {ctaNote ? (
@@ -95,7 +90,7 @@ export function TestimonialsSpotlight({
                   {ctaNote}
                 </Button>
               ) : null}
-            </div>
+            </ButtonGroup>
           ) : null}
         </div>
 

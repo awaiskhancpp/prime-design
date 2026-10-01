@@ -115,9 +115,8 @@ export async function HomeProjects({
         ))}
       </div>
       <div className="flex justify-center">
-        <Button href="/our-projects" variant="secondary" className="mt-7">
+        <Button href="/our-projects" variant="secondary" arrow className="mt-7">
           See More Projects
-          <ArrowRight className="h-4 w-4" aria-hidden />
         </Button>
       </div>
     </Section>

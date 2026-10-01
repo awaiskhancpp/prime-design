@@ -1,7 +1,7 @@
 import { Star } from 'lucide-react'
 import Image from '@/components/ui/Image'
 
-import { Button } from '@/components/ui/Button'
+import { Button, ButtonGroup } from '@/components/ui/Button'
 import { Section } from '@/components/ui/Section'
 
 export type TrustIntroStat = {
@@ -64,23 +64,18 @@ export function ProjectsTrustIntro({
           {body ? <p className="mt-8 max-w-xl text-lg leading-8 text-ink-2/75">{body}</p> : null}
 
           {shownButtons.length ? (
-            <div className="mt-9 md:flex md:flex-wrap gap-2 md:gap-4">
+            <ButtonGroup className="mt-9">
               {shownButtons.map((button) => (
                 <Button
                   key={`${button.label}-${button.url}`}
                   href={button.url}
-                  variant={button.variant === 'brass' ? 'primary' : 'outline'}
+                  variant={button.variant === 'brass' ? 'brass' : 'outline'}
                   size="lg"
-                  className={
-                    button.variant === 'brass'
-                      ? 'border-brass bg-brass text-ink hover:border-brass-deep hover:bg-brass-deep hover:text-white'
-                      : undefined
-                  }
                 >
-                  {button.label} <span aria-hidden>→</span>
+                  {button.label}
                 </Button>
               ))}
-            </div>
+            </ButtonGroup>
           ) : null}
         </div>
 

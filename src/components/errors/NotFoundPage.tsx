@@ -51,20 +51,10 @@ export function NotFoundPage() {
         title="This page took a wrong turn"
         description="The page you’re looking for doesn’t exist, or it may have moved. Search below, or pick up from one of the sections."
       >
-        <Button
-          href="/"
-          variant="primary"
-          size="lg"
-          className="justify-center px-3 py-2.5 text-center text-xs sm:px-6 sm:py-3.5 sm:text-base"
-        >
+        <Button href="/" variant="primary" size="lg">
           Back to homepage
         </Button>
-        <Button
-          href="/contact"
-          variant="outline"
-          size="lg"
-          className="justify-center px-3 py-2.5 text-center text-xs sm:px-6 sm:py-3.5 sm:text-base"
-        >
+        <Button href="/contact" variant="secondary" size="lg" arrow>
           Talk to an expert
         </Button>
       </UtilityHero>

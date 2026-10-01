@@ -1,5 +1,4 @@
 import Image from '@/components/ui/Image'
-import { ArrowRight } from 'lucide-react'
 
 import { Button } from '@/components/ui/Button'
 import { Section } from '@/components/ui/Section'
@@ -43,13 +42,8 @@ export function ServiceFinanceCtaSection({
           <p className="mt-5 max-w-2xl text-base leading-7 text-white/85 md:text-lg">{description}</p>
         ) : null}
         {cta ? (
-          <Button
-            href={cta.href}
-            size="lg"
-            className="mt-9 border-brass bg-brass text-ink hover:border-brass-deep hover:bg-brass-deep hover:text-white"
-          >
+          <Button href={cta.href} variant="brass" size="lg" arrow className="mt-9">
             {cta.label}
-            <ArrowRight className="h-4 w-4" aria-hidden />
           </Button>
         ) : null}
       </div>

@@ -64,11 +64,7 @@ export async function LandingHeader() {
             </a>
 
             {/* CTA — brass fill, the strongest surface the header owns. */}
-            <Button
-              href="#contact"
-              variant="primary"
-              className="border-brass bg-brass text-ink-2 hover:border-brass-deep hover:bg-brass-deep hover:text-white"
-            >
+            <Button href="#contact" variant="brass">
               Get a Quote
             </Button>
           </div>

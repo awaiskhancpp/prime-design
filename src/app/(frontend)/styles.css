@@ -219,3 +219,28 @@ div:has([data-light-chrome]) > header[data-pinned] * {
   color: #fff;
   border-color: color-mix(in srgb, #fff 15%, transparent);
 }
+
+/* --------------------------------------------------------------------------
+   Hero height
+
+   `TopBanner` is an `<aside>` in normal flow above every chromed page's
+   content (see `template.tsx`), so a hero asking for a full viewport made
+   the first screen `banner + 100vh` and pushed its own bottom edge below
+   the fold by exactly the banner's height — measured at 39px on phone,
+   tablet and desktop alike.
+
+   The heroes subtract this value, so the first screen is one viewport tall
+   on the nose. It stays `0px` here because the pages that skip the banner —
+   Google Ads landing pages and service-location pages, the `bare` branch of
+   `template.tsx` — must take the whole viewport; the chromed branch sets it
+   to the banner's height, and `TopBanner` takes its minimum height from the
+   same property so the two cannot drift apart.
+
+   Heroes pair it with `svh`, not `vh`. `100vh` is the *large* viewport — the
+   height with the mobile browser's URL bar hidden — so on a phone a `100vh`
+   hero already overran the visible area before the banner was counted at
+   all. `100svh` is the small viewport, which is always visible.
+   -------------------------------------------------------------------------- */
+:root {
+  --hero-offset: 0px;
+}

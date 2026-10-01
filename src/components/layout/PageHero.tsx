@@ -3,6 +3,7 @@ import type { ReactNode } from 'react'
 
 import { Button } from '@/components/ui/Button'
 import { Container } from '@/components/ui/Container'
+import { heroTitleSize, titleLength } from '@/components/layout/heroTitleSize'
 import { HeroImagePairSlider, type HeroSlide } from './HeroImagePairSlider'
 
 type PageHeroProps = {
@@ -10,6 +11,12 @@ type PageHeroProps = {
 
   /** Plain text or inline elements (highlighted words render as spans). */
   title: ReactNode
+  /**
+   * How many characters the heading really is, for `heroTitleSize`. Only
+   * needed when `title` is not a plain string — the homepage passes
+   * `HighlightedText`, whose length cannot be read off the node.
+   */
+  titleChars?: number
 
   /** Plain text or inline elements (migrated WordPress copy keeps <strong>/<em>). */
   description?: ReactNode
@@ -56,6 +63,7 @@ type PageHeroProps = {
 export function PageHero({
   eyebrow,
   title,
+  titleChars,
   description,
   image,
   backgroundVideo,
@@ -77,7 +85,7 @@ export function PageHero({
   return (
     <section
       className={[
-        'relative isolate flex min-h-screen overflow-hidden bg-ink text-white',
+        'relative isolate flex min-h-[calc(100svh-var(--hero-offset,0px))] overflow-hidden bg-ink text-white',
 
         // Vertical alignment: the primary (`center`) hero is actually
         // vertically centered on every screen size, including mobile —
@@ -173,14 +181,9 @@ export function PageHero({
             className={[
               'font-display font-medium leading-[1.05] tracking-tight',
 
-              // Mobile
-              'text-4xl',
-
-              // Small tablet
-              'sm:text-5xl',
-
-              // Tablet / desktop
-              'md:text-7xl',
+              // Steps down for a long heading rather than letting it take
+              // four lines of a phone's hero — see `heroTitleSize`.
+              heroTitleSize(titleChars ?? titleLength(title)),
 
               isCentered ? 'mx-auto max-w-5xl' : 'max-w-4xl',
             ].join(' ')}
@@ -208,7 +211,13 @@ export function PageHero({
 
           {/* CTA */}
           {cta ? (
-            <Button href={cta.href} variant="primary" size="lg" className="mt-5 sm:mt-6 md:mt-8">
+            <Button
+              href={cta.href}
+              variant="brass"
+              size="lg"
+              arrow
+              className="mt-5 max-sm:w-full sm:mt-6 md:mt-8"
+            >
               {cta.label}
             </Button>
           ) : null}

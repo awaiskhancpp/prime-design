@@ -2,6 +2,7 @@ import Image from '@/components/ui/Image'
 import { VideoPlayer } from '@/components/ui/VideoPlayer'
 
 import { LandscapingServiceAreas } from '@/components/blocks/LandscapingServiceAreas'
+import { heroTitleSize } from '@/components/layout/heroTitleSize'
 import { RichTextContent } from '@/components/rich-text/RichTextContent'
 import { Container } from '@/components/ui/Container'
 import { Section } from '@/components/ui/Section'
@@ -12,7 +13,7 @@ import { ProjectLocationMap } from './ProjectLocationMap'
 export function ProjectDetailPage({ project }: { project: Project }) {
   return (
     <div className="min-h-screen bg-paper">
-      <section className="relative isolate flex min-h-screen items-end overflow-hidden bg-ink pb-16 pt-36 text-white lg:pb-24">
+      <section className="relative isolate flex min-h-[calc(100svh-var(--hero-offset,0px))] items-end overflow-hidden bg-ink pb-16 pt-36 text-white lg:pb-24">
         <Image
           src={project.heroImage}
           alt={project.title}
@@ -27,7 +28,11 @@ export function ProjectDetailPage({ project }: { project: Project }) {
             <p className=" text-xs font-semibold uppercase tracking-[0.2em] text-brass">
               {project.location}
             </p>
-            <h1 className=" max-w-2xl font-display text-4xl font-medium leading-tight tracking-tight md:text-7xl">
+            <h1
+              className={`max-w-2xl font-display font-medium leading-tight tracking-tight ${heroTitleSize(
+                project.title.length,
+              )}`}
+            >
               {project.title}
             </h1>
             <p className="mt-3 max-w-xl text-base leading-7 text-white/75 md:text-lg">

@@ -5,7 +5,6 @@ import { useEffect, useMemo, useRef, useState } from 'react'
 import type { ChangeEvent, FormEvent } from 'react'
 import {
   ArrowLeft,
-  ArrowRight,
   CalendarPlus,
   Check,
   ChevronLeft,
@@ -949,9 +948,11 @@ export function AppointmentScheduler({
                     where they did before. */}
                 <div className="sticky bottom-0 -mx-8 mt-8 flex justify-between border-t border-line bg-white px-8 py-4 md:-mx-12 md:px-12">
                   <Button type="button" variant="outline" onClick={back}>
-                    ← Back
+                    <ArrowLeft className="size-4" aria-hidden /> Back
                   </Button>
-                  <Button type="submit">Next →</Button>
+                  <Button type="submit" arrow>
+                    Next
+                  </Button>
                 </div>
               </div>
             </form>
@@ -1020,22 +1021,13 @@ export function AppointmentScheduler({
                     "Submit" reachable even when the review content above it
                     is taller than the modal's viewport-capped height. */}
                 <div className="sticky bottom-0 -mx-8 mt-6 flex justify-between border-t border-line bg-white px-8 py-4 md:-mx-12 md:px-12">
-                  <Button
-                    type="button"
-                    variant="outline"
-                    onClick={back}
-                    disabled={sending}
-                    className="flex gap-1"
-                  >
-                    <ArrowLeft /> Back
+                  <Button type="button" variant="outline" onClick={back} disabled={sending}>
+                    <ArrowLeft className="size-4" aria-hidden /> Back
                   </Button>
-                  <Button
-                    type="button"
-                    onClick={submitBooking}
-                    disabled={sending}
-                    className="flex gap-1"
-                  >
-                    {sending ? 'Sending…' : 'Submit'} <ArrowRight />
+                  {/* Submitting is the end of the wizard, not a step forward,
+                      so it takes no arrow. */}
+                  <Button type="button" onClick={submitBooking} disabled={sending}>
+                    {sending ? 'Sending…' : 'Submit'}
                   </Button>
                 </div>
               </div>
@@ -1114,23 +1106,11 @@ export function AppointmentScheduler({
               </div>
 
               <div className="flex flex-wrap gap-3">
-                <Button
-                  type="button"
-                  variant="outline"
-                  size="sm"
-                  onClick={downloadIcs}
-                  className="flex items-center gap-2"
-                >
-                  <CalendarPlus className="h-4 w-4" aria-hidden /> Add to Calendar
+                <Button type="button" variant="outline" size="sm" onClick={downloadIcs}>
+                  <CalendarPlus className="size-3.5" aria-hidden /> Add to Calendar
                 </Button>
-                <Button
-                  type="button"
-                  variant="outline"
-                  size="sm"
-                  onClick={() => window.print()}
-                  className="flex items-center gap-2"
-                >
-                  <Printer className="h-4 w-4" aria-hidden /> Print
+                <Button type="button" variant="outline" size="sm" onClick={() => window.print()}>
+                  <Printer className="size-3.5" aria-hidden /> Print
                 </Button>
               </div>
 

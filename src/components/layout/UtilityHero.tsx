@@ -54,12 +54,12 @@ export function UtilityHero({
           ) : null}
 
           {children ? (
-            // `flex-1` on every action (mobile only) splits the row evenly
-            // between however many there are — two sit side by side instead
-            // of the second wrapping below, and a lone action still fills
-            // the row instead of sitting half-width. `sm:` reverts to each
-            // one's own natural width, unchanged from before.
-            <div className="mt-9 flex flex-wrap items-center justify-center gap-3 [&>*]:min-w-0 [&>*]:flex-1 sm:[&>*]:flex-none">
+            // One full-width action per row below `sm`, natural widths from
+            // `sm` up — the same rule as the service hero and `ButtonGroup`.
+            // Half-width actions cannot hold a real label on a phone without
+            // wrapping ("Book a free consultation" is twenty-four
+            // characters); a lone action still fills the row as before.
+            <div className="mt-9 flex flex-wrap items-center justify-center gap-3 [&>*]:w-full sm:[&>*]:w-auto">
               {children}
             </div>
           ) : null}

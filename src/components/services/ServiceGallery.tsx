@@ -2,7 +2,6 @@
 
 import { useState } from 'react'
 import Image from '@/components/ui/Image'
-import { ArrowRight } from 'lucide-react'
 
 import { Button } from '@/components/ui/Button'
 import { Lightbox } from '@/components/gallery/Lightbox'
@@ -96,9 +95,8 @@ export function ServiceGallery({ service }: { service: ServiceDetail }) {
       </div>
 
       <div className="mt-10 flex justify-center">
-        <Button href="/gallery" variant="outline">
+        <Button href="/gallery" variant="outline" arrow>
           Visit our gallery
-          <ArrowRight className="h-4 w-4" aria-hidden />
         </Button>
       </div>
 

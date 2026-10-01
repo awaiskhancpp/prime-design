@@ -1,5 +1,4 @@
 import Image from '@/components/ui/Image'
-import { ArrowRight } from 'lucide-react'
 
 import { Button } from '@/components/ui/Button'
 import { Section } from '@/components/ui/Section'
@@ -58,9 +57,8 @@ export function ServiceDontSettleSection({
           />
           {cta?.label ? (
             <div className="mt-9">
-              <Button href={cta.href} variant="outline" size="lg">
+              <Button href={cta.href} variant="outline" size="lg" arrow>
                 {cta.label}
-                <ArrowRight className="h-4 w-4" aria-hidden />
               </Button>
             </div>
           ) : null}

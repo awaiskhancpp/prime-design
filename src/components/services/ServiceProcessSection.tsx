@@ -2,9 +2,8 @@
 
 import Image from '@/components/ui/Image'
 import { useEffect, useRef, useState } from 'react'
-import { ArrowRight } from 'lucide-react'
 
-import { Button } from '@/components/ui/Button'
+import { Button, ButtonGroup } from '@/components/ui/Button'
 import { SectionHeader } from '@/components/ui/SectionHeader'
 import type { ServiceContentStep } from '@/lib/services'
 import { cn } from '@/lib/utils'
@@ -69,15 +68,11 @@ export function ServiceProcessSection({
         <div className="bg-white px-6 pb-0 pt-20 md:px-12 md:pt-24">
           <SectionHeader align="center" eyebrow={eyebrow} title={title} description={description} />
           {cta ? (
-            <div className="mt-8 flex justify-center">
-              <Button
-                href={cta.href}
-                className="border-brass bg-brass text-white hover:border-brass-deep hover:bg-brass-deep"
-              >
+            <ButtonGroup align="center" className="mt-8">
+              <Button href={cta.href} variant="brass">
                 {cta.label}
-                <ArrowRight className="h-4 w-4" aria-hidden />
               </Button>
-            </div>
+            </ButtonGroup>
           ) : null}
         </div>
       ) : null}

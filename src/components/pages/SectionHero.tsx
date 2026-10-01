@@ -1,4 +1,4 @@
-import { ArrowRight, CalendarDays } from 'lucide-react'
+import { CalendarDays } from 'lucide-react'
 
 import { PageHero } from '@/components/layout/PageHero'
 import type { HeroSlide } from '@/components/layout/HeroImagePairSlider'
@@ -39,6 +39,8 @@ export function SectionHero({ hero }: { hero: PageHeroContent }) {
       align={hero.align}
       eyebrow={hero.eyebrow}
       title={<HighlightedText text={hero.heading} highlight={hero.headingHighlight} />}
+      // The node above hides the heading's length from PageHero.
+      titleChars={hero.heading?.length ?? 0}
       description={
         hero.description ? <RichTextContent data={hero.description} tone="light" /> : undefined
       }
@@ -56,7 +58,7 @@ export function SectionHero({ hero }: { hero: PageHeroContent }) {
         // PageHero's own CTA, at every alignment.
         <div
           className={[
-            'mt-5 sm:mt-6 md:mt-8',
+            'mt-5 [&>*]:w-full sm:mt-6 sm:[&>*]:w-auto md:mt-8',
             hero.align === 'center' ? 'flex flex-wrap justify-center gap-2' : '',
           ]
             .filter(Boolean)
@@ -64,10 +66,14 @@ export function SectionHero({ hero }: { hero: PageHeroContent }) {
         >
           <Button
             href={cta.href}
-            variant={cta.style === 'outlined' ? 'outline' : 'primary'}
-            className={cta.style === 'outlined' ? 'text-white' : undefined}
+            variant={cta.style === 'outlined' ? 'outline-light' : 'brass'}
+            size="lg"
+            // A button that already carries a leading icon naming the action
+            // does not also take the trailing navigation arrow.
+            arrow={!cta.showCalendarIcon}
           >
-            {cta.showCalendarIcon ? <CalendarDays /> : null} {cta.label} <ArrowRight />
+            {cta.showCalendarIcon ? <CalendarDays className="size-4" aria-hidden /> : null}
+            {cta.label}
           </Button>
         </div>
       ) : null}

@@ -2,7 +2,7 @@ import Image from '@/components/ui/Image'
 import Link from 'next/link'
 import { ArrowRight } from 'lucide-react'
 
-import { Button } from '@/components/ui/Button'
+import { Button, ButtonGroup } from '@/components/ui/Button'
 import { Section } from '@/components/ui/Section'
 import { SectionHeader } from '@/components/ui/SectionHeader'
 
@@ -66,26 +66,18 @@ export function ServiceOfferingsSection({
    */
   const ctas =
     primaryCta || secondaryCta ? (
-      <div className="mt-12 flex flex-wrap items-center justify-center gap-3">
+      <ButtonGroup align="center" className="mt-12">
         {primaryCta && (
-          <Button
-            href={primaryCta.href}
-            size="md"
-            className="border-brass bg-brass text-white hover:border-brass-deep hover:bg-brass-deep"
-          >
-            {primaryCta.label} {!secondaryCta && <ArrowRight />}
+          <Button href={primaryCta.href} variant="brass" size="md">
+            {primaryCta.label}
           </Button>
         )}
         {secondaryCta && (
-          <Button href={secondaryCta.href} variant="outline" size="md" className="group">
+          <Button href={secondaryCta.href} variant="outline" size="md">
             {secondaryCta.label}
-            <ArrowRight
-              className="h-4 w-4 transition-transform duration-300 group-hover:translate-x-1"
-              aria-hidden
-            />
           </Button>
         )}
-      </div>
+      </ButtonGroup>
     ) : null
 
   const content = (

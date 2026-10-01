@@ -404,12 +404,12 @@ export function SiteHeader({
               <Button
                 href={isMinimal ? '#contact' : '/contact'}
                 variant={isLight ? 'outline' : 'outline-light'}
-                // Header CTA only: the shared `lg` size (px-6 py-3.5 / 16px
-                // text) drew a 107x54 box around a 57px-wide word, so the
-                // outline read as a stretched empty frame next to the 12px
-                // nav links. Tightened here rather than in Button.tsx so no
-                // other section's CTA changes.
-                className="px-4 py-2.5"
+                // The compact step. The default `md` drew a stretched empty
+                // frame around a single word next to the 12px nav links; this
+                // used to be a bespoke px-4 py-2.5 override here, which is
+                // what `sm` now is. Header chrome takes no arrow — the rule
+                // is for a page's call to action, not persistent navigation.
+                size="sm"
               >
                 {isMinimal ? 'Get A Quote' : 'Contact'}
               </Button>
@@ -487,13 +487,14 @@ export function SiteHeader({
 
           {/* Bottom CTA */}
           <div className="border-t border-white/10 p-5">
-            <Link
+            <Button
               href="/contact"
+              variant="brass"
               onClick={() => setIsMenuOpen(false)}
-              className="flex min-h-14 items-center justify-center border border-brass bg-brass px-6 text-sm font-semibold uppercase tracking-[0.14em] text-ink-2 transition-opacity hover:opacity-90"
+              className="min-h-14 w-full"
             >
               Request a Quote
-            </Link>
+            </Button>
           </div>
         </aside>
       </div>

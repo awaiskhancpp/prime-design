@@ -1,4 +1,3 @@
-import { ArrowRight } from 'lucide-react'
 import type { ReactNode } from 'react'
 import Image from '@/components/ui/Image'
 
@@ -66,13 +65,8 @@ export function LandingCtaSection({
             <p className="mt-4 text-base leading-7">{description}</p>
           ) : null}
           {cta ? (
-            <Button
-              href={cta.href}
-              variant="outline"
-              className="mt-6 flex w-fit items-center gap-2 border-ink text-ink hover:bg-ink hover:text-white"
-            >
+            <Button href={cta.href} variant="secondary" arrow className="mt-6 w-fit">
               {cta.label}
-              <ArrowRight className="h-4 w-4" aria-hidden />
             </Button>
           ) : null}
         </div>

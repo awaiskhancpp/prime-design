@@ -1,5 +1,4 @@
 import Image from '@/components/ui/Image'
-import { ArrowUpRight } from 'lucide-react'
 
 import { Button } from '@/components/ui/Button'
 import { Section } from '@/components/ui/Section'
@@ -40,8 +39,8 @@ export function GuidingPrinciple({
         <div className="max-w-2xl text-base leading-8 text-ink-2/75 md:text-lg">
           {guidingPrinciple?.body ? <RichTextContent data={guidingPrinciple.body} /> : null}
           {ctaLabel ? (
-            <Button href={ctaHref} variant="outline" className="mt-8 text-ink-2">
-              {ctaLabel} <ArrowUpRight className="h-4 w-4" aria-hidden />
+            <Button href={ctaHref} variant="outline" arrow className="mt-8">
+              {ctaLabel}
             </Button>
           ) : null}
         </div>

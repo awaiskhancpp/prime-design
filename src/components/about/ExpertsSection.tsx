@@ -1,6 +1,5 @@
 import Image from '@/components/ui/Image'
 import { VideoPlayer } from '@/components/ui/VideoPlayer'
-import { ArrowRight } from 'lucide-react'
 
 import { Section } from '@/components/ui/Section'
 import { SectionHeader } from '@/components/ui/SectionHeader'
@@ -61,9 +60,8 @@ export function ExpertsSection({ experts }: { experts?: AboutExpertsValue }) {
             )}
           </div>
           {ctaLabel ? (
-            <Button href={ctaHref || '/services'} variant="secondary" className="mt-8 w-fit">
+            <Button href={ctaHref || '/services'} variant="secondary" arrow className="mt-8 w-fit">
               {ctaLabel}
-              <ArrowRight className="h-4 w-4" aria-hidden />
             </Button>
           ) : null}
         </div>

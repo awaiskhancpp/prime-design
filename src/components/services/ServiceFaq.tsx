@@ -35,7 +35,7 @@ export function ServiceFaq({
             title={title}
             description={desc}
           />
-          <Button href="/contact" variant="outline" size="md" className="mt-7">
+          <Button href="/contact" variant="outline" size="md" arrow className="mt-7">
             Speak with an expert
           </Button>
         </div>

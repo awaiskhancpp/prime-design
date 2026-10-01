@@ -121,7 +121,12 @@ export function TeamSection({
             {bodyContent}
           </div>
           {teamIntro?.ctaLabel ? (
-            <Button variant="outline" href={teamIntro.ctaHref || '#contact'} className="mt-8">
+            <Button
+              variant="outline"
+              href={teamIntro.ctaHref || '#contact'}
+              arrow
+              className="mt-8"
+            >
               {teamIntro.ctaLabel}
             </Button>
           ) : null}

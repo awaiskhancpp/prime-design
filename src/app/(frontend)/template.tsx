@@ -135,8 +135,15 @@ export default async function FrontendTemplate({ children }: { children: React.R
   ])
 
   return (
-    <>
-      <TopBanner />
+    // `--hero-offset` is the banner's height, and the heroes below subtract
+    // it from the viewport so the first screen comes to exactly one viewport
+    // rather than one viewport plus a banner. It is set here, on the branch
+    // that actually renders the banner — the `bare` branch above leaves the
+    // `0px` default from `styles.css`, which is what those pages need. The
+    // banner takes its own minimum height from the same property, so the
+    // value cannot drift away from the thing it is measuring.
+    <div className="[--hero-offset:39px]">
+      <TopBanner className="min-h-[var(--hero-offset)]" />
       <div className="relative">
         <SiteHeader
           tone={headerTone}
@@ -156,6 +163,6 @@ export default async function FrontendTemplate({ children }: { children: React.R
         `ConsultationPopup`'s own comment for its open/close mechanism.
       */}
       <ConsultationPopup services={consultationServices} />
-    </>
+    </div>
   )
 }

@@ -1,6 +1,6 @@
 import Image from '@/components/ui/Image'
 
-import { Button } from '@/components/ui/Button'
+import { Button, ButtonGroup } from '@/components/ui/Button'
 import { Section } from '@/components/ui/Section'
 import { SectionHeader } from '@/components/ui/SectionHeader'
 
@@ -32,14 +32,14 @@ export function ServiceSiliconValleyLovesSection({
       <div className="grid items-center gap-12 lg:grid-cols-2 lg:gap-16">
         <div>
           <SectionHeader eyebrow={eyebrow} title={heading} description={body} />
-          <div className="mt-8 flex flex-wrap gap-4">
-            <Button href="/our-projects" variant="outline" size="lg">
-              See Our Projects <span aria-hidden>→</span>
-            </Button>
+          <ButtonGroup className="mt-8">
             <Button href="/contact" variant="primary" size="lg">
-              Contact our team <span aria-hidden>→</span>
+              Contact our team
             </Button>
-          </div>
+            <Button href="/our-projects" variant="secondary" size="lg">
+              See Our Projects
+            </Button>
+          </ButtonGroup>
         </div>
 
         {image || stats.length ? (

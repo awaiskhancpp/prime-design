@@ -1,8 +1,7 @@
 import Image from '@/components/ui/Image'
-import { ArrowRight } from 'lucide-react'
 
 import { RichTextContent } from '@/components/rich-text/RichTextContent'
-import { Button } from '@/components/ui/Button'
+import { Button, ButtonGroup } from '@/components/ui/Button'
 import { Section } from '@/components/ui/Section'
 import { SectionHeader } from '@/components/ui/SectionHeader'
 import type { RichTextValue } from '@/lib/richText'
@@ -148,15 +147,11 @@ export function ServiceCraftsmanshipTransformsSection({
           />
 
           {cta?.label && cta?.href ? (
-            <div className="mt-9">
-              <Button
-                href={cta.href}
-                className="border-brass bg-brass text-white hover:border-brass-deep hover:bg-brass-deep"
-              >
+            <ButtonGroup className="mt-9">
+              <Button href={cta.href} variant="brass">
                 {cta.label}
-                <ArrowRight className="h-4 w-4" aria-hidden />
               </Button>
-            </div>
+            </ButtonGroup>
           ) : null}
         </div>
       </div>
