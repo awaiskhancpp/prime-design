@@ -141,6 +141,34 @@ field exists for it.
   is one homepage; if it becomes CMS-driven, model it as a Global (see `SiteSettings.ts` for
   the existing convention on this project), not as a one-record Collection.
 
+## 7b. Where shared content and page structure live (since 2026-10-01)
+
+- **Shared Sections global** (Settings → Shared Sections) holds copy that reads the same on
+  every page of a kind: the city pages' quote / Silicon Valley Loves / testimonial cards /
+  Prime Difference / "Don't Settle" / video, the landing pages' Prime Difference, Experience
+  Difference, Service Areas, luxury-CTA and Find Us headings, and the service pages'
+  free-estimate band, "Areas we service" heading, consultation duration and Client-Centered
+  Approach image. A page's own value always wins; an empty field inherits. City pages resolve
+  **city → service (City Page Defaults) → shared** (`src/lib/sharedSections.ts`); landing
+  blocks are filled by `withSharedDefaults` before rendering. Never copy shared copy back onto
+  individual pages — fill a page's field only where that page genuinely differs.
+- **Find Us** phone/email/addresses come from Site Settings unless the block fills its own.
+- **Service page structure** is Services → Page layout (`sectionOrder` rows with a Show
+  switch). When a page has rows, they decide order *and* visibility and override the flags in
+  `servicePageLayout.ts`, which remain only as the fallback for a page with no rows. A services
+  `cta` block's design is its `layout` field, not its heading's wording.
+- **Landing FAQ categories** list FAQs-collection records (`faqOrder`) in page order; inline
+  `questions` are only for a question that exists nowhere else.
+- **Versions** (history, no drafts) are on Pages, Services, Service Locations, Landing Pages,
+  Blog, FAQs and the four globals. Drafts were left off deliberately: without a preview route
+  they would only hide work from the editor, and every frontend query would need a
+  published-only filter.
+- **Redirects** are applied for every path in `src/proxy.ts` (rules cached, refreshed at most
+  once a minute) — don't add route-level redirect lookups again.
+- **Long identifiers:** version tables add ~11 characters to every generated name. Use
+  `fitEnumName` (`src/fields/Shared.ts`) for selects in deep groups, and check a generated
+  migration for names whose first 63 characters collide (Postgres truncates silently).
+
 ## 8. Definition of "done"
 
 Never report a migration or feature as done because the code compiles or nothing throws.
