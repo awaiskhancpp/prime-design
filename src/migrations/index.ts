@@ -107,6 +107,7 @@ import * as migration_20261001_150000_kitchen_quote_background from './20261001_
 import * as migration_20261001_160000_service_gallery_eyebrow from './20261001_160000_service_gallery_eyebrow'
 import * as migration_20261001_190224_gallery_carousel_heading from './20261001_190224_gallery_carousel_heading'
 import * as migration_20261001_200000_home_remodeling_gallery_carousel_content from './20261001_200000_home_remodeling_gallery_carousel_content'
+import * as migration_20261002_100000_landing_prime_difference_posters from './20261002_100000_landing_prime_difference_posters'
 
 export const migrations = [
   {
@@ -653,5 +654,10 @@ export const migrations = [
     up: migration_20261001_200000_home_remodeling_gallery_carousel_content.up,
     down: migration_20261001_200000_home_remodeling_gallery_carousel_content.down,
     name: '20261001_200000_home_remodeling_gallery_carousel_content',
+  },
+  {
+    up: migration_20261002_100000_landing_prime_difference_posters.up,
+    down: migration_20261002_100000_landing_prime_difference_posters.down,
+    name: '20261002_100000_landing_prime_difference_posters',
   },
 ]

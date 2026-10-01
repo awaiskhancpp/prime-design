@@ -1,7 +1,7 @@
 'use client'
 
 import { useState } from 'react'
-import { Star, X } from 'lucide-react'
+import { Star } from 'lucide-react'
 
 import { Section } from '@/components/ui/Section'
 import { SectionHeader } from '@/components/ui/SectionHeader'
@@ -12,6 +12,7 @@ type Review = {
   rating?: number
   body?: string
   date?: string
+  isExcerpt?: boolean
 }
 
 type Provider = {
@@ -22,16 +23,7 @@ type Provider = {
   reviews: Review[]
 }
 
-/**
- * How many reviews each column actually renders.
- *
- * The pages carry 76 Google reviews and 49 Yelp ones. Rendering them all — and
- * then twice over, because a seamless loop needs two copies — put 250 review
- * cards in the document of a page whose entire job is to load fast and take a
- * lead. Twelve is far more than anybody scrolls past before the loop comes
- * round, and it is the difference between 24 cards and 250.
- */
-const REVIEWS_PER_COLUMN = 12
+/** Every review supplied by the CMS is rendered in its provider column. */
 
 /**
  * Cards are as tall as their own review; the duration is worked out from how
@@ -40,8 +32,8 @@ const REVIEWS_PER_COLUMN = 12
  * Those two facts go together. A CSS marquee travels one copy of its own
  * content per cycle, so a fixed duration makes a taller column move faster —
  * and these two are nowhere near the same height. Google's reviews arrive in
- * full (187 to 2,593 characters, median 470) while Yelp's are all ~156,
- * because Yelp's API hands over an excerpt and nothing more. With a flat
+ * full (187 to 2,593 characters, median 470), while older embedded Yelp
+ * rows were often only excerpts. With a flat
  * duration the Google column ran at 38px a second against Yelp's 17, which
  * side by side read as a fault.
  *
@@ -106,16 +98,10 @@ function estimateCardHeight(review: Review) {
  *
  * The scrolling itself is CSS — two keyframes, a hover pause, and
  * `prefers-reduced-motion` honoured — so the wall costs nothing to animate.
- * The one piece of JavaScript is "Read more".
- *
- * It was a `<details>` first, to keep the whole section a server component on
- * a page where every kilobyte is click cost. That cannot work here. The panel
- * has to live inside the card, the card lives inside a column that is both
- * `overflow-hidden` and `transform`ed, and a transformed ancestor becomes the
- * containing block for `fixed` as well as `absolute` — so the open panel was
- * clipped by the column's own window with no way out of it. Holding the open
- * review in state instead lets the panel render as a sibling of the moving
- * column, positioned against the window that is actually on screen.
+ * The one piece of JavaScript is the inline "Read more" accordion. It follows
+ * the Testimonials page: opening a review grows that card in normal document
+ * flow, and the same control changes to "Show less". It is deliberately not a
+ * modal or an absolutely positioned panel inside the moving column.
  *
  * Nothing here links out. These pages carry no navigation — the only way off
  * them is the phone number and the form — so the platform names are text, not
@@ -153,7 +139,7 @@ export function LandingTestimonialsSection({
 
       <div className="grid gap-5 md:grid-cols-2 md:gap-6">
         {usable.map((provider, index) => {
-          const reviews = provider.reviews.slice(0, REVIEWS_PER_COLUMN)
+          const reviews = provider.reviews
           // A single review has nothing to scroll past; it just sits there.
           const canLoop = reviews.length > 1
           const loop = canLoop ? [...reviews, ...reviews] : reviews
@@ -168,9 +154,6 @@ export function LandingTestimonialsSection({
           // First column up, second down, and any further provider alternates.
           const goesUp = index % 2 === 0
           const openInThisColumn = openReview?.startsWith(`${provider.name}-`) ?? false
-          const openBody = openInThisColumn
-            ? loop[Number(openReview?.slice(provider.name.length + 1))]
-            : undefined
 
           return (
             <article
@@ -224,12 +207,14 @@ export function LandingTestimonialsSection({
                     const key = `${provider.name}-${position}`
                     const length = review.body?.length ?? 0
                     const clamped =
-                      length > CLAMPED_ABOVE_CHARS.mobile || length > CLAMPED_ABOVE_CHARS.desktop
+                      !review.isExcerpt &&
+                      (length > CLAMPED_ABOVE_CHARS.mobile || length > CLAMPED_ABOVE_CHARS.desktop)
                         ? {
                             mobile: length > CLAMPED_ABOVE_CHARS.mobile,
                             desktop: length > CLAMPED_ABOVE_CHARS.desktop,
                           }
                         : null
+                    const open = openReview === key
 
                     return (
                       <figure
@@ -249,69 +234,35 @@ export function LandingTestimonialsSection({
                           clamp is still there to stop the longest Google
                           review — 2,593 characters, some thirty lines — from
                           being taller than the column that holds it. */}
-                        <blockquote className="mt-3 line-clamp-5 break-words text-sm leading-6 text-ink-2/80">
+                        <blockquote
+                          className={cn(
+                            'mt-3 break-words text-sm leading-6 text-ink-2/80',
+                            !open && !review.isExcerpt && 'line-clamp-5',
+                          )}
+                        >
                           {review.body}
                         </blockquote>
 
                         {clamped ? (
                           <button
                             type="button"
-                            onClick={() => setOpenReview(key)}
+                            onClick={() =>
+                              setOpenReview((current) => (current === key ? null : key))
+                            }
+                            aria-expanded={open}
                             className={cn(
-                              'mt-2 text-xs font-semibold uppercase tracking-[0.12em] text-brass-deep transition-colors hover:text-brass',
+                              'mt-3 text-sm font-semibold text-brass-deep underline underline-offset-4 transition-colors hover:text-brass focus-visible:outline-2 focus-visible:outline-brass',
                               clamped.mobile ? 'inline-block' : 'hidden',
                               clamped.desktop ? 'md:inline-block' : 'md:hidden',
                             )}
                           >
-                            Read more
+                            {open ? 'Show less' : 'Read more'}
                           </button>
                         ) : null}
                       </figure>
                     )
                   })}
                 </div>
-
-                {/*
-                  Rendered here, beside the moving column rather than inside a
-                  card, so that the window above is its containing block: it
-                  fills exactly the area that is on screen and cannot be
-                  clipped by the scroll the way an in-card panel was. The
-                  column is paused while it is open, so nothing slides away
-                  underneath it.
-                */}
-                {openBody ? (
-                  <div className="absolute inset-0 z-20 flex flex-col bg-paper p-4 sm:p-5">
-                    <div className="flex items-start justify-between gap-3">
-                      <span
-                        className="flex gap-0.5 text-brass"
-                        aria-label={`${openBody.rating || 5} out of 5 stars`}
-                      >
-                        {Array.from({ length: openBody.rating || 5 }).map((_, star) => (
-                          <Star key={star} className="h-3 w-3 fill-current" aria-hidden />
-                        ))}
-                      </span>
-                      <button
-                        type="button"
-                        onClick={() => setOpenReview(null)}
-                        aria-label="Close review"
-                        className="-mr-1 -mt-1 shrink-0 p-1 text-ink-2/50 transition-colors hover:text-ink-2"
-                      >
-                        <X className="h-4 w-4" aria-hidden />
-                      </button>
-                    </div>
-
-                    <p className="mt-3 min-h-0 flex-1 overflow-y-auto whitespace-pre-line break-words text-sm leading-6 text-ink-2/80">
-                      {openBody.body}
-                    </p>
-
-                    <p className="mt-3 shrink-0 border-t border-line pt-3 text-xs">
-                      <span className="font-semibold text-ink-2">{openBody.reviewer}</span>
-                      {openBody.date ? (
-                        <span className="text-ink-2/45"> · {openBody.date}</span>
-                      ) : null}
-                    </p>
-                  </div>
-                ) : null}
               </div>
             </article>
           )

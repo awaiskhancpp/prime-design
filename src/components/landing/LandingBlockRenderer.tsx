@@ -30,6 +30,10 @@ import { RichTextContent } from '@/components/rich-text/RichTextContent'
 import type { LandingPageBlock, LandingPageService } from '@/lib/landingPages'
 import { resolveSharedLandingDefaults, withSharedDefaults } from '@/lib/sharedSections'
 import { resolveSiteSettings } from '@/lib/siteSettings'
+import {
+  resolveAllTestimonials,
+  type CollectionTestimonial,
+} from '@/lib/testimonialsCollection.server'
 
 type Block = LandingPageBlock & Record<string, unknown>
 
@@ -438,7 +442,15 @@ async function FindUsBlock({ block }: { block: Block }) {
  * the blocks whose forms book something. Other callers of the shared registry
  * (service pages) do not pass it.
  */
-type Renderer = ({ block, service }: { block: Block; service?: LandingPageService }) => ReactNode
+type Renderer = ({
+  block,
+  service,
+  testimonials,
+}: {
+  block: Block
+  service?: LandingPageService
+  testimonials?: CollectionTestimonial[]
+}) => ReactNode
 
 export const landingBlockRegistry: Record<string, Renderer> = {
   hero: HeroBlock,
@@ -609,8 +621,8 @@ export const landingBlockRegistry: Record<string, Renderer> = {
   // providers with reviews it renders the CMS-driven provider-tabs marquee;
   // the common heading-only case (WordPress shows its global review slider
   // there) falls back to the testimonials spotlight with the CMS heading.
-  'landing-testimonials': ({ block }) => {
-    const providers = (Array.isArray(block.providers) ? block.providers : [])
+  'landing-testimonials': ({ block, testimonials }) => {
+    const storedProviders = (Array.isArray(block.providers) ? block.providers : [])
       .map((provider) => provider as Record<string, unknown>)
       .map((provider) => ({
         name: text(provider.name) || '',
@@ -627,6 +639,31 @@ export const landingBlockRegistry: Record<string, Renderer> = {
           })),
       }))
       .filter((provider) => provider.reviews.length > 0)
+
+    const centralBySource = new Map<string, CollectionTestimonial[]>()
+    for (const review of testimonials ?? []) {
+      const source = review.source?.trim().toLowerCase()
+      if (!source) continue
+      const reviews = centralBySource.get(source) || []
+      reviews.push(review)
+      centralBySource.set(source, reviews)
+    }
+
+    const providers = storedProviders.map((provider) => {
+      const centralReviews = centralBySource.get(provider.name.trim().toLowerCase())
+      return {
+        ...provider,
+        reviews: centralReviews?.length
+          ? centralReviews.map((review) => ({
+              reviewer: review.name,
+              rating: review.rating,
+              body: review.quote,
+              date: review.timeAgo,
+              isExcerpt: review.quoteIsExcerpt,
+            }))
+          : provider.reviews,
+      }
+    })
 
     if (providers.length) {
       return (
@@ -744,6 +781,10 @@ export async function LandingBlockRenderer({
   const sections = storedSections.map((section) =>
     withSharedDefaults(section as Block, sharedDefaults[section.blockType]),
   ) as LandingPageBlock[]
+  const hasLandingTestimonials = sections.some(
+    (section) => (section as Block).blockType === 'landing-testimonials',
+  )
+  const testimonials = hasLandingTestimonials ? await resolveAllTestimonials() : []
 
   const provided = new Set<string>()
   for (const section of sections) {
@@ -770,7 +811,12 @@ export async function LandingBlockRenderer({
         const block = section as Block
         const Renderer = sharedSectionRegistry[block.blockType]
         const rendered = Renderer ? (
-          <Renderer key={`${block.sourceId || block.blockType}-${index}`} block={block} service={service} />
+          <Renderer
+            key={`${block.sourceId || block.blockType}-${index}`}
+            block={block}
+            service={service}
+            testimonials={testimonials}
+          />
         ) : (
           <UnsupportedLandingBlock key={`${block.blockType}-${index}`} block={block} />
         )
