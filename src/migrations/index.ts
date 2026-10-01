@@ -102,6 +102,8 @@ import * as migration_20260930_234944_service_page_layout from './20260930_23494
 import * as migration_20261001_000115_versions_and_opening_hours from './20261001_000115_versions_and_opening_hours'
 import * as migration_20260930_120000_replace_custom_kitchen_media from './20260930_120000_replace_custom_kitchen_media'
 import * as migration_20261001_120000_service_location_og_images from './20261001_120000_service_location_og_images'
+import * as migration_20261001_140000_kitchen_offerings_card_images from './20261001_140000_kitchen_offerings_card_images'
+import * as migration_20261001_150000_kitchen_quote_background from './20261001_150000_kitchen_quote_background'
 
 export const migrations = [
   {
@@ -623,5 +625,15 @@ export const migrations = [
     up: migration_20261001_120000_service_location_og_images.up,
     down: migration_20261001_120000_service_location_og_images.down,
     name: '20261001_120000_service_location_og_images',
+  },
+  {
+    up: migration_20261001_140000_kitchen_offerings_card_images.up,
+    down: migration_20261001_140000_kitchen_offerings_card_images.down,
+    name: '20261001_140000_kitchen_offerings_card_images',
+  },
+  {
+    up: migration_20261001_150000_kitchen_quote_background.up,
+    down: migration_20261001_150000_kitchen_quote_background.down,
+    name: '20261001_150000_kitchen_quote_background',
   },
 ]
