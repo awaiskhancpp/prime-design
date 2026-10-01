@@ -1,23 +1,22 @@
 import type { Metadata } from 'next'
-import { notFound, permanentRedirect, redirect } from 'next/navigation'
+import { notFound, permanentRedirect } from 'next/navigation'
 import { PayloadPage } from '@/components/pages/PayloadPage'
 import { LandingPageRenderer } from '@/components/landing/LandingPageRenderer'
 import { resolveServiceDetail, servicePathAliases } from '@/lib/services'
 import { listLandingPageSlugs, resolveLandingPage } from '@/lib/landingPages'
 import { resolvePageBySlug } from '@/lib/pages'
-import { resolveRedirect } from '@/lib/redirects'
 import { buildSeoMetadata } from '@/lib/seo'
 
 /**
  * `/[serviceSlug]` — the catch-all root route for top-level pages. It
- * resolves, in order:
+ * resolves, in order (Redirects-collection rules are applied before any
+ * route, in `src/proxy.ts`):
  *
- *   1. legacy WordPress redirects (301/308 → permanent, else temporary),
- *   2. services and service path aliases (aliases render here; canonical
+ *   1. services and service path aliases (aliases render here; canonical
  *      service slugs redirect to `/services/[serviceSlug]`),
- *   3. landing pages (from Payload, rendered on demand),
- *   4. generic Payload pages,
- *   5. 404.
+ *   2. landing pages (from Payload, rendered on demand),
+ *   3. generic Payload pages,
+ *   4. 404.
  *
  * Landing pages and generic pages are CMS-driven: rendered on every request,
  * like their `/[serviceSlug]/[pageSlug]` sibling, so a Payload edit — or a
@@ -37,26 +36,12 @@ export function generateStaticParams() {
   ]
 }
 
-/**
- * Apply a legacy redirect if one matches the path: permanent status codes
- * issue a 301/308, everything else a temporary redirect.
- */
-async function applyLegacyRedirect(path: string) {
-  const legacyRedirect = await resolveRedirect(path)
-  if (!legacyRedirect) return
-  if (legacyRedirect.statusCode === '301' || legacyRedirect.statusCode === '308') {
-    permanentRedirect(legacyRedirect.newPath)
-  }
-  redirect(legacyRedirect.newPath)
-}
-
 export async function generateMetadata({
   params,
 }: {
   params: Promise<{ serviceSlug: string }>
 }): Promise<Metadata> {
   const { serviceSlug } = await params
-  await applyLegacyRedirect(`/${serviceSlug}`)
 
   // Alias service paths (e.g. `/finance`, `/comprehensive-…`) resolve against
   // the CMS first, exactly like their canonical `/services/…` twins, so the

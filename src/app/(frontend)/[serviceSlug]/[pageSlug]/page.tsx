@@ -3,19 +3,18 @@ import { notFound, permanentRedirect } from 'next/navigation'
 import { ServiceLocationPage } from '@/components/services/ServiceLocationPage'
 import { resolveServiceDetail } from '@/lib/services'
 import { getServiceLocation } from '@/lib/serviceLocations'
-import { resolveRedirect } from '@/lib/redirects'
 import { buildSeoMetadata, serviceMetadata } from '@/lib/seo'
 import { JsonLd } from '@/components/seo/JsonLd'
 import { breadcrumbSchema, graph, serviceSchema } from '@/lib/structuredData'
 
 /**
- * `/[serviceSlug]/[pageSlug]` — second-level routes, resolved in order:
+ * `/[serviceSlug]/[pageSlug]` — second-level routes, resolved in order
+ * (Redirects-collection rules are applied before any route, in `src/proxy.ts`):
  *
- *   1. legacy WordPress redirects (permanent),
- *   2. service-location pages (e.g. `/kitchen-remodeling/san-jose`),
- *   3. kitchen style sub-pages, which redirect to their canonical
+ *   1. service-location pages (e.g. `/kitchen-remodeling/san-jose`),
+ *   2. kitchen style sub-pages, which redirect to their canonical
  *      `/services/kitchen-remodeling/[pageSlug]` URL,
- *   4. 404.
+ *   3. 404.
  *
  * Service-location pages are CMS-driven: render on each request so Payload
  * edits (SEO, featured image, section overrides) appear without a rebuild.
@@ -42,9 +41,6 @@ export async function generateMetadata({
   params: Promise<{ serviceSlug: string; pageSlug: string }>
 }): Promise<Metadata> {
   const { serviceSlug, pageSlug } = await params
-
-  const legacyRedirect = await resolveRedirect(`/${serviceSlug}/${pageSlug}`)
-  if (legacyRedirect) permanentRedirect(legacyRedirect.newPath)
 
   const location = await getServiceLocation(serviceSlug, pageSlug)
   if (location) {

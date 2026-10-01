@@ -3000,14 +3000,20 @@ export interface Project {
   createdAt: string;
 }
 /**
- * Permanent and temporary URL redirects used during migration.
+ * Old URL → new URL, for any path on the site. Applied before the page renders (src/proxy.ts) with the status code chosen here; a change takes effect within a minute.
  *
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "redirects".
  */
 export interface Redirect {
   id: number;
+  /**
+   * The path that should move, e.g. /old-page. A trailing slash makes no difference.
+   */
   oldPath: string;
+  /**
+   * Where it goes: a path (/services/adu) or a full URL.
+   */
   newPath: string;
   statusCode: '308' | '301' | '307' | '302';
   active?: boolean | null;
