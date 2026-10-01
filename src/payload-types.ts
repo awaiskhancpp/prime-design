@@ -1255,6 +1255,9 @@ export interface Service {
             blockType: 'video-carousel';
           }
         | {
+            eyebrow?: string | null;
+            heading?: string | null;
+            description?: string | null;
             items?:
               | {
                   media?: (number | null) | Media;
@@ -4348,6 +4351,9 @@ export interface LandingPage {
         blockType: 'video-carousel';
       }
     | {
+        eyebrow?: string | null;
+        heading?: string | null;
+        description?: string | null;
         items?:
           | {
               media?: (number | null) | Media;
@@ -5536,6 +5542,9 @@ export interface ServicesSelect<T extends boolean = true> {
         'gallery-carousel'?:
           | T
           | {
+              eyebrow?: T;
+              heading?: T;
+              description?: T;
               items?:
                 | T
                 | {
@@ -7364,6 +7373,9 @@ export interface LandingPagesSelect<T extends boolean = true> {
         'gallery-carousel'?:
           | T
           | {
+              eyebrow?: T;
+              heading?: T;
+              description?: T;
               items?:
                 | T
                 | {

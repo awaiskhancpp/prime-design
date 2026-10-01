@@ -532,6 +532,13 @@ export const landingPageBlocks: Block[] = [
     internal({ name: 'settings', type: 'json' as const }),
   ]),
   base('gallery-carousel', 'Gallery Carousel', [
+    // Mirrors the `gallery` block's heading fields: the WordPress carousel
+    // sections put the same small eyebrow ("Our Gallery") beside an h2, which
+    // the renderer (`GalleryCarouselBlock` delegates to `GalleryBlock`) reads
+    // from these.
+    text('eyebrow'),
+    text('heading'),
+    description(),
     { name: 'items', type: 'array' as const, fields: galleryItemFields() },
     internal({ name: 'settings', type: 'json' as const }),
   ]),

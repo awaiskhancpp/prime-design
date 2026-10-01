@@ -3,6 +3,7 @@
 import { useId, useState } from 'react'
 
 import { Section } from '@/components/ui/Section'
+import { SectionHeader } from '@/components/ui/SectionHeader'
 import { tabPanelProps, tabProps } from '@/lib/tabs'
 import { cn } from '@/lib/utils'
 import { GalleryGrid } from './GalleryGrid'
@@ -35,21 +36,9 @@ export function LandingGalleryTabs({
 
   return (
     <Section className="bg-white">
-      <div className="grid gap-6 md:grid-cols-2 md:items-start md:gap-10">
-        {heading ? (
-          <h2 className="font-display text-3xl font-medium text-ink md:text-4xl">{heading}</h2>
-        ) : null}
-        {eyebrow || description ? (
-          <div>
-            {eyebrow ? (
-              <p className="font-display text-lg font-medium text-ink">{eyebrow}</p>
-            ) : null}
-            {description ? (
-              <p className="mt-2 text-base leading-7 text-ink-2/70">{description}</p>
-            ) : null}
-          </div>
-        ) : null}
-      </div>
+      {heading || eyebrow || description ? (
+        <SectionHeader eyebrow={eyebrow} title={heading} description={description} />
+      ) : null}
 
       {usableTabs.length > 1 ? (
         <div

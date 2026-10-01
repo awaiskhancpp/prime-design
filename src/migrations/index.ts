@@ -73,6 +73,7 @@ import * as migration_20260925_180000_review_highlights_description from './2026
 import * as migration_20260925_190000_testimonial_source_url from './20260925_190000_testimonial_source_url'
 import * as migration_20260926_120000_site_settings_analytics from './20260926_120000_site_settings_analytics'
 import * as migration_20260929_120000_complete_analytics_configuration from './20260929_120000_complete_analytics_configuration'
+import * as migration_20260930_120000_replace_custom_kitchen_media from './20260930_120000_replace_custom_kitchen_media'
 import * as migration_20260930_120000_reviews_collection from './20260930_120000_reviews_collection'
 import * as migration_20260930_130000_review_services from './20260930_130000_review_services'
 import * as migration_20260930_140000_navigation_global from './20260930_140000_navigation_global'
@@ -100,10 +101,12 @@ import * as migration_20260930_234000_shared_service_content from './20260930_23
 import * as migration_20260930_234500_siding_faq_apostrophe from './20260930_234500_siding_faq_apostrophe'
 import * as migration_20260930_234944_service_page_layout from './20260930_234944_service_page_layout'
 import * as migration_20261001_000115_versions_and_opening_hours from './20261001_000115_versions_and_opening_hours'
-import * as migration_20260930_120000_replace_custom_kitchen_media from './20260930_120000_replace_custom_kitchen_media'
 import * as migration_20261001_120000_service_location_og_images from './20261001_120000_service_location_og_images'
 import * as migration_20261001_140000_kitchen_offerings_card_images from './20261001_140000_kitchen_offerings_card_images'
 import * as migration_20261001_150000_kitchen_quote_background from './20261001_150000_kitchen_quote_background'
+import * as migration_20261001_160000_service_gallery_eyebrow from './20261001_160000_service_gallery_eyebrow'
+import * as migration_20261001_190224_gallery_carousel_heading from './20261001_190224_gallery_carousel_heading'
+import * as migration_20261001_200000_home_remodeling_gallery_carousel_content from './20261001_200000_home_remodeling_gallery_carousel_content'
 
 export const migrations = [
   {
@@ -482,6 +485,11 @@ export const migrations = [
     name: '20260929_120000_complete_analytics_configuration',
   },
   {
+    up: migration_20260930_120000_replace_custom_kitchen_media.up,
+    down: migration_20260930_120000_replace_custom_kitchen_media.down,
+    name: '20260930_120000_replace_custom_kitchen_media',
+  },
+  {
     up: migration_20260930_120000_reviews_collection.up,
     down: migration_20260930_120000_reviews_collection.down,
     name: '20260930_120000_reviews_collection',
@@ -617,11 +625,6 @@ export const migrations = [
     name: '20261001_000115_versions_and_opening_hours',
   },
   {
-    up: migration_20260930_120000_replace_custom_kitchen_media.up,
-    down: migration_20260930_120000_replace_custom_kitchen_media.down,
-    name: '20260930_120000_replace_custom_kitchen_media',
-  },
-  {
     up: migration_20261001_120000_service_location_og_images.up,
     down: migration_20261001_120000_service_location_og_images.down,
     name: '20261001_120000_service_location_og_images',
@@ -635,5 +638,20 @@ export const migrations = [
     up: migration_20261001_150000_kitchen_quote_background.up,
     down: migration_20261001_150000_kitchen_quote_background.down,
     name: '20261001_150000_kitchen_quote_background',
+  },
+  {
+    up: migration_20261001_160000_service_gallery_eyebrow.up,
+    down: migration_20261001_160000_service_gallery_eyebrow.down,
+    name: '20261001_160000_service_gallery_eyebrow',
+  },
+  {
+    up: migration_20261001_190224_gallery_carousel_heading.up,
+    down: migration_20261001_190224_gallery_carousel_heading.down,
+    name: '20261001_190224_gallery_carousel_heading',
+  },
+  {
+    up: migration_20261001_200000_home_remodeling_gallery_carousel_content.up,
+    down: migration_20261001_200000_home_remodeling_gallery_carousel_content.down,
+    name: '20261001_200000_home_remodeling_gallery_carousel_content',
   },
 ]

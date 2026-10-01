@@ -66,7 +66,6 @@ export function LandscapingDifference({
           <HighlightedText text={heading} highlight={difference?.headingHighlight} />
         </h2>
       </div>
-
       {/* Flex (not grid) so an incomplete final row centers itself: with 5
           items this gives 3 on top and the remaining 2 centered beneath,
           instead of grid's default left-alignment leaving a gap on the
@@ -94,7 +93,6 @@ export function LandscapingDifference({
           ))}
         </ul>
       ) : null}
-
       {active ? (
         <div className="mt-10">
           {/* The `relative` box is scoped to the video + summary row only.

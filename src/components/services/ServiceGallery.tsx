@@ -10,7 +10,7 @@ import { Section } from '@/components/ui/Section'
 import { SectionHeader } from '@/components/ui/SectionHeader'
 import type { ServiceDetail } from '@/lib/services'
 
-function galleryImagesFor(service: ServiceDetail) {
+function galleryContentFor(service: ServiceDetail) {
   // Payload sections[] gallery block(s) — flat items and/or grouped items
   // (e.g. "Kitchens" / "Bathrooms" tabs from WordPress).
   const sectionGalleries = (service.sections || []).filter(
@@ -46,11 +46,24 @@ function galleryImagesFor(service: ServiceDetail) {
   const combined = authored.length
     ? authored
     : [...service.gallery, service.image].filter(Boolean)
-  return [...new Set(combined)]
+
+  // The section's own eyebrow/heading/description — identical WordPress copy
+  // ("Our Gallery" / "Get Inspired" / the professionalism paragraph) on every
+  // page that has this block, but read from the CMS record rather than
+  // hardcoded here, so an edit to one of these fields actually shows up.
+  const gallerySection = sectionGalleries[0] as Record<string, unknown> | undefined
+  const text = (value: unknown) => (typeof value === 'string' && value.trim() ? value : undefined)
+
+  return {
+    images: [...new Set(combined)],
+    eyebrow: text(gallerySection?.eyebrow),
+    heading: text(gallerySection?.heading),
+    description: text(gallerySection?.description),
+  }
 }
 
 export function ServiceGallery({ service }: { service: ServiceDetail }) {
-  const images = galleryImagesFor(service)
+  const { images, eyebrow, heading, description } = galleryContentFor(service)
   const [lightboxIndex, setLightboxIndex] = useState<number | null>(null)
   if (!images.length) return null
 
@@ -58,10 +71,9 @@ export function ServiceGallery({ service }: { service: ServiceDetail }) {
     <Section className="bg-white">
       <SectionHeader
         align="center"
-        eyebrow="Our Gallery"
-        title="Get Inspired"
-        // WordPress gallery section copy (obvious "rake on" typo corrected).
-        description="Client satisfaction is our #1 priority. No matter the type of project we take on, the entire process, from the consultation to the finishing touches, is handled with a high level of professionalism."
+        eyebrow={eyebrow}
+        title={heading || 'Get Inspired'}
+        description={description}
       />
 
       <div className="mt-10 grid grid-cols-2 gap-5 sm:grid-cols-3">

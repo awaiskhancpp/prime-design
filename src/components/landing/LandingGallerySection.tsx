@@ -1,15 +1,19 @@
 'use client'
 
 import { Section } from '@/components/ui/Section'
+import { SectionHeader } from '@/components/ui/SectionHeader'
 import { GalleryGrid } from './GalleryGrid'
 
 type GalleryItem = { url: string; caption?: string }
 
 /**
  * The single-folder gallery (kitchen and bathroom landing pages). Its header
- * mirrors `LandingGalleryTabs` — heading on the left, the small "Kitchen
- * Gallery" / "Bathroom Gallery" label and its line of copy on the right — so
- * the two gallery layouts read the same across the site.
+ * is the site's `SectionHeader`, like every other section: the small "Kitchen
+ * Gallery" / "Bathroom Gallery" label is the eyebrow, the h2 is the heading
+ * and the line of copy below it is the description. It used to be a bespoke
+ * two-column grid — heading on the left, eyebrow and copy on the right —
+ * which is the kind of per-section header the shared component exists to
+ * replace.
  *
  * `eyebrow` and `description` used to be dropped here: the block stored both,
  * the tabbed gallery rendered both, and this path rendered only the heading,
@@ -31,21 +35,9 @@ export function LandingGallerySection({
   if (!items.length) return null
   return (
     <Section className="bg-white">
-      <div className="grid gap-6 md:grid-cols-2 md:items-start md:gap-10">
-        {heading ? (
-          <h2 className="font-display text-3xl font-medium text-ink md:text-4xl">{heading}</h2>
-        ) : null}
-        {eyebrow || description ? (
-          <div>
-            {eyebrow ? (
-              <p className="font-display text-lg font-medium text-ink">{eyebrow}</p>
-            ) : null}
-            {description ? (
-              <p className="mt-2 text-base leading-7 text-ink-2/70">{description}</p>
-            ) : null}
-          </div>
-        ) : null}
-      </div>
+      {heading || eyebrow || description ? (
+        <SectionHeader eyebrow={eyebrow} title={heading} description={description} align="center" />
+      ) : null}
       <div className="mt-8">
         <GalleryGrid
           images={items.map((item) => item.url)}
