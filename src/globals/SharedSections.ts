@@ -1,0 +1,175 @@
+import type { GlobalConfig } from 'payload'
+
+import {
+  dontSettleGroup,
+  locationPrimeDifferenceGroup,
+  locationVideoGroup,
+  quoteGroup,
+  siliconValleyLovesGroup,
+  testimonialCardsGroup,
+} from '../collections/fields/sectionGroups'
+import {
+  buttonGroupFields,
+  featureCardFields,
+  linkFields,
+  mediaReferenceFields,
+} from '../fields/Shared'
+
+/**
+ * A landing-page block's shared defaults. Field names match the block's own,
+ * so `LandingBlockRenderer` can fill an empty block field from here and the
+ * section components render it unchanged.
+ */
+const landingDefaults = (name: string, label: string, fields: GlobalConfig['fields']) => ({
+  name,
+  type: 'group' as const,
+  label,
+  admin: {
+    description: 'Used by every landing page whose section leaves these fields empty.',
+  },
+  fields,
+})
+
+/**
+ * Sections that read the same on every page of a kind, stored once.
+ *
+ * The 45 service-location pages carried their own copy of the quote, the
+ * Silicon Valley Loves section, the testimonial cards, the Prime Difference
+ * section (4 reason cards and a 5-item checklist — 405 rows between them),
+ * and the parts of the "Don't Settle" intro and the video section that never
+ * change. Every copy was identical, so a wording change meant 45 edits and
+ * one missed page meant two versions of the site.
+ *
+ * A city page now resolves each field in order: its own value, then its
+ * service's (the kitchen, bathroom and home families differ in a few lines —
+ * those live on the service, under City Page Defaults), then this global. A
+ * city page can still say something different: fill the field on that page.
+ */
+export const SharedSections: GlobalConfig = {
+  slug: 'shared-sections',
+  label: 'Shared Sections',
+  // Every save is kept; a bad edit can be compared and restored.
+  versions: { max: 20 },
+  admin: {
+    group: 'Settings',
+    description:
+      'Copy shared by every page of a kind. A page that fills a field of its own shows that instead.',
+  },
+  fields: [
+    {
+      type: 'tabs',
+      tabs: [
+        {
+          label: 'City pages',
+          description:
+            'The 45 service-location pages (e.g. Kitchen Remodeling in Cupertino). Use {City} and {ServiceTitle} where the page’s city or service belongs.',
+          fields: [
+            locationVideoGroup({ label: 'Video Section' }),
+            dontSettleGroup({ label: '“Don’t Settle” Section' }),
+            quoteGroup({ label: 'Quote Section' }),
+            locationPrimeDifferenceGroup({ label: 'Prime Difference Section' }),
+            testimonialCardsGroup({
+              label: 'Testimonial Cards Section',
+              testimonialsDescription: 'The testimonials to show, in order.',
+            }),
+            siliconValleyLovesGroup({ label: 'Silicon Valley Loves Section' }),
+          ],
+        },
+        {
+          label: 'Landing pages',
+          description:
+            'The seven Google Ads landing pages. Each of these sections read the same on every page that has it; a page’s own section shows its own value instead wherever it fills one in.',
+          fields: [
+            landingDefaults('landingPrimeDifference', 'Prime Difference Section', [
+              { name: 'eyebrow', type: 'text' },
+              { name: 'heading', type: 'text' },
+              { name: 'features', type: 'array', fields: featureCardFields() },
+            ]),
+            landingDefaults('landingExperienceDifference', 'Experience Difference Section', [
+              { name: 'eyebrow', type: 'text' },
+              { name: 'heading', type: 'text' },
+              {
+                name: 'features',
+                type: 'array',
+                fields: featureCardFields(),
+                // The live table keeps its default name; the version table's
+                // default (`_shared_sections_v_version_landing_experience_
+                // difference_features`) is over Postgres's 63-character limit.
+                dbName: ({ tableName }) =>
+                  tableName?.startsWith('_') ? 'shared_sections_v_landing_exp_diff_features' : `${tableName}_features`,
+              },
+            ]),
+            landingDefaults('landingServiceAreas', 'Service Areas Section', [
+              { name: 'eyebrow', type: 'text' },
+              { name: 'heading', type: 'text' },
+              {
+                name: 'areas',
+                type: 'array',
+                fields: [
+                  { name: 'label', type: 'text', required: true },
+                  { name: 'location', type: 'relationship', relationTo: 'locations' },
+                  { name: 'link', type: 'group', fields: linkFields() },
+                ],
+              },
+              { name: 'regionHeading', type: 'text' },
+              ...mediaReferenceFields('mapMedia'),
+            ]),
+            landingDefaults('landingLuxuryCta', 'Luxury CTA Section', [
+              { name: 'heading', type: 'text' },
+            ]),
+            landingDefaults('landingFindUs', 'Find Us Section', [
+              { name: 'heading', type: 'text' },
+            ]),
+          ],
+        },
+        {
+          label: 'Service pages',
+          description:
+            'The service pages (Kitchen Remodeling, ADU, …) and the blog. Each value here is used wherever the page leaves its own empty.',
+          fields: [
+            {
+              name: 'services',
+              type: 'group',
+              label: false,
+              fields: [
+                {
+                  // Same field names as the `cta` block, so an estimate block
+                  // with empty fields is filled from here unchanged.
+                  name: 'estimateBand',
+                  type: 'group',
+                  label: 'Free-estimate band',
+                  admin: {
+                    description:
+                      'The brass “Ready to schedule your free estimate?” band on the service pages and the blog.',
+                  },
+                  fields: [
+                    { name: 'heading', type: 'text' },
+                    { name: 'description', type: 'richText' },
+                    ...buttonGroupFields(),
+                  ],
+                },
+                {
+                  name: 'areasHeading',
+                  type: 'text',
+                  label: '“Areas we service” heading',
+                },
+                {
+                  name: 'consultationDuration',
+                  type: 'text',
+                  label: 'Consultation duration',
+                  admin: { description: 'On each service’s Contact-page card, e.g. “~1 Hour”.' },
+                },
+                {
+                  name: 'clientApproachImage',
+                  type: 'upload',
+                  relationTo: 'media',
+                  label: 'Client-Centered Approach image',
+                },
+              ],
+            },
+          ],
+        },
+      ],
+    },
+  ],
+}

@@ -36,6 +36,9 @@ const linkFields: Field[] = [
 export const Navigation: GlobalConfig = {
   slug: 'navigation',
   label: 'Navigation',
+  admin: { group: 'Settings' },
+  // Every save is kept; a bad edit can be compared and restored.
+  versions: { max: 20 },
   fields: [
     {
       name: 'header',

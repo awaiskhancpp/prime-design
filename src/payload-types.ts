@@ -134,11 +134,13 @@ export interface Config {
   fallbackLocale: null;
   globals: {
     'site-settings': SiteSetting;
+    'shared-sections': SharedSection;
     navigation: Navigation;
     'booking-settings': BookingSetting;
   };
   globalsSelect: {
     'site-settings': SiteSettingsSelect<false> | SiteSettingsSelect<true>;
+    'shared-sections': SharedSectionsSelect<false> | SharedSectionsSelect<true>;
     navigation: NavigationSelect<false> | NavigationSelect<true>;
     'booking-settings': BookingSettingsSelect<false> | BookingSettingsSelect<true>;
   };
@@ -307,7 +309,7 @@ export interface Service {
    */
   consultationImage?: (number | null) | Media;
   /**
-   * Shown on the Contact page card, e.g. “~1 Hour”. Empty prints no duration badge.
+   * Shown on the Contact page card, e.g. “~1 Hour”. Empty uses Shared Sections (Settings → Service pages).
    */
   consultationDuration?: string | null;
   /**
@@ -317,188 +319,34 @@ export interface Service {
   sectionOrder?:
     | {
         section:
-          | 'hero'
           | 'intro'
           | 'video'
-          | 'process'
+          | 'estimate'
           | 'offerings'
+          | 'process'
+          | 'client-approach'
           | 'gallery'
-          | 'quote'
           | 'craftsmanship'
           | 'real-homes'
           | 'why-choose-us'
+          | 'prime-difference'
+          | 'prime-kitchens'
+          | 'image-checklist'
+          | 'icon-checklist-gallery'
+          | 'materials-showcase'
+          | 'testimonial-cards'
+          | 'quote'
           | 'faq'
-          | 'estimate'
-          | 'reviews'
           | 'silicon-valley-loves'
+          | 'reviews'
+          | 'contact'
+          | 'service-areas'
+          | 'areas-we-service'
           | 'home-repair-categories'
-          | 'contact';
+          | 'cms-body';
+        enabled?: boolean | null;
         id?: string | null;
       }[]
-    | null;
-  contentBlocks?:
-    | (
-        | {
-            eyebrow?: string | null;
-            heading: string;
-            body: string;
-            image?: (number | null) | Media;
-            imageSide?: ('left' | 'right') | null;
-            id?: string | null;
-            blockName?: string | null;
-            blockType: 'intro';
-          }
-        | {
-            heading: string;
-            items?:
-              | {
-                  text: string;
-                  id?: string | null;
-                }[]
-              | null;
-            id?: string | null;
-            blockName?: string | null;
-            blockType: 'feature-list';
-          }
-        | {
-            heading: string;
-            items?:
-              | {
-                  text: string;
-                  id?: string | null;
-                }[]
-              | null;
-            id?: string | null;
-            blockName?: string | null;
-            blockType: 'benefits';
-          }
-        | {
-            heading: string;
-            steps?:
-              | {
-                  title: string;
-                  description: string;
-                  image?: (number | null) | Media;
-                  id?: string | null;
-                }[]
-              | null;
-            id?: string | null;
-            blockName?: string | null;
-            blockType: 'process';
-          }
-        | {
-            eyebrow?: string | null;
-            heading: string;
-            body: string;
-            image?: (number | null) | Media;
-            imageSide?: ('left' | 'right') | null;
-            id?: string | null;
-            blockName?: string | null;
-            blockType: 'image-text';
-          }
-        | {
-            heading?: string | null;
-            images?: (number | Media)[] | null;
-            id?: string | null;
-            blockName?: string | null;
-            blockType: 'gallery';
-          }
-        | {
-            heading: string;
-            items?:
-              | {
-                  title: string;
-                  description: string;
-                  image?: (number | null) | Media;
-                  link?: string | null;
-                  id?: string | null;
-                }[]
-              | null;
-            id?: string | null;
-            blockName?: string | null;
-            blockType: 'sub-services';
-          }
-        | {
-            heading?: string | null;
-            /**
-             * Optional uploaded video. If empty, the external video URL can be used.
-             */
-            video?: (number | null) | Media;
-            videoUrl?: string | null;
-            poster?: (number | null) | Media;
-            /**
-             * Short summary or quote from the video. Renders under the player, like a testimonial.
-             */
-            summary?: {
-              root: {
-                type: string;
-                children: {
-                  type: any;
-                  version: number;
-                  [k: string]: unknown;
-                }[];
-                direction: ('ltr' | 'rtl') | null;
-                format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
-                indent: number;
-                version: number;
-              };
-              [k: string]: unknown;
-            } | null;
-            /**
-             * Only when the video names the speaker (on-screen lower-third or the source page). Leave empty if unknown.
-             */
-            speakerName?: string | null;
-            /**
-             * e.g. "Homeowner", "Co-Owner", "Project Manager".
-             */
-            speakerRole?: string | null;
-            id?: string | null;
-            blockName?: string | null;
-            blockType: 'video';
-          }
-        | {
-            heading: string;
-            intro?: string | null;
-            image?: (number | null) | Media;
-            imageSide?: ('left' | 'right') | null;
-            items?:
-              | {
-                  title: string;
-                  description: string;
-                  id?: string | null;
-                }[]
-              | null;
-            id?: string | null;
-            blockName?: string | null;
-            blockType: 'icon-feature-list';
-          }
-        | {
-            eyebrow?: string | null;
-            heading: string;
-            /**
-             * Short italic lead-in line above the checklist, e.g. "Unleash the Beauty and Durability:"
-             */
-            description?: string | null;
-            image?: (number | null) | Media;
-            imageSide?: ('left' | 'right') | null;
-            items?:
-              | {
-                  text: string;
-                  id?: string | null;
-                }[]
-              | null;
-            id?: string | null;
-            blockName?: string | null;
-            blockType: 'checklist';
-          }
-        | {
-            quote: string;
-            attribution?: string | null;
-            id?: string | null;
-            blockName?: string | null;
-            blockType: 'quote';
-          }
-      )[]
     | null;
   /**
    * Visual page blocks. Click "Add Block" below to compose your page.
@@ -506,56 +354,10 @@ export interface Service {
   sections?:
     | (
         | {
-            eyebrow?: string | null;
-            heading: string;
-            description?: string | null;
-            backgroundMedia?: {
-              asset?: (number | null) | Media;
-              alt?: string | null;
-              caption?: string | null;
-              sourceAttachmentId?: number | null;
-              sourceUrl?: string | null;
-            };
-            backgroundVideo?: {
-              asset?: (number | null) | Media;
-              alt?: string | null;
-              caption?: string | null;
-              sourceAttachmentId?: number | null;
-              sourceUrl?: string | null;
-            };
-            foregroundMedia?: {
-              asset?: (number | null) | Media;
-              alt?: string | null;
-              caption?: string | null;
-              sourceAttachmentId?: number | null;
-              sourceUrl?: string | null;
-            };
-            buttons?:
-              | {
-                  label: string;
-                  url: string;
-                  variant?: ('primary' | 'secondary' | 'text' | 'outline') | null;
-                  openInNewTab?: boolean | null;
-                  id?: string | null;
-                }[]
-              | null;
-            sourceId?: string | null;
-            sourceElementType?: string | null;
-            sourceAttachmentId?: number | null;
-            sourceMetadata?:
-              | {
-                  [k: string]: unknown;
-                }
-              | unknown[]
-              | string
-              | number
-              | boolean
-              | null;
-            id?: string | null;
-            blockName?: string | null;
-            blockType: 'hero';
-          }
-        | {
+            /**
+             * The free-estimate band uses Shared Sections (Settings → Service pages) for any field left empty here.
+             */
+            layout?: ('estimate' | 'finance-hub' | 'finance-cta' | 'standard') | null;
             eyebrow?: string | null;
             heading?: string | null;
             description?: {
@@ -583,6 +385,9 @@ export interface Service {
             buttons?:
               | {
                   label: string;
+                  /**
+                   * A page (/contact), a section on this page (#contact), a full URL, or tel: / mailto:.
+                   */
                   url: string;
                   variant?: ('primary' | 'secondary' | 'text' | 'outline') | null;
                   openInNewTab?: boolean | null;
@@ -633,6 +438,9 @@ export interface Service {
             buttons?:
               | {
                   label: string;
+                  /**
+                   * A page (/contact), a section on this page (#contact), a full URL, or tel: / mailto:.
+                   */
                   url: string;
                   variant?: ('primary' | 'secondary' | 'text' | 'outline') | null;
                   openInNewTab?: boolean | null;
@@ -794,6 +602,9 @@ export interface Service {
                   };
                   link?: {
                     label?: string | null;
+                    /**
+                     * A page (/contact), a section on this page (#contact), a full URL, or tel: / mailto:.
+                     */
                     url?: string | null;
                     openInNewTab?: boolean | null;
                   };
@@ -871,6 +682,9 @@ export interface Service {
                   };
                   link?: {
                     label?: string | null;
+                    /**
+                     * A page (/contact), a section on this page (#contact), a full URL, or tel: / mailto:.
+                     */
                     url?: string | null;
                     openInNewTab?: boolean | null;
                   };
@@ -916,6 +730,9 @@ export interface Service {
                   };
                   link?: {
                     label?: string | null;
+                    /**
+                     * A page (/contact), a section on this page (#contact), a full URL, or tel: / mailto:.
+                     */
                     url?: string | null;
                     openInNewTab?: boolean | null;
                   };
@@ -1014,6 +831,9 @@ export interface Service {
                   };
                   link?: {
                     label?: string | null;
+                    /**
+                     * A page (/contact), a section on this page (#contact), a full URL, or tel: / mailto:.
+                     */
                     url?: string | null;
                     openInNewTab?: boolean | null;
                   };
@@ -1053,6 +873,9 @@ export interface Service {
                   location?: (number | null) | Location;
                   link?: {
                     label?: string | null;
+                    /**
+                     * A page (/contact), a section on this page (#contact), a full URL, or tel: / mailto:.
+                     */
                     url?: string | null;
                     openInNewTab?: boolean | null;
                   };
@@ -1169,6 +992,9 @@ export interface Service {
             buttons?:
               | {
                   label: string;
+                  /**
+                   * A page (/contact), a section on this page (#contact), a full URL, or tel: / mailto:.
+                   */
                   url: string;
                   variant?: ('primary' | 'secondary' | 'text' | 'outline') | null;
                   openInNewTab?: boolean | null;
@@ -1260,10 +1086,18 @@ export interface Service {
         | {
             eyebrow?: string | null;
             heading: string;
+            /**
+             * Empty uses the phone number in Site Settings.
+             */
             phone?: string | null;
+            /**
+             * Empty uses the email in Site Settings.
+             */
             email?: string | null;
+            /**
+             * One office per line. Empty uses the addresses in Site Settings.
+             */
             address?: string | null;
-            mapUrl?: string | null;
             /**
              * One pin per office on the map below the cards. Leave empty and the map is not shown; the addresses above still are.
              */
@@ -1295,42 +1129,6 @@ export interface Service {
             id?: string | null;
             blockName?: string | null;
             blockType: 'find-us';
-          }
-        | {
-            heading?: string | null;
-            providers?:
-              | {
-                  name: string;
-                  shortcode?: string | null;
-                  collectionId?: string | null;
-                  reviews?:
-                    | {
-                        reviewer?: string | null;
-                        rating?: number | null;
-                        body?: string | null;
-                        date?: string | null;
-                        sourceId?: string | null;
-                        id?: string | null;
-                      }[]
-                    | null;
-                  id?: string | null;
-                }[]
-              | null;
-            sourceId?: string | null;
-            sourceElementType?: string | null;
-            sourceAttachmentId?: number | null;
-            sourceMetadata?:
-              | {
-                  [k: string]: unknown;
-                }
-              | unknown[]
-              | string
-              | number
-              | boolean
-              | null;
-            id?: string | null;
-            blockName?: string | null;
-            blockType: 'testimonials';
           }
         | {
             eyebrow?: string | null;
@@ -1626,7 +1424,7 @@ export interface Service {
     [k: string]: unknown;
   } | null;
   /**
-   * Side image shown next to the "A Client-Centered Approach" section (phone mockup). Falls back to the built-in image when empty.
+   * Side image shown next to the "A Client-Centered Approach" section (phone mockup). Empty uses Shared Sections (Settings → Service pages).
    */
   clientApproachImage?: (number | null) | Media;
   /**
@@ -1646,7 +1444,7 @@ export interface Service {
       | null;
   };
   /**
-   * Hero copy above the quote form on this service’s city pages. WordPress keeps it on the family template (kitchen/bathroom/home) rather than per city, so this is the default all 45 city pages inherit. Use {City} for the city name and {Company} for the company name — both are substituted when the page renders. A city can override any field on its own record; empty here falls back to the built-in template.
+   * Hero copy above the quote form on this service’s city pages. WordPress keeps it on the family template (kitchen/bathroom/home) rather than per city, so this is the default all 45 city pages inherit. Use {City} for the city name and {Company} for the company name — both are substituted when the page renders. A city can override any field on its own record.
    */
   locationHero?: {
     /**
@@ -1662,7 +1460,7 @@ export interface Service {
      */
     formSubject?: string | null;
     /**
-     * The three captions under the hero feature photos, paired in order with Location Page Feature Images. {City} / {Company} are substituted.
+     * The three captions under the hero feature photos, in order. {City} / {Company} are substituted.
      */
     blurbs?:
       | {
@@ -1670,6 +1468,31 @@ export interface Service {
           id?: string | null;
         }[]
       | null;
+  };
+  /**
+   * For this service’s city pages. Use {City} and {ServiceTitle}. A city page’s own value wins; empty here uses Shared Sections.
+   */
+  dontSettle?: {
+    eyebrow?: string | null;
+    heading?: string | null;
+    headingAccent?: string | null;
+    body?: string | null;
+    ctaLabel?: string | null;
+    /**
+     * Side image. WordPress uses the same photo (attachment 579, 11.png) on all three family templates.
+     */
+    image?: (number | null) | Media;
+  };
+  /**
+   * For this service’s city pages. Use {City} and {ServiceTitle}. A city page’s own value wins; empty here uses Shared Sections.
+   */
+  locationVideo?: {
+    eyebrow?: string | null;
+    title?: string | null;
+    description?: string | null;
+    tagline?: string | null;
+    videoUrl?: string | null;
+    poster?: (number | null) | Media;
   };
   /**
    * Structured "Crafting Your Dream Home, Our Promise" pull-quote section.
@@ -1681,7 +1504,7 @@ export interface Service {
     image?: (number | null) | Media;
   };
   /**
-   * The trust section ("Silicon Valley loves working with us!") rendered with the projects-page design. All content is authored here — nothing is hardcoded.
+   * The trust section ("Silicon Valley loves working with us!"), rendered with the projects-page design. City pages use it wherever their own copy of this section is empty.
    */
   siliconValleyLoves?: {
     eyebrow?: string | null;
@@ -1689,7 +1512,7 @@ export interface Service {
     body?: string | null;
     image?: (number | null) | Media;
     /**
-     * The floating stat card (e.g. rating / review count / projects built). Add one row per block.
+     * The floating stat card (e.g. rating / review count / projects built). One row per figure.
      */
     stats?:
       | {
@@ -1709,6 +1532,9 @@ export interface Service {
     buttons?:
       | {
           label: string;
+          /**
+           * A page (/contact), a section on this page (#contact), a full URL, or tel: / mailto:.
+           */
           url: string;
           variant?: ('outline' | 'brass') | null;
           id?: string | null;
@@ -1750,7 +1576,7 @@ export interface Service {
     };
   };
   /**
-   * Structured "Areas we service" section (heading only; cities are linked from service-locations).
+   * Structured "Areas we service" section (heading only; cities are linked from service-locations). An empty heading uses Shared Sections (Settings → Service pages).
    */
   areasWeService?: {
     heading?: string | null;
@@ -1828,10 +1654,7 @@ export interface Service {
       | null;
     images?:
       | {
-          /**
-           * Image URL (original WordPress URL or a /public path).
-           */
-          url?: string | null;
+          image: number | Media;
           id?: string | null;
         }[]
       | null;
@@ -1843,7 +1666,7 @@ export interface Service {
     eyebrow?: string | null;
     heading?: string | null;
     description?: string | null;
-    image?: string | null;
+    image?: (number | null) | Media;
     items?:
       | {
           title: string;
@@ -1870,7 +1693,7 @@ export interface Service {
     description?: string | null;
     items?:
       | {
-          image?: string | null;
+          image?: (number | null) | Media;
           title: string;
           description?: string | null;
           id?: string | null;
@@ -1878,13 +1701,9 @@ export interface Service {
       | null;
   };
   /**
-   * Select FAQs relevant to this service
+   * The FAQ section on this page lists every question in this category, in its own order. Empty hides the section.
    */
-  faqs?: (number | Faq)[] | null;
-  /**
-   * Select services to recommend alongside this one
-   */
-  relatedServices?: (number | Service)[] | null;
+  faqCategory?: (number | null) | FaqCategory;
   /**
    * Search-engine and social-share metadata. Titles and descriptions are migrated from the WordPress Rank Math data — keep them unique per page.
    */
@@ -2018,7 +1837,7 @@ export interface ServiceLocation {
   service: number | Service;
   location: number | Location;
   /**
-   * Hero copy above the quote form. Use {City} for the city name and {Company} for the company name — both are substituted when the page renders. Leave a field empty to inherit the parent service’s hero copy, then the built-in WordPress family template.
+   * Hero copy above the quote form. Use {City} for the city name and {Company} for the company name — both are substituted when the page renders. Leave a field empty to inherit the parent service’s hero copy.
    */
   locationHero?: {
     /**
@@ -2034,7 +1853,7 @@ export interface ServiceLocation {
      */
     formSubject?: string | null;
     /**
-     * The three captions under the hero feature photos. {City} / {Company} are substituted.
+     * The three captions under the hero feature photos, in order. {City} / {Company} are substituted.
      */
     blurbs?:
       | {
@@ -2044,7 +1863,7 @@ export interface ServiceLocation {
       | null;
   };
   /**
-   * Video shown on the location page. Use {City} for the city name and {ServiceTitle} for the service name.
+   * Video shown on the location page. Use {City} for the city name and {ServiceTitle} for the service name. Empty fields inherit from the parent service, then from Shared Sections (Settings).
    */
   locationVideo?: {
     eyebrow?: string | null;
@@ -2052,10 +1871,10 @@ export interface ServiceLocation {
     description?: string | null;
     tagline?: string | null;
     videoUrl?: string | null;
-    poster?: string | null;
+    poster?: (number | null) | Media;
   };
   /**
-   * "Don't Settle for a Mediocre…" intro section. Use {City} and {ServiceTitle} placeholders.
+   * "Don't Settle for a Mediocre…" intro section. Use {City} and {ServiceTitle} placeholders. Empty fields inherit from the parent service, then from Shared Sections (Settings).
    */
   dontSettle?: {
     eyebrow?: string | null;
@@ -2064,9 +1883,9 @@ export interface ServiceLocation {
     body?: string | null;
     ctaLabel?: string | null;
     /**
-     * Side image. WordPress uses the same photo (attachment 579, 11.png) on all three family templates. Empty falls back to the page hero, which is the city marketing graphic — not what WordPress shows.
+     * Side image. WordPress uses the same photo (attachment 579, 11.png) on all three family templates.
      */
-    image?: string | null;
+    image?: (number | null) | Media;
   };
   /**
    * The sub-service cards section. The cards themselves come from the parent service; these are this page's own buttons.
@@ -2092,14 +1911,17 @@ export interface ServiceLocation {
       href?: string | null;
     };
   };
+  /**
+   * Empty fields inherit from the parent service, then from Shared Sections (Settings).
+   */
   quote?: {
     heading?: string | null;
     quote?: string | null;
     attribution?: string | null;
-    image?: string | null;
+    image?: (number | null) | Media;
   };
   /**
-   * "The Prime Difference" section (heading + checklist + reason cards + review logos).
+   * "The Prime Difference" section (checklist + reason cards). Empty fields inherit from Shared Sections (Settings).
    */
   primeDifference?: {
     eyebrow?: string | null;
@@ -2143,6 +1965,9 @@ export interface ServiceLocation {
             };
             [k: string]: unknown;
           } | null;
+          /**
+           * A site icon, e.g. /customer-satisfaction.svg.
+           */
           image?: string | null;
           id?: string | null;
         }[]
@@ -2150,64 +1975,76 @@ export interface ServiceLocation {
   };
   testimonialCards?: {
     /**
-     * The testimonials to show, in order. Empty falls back to the parent service’s selection.
+     * The testimonials to show, in order. Empty falls back to the parent service’s selection, then to Shared Sections.
      */
     testimonials?: (number | Testimonial)[] | null;
   };
+  /**
+   * Empty fields inherit from the parent service, then from Shared Sections (Settings).
+   */
   siliconValleyLoves?: {
     eyebrow?: string | null;
     heading?: string | null;
     body?: string | null;
-    image?: string | null;
+    image?: (number | null) | Media;
+    /**
+     * The floating stat card (e.g. rating / review count / projects built). One row per figure.
+     */
     stats?:
       | {
           value?: string | null;
           label?: string | null;
           detail?: string | null;
+          /**
+           * Render five stars above the value (for ratings).
+           */
+          showStars?: boolean | null;
+          id?: string | null;
+        }[]
+      | null;
+    /**
+     * Call-to-action buttons under the copy.
+     */
+    buttons?:
+      | {
+          label: string;
+          /**
+           * A page (/contact), a section on this page (#contact), a full URL, or tel: / mailto:.
+           */
+          url: string;
+          variant?: ('outline' | 'brass') | null;
           id?: string | null;
         }[]
       | null;
   };
   /**
-   * Legacy WordPress city value; retained for import compatibility.
+   * Legacy WordPress city value, kept for the import. The page uses the Location above.
    */
   city?: string | null;
   featuredImage?: (number | null) | Media;
-  heroHeading?: string | null;
-  heroDescription?: string | null;
-  intro?: string | null;
-  content?: {
-    root: {
-      type: string;
-      children: {
-        type: any;
-        version: number;
-        [k: string]: unknown;
-      }[];
-      direction: ('ltr' | 'rtl') | null;
-      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
-      indent: number;
-      version: number;
-    };
-    [k: string]: unknown;
-  } | null;
   /**
    * Optional location-only changes. Leave empty to inherit the complete service template.
    */
   sectionOverrides?:
     | {
+        sectionKey:
+          | 'intro'
+          | 'video'
+          | 'offerings'
+          | 'quote'
+          | 'prime-difference'
+          | 'reviews'
+          | 'testimonial-cards'
+          | 'silicon-valley-loves'
+          | 'contact';
         /**
-         * Use the inherited section sourceId for repeated block types; a block type may be used for unique sections.
-         */
-        sectionKey: string;
-        /**
-         * Turn this inherited section on or off for this location.
+         * Turn this section on or off for this location.
          */
         enabled?: boolean | null;
-        heading?: string | null;
-        body?: string | null;
+        /**
+         * Intro only: replaces the section's photo on this city page.
+         */
         image?: (number | null) | Media;
-        videoUrl?: string | null;
         id?: string | null;
       }[]
     | null;
@@ -2257,14 +2094,19 @@ export interface Page {
   id: number;
   title: string;
   slug: string;
+  /**
+   * This page’s hero. (Pages that open with a Hero section in the layout use that instead, and this group is hidden.)
+   */
   hero?: {
     eyebrow?: string | null;
     heading?: string | null;
     description?: string | null;
     image?: (number | null) | Media;
-    video?: (number | null) | Media;
     cta?: {
       label?: string | null;
+      /**
+       * A page (/contact), a section on this page (#contact), a full URL, or tel: / mailto:.
+       */
       href?: string | null;
     };
   };
@@ -2310,6 +2152,9 @@ export interface Page {
             videoUrl?: string | null;
             cta?: {
               label?: string | null;
+              /**
+               * A page (/contact), a section on this page (#contact), a full URL, or tel: / mailto:.
+               */
               href?: string | null;
               style?: ('filled' | 'outlined') | null;
               showCalendarIcon?: boolean | null;
@@ -2416,21 +2261,6 @@ export interface Page {
              * Word(s) of the heading to render in the accent color, e.g. "projects". Separate multiple phrases with |.
              */
             headingHighlight?: string | null;
-            body?: {
-              root: {
-                type: string;
-                children: {
-                  type: any;
-                  version: number;
-                  [k: string]: unknown;
-                }[];
-                direction: ('ltr' | 'rtl') | null;
-                format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
-                indent: number;
-                version: number;
-              };
-              [k: string]: unknown;
-            } | null;
             id?: string | null;
             blockName?: string | null;
             blockType: 'projects';
@@ -2442,21 +2272,6 @@ export interface Page {
              * Word(s) of the heading to render in the accent color, e.g. "services". Separate multiple phrases with |.
              */
             headingHighlight?: string | null;
-            body?: {
-              root: {
-                type: string;
-                children: {
-                  type: any;
-                  version: number;
-                  [k: string]: unknown;
-                }[];
-                direction: ('ltr' | 'rtl') | null;
-                format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
-                indent: number;
-                version: number;
-              };
-              [k: string]: unknown;
-            } | null;
             id?: string | null;
             blockName?: string | null;
             blockType: 'services';
@@ -2490,6 +2305,9 @@ export interface Page {
                     [k: string]: unknown;
                   } | null;
                   ctaLabel?: string | null;
+                  /**
+                   * A page (/contact), a section on this page (#contact), a full URL, or tel: / mailto:.
+                   */
                   ctaHref?: string | null;
                   beforeImage?: (number | null) | Media;
                   afterImage?: (number | null) | Media;
@@ -2549,6 +2367,9 @@ export interface Page {
               [k: string]: unknown;
             } | null;
             ctaLabel?: string | null;
+            /**
+             * A page (/contact), a section on this page (#contact), a full URL, or tel: / mailto:.
+             */
             ctaHref?: string | null;
             introHeading?: string | null;
             introSubheading?: string | null;
@@ -2596,6 +2417,9 @@ export interface Page {
             image?: (number | null) | Media;
             imageSecondary?: (number | null) | Media;
             ctaLabel?: string | null;
+            /**
+             * A page (/contact), a section on this page (#contact), a full URL, or tel: / mailto:.
+             */
             ctaHref?: string | null;
             id?: string | null;
             blockName?: string | null;
@@ -2658,6 +2482,9 @@ export interface Page {
             poster?: (number | null) | Media;
             badge?: (number | null) | Media;
             ctaLabel?: string | null;
+            /**
+             * A page (/contact), a section on this page (#contact), a full URL, or tel: / mailto:.
+             */
             ctaHref?: string | null;
             /**
              * Short summary or quote from the video. Renders under the player, like a testimonial.
@@ -2750,10 +2577,9 @@ export interface Page {
             eyebrow?: string | null;
             heading?: string | null;
             /**
-             * Line above the search field, e.g. "Browse by category or search below".
+             * Line under the heading, e.g. "Browse by category to find what you need."
              */
             description?: string | null;
-            searchPlaceholder?: string | null;
             /**
              * Label for the category that shows every question, e.g. "All questions".
              */
@@ -2871,6 +2697,9 @@ export interface Page {
               [k: string]: unknown;
             } | null;
             ctaLabel?: string | null;
+            /**
+             * A page (/contact), a section on this page (#contact), a full URL, or tel: / mailto:.
+             */
             ctaHref?: string | null;
             /**
              * Small line beside the button ("Ready to talk?").
@@ -2923,6 +2752,9 @@ export interface Page {
             buttons?:
               | {
                   label: string;
+                  /**
+                   * A page (/contact), a section on this page (#contact), a full URL, or tel: / mailto:.
+                   */
                   href: string;
                   id?: string | null;
                 }[]
@@ -2978,6 +2810,9 @@ export interface Page {
             links?:
               | {
                   label: string;
+                  /**
+                   * A page (/contact), a section on this page (#contact), a full URL, or tel: / mailto:.
+                   */
                   href: string;
                   id?: string | null;
                 }[]
@@ -2987,32 +2822,10 @@ export interface Page {
             blockType: 'link-list';
           }
         | {
-            eyebrow?: string | null;
-            heading: string;
-            body: string;
-            id?: string | null;
-            blockName?: string | null;
-            blockType: 'content';
-          }
-        | {
-            eyebrow?: string | null;
-            heading: string;
-            body: string;
-            image?: (number | null) | Media;
-            imageSide?: ('left' | 'right') | null;
-            id?: string | null;
-            blockName?: string | null;
-            blockType: 'image-text';
-          }
-        | {
+            /**
+             * Empty uses the free-estimate band in Shared Sections (Settings).
+             */
             heading?: string | null;
-            images?: (number | Media)[] | null;
-            id?: string | null;
-            blockName?: string | null;
-            blockType: 'gallery';
-          }
-        | {
-            heading: string;
             body?: {
               root: {
                 type: string;
@@ -3028,7 +2841,13 @@ export interface Page {
               };
               [k: string]: unknown;
             } | null;
+            /**
+             * The band's button, e.g. "Get started". Empty shows no button.
+             */
             label?: string | null;
+            /**
+             * Where the button goes, e.g. /contact.
+             */
             href?: string | null;
             id?: string | null;
             blockName?: string | null;
@@ -3196,7 +3015,7 @@ export interface Redirect {
   createdAt: string;
 }
 /**
- * Team members displayed on the company page.
+ * Team members: the grids on /about and /team, and each member’s own page at /team/<slug>.
  *
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "team".
@@ -3204,6 +3023,9 @@ export interface Redirect {
 export interface Team {
   id: number;
   name: string;
+  /**
+   * The member’s page address: /team/<slug>.
+   */
   slug: string;
   position?: string | null;
   image?: (number | null) | Media;
@@ -3382,49 +3204,7 @@ export interface Blog {
     };
     [k: string]: unknown;
   } | null;
-  /**
-   * Only applies to the free-form content field above.
-   */
-  enableTOC?: boolean | null;
-  tocTitle?: string | null;
-  /**
-   * Auto-generated from H2 headings in the free-form content field.
-   */
-  tableOfContents?:
-    | {
-        anchorId?: string | null;
-        text: string;
-        id?: string | null;
-      }[]
-    | null;
-  faqHeading?: string | null;
-  faq?:
-    | {
-        question: string;
-        answer: {
-          root: {
-            type: string;
-            children: {
-              type: any;
-              version: number;
-              [k: string]: unknown;
-            }[];
-            direction: ('ltr' | 'rtl') | null;
-            format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
-            indent: number;
-            version: number;
-          };
-          [k: string]: unknown;
-        };
-        id?: string | null;
-      }[]
-    | null;
   categories?: (number | BlogCategory)[] | null;
-  /**
-   * Enter tags and press enter to add multiple tags
-   */
-  tags?: string[] | null;
-  relatedPosts?: (number | Blog)[] | null;
   seo?: {
     /**
      * Overrides the default title. Aim for 50–60 characters; source titles are not truncated.
@@ -3442,11 +3222,6 @@ export interface Blog {
     canonical_url?: string | null;
     no_index?: boolean | null;
   };
-  /**
-   * Feature on homepage
-   */
-  featured?: boolean | null;
-  readingTime?: number | null;
   createdBy?: (number | null) | User;
   updatedBy?: (number | null) | User;
   updatedAt: string;
@@ -3481,27 +3256,10 @@ export interface LandingPage {
   title: string;
   slug: string;
   status?: ('draft' | 'published') | null;
-  template?: 'information' | null;
   /**
    * The service this page advertises. Its booking form books this service. Leave empty if none fits.
    */
   service?: (number | null) | Service;
-  hero: {
-    eyebrow?: string | null;
-    heading: string;
-    description?: string | null;
-    backgroundMedia?: (number | null) | Media;
-    foregroundMedia?: (number | null) | Media;
-    buttons?:
-      | {
-          label: string;
-          url: string;
-          variant?: ('primary' | 'secondary' | 'text' | 'outline') | null;
-          openInNewTab?: boolean | null;
-          id?: string | null;
-        }[]
-      | null;
-  };
   sections: (
     | {
         eyebrow?: string | null;
@@ -3531,6 +3289,9 @@ export interface LandingPage {
         buttons?:
           | {
               label: string;
+              /**
+               * A page (/contact), a section on this page (#contact), a full URL, or tel: / mailto:.
+               */
               url: string;
               variant?: ('primary' | 'secondary' | 'text' | 'outline') | null;
               openInNewTab?: boolean | null;
@@ -3581,6 +3342,9 @@ export interface LandingPage {
         buttons?:
           | {
               label: string;
+              /**
+               * A page (/contact), a section on this page (#contact), a full URL, or tel: / mailto:.
+               */
               url: string;
               variant?: ('primary' | 'secondary' | 'text' | 'outline') | null;
               openInNewTab?: boolean | null;
@@ -3631,6 +3395,9 @@ export interface LandingPage {
         buttons?:
           | {
               label: string;
+              /**
+               * A page (/contact), a section on this page (#contact), a full URL, or tel: / mailto:.
+               */
               url: string;
               variant?: ('primary' | 'secondary' | 'text' | 'outline') | null;
               openInNewTab?: boolean | null;
@@ -3886,6 +3653,9 @@ export interface LandingPage {
               };
               link?: {
                 label?: string | null;
+                /**
+                 * A page (/contact), a section on this page (#contact), a full URL, or tel: / mailto:.
+                 */
                 url?: string | null;
                 openInNewTab?: boolean | null;
               };
@@ -3963,6 +3733,9 @@ export interface LandingPage {
               };
               link?: {
                 label?: string | null;
+                /**
+                 * A page (/contact), a section on this page (#contact), a full URL, or tel: / mailto:.
+                 */
                 url?: string | null;
                 openInNewTab?: boolean | null;
               };
@@ -3986,9 +3759,18 @@ export interface LandingPage {
         blockType: 'sub-services';
       }
     | {
+        /**
+         * Empty uses Shared Sections (Settings).
+         */
         eyebrow?: string | null;
-        heading: string;
+        /**
+         * Empty uses Shared Sections (Settings).
+         */
+        heading?: string | null;
         description?: string | null;
+        /**
+         * Empty uses Shared Sections (Settings).
+         */
         features?:
           | {
               title: string;
@@ -4008,6 +3790,9 @@ export interface LandingPage {
               };
               link?: {
                 label?: string | null;
+                /**
+                 * A page (/contact), a section on this page (#contact), a full URL, or tel: / mailto:.
+                 */
                 url?: string | null;
                 openInNewTab?: boolean | null;
               };
@@ -4084,9 +3869,18 @@ export interface LandingPage {
         blockType: 'prime-difference';
       }
     | {
+        /**
+         * Empty uses Shared Sections (Settings).
+         */
         eyebrow?: string | null;
-        heading: string;
+        /**
+         * Empty uses Shared Sections (Settings).
+         */
+        heading?: string | null;
         description?: string | null;
+        /**
+         * Empty uses Shared Sections (Settings).
+         */
         features?:
           | {
               title: string;
@@ -4106,6 +3900,9 @@ export interface LandingPage {
               };
               link?: {
                 label?: string | null;
+                /**
+                 * A page (/contact), a section on this page (#contact), a full URL, or tel: / mailto:.
+                 */
                 url?: string | null;
                 openInNewTab?: boolean | null;
               };
@@ -4136,21 +3933,36 @@ export interface LandingPage {
         blockType: 'experience-difference';
       }
     | {
+        /**
+         * Empty uses Shared Sections (Settings).
+         */
         eyebrow?: string | null;
-        heading: string;
+        /**
+         * Empty uses Shared Sections (Settings).
+         */
+        heading?: string | null;
         description?: string | null;
+        /**
+         * Empty uses Shared Sections (Settings).
+         */
         areas?:
           | {
               label: string;
               location?: (number | null) | Location;
               link?: {
                 label?: string | null;
+                /**
+                 * A page (/contact), a section on this page (#contact), a full URL, or tel: / mailto:.
+                 */
                 url?: string | null;
                 openInNewTab?: boolean | null;
               };
               id?: string | null;
             }[]
           | null;
+        /**
+         * Empty uses Shared Sections (Settings).
+         */
         regionHeading?: string | null;
         mapMedia?: {
           asset?: (number | null) | Media;
@@ -4249,7 +4061,10 @@ export interface LandingPage {
       }
     | {
         eyebrow?: string | null;
-        heading: string;
+        /**
+         * Empty uses Shared Sections (Settings).
+         */
+        heading?: string | null;
         description?: string | null;
         media?: {
           asset?: (number | null) | Media;
@@ -4261,6 +4076,9 @@ export interface LandingPage {
         buttons?:
           | {
               label: string;
+              /**
+               * A page (/contact), a section on this page (#contact), a full URL, or tel: / mailto:.
+               */
               url: string;
               variant?: ('primary' | 'secondary' | 'text' | 'outline') | null;
               openInNewTab?: boolean | null;
@@ -4351,11 +4169,22 @@ export interface LandingPage {
       }
     | {
         eyebrow?: string | null;
-        heading: string;
+        /**
+         * Empty uses Shared Sections (Settings).
+         */
+        heading?: string | null;
+        /**
+         * Empty uses the phone number in Site Settings.
+         */
         phone?: string | null;
+        /**
+         * Empty uses the email in Site Settings.
+         */
         email?: string | null;
+        /**
+         * One office per line. Empty uses the addresses in Site Settings.
+         */
         address?: string | null;
-        mapUrl?: string | null;
         /**
          * One pin per office on the map below the cards. Leave empty and the map is not shown; the addresses above still are.
          */
@@ -4387,42 +4216,6 @@ export interface LandingPage {
         id?: string | null;
         blockName?: string | null;
         blockType: 'find-us';
-      }
-    | {
-        heading?: string | null;
-        providers?:
-          | {
-              name: string;
-              shortcode?: string | null;
-              collectionId?: string | null;
-              reviews?:
-                | {
-                    reviewer?: string | null;
-                    rating?: number | null;
-                    body?: string | null;
-                    date?: string | null;
-                    sourceId?: string | null;
-                    id?: string | null;
-                  }[]
-                | null;
-              id?: string | null;
-            }[]
-          | null;
-        sourceId?: string | null;
-        sourceElementType?: string | null;
-        sourceAttachmentId?: number | null;
-        sourceMetadata?:
-          | {
-              [k: string]: unknown;
-            }
-          | unknown[]
-          | string
-          | number
-          | boolean
-          | null;
-        id?: string | null;
-        blockName?: string | null;
-        blockType: 'testimonials';
       }
     | {
         eyebrow?: string | null;
@@ -4488,6 +4281,10 @@ export interface LandingPage {
                 | boolean
                 | null;
               sourceId?: string | null;
+              /**
+               * Optional. Show these questions, in this order, instead of the category’s own order.
+               */
+              faqOrder?: (number | Faq)[] | null;
               id?: string | null;
             }[]
           | null;
@@ -4582,13 +4379,6 @@ export interface LandingPage {
         blockType: 'gallery-carousel';
       }
   )[];
-  campaignTracking?: {
-    campaignName?: string | null;
-    source?: string | null;
-    medium?: string | null;
-    term?: string | null;
-    content?: string | null;
-  };
   /**
    * Search-engine and social-share metadata. Titles and descriptions are migrated from the WordPress Rank Math data — keep them unique per page.
    */
@@ -5096,209 +4886,16 @@ export interface ServicesSelect<T extends boolean = true> {
     | T
     | {
         section?: T;
+        enabled?: T;
         id?: T;
-      };
-  contentBlocks?:
-    | T
-    | {
-        intro?:
-          | T
-          | {
-              eyebrow?: T;
-              heading?: T;
-              body?: T;
-              image?: T;
-              imageSide?: T;
-              id?: T;
-              blockName?: T;
-            };
-        'feature-list'?:
-          | T
-          | {
-              heading?: T;
-              items?:
-                | T
-                | {
-                    text?: T;
-                    id?: T;
-                  };
-              id?: T;
-              blockName?: T;
-            };
-        benefits?:
-          | T
-          | {
-              heading?: T;
-              items?:
-                | T
-                | {
-                    text?: T;
-                    id?: T;
-                  };
-              id?: T;
-              blockName?: T;
-            };
-        process?:
-          | T
-          | {
-              heading?: T;
-              steps?:
-                | T
-                | {
-                    title?: T;
-                    description?: T;
-                    image?: T;
-                    id?: T;
-                  };
-              id?: T;
-              blockName?: T;
-            };
-        'image-text'?:
-          | T
-          | {
-              eyebrow?: T;
-              heading?: T;
-              body?: T;
-              image?: T;
-              imageSide?: T;
-              id?: T;
-              blockName?: T;
-            };
-        gallery?:
-          | T
-          | {
-              heading?: T;
-              images?: T;
-              id?: T;
-              blockName?: T;
-            };
-        'sub-services'?:
-          | T
-          | {
-              heading?: T;
-              items?:
-                | T
-                | {
-                    title?: T;
-                    description?: T;
-                    image?: T;
-                    link?: T;
-                    id?: T;
-                  };
-              id?: T;
-              blockName?: T;
-            };
-        video?:
-          | T
-          | {
-              heading?: T;
-              video?: T;
-              videoUrl?: T;
-              poster?: T;
-              summary?: T;
-              speakerName?: T;
-              speakerRole?: T;
-              id?: T;
-              blockName?: T;
-            };
-        'icon-feature-list'?:
-          | T
-          | {
-              heading?: T;
-              intro?: T;
-              image?: T;
-              imageSide?: T;
-              items?:
-                | T
-                | {
-                    title?: T;
-                    description?: T;
-                    id?: T;
-                  };
-              id?: T;
-              blockName?: T;
-            };
-        checklist?:
-          | T
-          | {
-              eyebrow?: T;
-              heading?: T;
-              description?: T;
-              image?: T;
-              imageSide?: T;
-              items?:
-                | T
-                | {
-                    text?: T;
-                    id?: T;
-                  };
-              id?: T;
-              blockName?: T;
-            };
-        quote?:
-          | T
-          | {
-              quote?: T;
-              attribution?: T;
-              id?: T;
-              blockName?: T;
-            };
       };
   sections?:
     | T
     | {
-        hero?:
-          | T
-          | {
-              eyebrow?: T;
-              heading?: T;
-              description?: T;
-              backgroundMedia?:
-                | T
-                | {
-                    asset?: T;
-                    alt?: T;
-                    caption?: T;
-                    sourceAttachmentId?: T;
-                    sourceUrl?: T;
-                  };
-              backgroundVideo?:
-                | T
-                | {
-                    asset?: T;
-                    alt?: T;
-                    caption?: T;
-                    sourceAttachmentId?: T;
-                    sourceUrl?: T;
-                  };
-              foregroundMedia?:
-                | T
-                | {
-                    asset?: T;
-                    alt?: T;
-                    caption?: T;
-                    sourceAttachmentId?: T;
-                    sourceUrl?: T;
-                  };
-              buttons?:
-                | T
-                | {
-                    label?: T;
-                    url?: T;
-                    variant?: T;
-                    openInNewTab?: T;
-                    id?: T;
-                  };
-              sourceId?: T;
-              sourceElementType?: T;
-              sourceAttachmentId?: T;
-              sourceMetadata?: T;
-              id?: T;
-              blockName?: T;
-            };
         cta?:
           | T
           | {
+              layout?: T;
               eyebrow?: T;
               heading?: T;
               description?: T;
@@ -5832,41 +5429,11 @@ export interface ServicesSelect<T extends boolean = true> {
               phone?: T;
               email?: T;
               address?: T;
-              mapUrl?: T;
               mapPins?:
                 | T
                 | {
                     latitude?: T;
                     longitude?: T;
-                    id?: T;
-                  };
-              sourceId?: T;
-              sourceElementType?: T;
-              sourceAttachmentId?: T;
-              sourceMetadata?: T;
-              id?: T;
-              blockName?: T;
-            };
-        testimonials?:
-          | T
-          | {
-              heading?: T;
-              providers?:
-                | T
-                | {
-                    name?: T;
-                    shortcode?: T;
-                    collectionId?: T;
-                    reviews?:
-                      | T
-                      | {
-                          reviewer?: T;
-                          rating?: T;
-                          body?: T;
-                          date?: T;
-                          sourceId?: T;
-                          id?: T;
-                        };
                     id?: T;
                   };
               sourceId?: T;
@@ -6034,6 +5601,26 @@ export interface ServicesSelect<T extends boolean = true> {
               id?: T;
             };
       };
+  dontSettle?:
+    | T
+    | {
+        eyebrow?: T;
+        heading?: T;
+        headingAccent?: T;
+        body?: T;
+        ctaLabel?: T;
+        image?: T;
+      };
+  locationVideo?:
+    | T
+    | {
+        eyebrow?: T;
+        title?: T;
+        description?: T;
+        tagline?: T;
+        videoUrl?: T;
+        poster?: T;
+      };
   quote?:
     | T
     | {
@@ -6156,7 +5743,7 @@ export interface ServicesSelect<T extends boolean = true> {
         images?:
           | T
           | {
-              url?: T;
+              image?: T;
               id?: T;
             };
       };
@@ -6195,8 +5782,7 @@ export interface ServicesSelect<T extends boolean = true> {
               id?: T;
             };
       };
-  faqs?: T;
-  relatedServices?: T;
+  faqCategory?: T;
   seo?:
     | T
     | {
@@ -6352,24 +5938,26 @@ export interface ServiceLocationsSelect<T extends boolean = true> {
               value?: T;
               label?: T;
               detail?: T;
+              showStars?: T;
+              id?: T;
+            };
+        buttons?:
+          | T
+          | {
+              label?: T;
+              url?: T;
+              variant?: T;
               id?: T;
             };
       };
   city?: T;
   featuredImage?: T;
-  heroHeading?: T;
-  heroDescription?: T;
-  intro?: T;
-  content?: T;
   sectionOverrides?:
     | T
     | {
         sectionKey?: T;
         enabled?: T;
-        heading?: T;
-        body?: T;
         image?: T;
-        videoUrl?: T;
         id?: T;
       };
   seo?:
@@ -6400,7 +5988,6 @@ export interface PagesSelect<T extends boolean = true> {
         heading?: T;
         description?: T;
         image?: T;
-        video?: T;
         cta?:
           | T
           | {
@@ -6477,7 +6064,6 @@ export interface PagesSelect<T extends boolean = true> {
               eyebrow?: T;
               heading?: T;
               headingHighlight?: T;
-              body?: T;
               id?: T;
               blockName?: T;
             };
@@ -6487,7 +6073,6 @@ export interface PagesSelect<T extends boolean = true> {
               eyebrow?: T;
               heading?: T;
               headingHighlight?: T;
-              body?: T;
               id?: T;
               blockName?: T;
             };
@@ -6639,7 +6224,6 @@ export interface PagesSelect<T extends boolean = true> {
               eyebrow?: T;
               heading?: T;
               description?: T;
-              searchPlaceholder?: T;
               allLabel?: T;
               emptyMessage?: T;
               id?: T;
@@ -6786,34 +6370,6 @@ export interface PagesSelect<T extends boolean = true> {
                     href?: T;
                     id?: T;
                   };
-              id?: T;
-              blockName?: T;
-            };
-        content?:
-          | T
-          | {
-              eyebrow?: T;
-              heading?: T;
-              body?: T;
-              id?: T;
-              blockName?: T;
-            };
-        'image-text'?:
-          | T
-          | {
-              eyebrow?: T;
-              heading?: T;
-              body?: T;
-              image?: T;
-              imageSide?: T;
-              id?: T;
-              blockName?: T;
-            };
-        gallery?:
-          | T
-          | {
-              heading?: T;
-              images?: T;
               id?: T;
               blockName?: T;
             };
@@ -6984,26 +6540,7 @@ export interface BlogSelect<T extends boolean = true> {
         id?: T;
       };
   content?: T;
-  enableTOC?: T;
-  tocTitle?: T;
-  tableOfContents?:
-    | T
-    | {
-        anchorId?: T;
-        text?: T;
-        id?: T;
-      };
-  faqHeading?: T;
-  faq?:
-    | T
-    | {
-        question?: T;
-        answer?: T;
-        id?: T;
-      };
   categories?: T;
-  tags?: T;
-  relatedPosts?: T;
   seo?:
     | T
     | {
@@ -7014,8 +6551,6 @@ export interface BlogSelect<T extends boolean = true> {
         canonical_url?: T;
         no_index?: T;
       };
-  featured?: T;
-  readingTime?: T;
   createdBy?: T;
   updatedBy?: T;
   updatedAt?: T;
@@ -7043,26 +6578,7 @@ export interface LandingPagesSelect<T extends boolean = true> {
   title?: T;
   slug?: T;
   status?: T;
-  template?: T;
   service?: T;
-  hero?:
-    | T
-    | {
-        eyebrow?: T;
-        heading?: T;
-        description?: T;
-        backgroundMedia?: T;
-        foregroundMedia?: T;
-        buttons?:
-          | T
-          | {
-              label?: T;
-              url?: T;
-              variant?: T;
-              openInNewTab?: T;
-              id?: T;
-            };
-      };
   sections?:
     | T
     | {
@@ -7741,41 +7257,11 @@ export interface LandingPagesSelect<T extends boolean = true> {
               phone?: T;
               email?: T;
               address?: T;
-              mapUrl?: T;
               mapPins?:
                 | T
                 | {
                     latitude?: T;
                     longitude?: T;
-                    id?: T;
-                  };
-              sourceId?: T;
-              sourceElementType?: T;
-              sourceAttachmentId?: T;
-              sourceMetadata?: T;
-              id?: T;
-              blockName?: T;
-            };
-        testimonials?:
-          | T
-          | {
-              heading?: T;
-              providers?:
-                | T
-                | {
-                    name?: T;
-                    shortcode?: T;
-                    collectionId?: T;
-                    reviews?:
-                      | T
-                      | {
-                          reviewer?: T;
-                          rating?: T;
-                          body?: T;
-                          date?: T;
-                          sourceId?: T;
-                          id?: T;
-                        };
                     id?: T;
                   };
               sourceId?: T;
@@ -7837,6 +7323,7 @@ export interface LandingPagesSelect<T extends boolean = true> {
                         };
                     sourceQuery?: T;
                     sourceId?: T;
+                    faqOrder?: T;
                     id?: T;
                   };
               sourceId?: T;
@@ -7890,15 +7377,6 @@ export interface LandingPagesSelect<T extends boolean = true> {
               id?: T;
               blockName?: T;
             };
-      };
-  campaignTracking?:
-    | T
-    | {
-        campaignName?: T;
-        source?: T;
-        medium?: T;
-        term?: T;
-        content?: T;
       };
   seo?:
     | T
@@ -8093,8 +7571,26 @@ export interface SiteSetting {
      * Working hours line, e.g. "Open: 8am - 6pm (Mon - Fri)".
      */
     hours?: string | null;
+    openingHours?:
+      | {
+          days: ('Mo' | 'Tu' | 'We' | 'Th' | 'Fr' | 'Sa' | 'Su')[];
+          /**
+           * 24-hour time, e.g. 08:00
+           */
+          opens: string;
+          /**
+           * 24-hour time, e.g. 18:00
+           */
+          closes: string;
+          id?: string | null;
+        }[]
+      | null;
     /**
-     * Where the location text in the top banner links to — your Google Business Profile / Maps listing URL.
+     * The location text in the top banner, e.g. "Silicon Valley". Empty hides the location.
+     */
+    serviceRegion?: string | null;
+    /**
+     * Where the location text in the top banner links to. Empty uses the first address's link below.
      */
     mapsUrl?: string | null;
     addresses?:
@@ -8108,6 +7604,12 @@ export interface SiteSetting {
         }[]
       | null;
   };
+  serviceAreas?:
+    | {
+        location?: (number | null) | Location;
+        id?: string | null;
+      }[]
+    | null;
   socialLinks?: {
     googleBusiness?: string | null;
     yelp?: string | null;
@@ -8143,13 +7645,6 @@ export interface SiteSetting {
      */
     yelpReviewCount?: number | null;
   };
-  serviceAreas?:
-    | {
-        location?: (number | null) | Location;
-        id?: string | null;
-      }[]
-    | null;
-  defaultOgImage?: (number | null) | Media;
   /**
    * The "Silicon Valley loves working with us!" section as shown on the Projects page. Service pages use their own copy of this section (Services → Silicon Valley Loves).
    */
@@ -8169,6 +7664,9 @@ export interface SiteSetting {
     buttons?:
       | {
           label: string;
+          /**
+           * A page (/contact), a section on this page (#contact), a full URL, or tel: / mailto:.
+           */
           url: string;
           variant?: ('outline' | 'brass') | null;
           id?: string | null;
@@ -8282,6 +7780,287 @@ export interface SiteSetting {
      * Preview image for social shares. Recommended 1200×630.
      */
     ogImage?: (number | null) | Media;
+  };
+  defaultOgImage?: (number | null) | Media;
+  updatedAt?: string | null;
+  createdAt?: string | null;
+}
+/**
+ * Copy shared by every page of a kind. A page that fills a field of its own shows that instead.
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "shared-sections".
+ */
+export interface SharedSection {
+  id: number;
+  locationVideo?: {
+    eyebrow?: string | null;
+    title?: string | null;
+    description?: string | null;
+    tagline?: string | null;
+    videoUrl?: string | null;
+    poster?: (number | null) | Media;
+  };
+  dontSettle?: {
+    eyebrow?: string | null;
+    heading?: string | null;
+    headingAccent?: string | null;
+    body?: string | null;
+    ctaLabel?: string | null;
+    /**
+     * Side image. WordPress uses the same photo (attachment 579, 11.png) on all three family templates.
+     */
+    image?: (number | null) | Media;
+  };
+  quote?: {
+    heading?: string | null;
+    quote?: string | null;
+    attribution?: string | null;
+    image?: (number | null) | Media;
+  };
+  primeDifference?: {
+    eyebrow?: string | null;
+    heading?: string | null;
+    body?: {
+      root: {
+        type: string;
+        children: {
+          type: any;
+          version: number;
+          [k: string]: unknown;
+        }[];
+        direction: ('ltr' | 'rtl') | null;
+        format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+        indent: number;
+        version: number;
+      };
+      [k: string]: unknown;
+    } | null;
+    checklist?:
+      | {
+          text?: string | null;
+          id?: string | null;
+        }[]
+      | null;
+    reasons?:
+      | {
+          title: string;
+          description?: {
+            root: {
+              type: string;
+              children: {
+                type: any;
+                version: number;
+                [k: string]: unknown;
+              }[];
+              direction: ('ltr' | 'rtl') | null;
+              format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+              indent: number;
+              version: number;
+            };
+            [k: string]: unknown;
+          } | null;
+          /**
+           * A site icon, e.g. /customer-satisfaction.svg.
+           */
+          image?: string | null;
+          id?: string | null;
+        }[]
+      | null;
+  };
+  testimonialCards?: {
+    /**
+     * The testimonials to show, in order.
+     */
+    testimonials?: (number | Testimonial)[] | null;
+  };
+  siliconValleyLoves?: {
+    eyebrow?: string | null;
+    heading?: string | null;
+    body?: string | null;
+    image?: (number | null) | Media;
+    /**
+     * The floating stat card (e.g. rating / review count / projects built). One row per figure.
+     */
+    stats?:
+      | {
+          value?: string | null;
+          label?: string | null;
+          detail?: string | null;
+          /**
+           * Render five stars above the value (for ratings).
+           */
+          showStars?: boolean | null;
+          id?: string | null;
+        }[]
+      | null;
+    /**
+     * Call-to-action buttons under the copy.
+     */
+    buttons?:
+      | {
+          label: string;
+          /**
+           * A page (/contact), a section on this page (#contact), a full URL, or tel: / mailto:.
+           */
+          url: string;
+          variant?: ('outline' | 'brass') | null;
+          id?: string | null;
+        }[]
+      | null;
+  };
+  /**
+   * Used by every landing page whose section leaves these fields empty.
+   */
+  landingPrimeDifference?: {
+    eyebrow?: string | null;
+    heading?: string | null;
+    features?:
+      | {
+          title: string;
+          description?: string | null;
+          icon?: {
+            iconMedia?: (number | null) | Media;
+            iconLibrary?: string | null;
+            iconName?: string | null;
+            sourceSvgUrl?: string | null;
+          };
+          media?: {
+            asset?: (number | null) | Media;
+            alt?: string | null;
+            caption?: string | null;
+            sourceAttachmentId?: number | null;
+            sourceUrl?: string | null;
+          };
+          link?: {
+            label?: string | null;
+            /**
+             * A page (/contact), a section on this page (#contact), a full URL, or tel: / mailto:.
+             */
+            url?: string | null;
+            openInNewTab?: boolean | null;
+          };
+          id?: string | null;
+        }[]
+      | null;
+  };
+  /**
+   * Used by every landing page whose section leaves these fields empty.
+   */
+  landingExperienceDifference?: {
+    eyebrow?: string | null;
+    heading?: string | null;
+    features?:
+      | {
+          title: string;
+          description?: string | null;
+          icon?: {
+            iconMedia?: (number | null) | Media;
+            iconLibrary?: string | null;
+            iconName?: string | null;
+            sourceSvgUrl?: string | null;
+          };
+          media?: {
+            asset?: (number | null) | Media;
+            alt?: string | null;
+            caption?: string | null;
+            sourceAttachmentId?: number | null;
+            sourceUrl?: string | null;
+          };
+          link?: {
+            label?: string | null;
+            /**
+             * A page (/contact), a section on this page (#contact), a full URL, or tel: / mailto:.
+             */
+            url?: string | null;
+            openInNewTab?: boolean | null;
+          };
+          id?: string | null;
+        }[]
+      | null;
+  };
+  /**
+   * Used by every landing page whose section leaves these fields empty.
+   */
+  landingServiceAreas?: {
+    eyebrow?: string | null;
+    heading?: string | null;
+    areas?:
+      | {
+          label: string;
+          location?: (number | null) | Location;
+          link?: {
+            label?: string | null;
+            /**
+             * A page (/contact), a section on this page (#contact), a full URL, or tel: / mailto:.
+             */
+            url?: string | null;
+            openInNewTab?: boolean | null;
+          };
+          id?: string | null;
+        }[]
+      | null;
+    regionHeading?: string | null;
+    mapMedia?: {
+      asset?: (number | null) | Media;
+      alt?: string | null;
+      caption?: string | null;
+      sourceAttachmentId?: number | null;
+      sourceUrl?: string | null;
+    };
+  };
+  /**
+   * Used by every landing page whose section leaves these fields empty.
+   */
+  landingLuxuryCta?: {
+    heading?: string | null;
+  };
+  /**
+   * Used by every landing page whose section leaves these fields empty.
+   */
+  landingFindUs?: {
+    heading?: string | null;
+  };
+  services?: {
+    /**
+     * The brass “Ready to schedule your free estimate?” band on the service pages and the blog.
+     */
+    estimateBand?: {
+      heading?: string | null;
+      description?: {
+        root: {
+          type: string;
+          children: {
+            type: any;
+            version: number;
+            [k: string]: unknown;
+          }[];
+          direction: ('ltr' | 'rtl') | null;
+          format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+          indent: number;
+          version: number;
+        };
+        [k: string]: unknown;
+      } | null;
+      buttons?:
+        | {
+            label: string;
+            /**
+             * A page (/contact), a section on this page (#contact), a full URL, or tel: / mailto:.
+             */
+            url: string;
+            variant?: ('primary' | 'secondary' | 'text' | 'outline') | null;
+            openInNewTab?: boolean | null;
+            id?: string | null;
+          }[]
+        | null;
+    };
+    areasHeading?: string | null;
+    /**
+     * On each service’s Contact-page card, e.g. “~1 Hour”.
+     */
+    consultationDuration?: string | null;
+    clientApproachImage?: (number | null) | Media;
   };
   updatedAt?: string | null;
   createdAt?: string | null;
@@ -8447,6 +8226,15 @@ export interface SiteSettingsSelect<T extends boolean = true> {
         phoneCta?: T;
         license?: T;
         hours?: T;
+        openingHours?:
+          | T
+          | {
+              days?: T;
+              opens?: T;
+              closes?: T;
+              id?: T;
+            };
+        serviceRegion?: T;
         mapsUrl?: T;
         addresses?:
           | T
@@ -8455,6 +8243,12 @@ export interface SiteSettingsSelect<T extends boolean = true> {
               link?: T;
               id?: T;
             };
+      };
+  serviceAreas?:
+    | T
+    | {
+        location?: T;
+        id?: T;
       };
   socialLinks?:
     | T
@@ -8474,13 +8268,6 @@ export interface SiteSettingsSelect<T extends boolean = true> {
         yelpRating?: T;
         yelpReviewCount?: T;
       };
-  serviceAreas?:
-    | T
-    | {
-        location?: T;
-        id?: T;
-      };
-  defaultOgImage?: T;
   trustIntro?:
     | T
     | {
@@ -8547,6 +8334,231 @@ export interface SiteSettingsSelect<T extends boolean = true> {
         ogTitle?: T;
         ogDescription?: T;
         ogImage?: T;
+      };
+  defaultOgImage?: T;
+  updatedAt?: T;
+  createdAt?: T;
+  globalType?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "shared-sections_select".
+ */
+export interface SharedSectionsSelect<T extends boolean = true> {
+  locationVideo?:
+    | T
+    | {
+        eyebrow?: T;
+        title?: T;
+        description?: T;
+        tagline?: T;
+        videoUrl?: T;
+        poster?: T;
+      };
+  dontSettle?:
+    | T
+    | {
+        eyebrow?: T;
+        heading?: T;
+        headingAccent?: T;
+        body?: T;
+        ctaLabel?: T;
+        image?: T;
+      };
+  quote?:
+    | T
+    | {
+        heading?: T;
+        quote?: T;
+        attribution?: T;
+        image?: T;
+      };
+  primeDifference?:
+    | T
+    | {
+        eyebrow?: T;
+        heading?: T;
+        body?: T;
+        checklist?:
+          | T
+          | {
+              text?: T;
+              id?: T;
+            };
+        reasons?:
+          | T
+          | {
+              title?: T;
+              description?: T;
+              image?: T;
+              id?: T;
+            };
+      };
+  testimonialCards?:
+    | T
+    | {
+        testimonials?: T;
+      };
+  siliconValleyLoves?:
+    | T
+    | {
+        eyebrow?: T;
+        heading?: T;
+        body?: T;
+        image?: T;
+        stats?:
+          | T
+          | {
+              value?: T;
+              label?: T;
+              detail?: T;
+              showStars?: T;
+              id?: T;
+            };
+        buttons?:
+          | T
+          | {
+              label?: T;
+              url?: T;
+              variant?: T;
+              id?: T;
+            };
+      };
+  landingPrimeDifference?:
+    | T
+    | {
+        eyebrow?: T;
+        heading?: T;
+        features?:
+          | T
+          | {
+              title?: T;
+              description?: T;
+              icon?:
+                | T
+                | {
+                    iconMedia?: T;
+                    iconLibrary?: T;
+                    iconName?: T;
+                    sourceSvgUrl?: T;
+                  };
+              media?:
+                | T
+                | {
+                    asset?: T;
+                    alt?: T;
+                    caption?: T;
+                    sourceAttachmentId?: T;
+                    sourceUrl?: T;
+                  };
+              link?:
+                | T
+                | {
+                    label?: T;
+                    url?: T;
+                    openInNewTab?: T;
+                  };
+              id?: T;
+            };
+      };
+  landingExperienceDifference?:
+    | T
+    | {
+        eyebrow?: T;
+        heading?: T;
+        features?:
+          | T
+          | {
+              title?: T;
+              description?: T;
+              icon?:
+                | T
+                | {
+                    iconMedia?: T;
+                    iconLibrary?: T;
+                    iconName?: T;
+                    sourceSvgUrl?: T;
+                  };
+              media?:
+                | T
+                | {
+                    asset?: T;
+                    alt?: T;
+                    caption?: T;
+                    sourceAttachmentId?: T;
+                    sourceUrl?: T;
+                  };
+              link?:
+                | T
+                | {
+                    label?: T;
+                    url?: T;
+                    openInNewTab?: T;
+                  };
+              id?: T;
+            };
+      };
+  landingServiceAreas?:
+    | T
+    | {
+        eyebrow?: T;
+        heading?: T;
+        areas?:
+          | T
+          | {
+              label?: T;
+              location?: T;
+              link?:
+                | T
+                | {
+                    label?: T;
+                    url?: T;
+                    openInNewTab?: T;
+                  };
+              id?: T;
+            };
+        regionHeading?: T;
+        mapMedia?:
+          | T
+          | {
+              asset?: T;
+              alt?: T;
+              caption?: T;
+              sourceAttachmentId?: T;
+              sourceUrl?: T;
+            };
+      };
+  landingLuxuryCta?:
+    | T
+    | {
+        heading?: T;
+      };
+  landingFindUs?:
+    | T
+    | {
+        heading?: T;
+      };
+  services?:
+    | T
+    | {
+        estimateBand?:
+          | T
+          | {
+              heading?: T;
+              description?: T;
+              buttons?:
+                | T
+                | {
+                    label?: T;
+                    url?: T;
+                    variant?: T;
+                    openInNewTab?: T;
+                    id?: T;
+                  };
+            };
+        areasHeading?: T;
+        consultationDuration?: T;
+        clientApproachImage?: T;
       };
   updatedAt?: T;
   createdAt?: T;

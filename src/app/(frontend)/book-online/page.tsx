@@ -7,15 +7,17 @@ import { resolveConsultations } from '@/lib/consultations'
 import { buildSeoMetadata } from '@/lib/seo'
 import { resolveSiteSettings } from '@/lib/siteSettings'
 
-export const metadata: Metadata = buildSeoMetadata(
-  undefined,
-  {
-    title: 'Book Online',
-    description:
-      "Schedule a free consultation for your remodeling project. Whether it's kitchen, bathroom, home renovation, or ADU/garage conversions, book your appointment today!",
-  },
-  { path: '/book-online' },
-)
+export async function generateMetadata(): Promise<Metadata> {
+  return buildSeoMetadata(
+    undefined,
+    {
+      title: 'Book Online',
+      description:
+        "Schedule a free consultation for your remodeling project. Whether it's kitchen, bathroom, home renovation, or ADU/garage conversions, book your appointment today!",
+    },
+    { path: '/book-online' },
+  )
+}
 
 export default async function BookOnlinePage() {
   const [consultations, settings] = await Promise.all([

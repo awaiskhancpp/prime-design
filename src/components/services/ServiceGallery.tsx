@@ -11,9 +11,6 @@ import { SectionHeader } from '@/components/ui/SectionHeader'
 import type { ServiceDetail } from '@/lib/services'
 
 function galleryImagesFor(service: ServiceDetail) {
-  const cmsGallery = service.contentBlocks?.find((block) => block.blockType === 'gallery')
-  const fromCms = cmsGallery && cmsGallery.blockType === 'gallery' ? cmsGallery.images : []
-
   // Payload sections[] gallery block(s) — flat items and/or grouped items
   // (e.g. "Kitchens" / "Bathrooms" tabs from WordPress).
   const sectionGalleries = (service.sections || []).filter(
@@ -40,12 +37,12 @@ function galleryImagesFor(service: ServiceDetail) {
   })
 
   // Gallery images come from Payload only — no static category fallback.
-  // When the page has real gallery content (section galleries or a CMS
-  // gallery block) show exactly those images — WordPress authors the count
+  // When the page has real gallery content (its section galleries), show
+  // exactly those images — WordPress authors the count
   // (e.g. 8 on Home Remodeling), so there is no cap and no extra hero-image
   // filler. The hero/gallery-record fallbacks only apply when the page has
   // no gallery content at all.
-  const authored = [...fromSections, ...fromCms]
+  const authored = fromSections
   const combined = authored.length
     ? authored
     : [...service.gallery, service.image].filter(Boolean)

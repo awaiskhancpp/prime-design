@@ -3,9 +3,12 @@ import { getPayload } from 'payload'
 import configPromise from '@payload-config'
 import type { RichTextValue } from '@/lib/richText'
 import { richTextToPlainText } from '@/lib/richText'
+import type { SeoFields } from '@/lib/seo'
 
 export type AboutTeamMember = {
   name: string
+  /** Their page is `/team/<slug>`. */
+  slug: string
   role: string
   description?: string
   image?: string
@@ -31,17 +34,67 @@ export async function resolveTeamMembers(): Promise<AboutTeamMember[]> {
     depth: 2,
     limit: 100,
   })
-  return (result.docs as unknown as Array<{
-    name?: string
-    position?: string | null
-    bio?: RichTextValue
-    image?: unknown
-  }>)
+  return (
+    result.docs as unknown as Array<{
+      name?: string
+      slug?: string
+      position?: string | null
+      bio?: RichTextValue
+      image?: unknown
+    }>
+  )
     .map((record) => ({
       name: typeof record.name === 'string' ? record.name : '',
+      slug: typeof record.slug === 'string' ? record.slug : '',
       role: typeof record.position === 'string' ? record.position : '',
       description: richTextToPlainText(record.bio) || undefined,
       image: mediaUrl(record.image),
     }))
-    .filter((member) => member.name)
+    .filter((member) => member.name && member.slug)
+}
+
+/** One team member's own page (`/team/<slug>`). */
+export type TeamMemberDetail = AboutTeamMember & {
+  bio?: RichTextValue
+  seo?: SeoFields
+}
+
+type PayloadTeamRecord = {
+  name?: string
+  slug?: string
+  position?: string | null
+  bio?: RichTextValue
+  image?: unknown
+  seo?: SeoFields
+}
+
+const toDetail = (record: PayloadTeamRecord | undefined): TeamMemberDetail | undefined =>
+  record?.name && record.slug
+    ? {
+        name: record.name,
+        slug: record.slug,
+        role: record.position || '',
+        description: richTextToPlainText(record.bio) || undefined,
+        bio: record.bio,
+        image: mediaUrl(record.image),
+        seo: record.seo,
+      }
+    : undefined
+
+/**
+ * A member by slug, for their page. WordPress published one page per member
+ * at `/team/<slug>/` — eleven of them, indexed by Google — which this site did
+ * not have, so every one of those URLs was a 404. The page is built from the
+ * Team record alone; no member has any copy of their own in code.
+ */
+export async function resolveTeamMember(slug: string): Promise<TeamMemberDetail | undefined> {
+  if (!process.env.DATABASE_URL) return undefined
+  const payload = await getPayload({ config: configPromise })
+  const result = await payload.find({
+    collection: 'team',
+    where: { slug: { equals: slug } },
+    depth: 2,
+    limit: 1,
+  })
+  return toDetail(result.docs[0] as unknown as PayloadTeamRecord | undefined)
 }

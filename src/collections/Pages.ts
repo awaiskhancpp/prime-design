@@ -1,9 +1,12 @@
 import type { CollectionConfig } from 'payload'
 import { PageBlocks } from './blocks/PageBlocks'
 import { SEOFields } from './fields/SEO'
+import { buttonTextField, linkUrlField } from '../fields/Shared'
 
 export const Pages: CollectionConfig = {
   slug: 'pages',
+  // Every save is kept (Version History): compare and restore any of the last 20.
+  versions: { maxPerDoc: 20 },
   admin: {
     group: 'Content',
     useAsTitle: 'title',
@@ -14,25 +17,56 @@ export const Pages: CollectionConfig = {
     { name: 'title', type: 'text', required: true },
     { name: 'slug', type: 'text', required: true, unique: true, index: true },
     {
+      /**
+       * A page's hero is one of two things, never both: pages built from
+       * sections (home, about, contact, FAQ, gallery, testimonials) open with a
+       * Hero section in their layout, and pages with a purpose-built body
+       * (blog, services, our projects, privacy policy, thank you, customer
+       * cabinet) take it from this group. No record uses both, but every page
+       * used to show both, so an editor on the homepage saw a Hero group that
+       * did nothing. It is hidden whenever the layout has a Hero section.
+       *
+       * Not merged into one field on purpose: the group's description is
+       * plain text (seed scripts write it as a string), and the section's is
+       * rich text (the About and FAQ heroes carry bold and italic), so either
+       * direction would break a script or lose formatting.
+       */
       name: 'hero',
       type: 'group',
+      admin: {
+        description:
+          'This page’s hero. (Pages that open with a Hero section in the layout use that instead, and this group is hidden.)',
+        condition: (data) =>
+          !(Array.isArray(data?.layout) ? data.layout : []).some(
+            (block: { blockType?: string }) => block?.blockType === 'hero',
+          ),
+      },
       fields: [
         { name: 'eyebrow', type: 'text' },
         { name: 'heading', type: 'text' },
         { name: 'description', type: 'textarea' },
         { name: 'image', type: 'upload', relationTo: 'media' },
-        { name: 'video', type: 'upload', relationTo: 'media' },
         {
           name: 'cta',
           type: 'group',
-          fields: [
-            { name: 'label', type: 'text' },
-            { name: 'href', type: 'text' },
-          ],
+          fields: [buttonTextField('label'), linkUrlField('href')],
         },
       ],
     },
-    { name: 'layout', type: 'blocks', blocks: PageBlocks },
+    {
+      name: 'layout',
+      type: 'blocks',
+      // Labelled rows (the section's own heading) and collapsed by default,
+      // as on the landing pages, so the layout reads as an outline.
+      blocks: PageBlocks.map((block) => ({
+        ...block,
+        admin: {
+          ...block.admin,
+          components: { ...block.admin?.components, Label: '/components/admin/BlockRowLabel#BlockRowLabel' },
+        },
+      })),
+      admin: { initCollapsed: true },
+    },
     {
       name: 'isGoogleAdsPage',
       type: 'checkbox',

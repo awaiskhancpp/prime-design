@@ -1,21 +1,74 @@
-import type { Field } from 'payload'
+import type { Field, TextField } from 'payload'
+
+/**
+ * The two halves of every button and link on the site, labelled the same way
+ * wherever they appear.
+ *
+ * The stored names differ by schema — `url` in the landing and service
+ * blocks, `href` in the page sections, `ctaHref` where a section has a single
+ * button — because each was named when its block was first built, and the
+ * names are database columns that scripts write to. Editors never see those
+ * names, only these labels, so the admin speaks one vocabulary without
+ * moving any data.
+ */
+/**
+ * Postgres caps identifiers at 63 characters. Version tables (`_<table>_v_version_…`)
+ * add 11 characters to every name, so a select inside a deeply nested group
+ * can overflow there while its live name is fine. This returns Payload's own
+ * default enum name whenever it fits — so no live name ever changes — and a
+ * shortened one (no `_version`, then a hash suffix) only where it does not.
+ */
+export const fitEnumName =
+  (fieldName: string) =>
+  ({ tableName }: { tableName?: string }): string => {
+    const name = `enum_${tableName}_${fieldName}`
+    if (name.length <= 63) return name
+    const shorter = name.replace('_v_version_', '_v_')
+    if (shorter.length <= 63) return shorter
+    let hash = 0
+    for (const char of name) hash = (hash * 31 + char.charCodeAt(0)) >>> 0
+    return `${shorter.slice(0, 55)}_${hash.toString(36).slice(0, 7)}`
+  }
+
+export const buttonTextField = (name = 'label', required = false): TextField => ({
+  name,
+  type: 'text',
+  label: 'Button text',
+  required,
+})
+
+export const linkUrlField = (name = 'url', required = false): TextField => ({
+  name,
+  type: 'text',
+  label: 'Link',
+  required,
+  admin: {
+    description:
+      'A page (/contact), a section on this page (#contact), a full URL, or tel: / mailto:.',
+  },
+})
 
 export const buttonGroupFields = (): Field[] => [
   {
     name: 'buttons',
     type: 'array',
     fields: [
-      { name: 'label', type: 'text', required: true },
-      { name: 'url', type: 'text', required: true },
-      { name: 'variant', type: 'select', options: ['primary', 'secondary', 'text', 'outline'] },
+      buttonTextField('label', true),
+      linkUrlField('url', true),
+      {
+        name: 'variant',
+        type: 'select',
+        enumName: fitEnumName('variant'),
+        options: ['primary', 'secondary', 'text', 'outline'],
+      },
       { name: 'openInNewTab', type: 'checkbox', defaultValue: false },
     ],
   },
 ]
 
 export const linkFields = (): Field[] => [
-  { name: 'label', type: 'text' },
-  { name: 'url', type: 'text' },
+  buttonTextField('label'),
+  linkUrlField('url'),
   { name: 'openInNewTab', type: 'checkbox', defaultValue: false },
 ]
 
@@ -27,8 +80,8 @@ export const mediaReferenceFields = (name = 'media'): Field[] => [
       { name: 'asset', type: 'upload', relationTo: 'media' },
       { name: 'alt', type: 'text' },
       { name: 'caption', type: 'text' },
-      { name: 'sourceAttachmentId', type: 'number' },
-      { name: 'sourceUrl', type: 'text' },
+      { name: 'sourceAttachmentId', type: 'number', admin: { hidden: true } },
+      { name: 'sourceUrl', type: 'text', admin: { hidden: true } },
     ],
   },
 ]
@@ -58,17 +111,17 @@ export const galleryItemFields = (): Field[] => [
   { name: 'media', type: 'upload', relationTo: 'media' },
   { name: 'caption', type: 'text' },
   { name: 'alt', type: 'text' },
-  { name: 'sourceOrder', type: 'number' },
-  { name: 'sourceAttachmentId', type: 'number' },
+  { name: 'sourceOrder', type: 'number', admin: { hidden: true } },
+  { name: 'sourceAttachmentId', type: 'number', admin: { hidden: true } },
   // Preserve the original WordPress URL when the source file is not
   // available locally. The frontend can use it as a read-only fallback.
-  { name: 'sourceUrl', type: 'text' },
+  { name: 'sourceUrl', type: 'text', admin: { hidden: true } },
 ]
 
 export const faqQuestionFields = (): Field[] => [
   { name: 'question', type: 'text', required: true },
   { name: 'answer', type: 'textarea', required: true },
-  { name: 'sourceId', type: 'text' },
+  { name: 'sourceId', type: 'text', admin: { hidden: true } },
 ]
 
 /**
@@ -103,8 +156,8 @@ export const faqCategoryFields = (): Field[] => [
     type: 'array',
     fields: faqQuestionFields(),
   },
-  { name: 'sourceQuery', type: 'json' },
-  { name: 'sourceId', type: 'text' },
+  { name: 'sourceQuery', type: 'json', admin: { hidden: true } },
+  { name: 'sourceId', type: 'text', admin: { hidden: true } },
 ]
 
 export const imageTextContentFields = (): Field[] => [
@@ -130,9 +183,9 @@ export const provenanceFields = (): Field[] => [
       condition: () => false,
     },
     fields: [
-      { name: 'sourceId', type: 'text' },
+      { name: 'sourceId', type: 'text', admin: { hidden: true } },
       { name: 'sourceElementType', type: 'text' },
-      { name: 'sourceAttachmentId', type: 'number' },
+      { name: 'sourceAttachmentId', type: 'number', admin: { hidden: true } },
       { name: 'sourceMetadata', type: 'json' },
     ],
   },

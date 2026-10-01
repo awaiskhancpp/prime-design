@@ -118,22 +118,35 @@ function toIcsTimestamp(date: Date) {
   return `${date.getFullYear()}${pad(date.getMonth() + 1)}${pad(date.getDate())}T${pad(date.getHours())}${pad(date.getMinutes())}00`
 }
 
+/** RFC 5545 §3.3.11: backslash, comma, semicolon and newline are escaped in TEXT values. */
+const icsText = (value: string) =>
+  value.replace(/\\/g, '\\\\').replace(/[,;]/g, (match) => `\\${match}`).replace(/\r?\n/g, '\\n')
+
 function buildIcsContent({
   date,
   slot,
   title,
   orderId,
+  durationMinutes,
+  location,
 }: {
   date: Date
   slot: string
   title: string
   orderId: string
+  /** Booking settings → appointment length. Was a hardcoded hour. */
+  durationMinutes: number
+  /**
+   * Where the appointment happens: the customer's own address — the
+   * estimator travels to the property, which is why the booking form requires
+   * it. The file used to say "Prime Design & Build" here.
+   */
+  location?: string
 }) {
   const { hours, minutes } = parseSlotTime(slot)
   const start = new Date(date)
   start.setHours(hours, minutes, 0, 0)
-  const end = new Date(start)
-  end.setHours(end.getHours() + 1)
+  const end = new Date(start.getTime() + durationMinutes * 60_000)
   return [
     'BEGIN:VCALENDAR',
     'VERSION:2.0',
@@ -145,7 +158,7 @@ function buildIcsContent({
     `DTEND:${toIcsTimestamp(end)}`,
     `SUMMARY:${title}`,
     `DESCRIPTION:Order #${orderId}`,
-    'LOCATION:Prime Design & Build',
+    ...(location ? [`LOCATION:${icsText(location)}`] : []),
     'END:VEVENT',
     'END:VCALENDAR',
   ].join('\r\n')
@@ -173,7 +186,12 @@ export type AvailabilityDay = {
   slots: AvailabilitySlot[]
 }
 export type Availability = {
-  rules: { slots: string[]; bookingWindowDays: number; minNoticeHours: number }
+  rules: {
+    slots: string[]
+    bookingWindowDays: number
+    minNoticeHours: number
+    appointmentMinutes: number
+  }
   lastBookableDate: string
   days: AvailabilityDay[]
 }
@@ -504,7 +522,14 @@ export function AppointmentScheduler({
 
   const icsContent =
     selectedDate && time
-      ? buildIcsContent({ date: selectedDate, slot: time, title: label, orderId })
+      ? buildIcsContent({
+          date: selectedDate,
+          slot: time,
+          title: label,
+          orderId,
+          durationMinutes: availability?.rules.appointmentMinutes || 60,
+          location: [customer?.address, customer?.zipCode].filter(Boolean).join(', '),
+        })
       : null
 
   const qrApiBase =

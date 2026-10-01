@@ -9,17 +9,22 @@ import { Container } from '../ui/Container'
  *
  * `body` is the rich-text description and wins when present; `description`
  * remains for callers that still pass a plain string. The copy carries links
- * ("Contact us here", the phone number), which is why it is rich text — the
- * band's own "Get started" button is separate from those.
+ * ("Contact us here", the phone number), which is why it is rich text.
+ *
+ * `cta` is the band's own button — the block's first button in the CMS. It
+ * used to be typed out here ("Get started" → /contact) and could not be
+ * changed or removed from the admin. No button in the CMS, no button.
  */
 export function ServiceEstimateCta({
   heading,
   description,
   body,
+  cta,
 }: {
   heading?: string
   description?: string
   body?: ReactNode
+  cta?: { label: string; href: string }
 }) {
   return (
     <section className="bg-brass">
@@ -44,12 +49,14 @@ export function ServiceEstimateCta({
               <p className="mt-2 text-sm text-white/85 ">{description}</p>
             ) : null}
           </div>
-          <Link
-            href="/contact"
-            className="flex items-center justify-center gap-2 bg-white px-5 py-3 text-sm font-semibold text-ink hover:bg-paper"
-          >
-            Get started <ArrowRight />
-          </Link>
+          {cta ? (
+            <Link
+              href={cta.href}
+              className="flex items-center justify-center gap-2 bg-white px-5 py-3 text-sm font-semibold text-ink hover:bg-paper"
+            >
+              {cta.label} <ArrowRight />
+            </Link>
+          ) : null}
         </div>
       </Container>
     </section>

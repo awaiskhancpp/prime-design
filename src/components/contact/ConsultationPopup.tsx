@@ -124,7 +124,7 @@ export function ConsultationPopup({ services }: { services?: FormServiceOption[]
             messagePlaceholder="Tell us about your project..."
             formName="Consultation popup"
             source="other"
-            services={services}
+            subjectOptions={services}
           />
         </div>
       </div>

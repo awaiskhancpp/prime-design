@@ -27,6 +27,19 @@ const base = (slug: string, singular: string, fields: Block['fields']): Block =>
   fields: [...fields, ...provenanceFields()],
 })
 
+const INHERITS_NOTE_TEXT = 'Empty uses Shared Sections (Settings).'
+
+/**
+ * Migration provenance and integration plumbing (WordPress ids, LatePoint
+ * shortcodes, raw Bricks layout JSON). Kept in the data — the import and the
+ * renderers read some of it — but hidden in the admin, where it only got in
+ * the way of the fields an editor actually changes.
+ */
+const internal = <T extends Record<string, unknown>>(field: T): T => ({
+  ...field,
+  admin: { ...((field.admin as Record<string, unknown>) ?? {}), hidden: true },
+})
+
 const text = (name: string, required = false) => ({ name, type: 'text' as const, required })
 const description = (name = 'description') => ({ name, type: 'textarea' as const })
 
@@ -128,7 +141,7 @@ export const landingPageBlocks: Block[] = [
     { name: 'externalUrl', type: 'text' as const },
     { name: 'poster', type: 'upload' as const, relationTo: 'media' as const },
     { name: 'controls', type: 'checkbox' as const, defaultValue: true },
-    text('sourceVideoId'),
+    internal(text('sourceVideoId')),
     ...videoStoryFields(),
   ]),
   base('gallery', 'Gallery', [
@@ -153,9 +166,9 @@ export const landingPageBlocks: Block[] = [
         { name: 'items', type: 'array' as const, fields: galleryItemFields() },
       ],
     },
-    { name: 'layout', type: 'json' as const },
+    internal({ name: 'layout', type: 'json' as const }),
     { name: 'lightbox', type: 'checkbox' as const, defaultValue: true },
-    text('sourceGalleryType'),
+    internal(text('sourceGalleryType')),
   ]),
   base('project-grid', 'Project Grid', [
     text('eyebrow'),
@@ -225,10 +238,15 @@ export const landingPageBlocks: Block[] = [
     },
   ]),
   base('prime-difference', 'Prime Difference', [
-    text('eyebrow'),
-    text('heading', true),
+    { ...text('eyebrow'), admin: { description: INHERITS_NOTE_TEXT } },
+    { ...text('heading'), admin: { description: INHERITS_NOTE_TEXT } },
     description(),
-    { name: 'features', type: 'array' as const, fields: featureCardFields() },
+    {
+      name: 'features',
+      type: 'array' as const,
+      fields: featureCardFields(),
+      admin: { description: INHERITS_NOTE_TEXT },
+    },
     {
       name: 'checklist',
       type: 'array' as const,
@@ -263,7 +281,7 @@ export const landingPageBlocks: Block[] = [
         text('beforeLabel'),
         text('afterLabel'),
         text('caption'),
-        text('sourceId'),
+        internal(text('sourceId')),
       ],
     },
     {
@@ -277,25 +295,31 @@ export const landingPageBlocks: Block[] = [
         text('externalUrl'),
         { name: 'poster', type: 'upload' as const, relationTo: 'media' as const },
         text('caption'),
-        text('sourceVideoId'),
+        internal(text('sourceVideoId')),
       ],
     },
     ...mediaReferenceFields(),
   ]),
   base('experience-difference', 'Experience Difference', [
-    text('eyebrow'),
-    text('heading', true),
+    { ...text('eyebrow'), admin: { description: INHERITS_NOTE_TEXT } },
+    { ...text('heading'), admin: { description: INHERITS_NOTE_TEXT } },
     description(),
-    { name: 'features', type: 'array' as const, fields: featureCardFields() },
+    {
+      name: 'features',
+      type: 'array' as const,
+      fields: featureCardFields(),
+      admin: { description: INHERITS_NOTE_TEXT },
+    },
     ...mediaReferenceFields(),
   ]),
   base('service-areas', 'Service Areas', [
-    text('eyebrow'),
-    text('heading', true),
+    { ...text('eyebrow'), admin: { description: INHERITS_NOTE_TEXT } },
+    { ...text('heading'), admin: { description: INHERITS_NOTE_TEXT } },
     description(),
     {
       name: 'areas',
       type: 'array' as const,
+      admin: { description: INHERITS_NOTE_TEXT },
       fields: [
         text('label', true),
         { name: 'location', type: 'relationship' as const, relationTo: 'locations' as const },
@@ -305,7 +329,7 @@ export const landingPageBlocks: Block[] = [
     // The WordPress section ends with a state map and its caption
     // ("California" over `ca-cities.png`). Without these the image and the
     // heading were dropped on import.
-    text('regionHeading'),
+    { ...text('regionHeading'), admin: { description: INHERITS_NOTE_TEXT } },
     ...mediaReferenceFields('mapMedia'),
   ]),
   base('repair-services', 'Repair Services', [
@@ -335,13 +359,13 @@ export const landingPageBlocks: Block[] = [
         // Optional paragraph(s) after the list (Door, Flooring, Interior).
         { name: 'closingBody', type: 'richText' as const },
         ...mediaReferenceFields(),
-        text('sourceId'),
+        internal(text('sourceId')),
       ],
     },
   ]),
   base('luxury-cta', 'Luxury CTA', [
     text('eyebrow'),
-    text('heading', true),
+    { ...text('heading'), admin: { description: INHERITS_NOTE_TEXT } },
     description(),
     ...mediaReferenceFields(),
     ...buttonGroupFields(),
@@ -363,10 +387,10 @@ export const landingPageBlocks: Block[] = [
     // the admin. It is deliberately left empty rather than given a
     // plausible-sounding default.
     text('consultationLabel'),
-    text('provider'),
-    text('shortcode'),
-    text('sourceElementId'),
-    { name: 'integrationMetadata', type: 'json' as const },
+    internal(text('provider')),
+    internal(text('shortcode')),
+    internal(text('sourceElementId')),
+    internal({ name: 'integrationMetadata', type: 'json' as const }),
   ]),
   base('contact-form', 'Contact Form', [
     // The WordPress contact sections carry real copy above the form
@@ -381,22 +405,37 @@ export const landingPageBlocks: Block[] = [
     // `contact_form` — the id every "Schedule a Free Consultation" button on
     // the page links to.
     text('anchorId'),
-    text('provider'),
-    text('shortcode'),
-    text('sourceElementId'),
-    { name: 'integrationMetadata', type: 'json' as const },
+    internal(text('provider')),
+    internal(text('shortcode')),
+    internal(text('sourceElementId')),
+    internal({ name: 'integrationMetadata', type: 'json' as const }),
   ]),
   base('find-us', 'Find Us', [
     text('eyebrow'),
-    text('heading', true),
+    { ...text('heading'), admin: { description: INHERITS_NOTE_TEXT } },
     // Bare values only — no "Call Us" / "Email Now" / "Address" captions.
     // The section supplies those labels itself, and a stored value that
     // repeats them renders as "Call Us Call Us (650) 235-4863" and produces
     // a `mailto:` containing the caption.
-    text('phone'),
-    text('email'),
-    { name: 'address', type: 'textarea' as const },
-    text('mapUrl'),
+    //
+    // Empty uses Site Settings (company phone, email, office addresses): all
+    // seven landing pages stored the same copy of those, so a new number
+    // meant eight edits. Fill a field only for a page that should differ.
+    {
+      name: 'phone',
+      type: 'text' as const,
+      admin: { description: 'Empty uses the phone number in Site Settings.' },
+    },
+    {
+      name: 'email',
+      type: 'text' as const,
+      admin: { description: 'Empty uses the email in Site Settings.' },
+    },
+    {
+      name: 'address',
+      type: 'textarea' as const,
+      admin: { description: 'One office per line. Empty uses the addresses in Site Settings.' },
+    },
     // Where the offices sit on the map under the cards. The map used to be a
     // Google Maps embed addressed by the first line of `address`, which meant
     // Google re-geocoded a postal address on every page load and the section
@@ -438,29 +477,6 @@ export const landingPageBlocks: Block[] = [
       ],
     },
   ]),
-  base('testimonials', 'Testimonials', [
-    text('heading'),
-    {
-      name: 'providers',
-      type: 'array' as const,
-      fields: [
-        text('name', true),
-        text('shortcode'),
-        text('collectionId'),
-        {
-          name: 'reviews',
-          type: 'array' as const,
-          fields: [
-            text('reviewer'),
-            { name: 'rating', type: 'number' as const },
-            { name: 'body', type: 'textarea' as const },
-            { name: 'date', type: 'date' as const },
-            text('sourceId'),
-          ],
-        },
-      ],
-    },
-  ]),
   base('landing-testimonials', 'Landing Testimonials', [
     text('eyebrow'),
     text('heading'),
@@ -470,7 +486,7 @@ export const landingPageBlocks: Block[] = [
       type: 'array' as const,
       fields: [
         text('name', true),
-        text('collectionId'),
+        internal(text('collectionId')),
         text('reviewUrl'),
         { name: 'rating', type: 'number' as const },
         { name: 'reviewCount', type: 'number' as const },
@@ -482,7 +498,7 @@ export const landingPageBlocks: Block[] = [
             { name: 'rating', type: 'number' as const },
             { name: 'body', type: 'textarea' as const },
             text('date'),
-            text('sourceId'),
+            internal(text('sourceId')),
           ],
         },
       ],
@@ -491,7 +507,14 @@ export const landingPageBlocks: Block[] = [
   base('faq', 'FAQ', [
     text('heading'),
     description(),
-    { name: 'categories', type: 'array' as const, fields: faqCategoryFields() },
+    {
+      name: 'categories',
+      type: 'array' as const,
+      // `faqOrder` names the page's questions, in the page's order, from the
+      // FAQs collection — the same record /faq shows. The inline
+      // `questions` array is only for a question that exists nowhere else.
+      fields: [...faqCategoryFields(), faqOrderField()],
+    },
   ]),
   base('video-carousel', 'Video Carousel', [
     {
@@ -502,15 +525,15 @@ export const landingPageBlocks: Block[] = [
         text('externalUrl'),
         { name: 'poster', type: 'upload' as const, relationTo: 'media' as const },
         { name: 'caption', type: 'text' as const },
-        text('sourceId'),
-        { name: 'sourceOrder', type: 'number' as const },
+        internal(text('sourceId')),
+        internal({ name: 'sourceOrder', type: 'number' as const }),
       ],
     },
-    { name: 'settings', type: 'json' as const },
+    internal({ name: 'settings', type: 'json' as const }),
   ]),
   base('gallery-carousel', 'Gallery Carousel', [
     { name: 'items', type: 'array' as const, fields: galleryItemFields() },
-    { name: 'settings', type: 'json' as const },
+    internal({ name: 'settings', type: 'json' as const }),
   ]),
 ]
 
@@ -521,22 +544,99 @@ export const landingPageBlocks: Block[] = [
  * never silently appears in the Services admin again.
  */
 /**
- * The Services copy of the FAQ block. Identical to the landing pages' one
- * except that its categories carry `faqOrder` — see `faqOrderField`. Only the
- * service pages need it (only they show the same category as /faq in a
- * different order), and giving it to landing pages as well would mean a
- * `landing_pages_rels` table for a field nothing there would ever set.
+ * Not offered on service pages at all: the service hero is the collection's
+ * own Hero group (`ServiceHero` renders it). Every service used to carry a
+ * `hero` block as well — a stale copy of the same heading, copy and buttons
+ * that nothing rendered (`ServiceDetailPage` filtered it out), so an edit to
+ * it did nothing.
  */
-const serviceFaqBlock: Block = base('faq', 'FAQ', [
-  text('heading'),
-  description(),
-  {
-    name: 'categories',
-    type: 'array' as const,
-    fields: [...faqCategoryFields(), faqOrderField()],
-  },
+const LANDING_ONLY_ON_SERVICES = new Set([...LANDING_ONLY_BLOCK_SLUGS, 'hero'])
+
+/**
+ * Table names these four blocks already have in the services schema.
+ *
+ * The Services collection used to have a second, hidden block list
+ * (`contentBlocks`) that reused the slugs `gallery`, `image-text`,
+ * `sub-services` and `video` with different fields. Payload stores one table
+ * per block slug per collection, so it gave these Page Builder blocks their own
+ * `…_2` tables and left the plain names to the hidden list. With that list
+ * gone the default names would be the plain ones again, which a migration can
+ * only reach by dropping the `_2` tables and their rows. Pinning the names
+ * keeps the data exactly where it is.
+ */
+const SERVICE_BLOCK_TABLES: Record<string, string> = {
+  gallery: 'services_blocks_gallery_2',
+  'image-text': 'services_blocks_image_text_2',
+  'sub-services': 'services_blocks_sub_services_2',
+  video: 'services_blocks_video_2',
+}
+
+/**
+ * Landing pages fill these blocks' empty fields from Shared Sections; service
+ * pages do not, so on a service page the fields keep their original meaning:
+ * no "Empty uses Shared Sections" note, and the heading stays required.
+ */
+const SHARED_ON_LANDING_ONLY = new Set([
+  'prime-difference',
+  'experience-difference',
+  'service-areas',
+  'luxury-cta',
+  'find-us',
 ])
+const INHERITS_NOTE = INHERITS_NOTE_TEXT
+const withoutSharedDefaults = (block: Block): Block =>
+  SHARED_ON_LANDING_ONLY.has(block.slug)
+    ? {
+        ...block,
+        fields: block.fields.map((field) => {
+          if (!('name' in field)) return field
+          const admin =
+            field.admin && 'description' in field.admin && field.admin.description === INHERITS_NOTE
+              ? { ...field.admin, description: undefined }
+              : field.admin
+          const required = field.name === 'heading' ? { required: true } : {}
+          return { ...field, admin, ...required } as typeof field
+        }),
+      }
+    : block
+
+/**
+ * On a service page a `cta` block is one of four designs. Which one used to
+ * be guessed from the words in its heading ("one-stop hub", "let's work
+ * together", "estimate"…), so rewording a heading could silently switch the
+ * section to a different design — and an estimate band could not leave its
+ * heading empty to use the shared one. The choice is a field now.
+ */
+const withServiceCtaLayout = (block: Block): Block =>
+  block.slug === 'cta'
+    ? {
+        ...block,
+        fields: [
+          {
+            name: 'layout',
+            type: 'select' as const,
+            label: 'Layout',
+            defaultValue: 'standard',
+            options: [
+              { label: 'Free-estimate band (brass)', value: 'estimate' },
+              { label: 'Finance: one-stop hub (image + text)', value: 'finance-hub' },
+              { label: 'Finance: closing call to action', value: 'finance-cta' },
+              { label: 'Standard call to action', value: 'standard' },
+            ],
+            admin: {
+              description:
+                'The free-estimate band uses Shared Sections (Settings → Service pages) for any field left empty here.',
+            },
+          },
+          ...block.fields,
+        ],
+      }
+    : block
 
 export const servicePageBlocks: Block[] = landingPageBlocks
-  .filter((block) => !LANDING_ONLY_BLOCK_SLUGS.has(block.slug))
-  .map((block) => (block.slug === 'faq' ? serviceFaqBlock : block))
+  .filter((block) => !LANDING_ONLY_ON_SERVICES.has(block.slug))
+  .map(withoutSharedDefaults)
+  .map(withServiceCtaLayout)
+  .map((block) =>
+    SERVICE_BLOCK_TABLES[block.slug] ? { ...block, dbName: SERVICE_BLOCK_TABLES[block.slug] } : block,
+  )

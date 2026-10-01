@@ -80,7 +80,7 @@ export function organizationSchema(settings: SiteSettingsValue, serviceAreas: st
     url: SITE_URL,
     telephone: strip(settings.phone),
     email: strip(settings.email),
-    image: absoluteUrl('/api/media/file/Prime-Kitchens-Open-Graph.gif'),
+    image: absoluteUrl(settings.defaultOgImage || '/api/media/file/Prime-Kitchens-Open-Graph.gif'),
     logo: absoluteUrl('/api/media/file/Prime-Kitchens-Logo.png'),
     address: addresses.length ? parseAddress(addresses[0]) : undefined,
     // Extra branches become additional PostalAddress nodes rather than being
@@ -88,10 +88,8 @@ export function organizationSchema(settings: SiteSettingsValue, serviceAreas: st
     location: addresses.slice(1).map((value) => parseAddress(value)),
     areaServed: serviceAreas.map((name) => ({ '@type': 'City', name })),
     sameAs,
-    // "Open: 8am - 6pm (Mon - Fri)" -> schema.org opening-hours shorthand.
-    openingHours: /8am\s*-\s*6pm.*Mon\s*-\s*Fri/i.test(settings.hours || '')
-      ? 'Mo-Fr 08:00-18:00'
-      : undefined,
+    // Site Settings → Company → Opening hours (for Google).
+    openingHours: settings.openingHours.length ? settings.openingHours : undefined,
     priceRange: '$$',
   })
 }

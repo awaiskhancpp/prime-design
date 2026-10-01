@@ -16,7 +16,7 @@ import type { CollectionConfig } from 'payload'
 export const Reviews: CollectionConfig = {
   slug: 'reviews',
   admin: {
-    group: 'Content',
+    group: 'Social proof',
     useAsTitle: 'name',
     defaultColumns: ['name', 'source', 'location', 'rating', 'featured', 'updatedAt'],
     description:

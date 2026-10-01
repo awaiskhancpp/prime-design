@@ -1,161 +1,19 @@
-import type { Block, CollectionConfig, CollectionSlug } from 'payload'
+import type { CollectionConfig, CollectionSlug } from 'payload'
 import { SEOFields } from './fields/SEO'
-import { videoStoryFields } from './fields/videoStory'
+import {
+  dontSettleGroup,
+  locationHeroGroup,
+  locationVideoGroup,
+  quoteGroup,
+  siliconValleyLovesGroup,
+  testimonialCardsGroup,
+} from './fields/sectionGroups'
 import { servicePageBlocks } from '../blocks/LandingPageBlocks'
-
-const textItems = (name = 'items') => ({
-  name,
-  type: 'array' as const,
-  fields: [{ name: 'text', type: 'textarea' as const, required: true }],
-})
-
-const imageField = { name: 'image', type: 'upload' as const, relationTo: 'media' as const }
-
-export const serviceContentBlocks: Block[] = [
-  {
-    slug: 'intro',
-    labels: { singular: 'Intro', plural: 'Intro' },
-    fields: [
-      { name: 'eyebrow', type: 'text', required: false },
-      { name: 'heading', type: 'text', required: true },
-      { name: 'body', type: 'textarea', required: true },
-      imageField,
-      { name: 'imageSide', type: 'select', defaultValue: 'right', options: ['left', 'right'] },
-    ],
-  },
-  {
-    slug: 'feature-list',
-    labels: { singular: 'Feature List', plural: 'Feature Lists' },
-    fields: [{ name: 'heading', type: 'text', required: true }, textItems()],
-  },
-  {
-    slug: 'benefits',
-    labels: { singular: 'Benefits', plural: 'Benefits' },
-    fields: [{ name: 'heading', type: 'text', required: true }, textItems()],
-  },
-  {
-    slug: 'process',
-    labels: { singular: 'Process', plural: 'Processes' },
-    fields: [
-      { name: 'heading', type: 'text', required: true },
-      {
-        name: 'steps',
-        type: 'array',
-        fields: [
-          { name: 'title', type: 'text', required: true },
-          { name: 'description', type: 'textarea', required: true },
-          imageField,
-        ],
-      },
-    ],
-  },
-  {
-    slug: 'image-text',
-    labels: { singular: 'Image and Text', plural: 'Image and Text' },
-    fields: [
-      { name: 'eyebrow', type: 'text' },
-      { name: 'heading', type: 'text', required: true },
-      { name: 'body', type: 'textarea', required: true },
-      imageField,
-      { name: 'imageSide', type: 'select', defaultValue: 'left', options: ['left', 'right'] },
-    ],
-  },
-  {
-    slug: 'gallery',
-    labels: { singular: 'Gallery', plural: 'Galleries' },
-    fields: [
-      { name: 'heading', type: 'text' },
-      { name: 'images', type: 'upload', relationTo: 'media', hasMany: true },
-    ],
-  },
-  {
-    slug: 'sub-services',
-    labels: { singular: 'Sub-services', plural: 'Sub-services' },
-    fields: [
-      { name: 'heading', type: 'text', required: true },
-      {
-        name: 'items',
-        type: 'array',
-        fields: [
-          { name: 'title', type: 'text', required: true },
-          { name: 'description', type: 'textarea', required: true },
-          imageField,
-          { name: 'link', type: 'text' },
-        ],
-      },
-    ],
-  },
-  {
-    slug: 'video',
-    labels: { singular: 'Video', plural: 'Videos' },
-    fields: [
-      { name: 'heading', type: 'text' },
-      {
-        name: 'video',
-        type: 'upload',
-        relationTo: 'media',
-        admin: {
-          description: 'Optional uploaded video. If empty, the external video URL can be used.',
-        },
-      },
-      { name: 'videoUrl', type: 'text' },
-      { name: 'poster', type: 'upload', relationTo: 'media' },
-      ...videoStoryFields(),
-    ],
-  },
-  {
-    slug: 'icon-feature-list',
-    labels: {
-      singular: 'Feature List with Titles (e.g. "The Power of Customization")',
-      plural: 'Feature Lists with Titles',
-    },
-    fields: [
-      { name: 'heading', type: 'text', required: true },
-      { name: 'intro', type: 'textarea' },
-      imageField,
-      { name: 'imageSide', type: 'select', defaultValue: 'left', options: ['left', 'right'] },
-      {
-        name: 'items',
-        type: 'array',
-        minRows: 1,
-        fields: [
-          { name: 'title', type: 'text', required: true },
-          { name: 'description', type: 'textarea', required: true },
-        ],
-      },
-    ],
-  },
-  {
-    slug: 'checklist',
-    labels: { singular: 'Feature Checklist (image + checklist)', plural: 'Feature Checklists' },
-    fields: [
-      { name: 'eyebrow', type: 'text' },
-      { name: 'heading', type: 'text', required: true },
-      {
-        name: 'description',
-        type: 'text',
-        admin: {
-          description:
-            'Short italic lead-in line above the checklist, e.g. "Unleash the Beauty and Durability:"',
-        },
-      },
-      imageField,
-      { name: 'imageSide', type: 'select', defaultValue: 'left', options: ['left', 'right'] },
-      textItems(),
-    ],
-  },
-  {
-    slug: 'quote',
-    labels: { singular: 'Quote', plural: 'Quotes' },
-    fields: [
-      { name: 'quote', type: 'textarea', required: true },
-      { name: 'attribution', type: 'text' },
-    ],
-  },
-]
 
 export const Services: CollectionConfig = {
   slug: 'services',
+  // Every save is kept (Version History): compare and restore any of the last 20.
+  versions: { maxPerDoc: 20 },
   admin: {
     group: 'Services',
     useAsTitle: 'title',
@@ -252,7 +110,7 @@ export const Services: CollectionConfig = {
       label: 'Consultation Duration',
       admin: {
         description:
-          'Shown on the Contact page card, e.g. \u201c~1 Hour\u201d. Empty prints no duration badge.',
+          'Shown on the Contact page card, e.g. \u201c~1 Hour\u201d. Empty uses Shared Sections (Settings → Service pages).',
       },
     },
     {
@@ -265,52 +123,81 @@ export const Services: CollectionConfig = {
       },
     },
 
-    // Legacy migration fields (hidden from admin UI, but kept before tabs to preserve Drizzle table naming order)
-    {
-      name: 'sectionOrder',
-      type: 'array',
-      admin: {
-        condition: () => false,
-      },
-      fields: [
-        {
-          name: 'section',
-          type: 'select',
-          required: true,
-          options: [
-            'hero',
-            'intro',
-            'video',
-            'process',
-            'offerings',
-            'gallery',
-            'quote',
-            'craftsmanship',
-            'real-homes',
-            'why-choose-us',
-            'faq',
-            'estimate',
-            'reviews',
-            'silicon-valley-loves',
-            'home-repair-categories',
-            'contact',
-          ],
-        },
-      ],
-    },
-    {
-      name: 'contentBlocks',
-      type: 'blocks',
-      blocks: serviceContentBlocks,
-      admin: {
-        condition: () => false,
-      },
-    },
-
     // Main workspace organized in tabs
     {
       type: 'tabs',
       tabs: [
+        {
+          label: 'Page layout',
+          description:
+            'Which sections this page shows, top to bottom. Drag to reorder; untick to hide. A section only appears if it has content — its CMS block (Page Builder) or its tab here.',
+          fields: [
+            {
+              /**
+               * The page's section list. Each service page used to be laid out
+               * by two tables in code — which sections it showed
+               * (`servicePageLayout.ts`) and in what order
+               * (`PAGE_SECTION_ORDERS` in ServiceDetailPage) — so a section
+               * could only be moved or hidden by a developer. Seeded with the
+               * exact order every page rendered before; empty falls back to
+               * those tables. Stored as `sectionOrder` (the column this field
+               * already had, unused and hidden).
+               */
+              name: 'sectionOrder',
+              type: 'array',
+              label: 'Page sections',
+              labels: { singular: 'Section', plural: 'Sections' },
+              admin: { initCollapsed: false },
+              fields: [
+                {
+                  type: 'row',
+                  fields: [
+                    {
+                      name: 'section',
+                      type: 'select',
+                      required: true,
+                      admin: { width: '75%' },
+                      options: [
+                        { label: 'Intro / overview', value: 'intro' },
+                        { label: 'Video', value: 'video' },
+                        { label: 'Free-estimate band', value: 'estimate' },
+                        { label: 'Offerings (sub-service cards)', value: 'offerings' },
+                        { label: 'Process', value: 'process' },
+                        { label: 'Client-Centered Approach', value: 'client-approach' },
+                        { label: 'Gallery', value: 'gallery' },
+                        { label: 'Craftsmanship', value: 'craftsmanship' },
+                        { label: 'Real Homes, Real Stories', value: 'real-homes' },
+                        { label: 'Why Choose Us', value: 'why-choose-us' },
+                        { label: 'Prime Difference', value: 'prime-difference' },
+                        { label: 'Prime Kitchens', value: 'prime-kitchens' },
+                        { label: 'Image + checklist', value: 'image-checklist' },
+                        { label: 'Icon checklist + gallery', value: 'icon-checklist-gallery' },
+                        { label: 'Materials showcase', value: 'materials-showcase' },
+                        { label: 'Testimonial cards', value: 'testimonial-cards' },
+                        { label: 'Quote', value: 'quote' },
+                        { label: 'FAQ', value: 'faq' },
+                        { label: 'Silicon Valley Loves', value: 'silicon-valley-loves' },
+                        { label: 'Reviews', value: 'reviews' },
+                        { label: 'Contact form', value: 'contact' },
+                        { label: 'Service areas (map)', value: 'service-areas' },
+                        { label: 'Areas we service (city strip)', value: 'areas-we-service' },
+                        { label: 'Home repair categories', value: 'home-repair-categories' },
+                        { label: 'Other Page Builder sections', value: 'cms-body' },
+                      ],
+                    },
+                    {
+                      name: 'enabled',
+                      type: 'checkbox',
+                      label: 'Show',
+                      defaultValue: true,
+                      admin: { width: '25%' },
+                    },
+                  ],
+                },
+              ],
+            },
+          ],
+        },
         {
           label: 'Page Builder (Sections)',
           description:
@@ -487,7 +374,7 @@ export const Services: CollectionConfig = {
               label: 'Client-Centered Approach Image',
               admin: {
                 description:
-                  'Side image shown next to the "A Client-Centered Approach" section (phone mockup). Falls back to the built-in image when empty.',
+                  'Side image shown next to the "A Client-Centered Approach" section (phone mockup). Empty uses Shared Sections (Settings → Service pages).',
               },
             },
             {
@@ -513,116 +400,34 @@ export const Services: CollectionConfig = {
                 },
               ],
             },
-            {
-              name: 'locationHero',
-              type: 'group',
+            locationHeroGroup({
               label: 'Location Hero Copy',
-              admin: {
-                description:
-                  'Hero copy above the quote form on this service’s city pages. WordPress keeps it on the family template (kitchen/bathroom/home) rather than per city, so this is the default all 45 city pages inherit. Use {City} for the city name and {Company} for the company name — both are substituted when the page renders. A city can override any field on its own record; empty here falls back to the built-in template.',
-              },
-              fields: [
-                {
-                  name: 'lede',
-                  type: 'text',
-                  admin: {
-                    description:
-                      'Small brass line above the H1. {City} / {Company} are substituted.',
-                  },
-                },
-                {
-                  name: 'body',
-                  type: 'textarea',
-                  admin: {
-                    description: 'Paragraph under the H1. {City} / {Company} are substituted.',
-                  },
-                },
-                {
-                  name: 'formSubject',
-                  type: 'text',
-                  admin: {
-                    description:
-                      'Completes “Let’s talk about your dream …” beside the form — e.g. “kitchen”.',
-                  },
-                },
-                {
-                  name: 'blurbs',
-                  type: 'array',
-                  admin: {
-                    description:
-                      'The three captions under the hero feature photos, paired in order with Location Page Feature Images. {City} / {Company} are substituted.',
-                  },
-                  fields: [{ name: 'text', type: 'text' }],
-                },
-              ],
-            },
-            {
-              name: 'quote',
-              type: 'group',
+              description:
+                'Hero copy above the quote form on this service’s city pages. WordPress keeps it on the family template (kitchen/bathroom/home) rather than per city, so this is the default all 45 city pages inherit. Use {City} for the city name and {Company} for the company name — both are substituted when the page renders. A city can override any field on its own record.',
+            }),
+            // The lines of the city-page intro and video that differ between
+            // the kitchen, bathroom and home families (each constant across
+            // that family's 15 cities). A city page's own value wins; empty
+            // here falls through to Shared Sections.
+            dontSettleGroup({
+              label: 'City Page Defaults — “Don’t Settle” Section',
+              description:
+                'For this service’s city pages. Use {City} and {ServiceTitle}. A city page’s own value wins; empty here uses Shared Sections.',
+            }),
+            locationVideoGroup({
+              label: 'City Page Defaults — Video Section',
+              description:
+                'For this service’s city pages. Use {City} and {ServiceTitle}. A city page’s own value wins; empty here uses Shared Sections.',
+            }),
+            quoteGroup({
               label: 'Quote Section',
-              admin: {
-                description:
-                  'Structured "Crafting Your Dream Home, Our Promise" pull-quote section.',
-              },
-              fields: [
-                { name: 'heading', type: 'text' },
-                { name: 'quote', type: 'textarea' },
-                { name: 'attribution', type: 'text' },
-                { name: 'image', type: 'upload', relationTo: 'media' },
-              ],
-            },
-            {
-              name: 'siliconValleyLoves',
-              type: 'group',
+              description: 'Structured "Crafting Your Dream Home, Our Promise" pull-quote section.',
+            }),
+            siliconValleyLovesGroup({
               label: 'Silicon Valley Loves Section',
-              admin: {
-                description:
-                  'The trust section ("Silicon Valley loves working with us!") rendered with the projects-page design. All content is authored here — nothing is hardcoded.',
-              },
-              fields: [
-                { name: 'eyebrow', type: 'text' },
-                { name: 'heading', type: 'text' },
-                { name: 'body', type: 'textarea' },
-                { name: 'image', type: 'upload', relationTo: 'media' },
-                {
-                  name: 'stats',
-                  type: 'array',
-                  admin: {
-                    description:
-                      'The floating stat card (e.g. rating / review count / projects built). Add one row per block.',
-                  },
-                  fields: [
-                    { name: 'value', type: 'text' },
-                    { name: 'label', type: 'text' },
-                    { name: 'detail', type: 'text' },
-                    {
-                      name: 'showStars',
-                      type: 'checkbox',
-                      defaultValue: false,
-                      admin: { description: 'Render five stars above the value (for ratings).' },
-                    },
-                  ],
-                },
-                {
-                  name: 'buttons',
-                  type: 'array',
-                  admin: { description: 'Call-to-action buttons under the copy.' },
-                  fields: [
-                    { name: 'label', type: 'text', required: true },
-                    { name: 'url', type: 'text', required: true },
-                    {
-                      name: 'variant',
-                      type: 'select',
-                      defaultValue: 'outline',
-                      options: [
-                        { label: 'Outlined', value: 'outline' },
-                        { label: 'Brass (filled)', value: 'brass' },
-                      ],
-                    },
-                  ],
-                },
-              ],
-            },
+              description:
+                'The trust section ("Silicon Valley loves working with us!"), rendered with the projects-page design. City pages use it wherever their own copy of this section is empty.',
+            }),
             {
               name: 'whyChooseUs',
               type: 'group',
@@ -681,7 +486,7 @@ export const Services: CollectionConfig = {
               label: 'Areas We Service Section',
               admin: {
                 description:
-                  'Structured "Areas we service" section (heading only; cities are linked from service-locations).',
+                  'Structured "Areas we service" section (heading only; cities are linked from service-locations). An empty heading uses Shared Sections (Settings → Service pages).',
               },
               fields: [{ name: 'heading', type: 'text' }],
             },
@@ -811,15 +616,7 @@ export const Services: CollectionConfig = {
                 {
                   name: 'images',
                   type: 'array',
-                  fields: [
-                    {
-                      name: 'url',
-                      type: 'text',
-                      admin: {
-                        description: 'Image URL (original WordPress URL or a /public path).',
-                      },
-                    },
-                  ],
+                  fields: [{ name: 'image', type: 'upload', relationTo: 'media', required: true }],
                 },
               ],
             },
@@ -835,7 +632,7 @@ export const Services: CollectionConfig = {
                 { name: 'eyebrow', type: 'text' },
                 { name: 'heading', type: 'text' },
                 { name: 'description', type: 'textarea' },
-                { name: 'image', type: 'text' },
+                { name: 'image', type: 'upload', relationTo: 'media' },
                 {
                   name: 'items',
                   type: 'array',
@@ -846,31 +643,12 @@ export const Services: CollectionConfig = {
                 },
               ],
             },
-            {
-              name: 'testimonialCards',
-              type: 'group',
+            testimonialCardsGroup({
               label: 'Testimonial Cards Section',
-              admin: {
-                description:
-                  'Three testimonial cards — the Shaker Kitchen page testimonial grid.',
-              },
-              fields: [
-                {
-                  /**
-                   * Picked from the Testimonials collection. This used to be
-                   * an array of name/quote/avatar copied onto every page, so
-                   * the same three testimonials were stored 46 times.
-                   */
-                  name: 'testimonials',
-                  type: 'relationship',
-                  relationTo: 'testimonials',
-                  hasMany: true,
-                  admin: {
-                    description: 'The testimonials to show, in order. The first is the large dark card.',
-                  },
-                },
-              ],
-            },
+              description: 'Three testimonial cards — the Shaker Kitchen page testimonial grid.',
+              testimonialsDescription:
+                'The testimonials to show, in order. The first is the large dark card.',
+            }),
             {
               name: 'materialsShowcase',
               type: 'group',
@@ -887,7 +665,7 @@ export const Services: CollectionConfig = {
                   name: 'items',
                   type: 'array',
                   fields: [
-                    { name: 'image', type: 'text' },
+                    { name: 'image', type: 'upload', relationTo: 'media' },
                     { name: 'title', type: 'text', required: true },
                     { name: 'description', type: 'textarea' },
                   ],
@@ -897,22 +675,21 @@ export const Services: CollectionConfig = {
           ],
         },
         {
-          label: 'SEO & Relations',
-          description: 'Search engine metadata and related pages.',
+          label: 'FAQs & SEO',
+          description: 'Which questions the FAQ section shows, and search engine metadata.',
           fields: [
             {
-              name: 'faqs',
+              // Replaces a hardcoded slug → category map in `lib/faq.server.ts`
+              // and a `faqs` relationship nothing read. The questions
+              // themselves live in the FAQs collection, under this category.
+              name: 'faqCategory',
               type: 'relationship',
-              relationTo: 'faqs',
-              hasMany: true,
-              admin: { description: 'Select FAQs relevant to this service' },
-            },
-            {
-              name: 'relatedServices',
-              type: 'relationship',
-              relationTo: 'services' as CollectionSlug,
-              hasMany: true,
-              admin: { description: 'Select services to recommend alongside this one' },
+              relationTo: 'faq-categories',
+              label: 'FAQ category',
+              admin: {
+                description:
+                  'The FAQ section on this page lists every question in this category, in its own order. Empty hides the section.',
+              },
             },
             ...SEOFields,
           ],

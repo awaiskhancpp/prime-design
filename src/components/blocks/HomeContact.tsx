@@ -1,7 +1,6 @@
 import { Mail, MapPin, Phone } from 'lucide-react'
 
 import website from '../../../website.json'
-import { resolveFormServices } from '@/lib/formServices'
 import { LeadForm } from '@/components/forms/LeadForm'
 import { Section } from '@/components/ui/Section'
 import { SectionHeader } from '@/components/ui/SectionHeader'
@@ -38,11 +37,10 @@ export async function HomeContact({
    * telling apart in the admin list.
    */
   formName?: string
-  /** Which service dropdown option to start on; see `LeadForm`'s own note. */
+  /** The service this form is about, sent with the lead; see `LeadForm`'s own note. */
   defaultServiceSlug?: string
 }) {
   const settings = await resolveSiteSettings()
-  const services = await resolveFormServices()
   const contactDetails = [
     { icon: Mail, label: settings.email, href: settings.emailLink, nimbata: false },
     { icon: Phone, label: settings.phone, href: `tel:${settings.phoneClean}`, nimbata: true },
@@ -100,7 +98,6 @@ export async function HomeContact({
         <LeadForm
           submitLabel={website.contactForm.submitLabel}
           messagePlaceholder="Type your message..."
-          services={services}
           defaultServiceSlug={defaultServiceSlug}
           formName={formName}
         />

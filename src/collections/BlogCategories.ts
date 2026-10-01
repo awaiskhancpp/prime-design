@@ -1,5 +1,4 @@
 import { CollectionConfig } from 'payload'
-import { revalidateCollection } from '@/lib/revalidate'
 
 // Utility function to format slugs
 const formatSlug = (val: string): string =>
@@ -104,6 +103,5 @@ export const BlogCategories: CollectionConfig = {
         return data
       },
     ],
-    afterChange: [() => revalidateCollection('recent-blog-posts')],
   },
 }

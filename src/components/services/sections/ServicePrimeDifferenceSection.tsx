@@ -6,6 +6,7 @@ import { Section } from '@/components/ui/Section'
 import { SectionHeader } from '@/components/ui/SectionHeader'
 import type { ServiceDetail } from '@/lib/services'
 import { VideoCarousel, type CarouselVideo } from '@/components/landing/VideoCarousel'
+import { resolveSiteSettings } from '@/lib/siteSettings'
 
 /**
  * Prose in this section is either a plain string or a Payload rich-text value.
@@ -51,15 +52,19 @@ const presentationIcons = [
  * page that renders this section has them in the WordPress source except
  * Home Remodeling and Bathroom Remodeling — those two pages use the gallery
  * "Why Choose Us" section instead, so they never reach this component.
+ *
+ * The badge images are brand marks in `/public`; the links are the profile
+ * URLs from Site Settings, so a changed profile is changed in one place (they
+ * used to be typed out here as well).
  */
-const defaultSocials = [
-  { image: '/social/Yelp.png', href: 'https://www.yelp.com/biz/prime-kitchens-santa-clara' },
-  { image: '/social/Google.png', href: 'https://maps.google.com/?cid=11837063325613881352' },
-  {
-    image: '/social/houzz.png',
-    href: 'https://www.houzz.com/professionals/kitchen-and-bath-remodelers/prime-kitchens-pfvwus-pf~508047204',
-  },
-]
+async function defaultSocials(): Promise<Array<{ image: string; href?: string }>> {
+  const { socialLinks } = await resolveSiteSettings()
+  return [
+    { image: '/social/Yelp.png', href: socialLinks.yelp },
+    { image: '/social/Google.png', href: socialLinks.googleBusiness },
+    { image: '/social/houzz.png', href: socialLinks.houzz },
+  ].filter((social) => social.href)
+}
 
 export function getWordPressDifferenceContent({
   eyebrow,
@@ -138,7 +143,7 @@ function Prose({ value, className }: { value?: PrimeDifferenceProse; className: 
   )
 }
 
-export function ServicePrimeDifferenceSection({
+export async function ServicePrimeDifferenceSection({
   eyebrow,
   heading,
   headingAccent,
@@ -148,7 +153,7 @@ export function ServicePrimeDifferenceSection({
   socials,
   videos,
 }: PrimeDifferenceContent) {
-  const socialList = socials === undefined ? defaultSocials : socials
+  const socialList = socials === undefined ? await defaultSocials() : socials
   return (
     <Section className="bg-white">
       <div className="grid gap-14 lg:grid-cols-[0.9fr_1.1fr] lg:gap-16 lg:items-center">

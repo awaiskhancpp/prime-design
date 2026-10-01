@@ -64,7 +64,7 @@ export function ProjectsTrustIntro({
           {body ? <p className="mt-8 max-w-xl text-lg leading-8 text-ink-2/75">{body}</p> : null}
 
           {shownButtons.length ? (
-            <div className="mt-9 flex flex-wrap gap-4">
+            <div className="mt-9 md:flex md:flex-wrap gap-2 md:gap-4">
               {shownButtons.map((button) => (
                 <Button
                   key={`${button.label}-${button.url}`}

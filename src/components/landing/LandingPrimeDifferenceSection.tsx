@@ -27,6 +27,13 @@ type LandingPrimeDifferenceSectionProps = {
    * this section's media column, not a section of their own.
    */
   comparisons?: BeforeAfterComparison[]
+  /**
+   * The block's `media`: WordPress paints it (`Pattern.png`) as the section
+   * background — no-repeat, natural size, top centre — under a 74% navy
+   * wash (`#brxe-3d3a22` and its `::before`). Stored on six of the seven
+   * landing pages and never read until now.
+   */
+  backgroundImage?: string
 }
 
 export function LandingPrimeDifferenceSection({
@@ -36,6 +43,7 @@ export function LandingPrimeDifferenceSection({
   checklist,
   videos,
   comparisons,
+  backgroundImage,
 }: LandingPrimeDifferenceSectionProps) {
   const activeChecklist = checklist ?? []
   const activeVideos = videos ?? []
@@ -48,7 +56,14 @@ export function LandingPrimeDifferenceSection({
   const hasMedia = activeVideos.length > 0 || activeComparisons.length > 0
 
   return (
-    <Section className="bg-ink-2 text-white">
+    <Section
+      className={cn(
+        'bg-ink-2 text-white',
+        backgroundImage &&
+          'relative isolate bg-top bg-no-repeat before:absolute before:inset-0 before:-z-10 before:bg-ink-2/75',
+      )}
+      style={backgroundImage ? { backgroundImage: `url(${JSON.stringify(backgroundImage)})` } : undefined}
+    >
       <div
         className={cn(
           'grid gap-12',

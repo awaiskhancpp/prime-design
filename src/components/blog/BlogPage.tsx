@@ -3,7 +3,8 @@ import { LandscapingServiceAreas } from '@/components/blocks/LandscapingServiceA
 import { PageHero } from '@/components/layout/PageHero'
 import { Section } from '@/components/ui/Section'
 import { resolveBlogPosts } from '@/lib/blog'
-import { richTextHasContent } from '@/lib/richText'
+import { richTextHasContent, type RichTextValue } from '@/lib/richText'
+import { resolveSharedServiceDefaults } from '@/lib/sharedSections'
 import { RichTextContent } from '@/components/rich-text/RichTextContent'
 import { resolvePageBySlug } from '@/lib/pages'
 import type { PageSection } from '@/lib/pageSections'
@@ -13,43 +14,46 @@ import { ServiceEstimateCta } from '../services/ServiceEstimateCta'
 export async function BlogPage() {
   const blogPosts = await resolveBlogPosts()
 
-  // The hero comes from the pages collection record "blog" (seeded from
-  // WordPress page 1670); the hardcoded values below are only a fallback
-  // for local runs without a database. WordPress has no hero image here,
-  // so `hero.image` was set in Payload to a photo from the blog itself
-  // (see `scripts/set-blog-hero-image.ts`) and stays editable there.
+  // Everything on this page that isn't a post comes from the pages record
+  // "blog" (seeded from WordPress page 1670): the hero, and the free-estimate
+  // band (WordPress template 1174), stored as that record's `cta` block. An
+  // empty field renders nothing — there used to be a typed-out copy of each
+  // value here, which made a cleared field look as if it had never been
+  // cleared.
   const page = await resolvePageBySlug('blog')
   const hero = page?.hero
-
-  // The free-estimate band is a WordPress template (tpl 1174) inserted on
-  // page 1670. Its copy lives in Payload as a `cta` layout block on this
-  // page record; the hardcoded copy below is the WordPress fallback.
   const estimateBlock = page?.layout.find(
     (section): section is Extract<PageSection, { type: 'cta' }> => section.type === 'cta',
   )
+  // The band's own fields win; anything it leaves empty is the shared
+  // free-estimate band (Settings → Shared Sections → Service pages), the same
+  // one the service pages use.
+  const shared = (await resolveSharedServiceDefaults()).estimateBand
+  const sharedButton = (Array.isArray(shared?.buttons) ? shared.buttons : [])[0] as
+    | { label?: string; url?: string }
+    | undefined
+  const estimate = {
+    heading: estimateBlock?.content.heading || (shared?.heading as string | undefined),
+    body: richTextHasContent(estimateBlock?.content.body)
+      ? estimateBlock?.content.body
+      : (shared?.description as RichTextValue | undefined),
+    cta:
+      estimateBlock?.content.label && estimateBlock.content.href
+        ? { label: estimateBlock.content.label, href: estimateBlock.content.href }
+        : sharedButton?.label && sharedButton.url
+          ? { label: sharedButton.label, href: sharedButton.url }
+          : undefined,
+  }
 
   return (
     <div className="min-h-screen bg-white">
       <PageHero
         eyebrow={hero?.eyebrow}
-        title={hero?.heading || 'See our blog'}
-        description={
-          hero?.description ?? (
-            <>
-              This is where we share our knowledge and insights about everything related to
-              remodeling. Whether you&apos;re looking for <strong>advice</strong> on a remodeling
-              project, <em>exploring options for your home</em>, or <strong>seeking updates</strong>{' '}
-              on the latest trends in the industry, you&apos;ve come to the right place!
-            </>
-          )
-        }
+        title={hero?.heading || ''}
+        description={hero?.description}
         image={hero?.image}
-        imageAlt={page?.title || 'Blog'}
-        cta={
-          hero?.cta?.label
-            ? { label: hero.cta.label, href: hero.cta.href || '/contact' }
-            : { label: "Let's discuss your project", href: '/contact' }
-        }
+        imageAlt={page?.title || ''}
+        cta={hero?.cta?.label && hero.cta.href ? { label: hero.cta.label, href: hero.cta.href } : undefined}
       />
 
       <Section className="bg-white pt-10 ">
@@ -59,22 +63,17 @@ export async function BlogPage() {
           ))}
         </div>
       </Section>
-      <ServiceEstimateCta
-        heading={estimateBlock?.content.heading || 'Ready to schedule your free estimate?'}
-        // The CMS body is rich text — the copy carries the contact link and
-        // the phone number. The plain string stays as the no-database
-        // fallback only.
-        body={
-          estimateBlock && richTextHasContent(estimateBlock.content.body) ? (
-            <RichTextContent data={estimateBlock.content.body} tone="light" />
-          ) : undefined
-        }
-        description={
-          richTextHasContent(estimateBlock?.content.body)
-            ? undefined
-            : 'Contact us here or reach us at (650) 235-4863'
-        }
-      />
+      {estimate.heading ? (
+        <ServiceEstimateCta
+          heading={estimate.heading}
+          body={
+            richTextHasContent(estimate.body) ? (
+              <RichTextContent data={estimate.body} tone="light" />
+            ) : undefined
+          }
+          cta={estimate.cta}
+        />
+      ) : null}
       <ProjectsReviewsSection />
       <LandscapingServiceAreas />
     </div>

@@ -1,3 +1,5 @@
+import { cache } from 'react'
+
 import website from '../../website.json'
 
 /**
@@ -45,6 +47,8 @@ export type SiteSettingsValue = {
   emailLink: string
   license: string
   hours: string
+  /** Schema.org `openingHours` strings, e.g. "Mo,Tu,We,Th,Fr 08:00-18:00". */
+  openingHours: string[]
   addresses: SiteAddress[]
   socialLinks: {
     googleBusiness?: string
@@ -88,6 +92,18 @@ export type SiteSettingsValue = {
     yelpRating?: number
     yelpReviewCount?: number
   }
+  /**
+   * Site-wide SEO defaults: what a page gets when its own SEO group leaves a
+   * value empty. `defaultOgImage` is the social image of last resort.
+   */
+  seo?: {
+    metaTitle?: string
+    metaDescription?: string
+    ogTitle?: string
+    ogDescription?: string
+    ogImage?: string
+  }
+  defaultOgImage?: string
 }
 
 /** `latitude`/`longitude` drive this area's pin on the coverage map. They are
@@ -110,6 +126,7 @@ const localSettings: SiteSettingsValue = {
   emailLink: `mailto:${website.footer.email}`,
   license: website.meta.license,
   hours: website.header.hours,
+  openingHours: [],
   // WordPress contact template: address 1 links to the Google Business
   // profile, address 2 is plain text.
   addresses: withAddressLinks([
@@ -144,6 +161,7 @@ type PayloadSiteSettings = {
     emailLink?: string | null
     license?: string | null
     hours?: string | null
+    openingHours?: Array<{ days?: string[] | null; opens?: string | null; closes?: string | null }> | null
     mapsUrl?: string | null
     serviceRegion?: string | null
     addresses?: Array<{ address?: string | null; link?: string | null }> | null
@@ -185,6 +203,14 @@ type PayloadSiteSettings = {
     yelpRating?: number | null
     yelpReviewCount?: number | null
   } | null
+  seo?: {
+    metaTitle?: string | null
+    metaDescription?: string | null
+    ogTitle?: string | null
+    ogDescription?: string | null
+    ogImage?: { url?: string | null } | number | null
+  } | null
+  defaultOgImage?: { url?: string | null } | number | null
 }
 
 /** Payload stores a `number` field as Postgres `numeric`, which comes back as
@@ -200,7 +226,13 @@ const textOr = (value: string | null | undefined) =>
 const mediaUrl = (value: { url?: string | null } | number | null | undefined) =>
   value && typeof value === 'object' && typeof value.url === 'string' ? value.url : undefined
 
-export async function resolveSiteAreas(): Promise<SiteArea[]> {
+/**
+ * Both resolvers are wrapped in React's `cache()`: the layout, the template,
+ * the header, the footer and the page itself each ask for the settings, and
+ * without it every one of those was its own `findGlobal` round-trip on the
+ * same request.
+ */
+export const resolveSiteAreas = cache(async (): Promise<SiteArea[]> => {
   if (!process.env.DATABASE_URL) return localAreas
 
   const [{ getPayload }, { default: configPromise }] = await payloadImports()
@@ -237,9 +269,9 @@ export async function resolveSiteAreas(): Promise<SiteArea[]> {
     .filter((area) => area.name)
 
   return areas?.length ? areas : localAreas
-}
+})
 
-export async function resolveSiteSettings(): Promise<SiteSettingsValue> {
+export const resolveSiteSettings = cache(async (): Promise<SiteSettingsValue> => {
   if (!process.env.DATABASE_URL) return localSettings
 
   const [{ getPayload }, { default: configPromise }] = await payloadImports()
@@ -265,6 +297,11 @@ export async function resolveSiteSettings(): Promise<SiteSettingsValue> {
       textOr(company?.emailLink) || `mailto:${textOr(company?.email) || localSettings.email}`,
     license: textOr(company?.license) || localSettings.license,
     hours: textOr(company?.hours) || localSettings.hours,
+    openingHours: (company?.openingHours ?? []).flatMap((row) =>
+      row.days?.length && textOr(row.opens) && textOr(row.closes)
+        ? [`${row.days.join(',')} ${row.opens}-${row.closes}`]
+        : [],
+    ),
     addresses: company?.addresses
       ? withAddressLinks(
           company.addresses.flatMap((item): SiteAddress[] => {
@@ -320,5 +357,17 @@ export async function resolveSiteSettings(): Promise<SiteSettingsValue> {
           yelpReviewCount: numberOr(settings.reviews.yelpReviewCount),
         }
       : undefined,
+    // Until now nothing read either of these, so the SEO group and the
+    // default social image in Site Settings were saved and ignored.
+    seo: settings.seo
+      ? {
+          metaTitle: textOr(settings.seo.metaTitle),
+          metaDescription: textOr(settings.seo.metaDescription),
+          ogTitle: textOr(settings.seo.ogTitle),
+          ogDescription: textOr(settings.seo.ogDescription),
+          ogImage: mediaUrl(settings.seo.ogImage),
+        }
+      : undefined,
+    defaultOgImage: mediaUrl(settings.defaultOgImage),
   }
-}
+})

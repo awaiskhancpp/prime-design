@@ -1,7 +1,17 @@
 import { getPayload } from 'payload'
 import configPromise from '@payload-config'
 import { resolveServiceDetail, type ServiceDetail } from './services'
-import { richTextHasContent, type RichTextValue } from './richText'
+import type { RichTextValue } from './richText'
+import {
+  inherit,
+  mapDontSettle,
+  mapLocationVideo,
+  mapPrimeDifference,
+  mapQuote,
+  mapSiliconValleyLoves,
+  mapTestimonialCards,
+  resolveSharedCitySections,
+} from './sharedSections'
 import type {
   Location as PayloadLocation,
   Service as PayloadService,
@@ -20,9 +30,6 @@ export type ServiceLocation = {
   location: Location
   slug: string
   seoDescription?: string
-  heroHeading?: string
-  heroDescription?: string
-  intro?: string
   featuredImage?: string
   sectionOverrides?: ServiceLocationSectionOverride[]
   /** Location-page section overrides — empty = inherit from the parent service. */
@@ -76,7 +83,8 @@ export type ServiceLocation = {
     heading?: string
     body?: string
     image?: string
-    stats?: Array<{ value?: string; label?: string; detail?: string }>
+    stats?: Array<{ value?: string; label?: string; detail?: string; showStars?: boolean }>
+    buttons?: Array<{ label: string; url: string; variant?: string }>
   }
   testimonialCards?: {
     items?: Array<{ name: string; quote?: string; avatar?: string }>
@@ -86,10 +94,7 @@ export type ServiceLocation = {
 export type ServiceLocationSectionOverride = {
   sectionKey: string
   enabled?: boolean
-  heading?: string
-  body?: string
   image?: string
-  videoUrl?: string
 }
 
 export async function getServiceLocation(serviceSlug: string, locationSlugValue: string) {
@@ -131,9 +136,6 @@ export async function getServiceLocation(serviceSlug: string, locationSlugValue:
     // page falls back to the parent service, then the built-in template).
     const textOr = (value: string | null | undefined) =>
       typeof value === 'string' && value.trim() ? value : undefined
-    /** A rich-text field, or undefined when it holds only an empty paragraph. */
-    const richTextOr = (value: unknown): RichTextValue | undefined =>
-      richTextHasContent(value as RichTextValue) ? (value as RichTextValue) : undefined
     /** A button, only when it has both halves — a label with no target is a
      *  dead control, and a target with no label is invisible. */
     const ctaOr = (value: { label?: string | null; href?: string | null } | null | undefined) => {
@@ -155,40 +157,25 @@ export async function getServiceLocation(serviceSlug: string, locationSlugValue:
         .map((blurb) => textOr(blurb.text))
         .filter((text): text is string => Boolean(text)),
     })
-    const locationVideo = compact({
-      eyebrow: textOr(doc.locationVideo?.eyebrow),
-      title: textOr(doc.locationVideo?.title),
-      description: textOr(doc.locationVideo?.description),
-      tagline: textOr(doc.locationVideo?.tagline),
-      videoUrl: textOr(doc.locationVideo?.videoUrl),
-      poster: textOr(doc.locationVideo?.poster),
-    })
-    const dontSettle = compact({
-      eyebrow: textOr(doc.dontSettle?.eyebrow),
-      heading: textOr(doc.dontSettle?.heading),
-      headingAccent: textOr(doc.dontSettle?.headingAccent),
-      body: textOr(doc.dontSettle?.body),
-      ctaLabel: textOr(doc.dontSettle?.ctaLabel),
-      image: textOr(doc.dontSettle?.image),
-    })
-    const primeDifference = compact({
-      eyebrow: textOr(doc.primeDifference?.eyebrow),
-      heading: textOr(doc.primeDifference?.heading),
-      // `richTextHasContent` rather than a truthiness check: an untouched
-      // Lexical editor saves one empty paragraph, which would otherwise
-      // render as a blank line where the paragraph used to be.
-      body: richTextOr(doc.primeDifference?.body),
-      checklist: (doc.primeDifference?.checklist ?? [])
-        .map((item) => textOr(item.text))
-        .filter((item): item is string => Boolean(item)),
-      reasons: (doc.primeDifference?.reasons ?? [])
-        .filter((reason) => Boolean(reason.title))
-        .map((reason) => ({
-          icon: reason.image ?? undefined,
-          title: reason.title,
-          body: richTextOr(reason.description),
-        })),
-    })
+    // Six sections resolve field by field: this city's own value, then its
+    // service's (the kitchen / bathroom / home family), then the Shared
+    // Sections global. See `lib/sharedSections.ts`.
+    const shared = await resolveSharedCitySections()
+    const serviceRaw = relatedService as unknown as Record<string, Record<string, unknown> | null>
+    const locationVideo = inherit(
+      mapLocationVideo(doc.locationVideo as never),
+      mapLocationVideo(serviceRaw.locationVideo),
+      shared.locationVideo,
+    )
+    const dontSettle = inherit(
+      mapDontSettle(doc.dontSettle as never),
+      mapDontSettle(serviceRaw.dontSettle),
+      shared.dontSettle,
+    )
+    const primeDifference = inherit(
+      mapPrimeDifference(doc.primeDifference as never),
+      shared.primeDifference,
+    )
     const offerings = compact({
       heading: textOr(doc.offerings?.heading),
       description: textOr(doc.offerings?.description),
@@ -205,38 +192,17 @@ export async function getServiceLocation(serviceSlug: string, locationSlugValue:
       primaryCta: ctaOr(doc.offerings?.primaryCta),
       secondaryCta: ctaOr(doc.offerings?.secondaryCta),
     })
-    const quote = compact({
-      heading: textOr(doc.quote?.heading),
-      quote: textOr(doc.quote?.quote),
-      attribution: textOr(doc.quote?.attribution),
-      image: textOr(doc.quote?.image),
-    })
-    const siliconValleyLoves = compact({
-      eyebrow: textOr(doc.siliconValleyLoves?.eyebrow),
-      heading: textOr(doc.siliconValleyLoves?.heading),
-      body: textOr(doc.siliconValleyLoves?.body),
-      image: textOr(doc.siliconValleyLoves?.image),
-      stats: (doc.siliconValleyLoves?.stats ?? [])
-        .map((stat) => ({
-          value: textOr(stat.value),
-          label: textOr(stat.label),
-          detail: textOr(stat.detail),
-        }))
-        .filter((stat) => Boolean(stat.value || stat.label || stat.detail)),
-    })
-    const testimonialCards = compact({
-      // Linked Testimonials documents, populated at depth 2.
-      items: (doc.testimonialCards?.testimonials ?? [])
-        .filter(
-          (item): item is Exclude<typeof item, number> =>
-            typeof item === 'object' && item !== null && Boolean(item.name),
-        )
-        .map((item) => ({
-          name: item.name,
-          quote: textOr(item.quote),
-          avatar: item.image && typeof item.image === 'object' ? textOr(item.image.url) : undefined,
-        })),
-    })
+    const quote = inherit(mapQuote(doc.quote as never), serviceDetail.quote, shared.quote)
+    const siliconValleyLoves = inherit(
+      mapSiliconValleyLoves(doc.siliconValleyLoves as never),
+      serviceDetail.siliconValleyLoves,
+      shared.siliconValleyLoves,
+    )
+    const testimonialCards = inherit(
+      mapTestimonialCards(doc.testimonialCards as never),
+      serviceDetail.testimonialCards,
+      shared.testimonialCards,
+    )
     const sectionOverrides = Array.isArray(
       (doc as unknown as { sectionOverrides?: unknown }).sectionOverrides,
     )
@@ -244,10 +210,7 @@ export async function getServiceLocation(serviceSlug: string, locationSlugValue:
           .map((override) => ({
             sectionKey: String(override.sectionKey || ''),
             enabled: override.enabled !== false,
-            heading: typeof override.heading === 'string' ? override.heading : undefined,
-            body: typeof override.body === 'string' ? override.body : undefined,
             image: mediaUrl(override.image),
-            videoUrl: typeof override.videoUrl === 'string' ? override.videoUrl : undefined,
           }))
           .filter((override) => Boolean(override.sectionKey))
       : undefined
@@ -261,10 +224,12 @@ export async function getServiceLocation(serviceSlug: string, locationSlugValue:
         relatedLocation.seo?.metaDescription ||
         relatedLocation.seoDescription ||
         serviceDetail.lead,
-      seo: doc.seo || relatedLocation.seo || relatedService.seo,
-      heroHeading: doc.heroHeading || undefined,
-      heroDescription: doc.heroDescription || undefined,
-      intro: doc.intro || undefined,
+      // The city page's own SEO only. Every one of the 45 records carries a
+      // title, description and canonical of its own; the old
+      // `doc.seo || location.seo || service.seo` never fell through anyway
+      // (Payload returns the group as an object even when it is empty), and
+      // inheriting would hand a city page the service's canonical URL.
+      seo: doc.seo,
       featuredImage: mediaUrl(doc.featuredImage),
       sectionOverrides,
       locationHero,
@@ -277,9 +242,6 @@ export async function getServiceLocation(serviceSlug: string, locationSlugValue:
       testimonialCards,
       service: {
         ...serviceDetail,
-        title: doc.heroHeading || serviceDetail.title,
-        eyebrow: doc.heroHeading || serviceDetail.eyebrow,
-        lead: doc.heroDescription || doc.intro || serviceDetail.lead,
         image:
           mediaUrl(doc.featuredImage) ||
           mediaUrl(relatedLocation.featuredImage) ||

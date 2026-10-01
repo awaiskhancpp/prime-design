@@ -7,11 +7,6 @@ import { Container } from '@/components/ui/Container'
 import { resolveSiteSettings } from '@/lib/siteSettings'
 import { cn } from '@/lib/utils'
 
-// The one location this business is actually listed under on Google Maps.
-// Used only when the CMS field is empty.
-const FALLBACK_MAPS_URL =
-  'https://www.google.com/maps/place/Prime+kitchens+remodeling+San+Jose/@37.3684697,-121.9172543,17z/data=!3m1!4b1!4m6!3m5!1s0x808fcb92f07b591b:0xa445b2611304f808!8m2!3d37.3684697!4d-121.9146794!16s%2Fg%2F11s6b2qvct?shorturl=1'
-
 export type TopBannerProps = {
   className?: string
 
@@ -68,6 +63,10 @@ function BannerLink({
     </span>
   )
 
+  // No destination (e.g. no Maps link and no address link in Site
+  // Settings): plain text rather than a link to nowhere.
+  if (!href) return <span className="min-w-0 font-medium">{content}</span>
+
   if (isExternal) {
     return (
       <a
@@ -96,9 +95,19 @@ export async function TopBanner({ className, location, locationHref }: TopBanner
     return null
   }
 
-  const displayLocation = location || siteSettings.company?.serviceRegion || website.header.location
+  // With a database, the region is Site Settings' own field and an empty
+  // one hides the location; `website.json` is only the no-database fallback.
+  const displayLocation =
+    location ||
+    (siteSettings.company ? siteSettings.company.serviceRegion : website.header.location) ||
+    undefined
 
-  const mapsUrl = locationHref || siteSettings.company?.mapsUrl || FALLBACK_MAPS_URL
+  // WordPress links "Silicon Valley" to the same Maps listing as the first
+  // office's address, so an empty `mapsUrl` falls back to that address's
+  // link rather than to a URL typed into this file (which pointed at a
+  // different, San Jose listing).
+  const mapsUrl =
+    locationHref || siteSettings.company?.mapsUrl || siteSettings.addresses[0]?.link || ''
 
   const displayEmail = siteSettings.email || siteSettings.company?.email || website.header.email
 
@@ -157,13 +166,17 @@ export async function TopBanner({ className, location, locationHref }: TopBanner
         <div className="hidden min-h-[38px] items-center justify-between gap-4 py-1.5 text-[11px] sm:text-xs md:flex">
           {/* Left: Location + Email */}
           <div className="flex min-w-0 items-center gap-3 sm:gap-5">
-            {/* Location */}
-            <BannerLink href={mapsUrl} icon={MapPin}>
-              {displayLocation}
-            </BannerLink>
+            {displayLocation ? (
+              <>
+                {/* Location */}
+                <BannerLink href={mapsUrl} icon={MapPin}>
+                  {displayLocation}
+                </BannerLink>
 
-            {/* Divider */}
-            <span className="h-3 w-px rotate-12 bg-brass/25" aria-hidden="true" />
+                {/* Divider */}
+                <span className="h-3 w-px rotate-12 bg-brass/25" aria-hidden="true" />
+              </>
+            ) : null}
 
             {/* Email */}
             <BannerLink href={emailLink} icon={Mail}>

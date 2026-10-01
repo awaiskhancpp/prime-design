@@ -21,6 +21,8 @@ import type { GlobalConfig } from 'payload'
  */
 export const BookingSettings: GlobalConfig = {
   slug: 'booking-settings',
+  // Every save is kept; a bad edit can be compared and restored.
+  versions: { max: 20 },
   label: 'Booking & Availability',
   admin: {
     group: 'Leads',

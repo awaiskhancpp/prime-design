@@ -4,13 +4,11 @@ import { LandscapingServiceAreas } from '@/components/blocks/LandscapingServiceA
 import { ServiceAreasStrip } from './ServiceAreasStrip'
 import { WhyChooseUs } from '@/components/gallery/WhyChooseUs'
 import { Contact as GalleryContact } from '@/components/gallery/Contact'
-import { Section } from '@/components/ui/Section'
 import { bookableServiceSlug, type ServiceDetail } from '@/lib/services'
 
 // Section components + their curated per-slug content helpers.
 import { ServiceOfferingsSection } from './ServiceOfferingsSection'
 import { ServiceProcessSection } from './ServiceProcessSection'
-import { ServiceVideoSection } from './ServiceVideoSection'
 import { HomeRemodelingProcessSection } from './sections/HomeRemodelingProcessSection'
 import {
   ServiceHomeRepairCategoriesSection,
@@ -28,7 +26,6 @@ import { ServiceImageChecklistSection } from './ServiceImageCheckListSection'
 import { MaterialsShowcaseSection } from './MaterialsShowcaseSection'
 import { ServiceTestimonialCardsSection } from './sections/ServiceTestimonialCardsSection'
 import { ServiceClientApproachSection } from './sections/ServiceClientApproachSection'
-import { ServiceEstimateCta } from './ServiceEstimateCta'
 import { ServiceFaqLoader } from './ServiceFaqLoader'
 import { ReviewsSection } from './ReviewsSection'
 import { ServiceGallery } from './ServiceGallery'
@@ -39,7 +36,6 @@ import { ServiceCraftsmanshipTransformsSection } from './sections/ServiceCraftsm
 // Extracted building blocks (see each file for details).
 import { getServicePageSections } from './servicePageLayout'
 import { ServiceOverview } from './ServiceOverview'
-import { ServiceContentBlocks } from './ServiceContentBlocks'
 import {
   ServiceSectionRenderer,
   renderSection,
@@ -113,7 +109,29 @@ const SLOT_KEY_ALIASES: Record<string, string> = {
 export function ServiceTemplate({ service }: { service: ServiceDetail }) {
   // ---- 1. Resolve layout flags and curated content ----------------------
 
-  const sections = getServicePageSections(service.slug)
+  // Services → Page layout, when the page has one: the sections it shows,
+  // in order. It overrides the per-slug flags below, so switching a section
+  // on in the admin really renders it and switching it off really hides it.
+  const layout = service.pageSections?.length ? service.pageSections : undefined
+  const shownKeys = new Set(layout?.filter((row) => row.enabled).map((row) => row.section))
+  const flags = getServicePageSections(service.slug)
+  const on = (key: string, flag: boolean) => (layout ? shownKeys.has(key) : flag)
+  const sections = {
+    ...flags,
+    homeRepairCategories: on('home-repair-categories', flags.homeRepairCategories),
+    realHomes: on('real-homes', flags.realHomes),
+    process: on('process', flags.process),
+    gallery: on('gallery', flags.gallery),
+    craftsmanship: on('craftsmanship', flags.craftsmanship),
+    faq: on('faq', flags.faq),
+    siliconValleyLoves: on('silicon-valley-loves', flags.siliconValleyLoves),
+    reviews: on('reviews', flags.reviews),
+    contact: on('contact', flags.contact),
+    // Which "why choose us" design is a variant, not a section switch: the
+    // section itself is on when the list shows it.
+    whyChooseUs: on('why-choose-us', flags.whyChooseUs || flags.homeRepairWhyChooseUs) && !flags.homeRepairWhyChooseUs,
+    homeRepairWhyChooseUs: on('why-choose-us', flags.homeRepairWhyChooseUs) && flags.homeRepairWhyChooseUs,
+  }
 
   // Section orders/conditions in this file are keyed by the WordPress
   // `-silicon-valley` slugs, while the service records carry the base slug
@@ -132,27 +150,11 @@ export function ServiceTemplate({ service }: { service: ServiceDetail }) {
 
   // ---- 2. Collect the CMS-authored content ------------------------------
 
-  const hasCmsBlocks = Boolean(service.contentBlocks?.length)
   const hasOverviewRich = Boolean(
     service.overviewRich?.keyFeatures ||
     service.overviewRich?.benefits ||
     service.overviewRich?.process,
   )
-  const cmsQuote = service.contentBlocks?.find((block) => block.blockType === 'quote')
-  const cmsVideos = service.contentBlocks?.filter((block) => block.blockType === 'video') ?? []
-
-  const contentBlocks = service.contentBlocks?.filter((block) => {
-    if (
-      block.blockType === 'video' ||
-      block.blockType === 'process' ||
-      block.blockType === 'gallery' ||
-      block.blockType === 'quote'
-    ) {
-      return false
-    }
-    return true
-  })
-
   // Non-hero CMS sections, in Payload order. The hero is excluded because
   // `ServiceHero` always renders it from the service record itself.
   const cmsContentSections = (service.sections ?? []).filter(
@@ -204,20 +206,7 @@ export function ServiceTemplate({ service }: { service: ServiceDetail }) {
     if (key.startsWith('shared-registry-')) cmsSlotNodes.delete(key)
   }
 
-  // Video section: only CMS 'video' blocks (Payload).
-  const legacyVideoSection = cmsVideos.length
-    ? cmsVideos.map((block, index) =>
-        block.blockType === 'video' ? (
-          <ServiceVideoSection
-            key={`video-${index}`}
-            title={block.heading || ''}
-            videoUrl={block.videoUrl}
-            poster={block.poster}
-          />
-        ) : null,
-      )
-    : null
-  const videoSection = cmsSlotNodes.get('video') ?? legacyVideoSection
+  const videoSection = cmsSlotNodes.get('video') ?? null
 
   // ---- 3. Build one node per section slot -------------------------------
 
@@ -232,19 +221,13 @@ export function ServiceTemplate({ service }: { service: ServiceDetail }) {
         'shaker-kitchen',
       ) ? null : !sections.homeRepairCategories && hasOverviewRich ? (
         // Rich-text overview lists (Key Features / Benefits / Process) from
-        // Payload take priority over both the legacy checklist blocks and
-        // the built-in static arrays.
+        // Payload take priority over the built-in static arrays.
         <ServiceOverview
           service={service}
           showInlineProcess={sections.inlineProcess}
           hasVisualProcess={sections.visualProcess}
         />
-      ) : !sections.homeRepairCategories && contentBlocks?.length ? (
-        <Section>
-          <ServiceContentBlocks service={service} blocks={contentBlocks} />
-        </Section>
       ) : !sections.homeRepairCategories &&
-        !hasCmsBlocks &&
         !(hasCmsSections && cmsHas('image-text', 'sub-services', 'prime-difference')) ? (
         <ServiceOverview
           service={service}
@@ -529,23 +512,18 @@ export function ServiceTemplate({ service }: { service: ServiceDetail }) {
             attribution={service.quote.attribution || ''}
             image={service.quote.image || service.image}
           />
-        ) : sections.quote && cmsQuote && cmsQuote.blockType === 'quote' ? (
-          <ServiceQuoteSection
-            heading="Our promise"
-            quote={cmsQuote.quote}
-            attribution={cmsQuote.attribution || 'Prime Design & Build'}
-            image={service.image}
-          />
         ) : null),
     },
     {
       key: 'faq',
       node:
-        cmsSlotNodes.get('faq') ?? (sections.faq ? <ServiceFaqLoader slug={service.slug} /> : null),
+        cmsSlotNodes.get('faq') ?? (sections.faq ? <ServiceFaqLoader categoryId={service.faqCategoryId} /> : null),
     },
     {
       key: 'estimate',
-      node: cmsSlotNodes.get('estimate') ?? (sections.estimate ? <ServiceEstimateCta /> : null),
+      // Only the CMS block: a band with no heading, copy or button is not a
+      // fallback worth rendering.
+      node: cmsSlotNodes.get('estimate') ?? null,
     },
     {
       key: 'client-approach',
@@ -790,8 +768,8 @@ export function ServiceTemplate({ service }: { service: ServiceDetail }) {
   // (e.g. `european-kitchen`). `slugKey`/`slugMatches` are declared above the
   // section nodes so both the conditions and this lookup can use them.
 
-  const order: string[] = service.sectionOrder?.length
-    ? service.sectionOrder
+  const order: string[] = layout
+    ? layout.filter((row) => row.enabled).map((row) => row.section)
     : (PAGE_SECTION_ORDERS[service.slug] ??
       PAGE_SECTION_ORDERS[slugKey] ??
       PAGE_SECTION_ORDERS[`${slugKey}-silicon-valley`] ?? [...FALLBACK_SECTION_ORDER])
@@ -818,6 +796,9 @@ export function ServiceTemplate({ service }: { service: ServiceDetail }) {
 
   const orderedSections = sectionNodes
     .filter(({ node }) => node !== null)
+    // With a Page layout, the list is the page: a section it does not show
+    // does not render, whatever content it has.
+    .filter(({ key }) => !layout || shownKeys.has(key))
     .sort((a, b) => rank(a.key) - rank(b.key))
 
   return (
@@ -826,7 +807,11 @@ export function ServiceTemplate({ service }: { service: ServiceDetail }) {
         <ServiceHero service={service} />
         {sections.videoFirst ? <div>{videoSection}</div> : null}
         {orderedSections.map(({ key, node }) => (
-          <div key={key}>{node}</div>
+          // `data-section` names the slot, the same key the Page sections
+          // list in the admin uses.
+          <div key={key} data-section={key}>
+            {node}
+          </div>
         ))}
       </main>
     </div>
@@ -838,5 +823,4 @@ export const ServiceDetailPage = ServiceTemplate
 
 // Re-exported for compatibility with older imports that pulled these from
 // this file (each now lives in its own module).
-export { ServiceContentBlocks } from './ServiceContentBlocks'
 export { ServiceSectionRenderer } from './ServiceSectionRenderer'

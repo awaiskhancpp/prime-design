@@ -1,0 +1,80 @@
+{
+ "map": {
+  "94": 747
+ },
+ "refs": [
+  {
+   "t": "pages",
+   "col": "hero_image_id",
+   "pk": "11",
+   "mid": 94
+  },
+  {
+   "t": "pages",
+   "col": "hero_image_id",
+   "pk": "10",
+   "mid": 94
+  },
+  {
+   "t": "projects",
+   "col": "featured_image_id",
+   "pk": "8",
+   "mid": 94
+  },
+  {
+   "t": "projects",
+   "col": "seo_og_image_id",
+   "pk": "8",
+   "mid": 94
+  },
+  {
+   "t": "services_blocks_repair_services_categories",
+   "col": "media_asset_id",
+   "pk": "6aa88c367c26b46f6c2c4092",
+   "mid": 94
+  },
+  {
+   "t": "landing_pages_blocks_project_grid_items",
+   "col": "image_asset_id",
+   "pk": "6aac818fe879e96f8c05b782",
+   "mid": 94
+  },
+  {
+   "t": "landing_pages_blocks_project_grid_items",
+   "col": "image_asset_id",
+   "pk": "6aac80efe879e96f8c05b5f2",
+   "mid": 94
+  },
+  {
+   "t": "landing_pages_blocks_sub_services_items",
+   "col": "media_asset_id",
+   "pk": "6aac80efe879e96f8c05b5d3",
+   "mid": 94
+  },
+  {
+   "t": "landing_pages_blocks_sub_services_items",
+   "col": "media_asset_id",
+   "pk": "6aac818fe879e96f8c05b762",
+   "mid": 94
+  },
+  {
+   "t": "services",
+   "col": "consultation_image_id",
+   "pk": "6",
+   "mid": 94
+  },
+  {
+   "t": "services",
+   "col": "featured_image_id",
+   "pk": "3",
+   "mid": 94
+  }
+ ],
+ "textRef": {
+  "t": "services_blocks_repair_services_categories",
+  "col": "media_source_url",
+  "pk": "6aa88c367c26b46f6c2c4092",
+  "old": "/api/media/file/WhatsApp-Image-2024-03-04-at-10.17.43-PM-1.jpeg",
+  "new": "/api/media/file/sunnyvale-new.webp"
+ }
+}

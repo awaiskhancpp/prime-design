@@ -1,7 +1,5 @@
 import type { CollectionConfig } from 'payload'
-import { revalidateCollection } from '@/lib/revalidate'
 import { pacificToUtcIso, parseDateParts, validateScheduledDate } from '@/lib/pacificTime'
-import { richTextToPlainText } from '@/lib/richText'
 import { HeadingFeature, lexicalEditor } from '@payloadcms/richtext-lexical'
 
 // Utility to format slugs
@@ -11,35 +9,10 @@ const formatSlug = (val: string): string =>
     .replace(/\s+/g, '-')
     .replace(/[^\w-]+/g, '')
 
-// Utility to extract h2 headings from Lexical content
-const extractH2Headings = (content: any): Array<{ anchorId: string; text: string }> => {
-  const headings: Array<{ anchorId: string; text: string }> = []
-
-  if (!content || !content.root || !content.root.children) {
-    return headings
-  }
-
-  const traverse = (node: any) => {
-    if (node.type === 'heading' && node.tag === 'h2') {
-      const text = node.children?.map((child: any) => (child.text ? child.text : '')).join('')
-
-      if (text) {
-        const anchorId = formatSlug(text)
-        headings.push({ anchorId, text })
-      }
-    }
-
-    if (node.children) {
-      node.children.forEach((child: any) => traverse(child))
-    }
-  }
-
-  traverse(content.root)
-  return headings
-}
-
 export const Blog: CollectionConfig = {
   slug: 'blog',
+  // Every save is kept (Version History): compare and restore any of the last 20.
+  versions: { maxPerDoc: 20 },
   admin: {
     useAsTitle: 'title',
     defaultColumns: ['title', 'slug', 'publishedDate', 'status', 'createdBy', 'updatedBy'],
@@ -261,55 +234,6 @@ export const Blog: CollectionConfig = {
             },
           ],
         },
-        {
-          label: 'Table of Contents',
-          fields: [
-            {
-              name: 'enableTOC',
-              type: 'checkbox',
-              label: 'Enable Table of Contents',
-              defaultValue: false,
-              admin: { description: 'Only applies to the free-form content field above.' },
-            },
-            {
-              name: 'tocTitle',
-              type: 'text',
-              label: 'TOC Title',
-              defaultValue: 'Table of Contents',
-              admin: { condition: (data) => data.enableTOC },
-            },
-            {
-              name: 'tableOfContents',
-              type: 'array',
-              label: 'Generated Table of Contents',
-              admin: {
-                readOnly: true,
-                description: 'Auto-generated from H2 headings in the free-form content field.',
-                condition: (data) => data.enableTOC,
-              },
-              fields: [
-                { name: 'anchorId', type: 'text', required: false, admin: { readOnly: true } },
-                { name: 'text', type: 'text', required: true, admin: { readOnly: true } },
-              ],
-            },
-          ],
-        },
-      ],
-    },
-    {
-      name: 'faqHeading',
-      type: 'text',
-      label: 'FAQ Section Heading',
-      required: false,
-    },
-    {
-      name: 'faq',
-      type: 'array',
-      label: 'FAQ Section',
-      required: false,
-      fields: [
-        { name: 'question', type: 'text', required: true },
-        { name: 'answer', type: 'richText', required: true },
       ],
     },
     {
@@ -319,25 +243,6 @@ export const Blog: CollectionConfig = {
       hasMany: true,
       required: false,
       admin: { position: 'sidebar' },
-    },
-    {
-      name: 'tags',
-      type: 'text',
-      required: false,
-      hasMany: true,
-      admin: {
-        position: 'sidebar',
-        description: 'Enter tags and press enter to add multiple tags',
-      },
-    },
-    {
-      name: 'relatedPosts',
-      type: 'relationship',
-      relationTo: 'blog',
-      hasMany: true,
-      required: false,
-      admin: { position: 'sidebar' },
-      filterOptions: ({ id }) => ({ id: { not_equals: id } }),
     },
     {
       name: 'seo',
@@ -384,19 +289,6 @@ export const Blog: CollectionConfig = {
       ],
     },
     {
-      name: 'featured',
-      type: 'checkbox',
-      required: false,
-      defaultValue: false,
-      admin: { position: 'sidebar', description: 'Feature on homepage' },
-    },
-    {
-      name: 'readingTime',
-      type: 'number',
-      required: false,
-      admin: { position: 'sidebar', readOnly: true },
-    },
-    {
       name: 'createdBy',
       label: 'Added By',
       type: 'relationship',
@@ -435,25 +327,6 @@ export const Blog: CollectionConfig = {
           data.scheduledPublishAt = null
         }
 
-        // Reading time from whichever content is actually present — sections
-        // (the normal case) or the optional free-form field.
-        const sectionsText = Array.isArray(data.sections)
-          ? data.sections.map((s: any) => `${s.heading || ''} ${s.body || ''}`).join(' ')
-          : ''
-        const introText = data.intro ? richTextToPlainText(data.intro) : ''
-        const richTextRaw = data.content ? JSON.stringify(data.content) : ''
-        const words = `${introText} ${sectionsText} ${richTextRaw}`
-          .trim()
-          .split(/\s+/)
-          .filter(Boolean).length
-        if (words > 0) {
-          data.readingTime = Math.ceil(words / 200)
-        }
-
-        if (data.content && data.enableTOC) {
-          data.tableOfContents = extractH2Headings(data.content)
-        }
-
         if (!originalDoc || !originalDoc.createdBy) {
           data.createdBy = req.user.id
         }
@@ -463,6 +336,5 @@ export const Blog: CollectionConfig = {
         return data
       },
     ],
-    afterChange: [() => revalidateCollection('recent-blog-posts')],
   },
 }

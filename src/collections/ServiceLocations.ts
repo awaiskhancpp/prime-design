@@ -1,5 +1,14 @@
 import type { CollectionBeforeValidateHook, CollectionConfig, CollectionSlug } from 'payload'
 import { SEOFields } from './fields/SEO'
+import {
+  dontSettleGroup,
+  locationHeroGroup,
+  locationPrimeDifferenceGroup,
+  locationVideoGroup,
+  quoteGroup,
+  siliconValleyLovesGroup,
+  testimonialCardsGroup,
+} from './fields/sectionGroups'
 
 const relationId = (value: unknown) =>
   typeof value === 'object' && value !== null && 'id' in value
@@ -33,150 +42,47 @@ const ensureUniqueServiceLocation: CollectionBeforeValidateHook = async ({
   return data
 }
 
+/**
+ * A city page's per-section switches. `sectionKey` is one of the sections
+ * `ServiceLocationPage` actually checks — it used to be free text, so a typo
+ * silently did nothing. The heading/body/video overrides that used to sit
+ * here were never rendered and have been removed; `image` is read by the
+ * intro section.
+ */
 const sectionOverrideFields = [
   {
     name: 'sectionKey',
-    type: 'text' as const,
+    type: 'select' as const,
     required: true,
-    admin: {
-      description:
-        'Use the inherited section sourceId for repeated block types; a block type may be used for unique sections.',
-    },
+    options: [
+      { label: 'Intro ("Don\'t Settle for a Mediocre…")', value: 'intro' },
+      { label: 'Video', value: 'video' },
+      { label: 'Offerings (sub-service cards)', value: 'offerings' },
+      { label: 'Quote', value: 'quote' },
+      { label: 'Prime Difference', value: 'prime-difference' },
+      { label: 'Reviews', value: 'reviews' },
+      { label: 'Testimonial cards', value: 'testimonial-cards' },
+      { label: 'Silicon Valley loves', value: 'silicon-valley-loves' },
+      { label: 'Contact form', value: 'contact' },
+    ],
   },
   {
     name: 'enabled',
     type: 'checkbox' as const,
     defaultValue: true,
-    admin: { description: 'Turn this inherited section on or off for this location.' },
+    admin: { description: 'Turn this section on or off for this location.' },
   },
-  { name: 'heading', type: 'text' as const },
-  { name: 'body', type: 'textarea' as const },
-  { name: 'image', type: 'upload' as const, relationTo: 'media' as const },
-  { name: 'videoUrl', type: 'text' as const },
+  {
+    name: 'image',
+    type: 'upload' as const,
+    relationTo: 'media' as const,
+    admin: {
+      description: "Intro only: replaces the section's photo on this city page.",
+      condition: (_: unknown, siblingData: { sectionKey?: string }) =>
+        siblingData?.sectionKey === 'intro',
+    },
+  },
 ]
-
-/**
- * The location hero — the copy above the quote form at the top of every city
- * page. WordPress keeps this on the family template (1495/1584/1639) rather
- * than per city, so the parent service holds the default and this group is the
- * per-city override. Shape is identical to the `locationHero` group on
- * Services.
- */
-const locationHeroField = {
-  name: 'locationHero',
-  type: 'group' as const,
-  label: 'Hero Section',
-  admin: {
-    description:
-      'Hero copy above the quote form. Use {City} for the city name and {Company} for the company name — both are substituted when the page renders. Leave a field empty to inherit the parent service’s hero copy, then the built-in WordPress family template.',
-  },
-  fields: [
-    {
-      name: 'lede',
-      type: 'text' as const,
-      admin: { description: 'Small brass line above the H1. {City} / {Company} are substituted.' },
-    },
-    {
-      name: 'body',
-      type: 'textarea' as const,
-      admin: { description: 'Paragraph under the H1. {City} / {Company} are substituted.' },
-    },
-    {
-      name: 'formSubject',
-      type: 'text' as const,
-      admin: {
-        description: 'Completes “Let’s talk about your dream …” beside the form — e.g. “kitchen”.',
-      },
-    },
-    {
-      name: 'blurbs',
-      type: 'array' as const,
-      admin: {
-        description:
-          'The three captions under the hero feature photos. {City} / {Company} are substituted.',
-      },
-      fields: [{ name: 'text', type: 'text' as const }],
-    },
-  ],
-}
-
-const locationVideoField = {
-  name: 'locationVideo',
-  type: 'group' as const,
-  label: 'Video Section',
-  admin: {
-    description:
-      'Video shown on the location page. Use {City} for the city name and {ServiceTitle} for the service name.',
-  },
-  fields: [
-    { name: 'eyebrow', type: 'text' as const },
-    { name: 'title', type: 'text' as const },
-    { name: 'description', type: 'textarea' as const },
-    { name: 'tagline', type: 'text' as const },
-    { name: 'videoUrl', type: 'text' as const },
-    { name: 'poster', type: 'text' as const },
-  ],
-}
-
-const dontSettleField = {
-  name: 'dontSettle',
-  type: 'group' as const,
-  label: 'Dont Settle Section',
-  admin: {
-    description:
-      '"Don\'t Settle for a Mediocre…" intro section. Use {City} and {ServiceTitle} placeholders.',
-  },
-  fields: [
-    { name: 'eyebrow', type: 'text' as const },
-    { name: 'heading', type: 'text' as const },
-    { name: 'headingAccent', type: 'text' as const },
-    { name: 'body', type: 'textarea' as const },
-    { name: 'ctaLabel', type: 'text' as const },
-    {
-      name: 'image',
-      type: 'text' as const,
-      admin: {
-        description:
-          'Side image. WordPress uses the same photo (attachment 579, 11.png) on all three family templates. Empty falls back to the page hero, which is the city marketing graphic — not what WordPress shows.',
-      },
-    },
-  ],
-}
-
-const primeDifferenceField = {
-  name: 'primeDifference',
-  type: 'group' as const,
-  label: 'Prime Difference Section',
-  admin: {
-    description:
-      '"The Prime Difference" section (heading + checklist + reason cards + review logos).',
-  },
-  fields: [
-    { name: 'eyebrow', type: 'text' as const },
-    { name: 'heading', type: 'text' as const },
-    // Rich text, not a textarea: the WordPress original emphasises a phrase
-    // inside this paragraph ("we are the <b>unrivaled experts</b>"), which a
-    // plain string cannot carry, and editors were otherwise unable to bold or
-    // link anything in the one paragraph that sells the section.
-    { name: 'body', type: 'richText' as const },
-    {
-      name: 'checklist',
-      type: 'array' as const,
-      fields: [{ name: 'text', type: 'text' as const }],
-    },
-    {
-      name: 'reasons',
-      type: 'array' as const,
-      fields: [
-        { name: 'title', type: 'text' as const, required: true },
-        // Also rich text, for the same reason and so the four cards are
-        // editable in the same way as the paragraph above them.
-        { name: 'description', type: 'richText' as const },
-        { name: 'image', type: 'text' as const },
-      ],
-    },
-  ],
-}
 
 /**
  * The two buttons under the sub-service cards.
@@ -249,58 +155,6 @@ const offeringsField = {
   ],
 }
 
-const quoteField = {
-  name: 'quote',
-  type: 'group' as const,
-  label: 'Quote Section',
-  fields: [
-    { name: 'heading', type: 'text' as const },
-    { name: 'quote', type: 'textarea' as const },
-    { name: 'attribution', type: 'text' as const },
-    { name: 'image', type: 'text' as const },
-  ],
-}
-
-const siliconValleyLovesField = {
-  name: 'siliconValleyLoves',
-  type: 'group' as const,
-  label: 'Silicon Valley Loves Section',
-  fields: [
-    { name: 'eyebrow', type: 'text' as const },
-    { name: 'heading', type: 'text' as const },
-    { name: 'body', type: 'textarea' as const },
-    { name: 'image', type: 'text' as const },
-    {
-      name: 'stats',
-      type: 'array' as const,
-      fields: [
-        { name: 'value', type: 'text' as const },
-        { name: 'label', type: 'text' as const },
-        { name: 'detail', type: 'text' as const },
-      ],
-    },
-  ],
-}
-
-const testimonialCardsField = {
-  name: 'testimonialCards',
-  type: 'group' as const,
-  label: 'Testimonial Cards Section',
-  fields: [
-    {
-      /** Picked from the Testimonials collection; see Services.ts. */
-      name: 'testimonials',
-      type: 'relationship' as const,
-      relationTo: 'testimonials' as const,
-      hasMany: true,
-      admin: {
-        description:
-          'The testimonials to show, in order. Empty falls back to the parent service’s selection.',
-      },
-    },
-  ],
-}
-
 /**
  * The location-page section groups, in the order the sections render in
  * `ServiceLocationPage`. Each one gets its own admin tab below.
@@ -310,6 +164,48 @@ const testimonialCardsField = {
  * its own copies of these groups inside its own tabs. It stays exported so the
  * grouping is reviewable in one place.
  */
+const locationVideoField = locationVideoGroup({
+  label: 'Video Section',
+  description:
+    'Video shown on the location page. Use {City} for the city name and {ServiceTitle} for the service name. Empty fields inherit from the parent service, then from Shared Sections (Settings).',
+})
+
+const dontSettleField = dontSettleGroup({
+  label: 'Dont Settle Section',
+  description:
+    '"Don\'t Settle for a Mediocre…" intro section. Use {City} and {ServiceTitle} placeholders. Empty fields inherit from the parent service, then from Shared Sections (Settings).',
+})
+
+const primeDifferenceField = locationPrimeDifferenceGroup({
+  label: 'Prime Difference Section',
+  description:
+    '"The Prime Difference" section (checklist + reason cards). Empty fields inherit from Shared Sections (Settings).',
+})
+
+const locationHeroField = locationHeroGroup({
+  label: 'Hero Section',
+  description:
+    'Hero copy above the quote form. Use {City} for the city name and {Company} for the company name — both are substituted when the page renders. Leave a field empty to inherit the parent service’s hero copy.',
+})
+
+const quoteField = quoteGroup({
+  label: 'Quote Section',
+  description:
+    'Empty fields inherit from the parent service, then from Shared Sections (Settings).',
+})
+
+const siliconValleyLovesField = siliconValleyLovesGroup({
+  label: 'Silicon Valley Loves Section',
+  description:
+    'Empty fields inherit from the parent service, then from Shared Sections (Settings).',
+})
+
+const testimonialCardsField = testimonialCardsGroup({
+  label: 'Testimonial Cards Section',
+  testimonialsDescription:
+    'The testimonials to show, in order. Empty falls back to the parent service’s selection, then to Shared Sections.',
+})
+
 export const locationPageSectionFields = [
   locationHeroField,
   locationVideoField,
@@ -323,6 +219,8 @@ export const locationPageSectionFields = [
 
 export const ServiceLocations: CollectionConfig = {
   slug: 'service-locations',
+  // Every save is kept (Version History): compare and restore any of the last 20.
+  versions: { maxPerDoc: 20 },
   // Grouped, predictable list: bathroom-* → home-* → kitchen-*.
   defaultSort: 'slug',
   admin: {
@@ -419,14 +317,12 @@ export const ServiceLocations: CollectionConfig = {
               name: 'city',
               type: 'text',
               admin: {
-                description: 'Legacy WordPress city value; retained for import compatibility.',
+                readOnly: true,
+                description:
+                  'Legacy WordPress city value, kept for the import. The page uses the Location above.',
               },
             },
             { name: 'featuredImage', type: 'upload', relationTo: 'media' },
-            { name: 'heroHeading', type: 'text' },
-            { name: 'heroDescription', type: 'textarea' },
-            { name: 'intro', type: 'textarea' },
-            { name: 'content', type: 'richText' },
             {
               name: 'sectionOverrides',
               type: 'array',

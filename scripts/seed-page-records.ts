@@ -89,19 +89,17 @@ const seeds: PageSeed[] = [
      * "financing" is a link to /finance. `PageHero`'s `description` is plain
      * text and has no slot for that link.
      *
-     * `image` is media 94, the WordPress hero attachment
-     * (`WhatsApp-Image-2024-03-04-at-10.17.43-PM.jpeg`). It is byte-identical
-     * (md5 ef927252c349aa4cd5708d6c102b988f, 1047x728) to the
-     * `public/services/home-remodeling.jpeg` the component falls back to, so
-     * the photograph on screen does not change — it just stops being a public
-     * file path and becomes a real Media reference.
+     * `image` is media 747, `sunnyvale-new.webp`, the photograph the owner
+     * supplied on 2026-09-30 to replace media 94 — the WordPress hero
+     * attachment (`WhatsApp-Image-2024-03-04-at-10.17.43-PM.jpeg`), which was
+     * swapped out everywhere it was used and then deleted.
      */
     hero: {
       eyebrow: 'Our services',
       heading: 'Take charge of your remodeling experience',
       description:
         'Now is the perfect time to choose the area in your home that deserves a remarkable transformation.',
-      image: 94,
+      image: 747,
     },
     seo: {
       metaTitle: 'Services | Home Remodeling By Prime Design & Build - Silicon Valley Experts',

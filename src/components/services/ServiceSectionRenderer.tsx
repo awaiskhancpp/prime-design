@@ -1,6 +1,5 @@
 import { Fragment, type ReactNode } from 'react'
 import { Contact as GalleryContact } from '@/components/gallery/Contact'
-import { ProjectsReviewsSection } from '@/components/projects/ProjectsReviewsSection'
 import { bookableServiceSlug, type ServiceDetail } from '@/lib/services'
 import { ServiceProcessSection } from './ServiceProcessSection'
 import { ServiceOfferingsSection } from './ServiceOfferingsSection'
@@ -350,12 +349,7 @@ function renderRepairCategories(block: RawBlock, service: ServiceDetail): Render
  * Stories" design (when the block carries usable reviews) or the projects
  * reviews carousel. Returns null when the shared registry should handle it.
  */
-function renderTestimonials(
-  block: RawBlock,
-  headingText: string,
-  blockType: string,
-  service: ServiceDetail,
-): RenderedSection | null {
+function renderTestimonials(block: RawBlock, headingText: string): RenderedSection | null {
   const testimonials = blocks(block.providers)
     .flatMap((provider) => blocks(provider.reviews))
     .map((review) => ({
@@ -384,9 +378,6 @@ function renderTestimonials(
       ),
     }
   }
-  if (blockType === 'testimonials') {
-    return { key: 'reviews', node: <ProjectsReviewsSection serviceSlug={service.slug} /> }
-  }
   return null
 }
 
@@ -403,9 +394,24 @@ function renderVideo(block: RawBlock, headingText: string): RenderedSection | nu
         description={str(block.description)}
         videoUrl={videoUrl}
         poster={mediaUrl(block.poster)}
+        // The video-story fields (`videoStoryFields`) the section already
+        // renders on landing pages; they were never passed here.
+        summary={
+          richTextHasContent(block.summary as RichTextValue) ? (
+            <RichTextContent data={block.summary as RichTextValue} />
+          ) : undefined
+        }
+        speakerName={str(block.speakerName) || undefined}
+        speakerRole={str(block.speakerRole) || undefined}
       />
     ),
   }
+}
+
+/** A block's first button with both a label and a URL, or nothing. */
+function firstButton(block: RawBlock): { label: string; href: string } | undefined {
+  const button = blocks(block.buttons).find((item) => str(item.label) && str(item.url))
+  return button ? { label: str(button.label), href: str(button.url) } : undefined
 }
 
 /**
@@ -712,24 +718,38 @@ export function renderSection(
 
   if (blockType === 'repair-services') return renderRepairCategories(block, service)
 
-  if (blockType === 'landing-testimonials' || blockType === 'testimonials') {
-    return renderTestimonials(block, headingText, blockType, service)
+  if (blockType === 'landing-testimonials') {
+    return renderTestimonials(block, headingText)
   }
 
-  if (blockType === 'cta' && headingLower.includes('one-stop hub')) {
+  // A `cta` block's design is its `layout` field. Blocks saved before that
+  // field existed fall back to the old guess from the heading's wording.
+  const ctaLayout =
+    blockType !== 'cta'
+      ? undefined
+      : str(block.layout) && str(block.layout) !== 'standard'
+        ? str(block.layout)
+        : str(block.layout) === 'standard'
+          ? 'standard'
+          : headingLower.includes('one-stop hub')
+            ? 'finance-hub'
+            : headingLower.includes("let's work together")
+              ? 'finance-cta'
+              : headingLower.includes('estimate') ||
+                  headingLower.includes('schedule') ||
+                  headingLower.includes('get started')
+                ? 'estimate'
+                : 'standard'
+
+  if (ctaLayout === 'finance-hub') {
     return renderFinanceHub(block)
   }
 
-  if (blockType === 'cta' && headingLower.includes("let's work together")) {
+  if (ctaLayout === 'finance-cta') {
     return renderFinanceCta(block)
   }
 
-  if (
-    blockType === 'cta' &&
-    (headingLower.includes('estimate') ||
-      headingLower.includes('schedule') ||
-      headingLower.includes('get started'))
-  ) {
+  if (ctaLayout === 'estimate') {
     return {
       key: 'estimate-cta',
       node: (
@@ -744,6 +764,7 @@ export function renderSection(
             ) : undefined
           }
           description={descriptionRich(block) ? undefined : descriptionText(block) || undefined}
+          cta={firstButton(block)}
         />
       ),
     }
@@ -771,7 +792,7 @@ export function renderSection(
       key: 'service-faq',
       node: (
         <ServiceFaqLoader
-          slug={service.slug}
+          categoryId={service.faqCategoryId}
           heading={headingText || undefined}
           description={descriptionText(block) || undefined}
           faqOrder={faqOrderFrom(block)}

@@ -3,7 +3,7 @@ import type { CollectionConfig } from 'payload'
 export const Testimonials: CollectionConfig = {
   slug: 'testimonials',
   admin: {
-    group: 'Content',
+    group: 'Social proof',
     useAsTitle: 'name',
     defaultColumns: ['name', 'location', 'rating', 'featured', 'updatedAt'],
     description:

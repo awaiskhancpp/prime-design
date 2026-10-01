@@ -1,4 +1,3 @@
-import Link from 'next/link'
 import type { ReactNode } from 'react'
 
 import { LandscapingServiceAreas } from '@/components/blocks/LandscapingServiceAreas'
@@ -29,6 +28,8 @@ import { LandingFaqBlockSection } from './LandingFaqBlockSection'
 import { richTextHasContent, richTextToPlainText, type RichTextValue } from '@/lib/richText'
 import { RichTextContent } from '@/components/rich-text/RichTextContent'
 import type { LandingPageBlock, LandingPageService } from '@/lib/landingPages'
+import { resolveSharedLandingDefaults, withSharedDefaults } from '@/lib/sharedSections'
+import { resolveSiteSettings } from '@/lib/siteSettings'
 
 type Block = LandingPageBlock & Record<string, unknown>
 
@@ -340,15 +341,24 @@ function SubServicesBlock({ block }: { block: Block }) {
 }
 
 function FaqBlock({ block }: { block: Block }) {
-  // Only the block's own inline questions are read here. A category that names
-  // no questions is filled from the FAQs collection by LandingFaqBlockSection,
-  // so there is no hardcoded copy of the Q&A anywhere in this path.
+  // A category lists its FAQs-collection questions (`faqOrder`, in the page's
+  // order); inline questions are only for one that exists nowhere else, and
+  // a category with neither shows its whole collection category. Resolved in
+  // LandingFaqBlockSection.
   const categories = Array.isArray(block.categories)
     ? block.categories.map((category) => {
         const value = category as Record<string, unknown>
         const questions = Array.isArray(value.questions) ? value.questions : []
+        const faqOrder = (Array.isArray(value.faqOrder) ? value.faqOrder : [])
+          .map((entry) =>
+            entry && typeof entry === 'object' && 'id' in entry
+              ? (entry as { id: number | string }).id
+              : (entry as number | string),
+          )
+          .filter((id) => typeof id === 'number' || typeof id === 'string')
         return {
           title: text(value.title) || '',
+          faqOrder,
           items: questions
             .map((question) => {
               const item = question as Record<string, unknown>
@@ -398,111 +408,28 @@ function GalleryCarouselBlock({ block }: { block: Block }) {
   return <GalleryBlock block={{ ...block, groups: [], items: block.items }} />
 }
 
-function FeatureBlock({ block }: { block: Block }) {
-  const features = Array.isArray(block.features)
-    ? block.features
-        .map((item) => item as Record<string, unknown>)
-        .filter((item) => text(item.title))
-    : []
-  if (!text(block.heading)) return <UnsupportedLandingBlock block={block} />
+/**
+ * "Find us". Phone, email and addresses come from Site Settings unless the
+ * block fills its own — every landing page used to carry a copy of them.
+ */
+async function FindUsBlock({ block }: { block: Block }) {
+  const settings = await resolveSiteSettings()
   return (
-    <Section className="bg-ink-2 text-white">
-      <p className="text-xs font-semibold uppercase tracking-[0.2em] text-brass">
-        {text(block.eyebrow)}
-      </p>
-      <h2 className="mt-3 font-display text-3xl font-medium md:text-5xl">{text(block.heading)}</h2>
-      {text(block.description) ? (
-        <p className="mt-4 max-w-3xl text-white/75">{text(block.description)}</p>
-      ) : null}
-      {features.length ? (
-        <div className="mt-8 grid gap-4 md:grid-cols-2">
-          {features.map((item) => (
-            <article key={text(item.title)} className="border border-white/10 p-5">
-              <h3 className="font-display text-xl">{text(item.title)}</h3>
-              {text(item.description) ? (
-                <p className="mt-2 text-sm leading-6 text-white/75">{text(item.description)}</p>
-              ) : null}
-            </article>
-          ))}
-        </div>
-      ) : null}
-    </Section>
-  )
-}
-
-function ServiceAreasBlock({ block }: { block: Block }) {
-  const areas = Array.isArray(block.areas)
-    ? block.areas.map((item) => item as Record<string, unknown>).filter((item) => text(item.label))
-    : []
-  if (!areas.length || !text(block.heading)) return <UnsupportedLandingBlock block={block} />
-  return (
-    <Section>
-      <p className="text-xs font-semibold uppercase tracking-[0.2em] text-brass">
-        {text(block.eyebrow)}
-      </p>
-      <h2 className="mt-3 font-display text-3xl font-medium text-ink md:text-5xl">
-        {text(block.heading)}
-      </h2>
-      <div className="mt-8 flex flex-wrap gap-3">
-        {areas.map((area) => {
-          const link = area.link as Record<string, unknown> | undefined
-          const label = text(area.label)!
-          return link?.url ? (
-            <Link
-              key={label}
-              href={text(link.url)!}
-              className="border border-line px-4 py-3 text-sm text-ink"
-            >
-              {label}
-            </Link>
-          ) : (
-            <span key={label} className="border border-line px-4 py-3 text-sm text-ink">
-              {label}
-            </span>
-          )
-        })}
-      </div>
-    </Section>
-  )
-}
-
-function RepairServicesBlock({ block }: { block: Block }) {
-  const categories = Array.isArray(block.categories)
-    ? block.categories
-        .map((item) => item as Record<string, unknown>)
-        .filter((item) => text(item.title))
-    : []
-  if (!categories.length || !text(block.heading)) return <UnsupportedLandingBlock block={block} />
-  return (
-    <Section>
-      <h2 className="font-display text-3xl font-medium text-ink md:text-5xl">
-        {text(block.heading)}
-      </h2>
-      {text(block.description) ? (
-        <p className="mt-4 max-w-3xl text-ink-2/75">{text(block.description)}</p>
-      ) : null}
-      <div className="mt-8 grid gap-6 md:grid-cols-2">
-        {categories.map((category) => (
-          <article key={text(category.title)} className="border border-line bg-white p-6">
-            <h3 className="font-display text-2xl text-ink">{text(category.title)}</h3>
-            {richTextToPlainText(category.description) ? (
-              <p className="mt-3 text-sm leading-6 text-ink-2/75">
-                {richTextToPlainText(category.description)}
-              </p>
-            ) : null}
-            {Array.isArray(category.features) ? (
-              <ul className="mt-4 list-disc space-y-2 pl-5 text-sm text-ink-2/75">
-                {category.features.map((feature) => (
-                  <li key={text((feature as Record<string, unknown>).text)}>
-                    {text((feature as Record<string, unknown>).text)}
-                  </li>
-                ))}
-              </ul>
-            ) : null}
-          </article>
-        ))}
-      </div>
-    </Section>
+    <LandingFindUs
+      eyebrow={text(block.eyebrow)}
+      heading={text(block.heading)}
+      phone={text(block.phone) || settings.phone}
+      email={text(block.email) || settings.email}
+      address={text(block.address) || settings.addresses.map((entry) => entry.address).join('\n')}
+      // One pin per office, as real coordinates — the map is drawn from these
+      // rather than from a geocoder reading the addresses back.
+      mapPins={(Array.isArray(block.mapPins) ? block.mapPins : [])
+        .map((pin) => pin as Record<string, unknown>)
+        .map((pin) => ({
+          latitude: typeof pin.latitude === 'number' ? pin.latitude : undefined,
+          longitude: typeof pin.longitude === 'number' ? pin.longitude : undefined,
+        }))}
+    />
   )
 }
 
@@ -520,6 +447,14 @@ export const landingBlockRegistry: Record<string, Renderer> = {
       eyebrow={text(block.eyebrow)}
       heading={text(block.heading)}
       description={text(block.description)}
+      // `description` is rich text on this block, which `text()` reads as
+      // undefined — so the copy on six of the seven landing pages was saved
+      // and never shown.
+      body={
+        richTextHasContent(block.description as RichTextValue) ? (
+          <RichTextContent data={block.description as RichTextValue} />
+        ) : undefined
+      }
       cta={button(block.buttons)}
       image={mediaUrl(block.media)}
     />
@@ -592,6 +527,7 @@ export const landingBlockRegistry: Record<string, Renderer> = {
         checklist={features}
         videos={videos}
         comparisons={comparisons}
+        backgroundImage={mediaUrl(block.media)}
       />
     )
   },
@@ -659,28 +595,15 @@ export const landingBlockRegistry: Record<string, Renderer> = {
       eyebrow={text(block.eyebrow)}
       heading={text(block.heading)}
       body={text(block.description)}
+      // The button used to be dropped: only the href was passed, and the
+      // component renders a button only when it also has a label.
       link={button(block.buttons)?.href}
+      label={button(block.buttons)?.label}
+      backgroundImage={mediaUrl(block.media)}
     />
   ),
-  'find-us': ({ block }) => (
-    <LandingFindUs
-      eyebrow={text(block.eyebrow)}
-      heading={text(block.heading)}
-      phone={text(block.phone)}
-      email={text(block.email)}
-      address={text(block.address)}
-      // One pin per office, as real coordinates — the map is drawn from these
-      // rather than from a geocoder reading the addresses back.
-      mapPins={(Array.isArray(block.mapPins) ? block.mapPins : [])
-        .map((pin) => pin as Record<string, unknown>)
-        .map((pin) => ({
-          latitude: typeof pin.latitude === 'number' ? pin.latitude : undefined,
-          longitude: typeof pin.longitude === 'number' ? pin.longitude : undefined,
-        }))}
-    />
-  ),
+  'find-us': FindUsBlock,
   faq: FaqBlock,
-  testimonials: () => <TestimonialsSpotlightSection />,
   // `landing-testimonials` — the structured version WordPress authors on the
   // Google-Ads landing pages ("Our Happy Customers"). When the block carries
   // providers with reviews it renders the CMS-driven provider-tabs marquee;
@@ -805,13 +728,23 @@ function referencedAnchors(sections: LandingPageBlock[]): string[] {
  * conversion section. Nothing is added when the page already resolves, so a
  * page whose data is complete renders exactly as before.
  */
-export function LandingBlockRenderer({
-  sections,
+export async function LandingBlockRenderer({
+  sections: storedSections,
   service,
 }: {
   sections: LandingPageBlock[]
   service?: LandingPageService
 }) {
+  // Sections that read the same on every landing page (Prime Difference,
+  // Experience Difference, Service Areas, the luxury CTA and Find Us
+  // headings) are stored once in Shared Sections; a block's empty fields are
+  // filled from there before anything renders, so the section components are
+  // unchanged. A field the page fills in itself wins.
+  const sharedDefaults = await resolveSharedLandingDefaults()
+  const sections = storedSections.map((section) =>
+    withSharedDefaults(section as Block, sharedDefaults[section.blockType]),
+  ) as LandingPageBlock[]
+
   const provided = new Set<string>()
   for (const section of sections) {
     const block = section as Block

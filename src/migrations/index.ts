@@ -79,6 +79,27 @@ import * as migration_20260930_140000_navigation_global from './20260930_140000_
 import * as migration_20260930_150000_navigation_nested_names from './20260930_150000_navigation_nested_names'
 import * as migration_20260930_160000_navigation_privacy_link from './20260930_160000_navigation_privacy_link'
 import * as migration_20260930_170000_landing_page_service from './20260930_170000_landing_page_service'
+import * as migration_20260930_200000_baseline_schema_alignment from './20260930_200000_baseline_schema_alignment'
+import * as migration_20260930_210000_default_og_image from './20260930_210000_default_og_image'
+import * as migration_20260930_213308_site_settings_service_region from './20260930_213308_site_settings_service_region'
+import * as migration_20260930_220000_estimate_cta_buttons from './20260930_220000_estimate_cta_buttons'
+import * as migration_20260930_220800_overview_wording from './20260930_220800_overview_wording'
+import * as migration_20260930_220900_renumber_service_section_rels from './20260930_220900_renumber_service_section_rels'
+import * as migration_20260930_220925_remove_dead_fields from './20260930_220925_remove_dead_fields'
+import * as migration_20260930_221000_service_faq_category from './20260930_221000_service_faq_category'
+import * as migration_20260930_221100_drop_orphaned_tables from './20260930_221100_drop_orphaned_tables'
+import * as migration_20260930_224643_shared_section_groups from './20260930_224643_shared_section_groups'
+import * as migration_20260930_225122_retire_generic_page_blocks from './20260930_225122_retire_generic_page_blocks'
+import * as migration_20260930_230000_retired_phone_numbers from './20260930_230000_retired_phone_numbers'
+import * as migration_20260930_230419_shared_sections_global from './20260930_230419_shared_sections_global'
+import * as migration_20260930_230500_shared_sections_content from './20260930_230500_shared_sections_content'
+import * as migration_20260930_231628_shared_landing_sections from './20260930_231628_shared_landing_sections'
+import * as migration_20260930_231700_shared_landing_content from './20260930_231700_shared_landing_content'
+import * as migration_20260930_233906_shared_service_defaults from './20260930_233906_shared_service_defaults'
+import * as migration_20260930_234000_shared_service_content from './20260930_234000_shared_service_content'
+import * as migration_20260930_234500_siding_faq_apostrophe from './20260930_234500_siding_faq_apostrophe'
+import * as migration_20260930_234944_service_page_layout from './20260930_234944_service_page_layout'
+import * as migration_20261001_000115_versions_and_opening_hours from './20261001_000115_versions_and_opening_hours'
 
 export const migrations = [
   {
@@ -485,5 +506,110 @@ export const migrations = [
     up: migration_20260930_170000_landing_page_service.up,
     down: migration_20260930_170000_landing_page_service.down,
     name: '20260930_170000_landing_page_service',
+  },
+  {
+    up: migration_20260930_200000_baseline_schema_alignment.up,
+    down: migration_20260930_200000_baseline_schema_alignment.down,
+    name: '20260930_200000_baseline_schema_alignment',
+  },
+  {
+    up: migration_20260930_210000_default_og_image.up,
+    down: migration_20260930_210000_default_og_image.down,
+    name: '20260930_210000_default_og_image',
+  },
+  {
+    up: migration_20260930_213308_site_settings_service_region.up,
+    down: migration_20260930_213308_site_settings_service_region.down,
+    name: '20260930_213308_site_settings_service_region',
+  },
+  {
+    up: migration_20260930_220000_estimate_cta_buttons.up,
+    down: migration_20260930_220000_estimate_cta_buttons.down,
+    name: '20260930_220000_estimate_cta_buttons',
+  },
+  {
+    up: migration_20260930_220800_overview_wording.up,
+    down: migration_20260930_220800_overview_wording.down,
+    name: '20260930_220800_overview_wording',
+  },
+  {
+    up: migration_20260930_220900_renumber_service_section_rels.up,
+    down: migration_20260930_220900_renumber_service_section_rels.down,
+    name: '20260930_220900_renumber_service_section_rels',
+  },
+  {
+    up: migration_20260930_220925_remove_dead_fields.up,
+    down: migration_20260930_220925_remove_dead_fields.down,
+    name: '20260930_220925_remove_dead_fields',
+  },
+  {
+    up: migration_20260930_221000_service_faq_category.up,
+    down: migration_20260930_221000_service_faq_category.down,
+    name: '20260930_221000_service_faq_category',
+  },
+  {
+    up: migration_20260930_221100_drop_orphaned_tables.up,
+    down: migration_20260930_221100_drop_orphaned_tables.down,
+    name: '20260930_221100_drop_orphaned_tables',
+  },
+  {
+    up: migration_20260930_224643_shared_section_groups.up,
+    down: migration_20260930_224643_shared_section_groups.down,
+    name: '20260930_224643_shared_section_groups',
+  },
+  {
+    up: migration_20260930_225122_retire_generic_page_blocks.up,
+    down: migration_20260930_225122_retire_generic_page_blocks.down,
+    name: '20260930_225122_retire_generic_page_blocks',
+  },
+  {
+    up: migration_20260930_230000_retired_phone_numbers.up,
+    down: migration_20260930_230000_retired_phone_numbers.down,
+    name: '20260930_230000_retired_phone_numbers',
+  },
+  {
+    up: migration_20260930_230419_shared_sections_global.up,
+    down: migration_20260930_230419_shared_sections_global.down,
+    name: '20260930_230419_shared_sections_global',
+  },
+  {
+    up: migration_20260930_230500_shared_sections_content.up,
+    down: migration_20260930_230500_shared_sections_content.down,
+    name: '20260930_230500_shared_sections_content',
+  },
+  {
+    up: migration_20260930_231628_shared_landing_sections.up,
+    down: migration_20260930_231628_shared_landing_sections.down,
+    name: '20260930_231628_shared_landing_sections',
+  },
+  {
+    up: migration_20260930_231700_shared_landing_content.up,
+    down: migration_20260930_231700_shared_landing_content.down,
+    name: '20260930_231700_shared_landing_content',
+  },
+  {
+    up: migration_20260930_233906_shared_service_defaults.up,
+    down: migration_20260930_233906_shared_service_defaults.down,
+    name: '20260930_233906_shared_service_defaults',
+  },
+  {
+    up: migration_20260930_234000_shared_service_content.up,
+    down: migration_20260930_234000_shared_service_content.down,
+    name: '20260930_234000_shared_service_content',
+  },
+  {
+    up: migration_20260930_234500_siding_faq_apostrophe.up,
+    down: migration_20260930_234500_siding_faq_apostrophe.down,
+    name: '20260930_234500_siding_faq_apostrophe',
+  },
+  {
+    up: migration_20260930_234944_service_page_layout.up,
+    down: migration_20260930_234944_service_page_layout.down,
+    name: '20260930_234944_service_page_layout',
+  },
+  {
+    up: migration_20261001_000115_versions_and_opening_hours.up,
+    down: migration_20261001_000115_versions_and_opening_hours.down,
+    name: '20261001_000115_versions_and_opening_hours',
   },
 ]
