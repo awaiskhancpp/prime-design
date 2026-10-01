@@ -6,7 +6,6 @@ import { getPayload } from 'payload'
 
 import configPromise from '@payload-config'
 import { LeadForm } from '@/components/forms/LeadForm'
-import { resolveFormServices } from '@/lib/formServices'
 import { Container } from '@/components/ui/Container'
 import { ServiceLocationHeader } from './ServiceLocationHeader'
 import type { ServiceDetail } from '@/lib/services'
@@ -242,7 +241,6 @@ export async function ServiceLocationHeroForm({
                 submitLabel="Request A Quote"
                 submitClassName="mt-2 w-full justify-center"
                 messagePlaceholder="Tell Us About Your Project"
-                services={await resolveFormServices()}
                 defaultServiceSlug={service.slug}
                 // Named for the admin list: these pages carry this form in the
                 // hero and the shared contact band at the foot.

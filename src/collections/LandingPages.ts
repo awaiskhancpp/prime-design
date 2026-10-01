@@ -32,6 +32,8 @@ import { SEOFields } from './fields/SEO'
  */
 export const LandingPages: CollectionConfig = {
   slug: 'landing-pages',
+  // Every save is kept (Version History): compare and restore any of the last 20.
+  versions: { maxPerDoc: 20 },
   admin: {
     useAsTitle: 'title',
     defaultColumns: ['title', 'slug', 'status', 'service'],

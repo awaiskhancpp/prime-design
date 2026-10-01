@@ -2018,7 +2018,7 @@ export interface ServiceLocation {
       | null;
   };
   /**
-   * Legacy WordPress city value; retained for import compatibility.
+   * Legacy WordPress city value, kept for the import. The page uses the Location above.
    */
   city?: string | null;
   featuredImage?: (number | null) | Media;
@@ -7571,6 +7571,20 @@ export interface SiteSetting {
      * Working hours line, e.g. "Open: 8am - 6pm (Mon - Fri)".
      */
     hours?: string | null;
+    openingHours?:
+      | {
+          days: ('Mo' | 'Tu' | 'We' | 'Th' | 'Fr' | 'Sa' | 'Su')[];
+          /**
+           * 24-hour time, e.g. 08:00
+           */
+          opens: string;
+          /**
+           * 24-hour time, e.g. 18:00
+           */
+          closes: string;
+          id?: string | null;
+        }[]
+      | null;
     /**
      * The location text in the top banner, e.g. "Silicon Valley". Empty hides the location.
      */
@@ -7590,6 +7604,12 @@ export interface SiteSetting {
         }[]
       | null;
   };
+  serviceAreas?:
+    | {
+        location?: (number | null) | Location;
+        id?: string | null;
+      }[]
+    | null;
   socialLinks?: {
     googleBusiness?: string | null;
     yelp?: string | null;
@@ -7625,13 +7645,6 @@ export interface SiteSetting {
      */
     yelpReviewCount?: number | null;
   };
-  serviceAreas?:
-    | {
-        location?: (number | null) | Location;
-        id?: string | null;
-      }[]
-    | null;
-  defaultOgImage?: (number | null) | Media;
   /**
    * The "Silicon Valley loves working with us!" section as shown on the Projects page. Service pages use their own copy of this section (Services → Silicon Valley Loves).
    */
@@ -7768,6 +7781,7 @@ export interface SiteSetting {
      */
     ogImage?: (number | null) | Media;
   };
+  defaultOgImage?: (number | null) | Media;
   updatedAt?: string | null;
   createdAt?: string | null;
 }
@@ -8212,6 +8226,14 @@ export interface SiteSettingsSelect<T extends boolean = true> {
         phoneCta?: T;
         license?: T;
         hours?: T;
+        openingHours?:
+          | T
+          | {
+              days?: T;
+              opens?: T;
+              closes?: T;
+              id?: T;
+            };
         serviceRegion?: T;
         mapsUrl?: T;
         addresses?:
@@ -8221,6 +8243,12 @@ export interface SiteSettingsSelect<T extends boolean = true> {
               link?: T;
               id?: T;
             };
+      };
+  serviceAreas?:
+    | T
+    | {
+        location?: T;
+        id?: T;
       };
   socialLinks?:
     | T
@@ -8240,13 +8268,6 @@ export interface SiteSettingsSelect<T extends boolean = true> {
         yelpRating?: T;
         yelpReviewCount?: T;
       };
-  serviceAreas?:
-    | T
-    | {
-        location?: T;
-        id?: T;
-      };
-  defaultOgImage?: T;
   trustIntro?:
     | T
     | {
@@ -8314,6 +8335,7 @@ export interface SiteSettingsSelect<T extends boolean = true> {
         ogDescription?: T;
         ogImage?: T;
       };
+  defaultOgImage?: T;
   updatedAt?: T;
   createdAt?: T;
   globalType?: T;

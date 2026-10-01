@@ -219,6 +219,8 @@ export const locationPageSectionFields = [
 
 export const ServiceLocations: CollectionConfig = {
   slug: 'service-locations',
+  // Every save is kept (Version History): compare and restore any of the last 20.
+  versions: { maxPerDoc: 20 },
   // Grouped, predictable list: bathroom-* → home-* → kitchen-*.
   defaultSort: 'slug',
   admin: {
@@ -315,7 +317,9 @@ export const ServiceLocations: CollectionConfig = {
               name: 'city',
               type: 'text',
               admin: {
-                description: 'Legacy WordPress city value; retained for import compatibility.',
+                readOnly: true,
+                description:
+                  'Legacy WordPress city value, kept for the import. The page uses the Location above.',
               },
             },
             { name: 'featuredImage', type: 'upload', relationTo: 'media' },

@@ -5,7 +5,6 @@ import { LeadForm } from '@/components/forms/LeadForm'
 import { Section } from '@/components/ui/Section'
 import { VideoPlayer } from '@/components/ui/VideoPlayer'
 import { SectionHeader } from '@/components/ui/SectionHeader'
-import { resolveFormServices } from '@/lib/formServices'
 import { resolveSiteSettings } from '@/lib/siteSettings'
 
 // WordPress contact-section walkthrough (template 1495/1584/1639) — the
@@ -87,7 +86,6 @@ export async function Contact({
             submitClassName="w-full sm:w-fit mt-2"
             submitLabel={website.contactForm.submitLabel}
             messagePlaceholder="Type your message..."
-            services={await resolveFormServices()}
             defaultServiceSlug={defaultServiceSlug}
             formName="Gallery enquiry form"
           />

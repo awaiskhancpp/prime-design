@@ -47,6 +47,8 @@ export type SiteSettingsValue = {
   emailLink: string
   license: string
   hours: string
+  /** Schema.org `openingHours` strings, e.g. "Mo,Tu,We,Th,Fr 08:00-18:00". */
+  openingHours: string[]
   addresses: SiteAddress[]
   socialLinks: {
     googleBusiness?: string
@@ -124,6 +126,7 @@ const localSettings: SiteSettingsValue = {
   emailLink: `mailto:${website.footer.email}`,
   license: website.meta.license,
   hours: website.header.hours,
+  openingHours: [],
   // WordPress contact template: address 1 links to the Google Business
   // profile, address 2 is plain text.
   addresses: withAddressLinks([
@@ -158,6 +161,7 @@ type PayloadSiteSettings = {
     emailLink?: string | null
     license?: string | null
     hours?: string | null
+    openingHours?: Array<{ days?: string[] | null; opens?: string | null; closes?: string | null }> | null
     mapsUrl?: string | null
     serviceRegion?: string | null
     addresses?: Array<{ address?: string | null; link?: string | null }> | null
@@ -293,6 +297,11 @@ export const resolveSiteSettings = cache(async (): Promise<SiteSettingsValue> =>
       textOr(company?.emailLink) || `mailto:${textOr(company?.email) || localSettings.email}`,
     license: textOr(company?.license) || localSettings.license,
     hours: textOr(company?.hours) || localSettings.hours,
+    openingHours: (company?.openingHours ?? []).flatMap((row) =>
+      row.days?.length && textOr(row.opens) && textOr(row.closes)
+        ? [`${row.days.join(',')} ${row.opens}-${row.closes}`]
+        : [],
+    ),
     addresses: company?.addresses
       ? withAddressLinks(
           company.addresses.flatMap((item): SiteAddress[] => {

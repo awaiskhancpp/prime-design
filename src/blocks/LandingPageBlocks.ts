@@ -29,6 +29,17 @@ const base = (slug: string, singular: string, fields: Block['fields']): Block =>
 
 const INHERITS_NOTE_TEXT = 'Empty uses Shared Sections (Settings).'
 
+/**
+ * Migration provenance and integration plumbing (WordPress ids, LatePoint
+ * shortcodes, raw Bricks layout JSON). Kept in the data — the import and the
+ * renderers read some of it — but hidden in the admin, where it only got in
+ * the way of the fields an editor actually changes.
+ */
+const internal = <T extends Record<string, unknown>>(field: T): T => ({
+  ...field,
+  admin: { ...((field.admin as Record<string, unknown>) ?? {}), hidden: true },
+})
+
 const text = (name: string, required = false) => ({ name, type: 'text' as const, required })
 const description = (name = 'description') => ({ name, type: 'textarea' as const })
 
@@ -130,7 +141,7 @@ export const landingPageBlocks: Block[] = [
     { name: 'externalUrl', type: 'text' as const },
     { name: 'poster', type: 'upload' as const, relationTo: 'media' as const },
     { name: 'controls', type: 'checkbox' as const, defaultValue: true },
-    text('sourceVideoId'),
+    internal(text('sourceVideoId')),
     ...videoStoryFields(),
   ]),
   base('gallery', 'Gallery', [
@@ -155,9 +166,9 @@ export const landingPageBlocks: Block[] = [
         { name: 'items', type: 'array' as const, fields: galleryItemFields() },
       ],
     },
-    { name: 'layout', type: 'json' as const },
+    internal({ name: 'layout', type: 'json' as const }),
     { name: 'lightbox', type: 'checkbox' as const, defaultValue: true },
-    text('sourceGalleryType'),
+    internal(text('sourceGalleryType')),
   ]),
   base('project-grid', 'Project Grid', [
     text('eyebrow'),
@@ -270,7 +281,7 @@ export const landingPageBlocks: Block[] = [
         text('beforeLabel'),
         text('afterLabel'),
         text('caption'),
-        text('sourceId'),
+        internal(text('sourceId')),
       ],
     },
     {
@@ -284,7 +295,7 @@ export const landingPageBlocks: Block[] = [
         text('externalUrl'),
         { name: 'poster', type: 'upload' as const, relationTo: 'media' as const },
         text('caption'),
-        text('sourceVideoId'),
+        internal(text('sourceVideoId')),
       ],
     },
     ...mediaReferenceFields(),
@@ -348,7 +359,7 @@ export const landingPageBlocks: Block[] = [
         // Optional paragraph(s) after the list (Door, Flooring, Interior).
         { name: 'closingBody', type: 'richText' as const },
         ...mediaReferenceFields(),
-        text('sourceId'),
+        internal(text('sourceId')),
       ],
     },
   ]),
@@ -376,10 +387,10 @@ export const landingPageBlocks: Block[] = [
     // the admin. It is deliberately left empty rather than given a
     // plausible-sounding default.
     text('consultationLabel'),
-    text('provider'),
-    text('shortcode'),
-    text('sourceElementId'),
-    { name: 'integrationMetadata', type: 'json' as const },
+    internal(text('provider')),
+    internal(text('shortcode')),
+    internal(text('sourceElementId')),
+    internal({ name: 'integrationMetadata', type: 'json' as const }),
   ]),
   base('contact-form', 'Contact Form', [
     // The WordPress contact sections carry real copy above the form
@@ -394,10 +405,10 @@ export const landingPageBlocks: Block[] = [
     // `contact_form` — the id every "Schedule a Free Consultation" button on
     // the page links to.
     text('anchorId'),
-    text('provider'),
-    text('shortcode'),
-    text('sourceElementId'),
-    { name: 'integrationMetadata', type: 'json' as const },
+    internal(text('provider')),
+    internal(text('shortcode')),
+    internal(text('sourceElementId')),
+    internal({ name: 'integrationMetadata', type: 'json' as const }),
   ]),
   base('find-us', 'Find Us', [
     text('eyebrow'),
@@ -475,7 +486,7 @@ export const landingPageBlocks: Block[] = [
       type: 'array' as const,
       fields: [
         text('name', true),
-        text('collectionId'),
+        internal(text('collectionId')),
         text('reviewUrl'),
         { name: 'rating', type: 'number' as const },
         { name: 'reviewCount', type: 'number' as const },
@@ -487,7 +498,7 @@ export const landingPageBlocks: Block[] = [
             { name: 'rating', type: 'number' as const },
             { name: 'body', type: 'textarea' as const },
             text('date'),
-            text('sourceId'),
+            internal(text('sourceId')),
           ],
         },
       ],
@@ -514,15 +525,15 @@ export const landingPageBlocks: Block[] = [
         text('externalUrl'),
         { name: 'poster', type: 'upload' as const, relationTo: 'media' as const },
         { name: 'caption', type: 'text' as const },
-        text('sourceId'),
-        { name: 'sourceOrder', type: 'number' as const },
+        internal(text('sourceId')),
+        internal({ name: 'sourceOrder', type: 'number' as const }),
       ],
     },
-    { name: 'settings', type: 'json' as const },
+    internal({ name: 'settings', type: 'json' as const }),
   ]),
   base('gallery-carousel', 'Gallery Carousel', [
     { name: 'items', type: 'array' as const, fields: galleryItemFields() },
-    { name: 'settings', type: 'json' as const },
+    internal({ name: 'settings', type: 'json' as const }),
   ]),
 ]
 

@@ -1,4 +1,6 @@
 import type { Field } from 'payload'
+
+import { fitEnumName } from '../../fields/Shared'
 import { buttonTextField, linkUrlField } from '../../fields/Shared'
 
 /**
@@ -107,6 +109,7 @@ export const siliconValleyLovesGroup = ({ label, description }: GroupOptions): F
         {
           name: 'variant',
           type: 'select',
+          enumName: fitEnumName('variant'),
           defaultValue: 'outline',
           options: [
             { label: 'Outlined', value: 'outline' },

@@ -52,6 +52,53 @@ function padForLoop(services: Service[]): Service[] {
   return padded
 }
 
+/** One service card — the same card in the carousel and in the phone list. */
+function ServiceCard({ service }: { service: Service }) {
+  return (
+    <Link
+      href={`/services/${service.slug}`}
+      className="group flex h-full flex-col border border-line transition-colors duration-300 hover:border-brass"
+    >
+      <div className="relative aspect-[4/3] overflow-hidden bg-line">
+        {/* WordPress gives the homepage cards their own photo,
+            different from the service page hero — that is
+            `featuredImage`. The hero is the fallback. */}
+        <Image
+          src={service.cardImage || service.image}
+          alt={service.title}
+          width={640}
+          height={480}
+          className="h-full w-full object-cover transition-transform duration-500 ease-out group-hover:scale-105"
+        />
+        {/* Numbered corner badge — same motif as the "Why choose
+            us" cards elsewhere on the site, so this carousel reads
+            as part of the same design system rather than a
+            one-off template. */}
+      </div>
+
+      <div className="flex flex-1 flex-col p-6">
+        <h3 className="font-display text-xl font-medium text-ink-2 transition-colors group-hover:text-brass-deep">
+          {service.title}
+        </h3>
+        {/* `excerpt` is the one-line summary WordPress writes for
+            these cards; `shortDescription` is the longer
+            services-index paragraph and stands in when it is empty. */}
+        <p className="mt-2 flex-1 text-sm leading-7 text-ink-2/70 line-clamp-2">
+          {service.excerpt || service.shortDescription || service.description}
+        </p>
+
+        <span className="mt-5 inline-flex items-center gap-2 border-t border-line pt-4 text-xs font-semibold uppercase tracking-[0.14em] text-brass-deep">
+          View service
+          <ArrowRight
+            className="h-3.5 w-3.5 transition-transform duration-300 ease-out group-hover:translate-x-1"
+            aria-hidden
+          />
+        </span>
+      </div>
+    </Link>
+  )
+}
+
 export function HomeServices({
   eyebrow,
   heading,
@@ -72,11 +119,7 @@ export function HomeServices({
   return (
     <Section className="">
       <div className="flex items-end justify-between gap-6">
-        <SectionHeader
-          eyebrow={eyebrow}
-          title={heading ?? ''}
-          titleHighlight={headingHighlight}
-        />
+        <SectionHeader eyebrow={eyebrow} title={heading ?? ''} titleHighlight={headingHighlight} />
         <div className="hidden shrink-0 items-center gap-3 sm:flex">
           <button
             type="button"
@@ -97,74 +140,58 @@ export function HomeServices({
         </div>
       </div>
 
-      <Swiper
-        modules={[Navigation]}
-        loop={canLoop}
-        loopAdditionalSlides={MAX_SLIDES_PER_VIEW}
-        loopPreventsSliding={false}
-        onBeforeInit={(swiper) => {
-          swiperRef.current = swiper
-        }}
-        spaceBetween={32}
-        slidesPerView={1}
-        breakpoints={{
-          768: {
-            slidesPerView: 2,
-          },
-          1024: {
-            slidesPerView: 3,
-          },
-        }}
-        className="mt-10 [&_.swiper-slide]:h-auto"
-      >
-        {slides.map((service, index) => (
-          // `slides` can repeat a service to reach the loop minimum, so the
-          // slug alone is not unique here.
-          <SwiperSlide key={`${service.slug}-${index}`}>
-            <Link
-              href={`/services/${service.slug}`}
-              className="group flex h-full flex-col border border-line transition-colors duration-300 hover:border-brass"
-            >
-              <div className="relative aspect-[4/3] overflow-hidden bg-line">
-                {/* WordPress gives the homepage cards their own photo,
-                    different from the service page hero — that is
-                    `featuredImage`. The hero is the fallback. */}
-                <Image
-                  src={service.cardImage || service.image}
-                  alt={service.title}
-                  width={640}
-                  height={480}
-                  className="h-full w-full object-cover transition-transform duration-500 ease-out group-hover:scale-105"
-                />
-                {/* Numbered corner badge — same motif as the "Why choose
-                    us" cards elsewhere on the site, so this carousel reads
-                    as part of the same design system rather than a
-                    one-off template. */}
-              </div>
+      {/*
+        Phones get the stacked list below instead; the arrows above are already
+        hidden at this width. The wrapper carries `hidden`, not the Swiper
+        itself: swiper's own stylesheet sets `display: block` on `.swiper`
+        and overrides a utility class put on it.
+      */}
+      <div className="hidden sm:block">
+        <Swiper
+          modules={[Navigation]}
+          loop={canLoop}
+          loopAdditionalSlides={MAX_SLIDES_PER_VIEW}
+          loopPreventsSliding={false}
+          onBeforeInit={(swiper) => {
+            swiperRef.current = swiper
+          }}
+          spaceBetween={32}
+          slidesPerView={1}
+          breakpoints={{
+            768: {
+              slidesPerView: 2,
+            },
+            1024: {
+              slidesPerView: 3,
+            },
+          }}
+          className="mt-10 [&_.swiper-slide]:h-auto"
+        >
+          {slides.map((service, index) => (
+            // `slides` can repeat a service to reach the loop minimum, so the
+            // slug alone is not unique here.
+            <SwiperSlide key={`${service.slug}-${index}`}>
+              <ServiceCard service={service} />
+            </SwiperSlide>
+          ))}
+        </Swiper>
+      </div>
 
-              <div className="flex flex-1 flex-col p-6">
-                <h3 className="font-display text-xl font-medium text-ink-2 transition-colors group-hover:text-brass-deep">
-                  {service.title}
-                </h3>
-                {/* `excerpt` is the one-line summary WordPress writes for
-                    these cards; `shortDescription` is the longer
-                    services-index paragraph and stands in when it is empty. */}
-                <p className="mt-2 flex-1 text-sm leading-7 text-ink-2/70 line-clamp-2">
-                  {service.excerpt || service.shortDescription || service.description}
-                </p>
-
-                <span className="mt-5 inline-flex items-center gap-2 border-t border-line pt-4 text-xs font-semibold uppercase tracking-[0.14em] text-brass-deep">
-                  View service
-                  <ArrowRight
-                    className="h-3.5 w-3.5 transition-transform duration-300 ease-out group-hover:translate-x-1"
-                    aria-hidden
-                  />
-                </span>
-              </div>
-            </Link>
-          </SwiperSlide>
+      {/*
+        On a phone the services are a plain list, one card after another: a
+        one-card slider there hides every service but the first behind a swipe
+        nobody is prompted to make. The list shows the services themselves,
+        not the repeats `padForLoop` adds for the carousel. Only one of the
+        two is ever displayed, and `display: none` keeps the other's images
+        from loading and its links out of the accessibility tree.
+      */}
+      <ul className="mt-10 grid gap-6 sm:hidden">
+        {services.map((service) => (
+          <li key={service.slug}>
+            <ServiceCard service={service} />
+          </li>
         ))}
-      </Swiper>
+      </ul>
     </Section>
   )
 }

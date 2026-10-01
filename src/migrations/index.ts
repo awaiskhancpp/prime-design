@@ -99,6 +99,7 @@ import * as migration_20260930_233906_shared_service_defaults from './20260930_2
 import * as migration_20260930_234000_shared_service_content from './20260930_234000_shared_service_content'
 import * as migration_20260930_234500_siding_faq_apostrophe from './20260930_234500_siding_faq_apostrophe'
 import * as migration_20260930_234944_service_page_layout from './20260930_234944_service_page_layout'
+import * as migration_20261001_000115_versions_and_opening_hours from './20261001_000115_versions_and_opening_hours'
 
 export const migrations = [
   {
@@ -605,5 +606,10 @@ export const migrations = [
     up: migration_20260930_234944_service_page_layout.up,
     down: migration_20260930_234944_service_page_layout.down,
     name: '20260930_234944_service_page_layout',
+  },
+  {
+    up: migration_20261001_000115_versions_and_opening_hours.up,
+    down: migration_20261001_000115_versions_and_opening_hours.down,
+    name: '20261001_000115_versions_and_opening_hours',
   },
 ]

@@ -11,6 +11,8 @@ const formatSlug = (val: string): string =>
 
 export const Blog: CollectionConfig = {
   slug: 'blog',
+  // Every save is kept (Version History): compare and restore any of the last 20.
+  versions: { maxPerDoc: 20 },
   admin: {
     useAsTitle: 'title',
     defaultColumns: ['title', 'slug', 'publishedDate', 'status', 'createdBy', 'updatedBy'],

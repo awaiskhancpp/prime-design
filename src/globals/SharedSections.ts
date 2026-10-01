@@ -48,6 +48,8 @@ const landingDefaults = (name: string, label: string, fields: GlobalConfig['fiel
 export const SharedSections: GlobalConfig = {
   slug: 'shared-sections',
   label: 'Shared Sections',
+  // Every save is kept; a bad edit can be compared and restored.
+  versions: { max: 20 },
   admin: {
     group: 'Settings',
     description:
@@ -86,7 +88,16 @@ export const SharedSections: GlobalConfig = {
             landingDefaults('landingExperienceDifference', 'Experience Difference Section', [
               { name: 'eyebrow', type: 'text' },
               { name: 'heading', type: 'text' },
-              { name: 'features', type: 'array', fields: featureCardFields() },
+              {
+                name: 'features',
+                type: 'array',
+                fields: featureCardFields(),
+                // The live table keeps its default name; the version table's
+                // default (`_shared_sections_v_version_landing_experience_
+                // difference_features`) is over Postgres's 63-character limit.
+                dbName: ({ tableName }) =>
+                  tableName?.startsWith('_') ? 'shared_sections_v_landing_exp_diff_features' : `${tableName}_features`,
+              },
             ]),
             landingDefaults('landingServiceAreas', 'Service Areas Section', [
               { name: 'eyebrow', type: 'text' },

@@ -5,6 +5,8 @@ import { buttonTextField, linkUrlField } from '../fields/Shared'
 
 export const Pages: CollectionConfig = {
   slug: 'pages',
+  // Every save is kept (Version History): compare and restore any of the last 20.
+  versions: { maxPerDoc: 20 },
   admin: {
     group: 'Content',
     useAsTitle: 'title',
@@ -51,7 +53,20 @@ export const Pages: CollectionConfig = {
         },
       ],
     },
-    { name: 'layout', type: 'blocks', blocks: PageBlocks },
+    {
+      name: 'layout',
+      type: 'blocks',
+      // Labelled rows (the section's own heading) and collapsed by default,
+      // as on the landing pages, so the layout reads as an outline.
+      blocks: PageBlocks.map((block) => ({
+        ...block,
+        admin: {
+          ...block.admin,
+          components: { ...block.admin?.components, Label: '/components/admin/BlockRowLabel#BlockRowLabel' },
+        },
+      })),
+      admin: { initCollapsed: true },
+    },
     {
       name: 'isGoogleAdsPage',
       type: 'checkbox',

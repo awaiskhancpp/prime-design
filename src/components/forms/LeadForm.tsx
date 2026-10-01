@@ -60,7 +60,7 @@ const EMPTY: Record<FieldName, string> = {
  */
 export function LeadForm({
   submitLabel,
-  services,
+  subjectOptions,
   defaultServiceSlug,
   formName,
   className,
@@ -90,21 +90,22 @@ export function LeadForm({
   /** Which form this is, recorded on the stored submission. */
   source?: 'contact-page' | 'service-page' | 'location-page' | 'landing-page' | 'other'
   /**
-   * The service dropdown's options, from `resolveFormServices()`.
+   * Makes Subject a dropdown of these services instead of a text box, from
+   * `resolveFormServices()`. WordPress has two forms: the contact form asks
+   * for a typed Subject and no service, and the site-wide popup has no
+   * Subject box but a dropdown of the six services in its place. Only the
+   * popup passes this. The choice is sent as the lead's service, not copied
+   * into the subject text.
    *
    * Passed in rather than fetched here because this is a client component and
-   * the list is Payload content: the page that renders the form is a server
-   * component and already has a database connection. Omitted (or empty) hides
-   * the field entirely, so a form that has no business asking — the gallery's
-   * short enquiry, say — is unchanged.
+   * the list is Payload content.
    */
-  services?: FormServiceOption[]
+  subjectOptions?: FormServiceOption[]
   /**
-   * Which option the dropdown should already show, when the page this form
-   * is on is itself about one service (a service page, a service-location
-   * page) rather than a generic page a visitor could mean anything on. Still
-   * an ordinary, editable `<select>` — a visitor who came for something else
-   * can change it — this only sets where it starts.
+   * The service this form is about, when the page itself is about one (a
+   * service page, a service-location page, a landing page with a service).
+   * Sent with the lead but never shown: no WordPress form asks a visitor to
+   * pick a service it already knows.
    */
   defaultServiceSlug?: string
   /**
@@ -114,7 +115,19 @@ export function LeadForm({
    */
   formName?: string
 }) {
-  const RULES = requireSubject ? requiredSubjectRules : baseRules
+  const subjectIsDropdown = Boolean(subjectOptions?.length)
+  // A dropdown choice is one of a closed list, so it is not held to the
+  // "at least two words" rule a typed subject is.
+  const RULES: FieldRules<FieldName> = subjectIsDropdown
+    ? {
+        ...baseRules,
+        subject: requireSubject
+          ? (value: string) => (value ? undefined : 'Please choose a subject.')
+          : () => undefined,
+      }
+    : requireSubject
+      ? requiredSubjectRules
+      : baseRules
   const [values, setValues] = useState<Record<FieldName, string>>(EMPTY)
   const [errors, setErrors] = useState<Partial<Record<FieldName, string>>>({})
   const [touched, setTouched] = useState<Partial<Record<FieldName, boolean>>>({})
@@ -123,15 +136,7 @@ export function LeadForm({
   const [formError, setFormError] = useState<string>()
   const [done, setDone] = useState(false)
   const [honeypot, setHoneypot] = useState('')
-  // The chosen service's slug. Its own state rather than a member of
-  // `values`: everything in there is a validated free-text field, and this is
-  // a closed list that cannot be typed into or be wrong. Seeded from
-  // `defaultServiceSlug` when the caller knows it (a service page, a
-  // service-location page, or a Google Ads landing page's own `service`
-  // field). Still a normal `<select>` the visitor can change either way.
   const router = useRouter()
-  const initialServiceSlug = defaultServiceSlug ?? ''
-  const [serviceSlug, setServiceSlug] = useState(initialServiceSlug)
   // Captcha tokens are single-use and time-limited, so the token is read from
   // the widget at submit time rather than mirrored into React state when the
   // challenge is solved — a person who solves it and then spends a few minutes
@@ -186,7 +191,10 @@ export function LeadForm({
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           ...values,
-          service: serviceSlug || undefined,
+          // In dropdown mode the Subject holds a service slug: it is sent as
+          // the service, and the subject text is left empty.
+          subject: subjectIsDropdown ? '' : values.subject,
+          service: (subjectIsDropdown ? values.subject : defaultServiceSlug) || undefined,
           source,
           formName,
           sourceUrl: typeof window === 'undefined' ? undefined : window.location.href,
@@ -255,40 +263,37 @@ export function LeadForm({
         </Field>
       </div>
 
-      {services?.length ? (
-        <Field label="Service" name="service">
-          {/* A native select on purpose: it is one of six fixed choices, it
-              has to work on a phone keyboard and with a screen reader, and
-              the original site's dropdown is the same control. */}
+
+      <Field label={requireSubject ? 'Subject*' : 'Subject'} name="subject" error={errors.subject}>
+        {subjectOptions?.length ? (
+          // A native select on purpose: it is one of six fixed choices, it has
+          // to work on a phone keyboard and with a screen reader, and the
+          // WordPress popup's dropdown is the same control ("- Select -").
           <select
-            id="lead-service"
-            name="service"
-            value={serviceSlug}
-            onChange={(event) => setServiceSlug(event.target.value)}
+            {...field('subject')}
             className={cn(
               'w-full appearance-none border border-line bg-white px-4 py-3 text-base text-ink',
               'focus:border-brass focus:outline-none',
               // Room for the chevron drawn by the background image below.
               'bg-[length:12px] bg-[right_1rem_center] bg-no-repeat pr-10',
               inputClassName,
+              errors.subject && 'border-red-600 focus:border-red-600',
             )}
             style={{
               backgroundImage:
                 "url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' fill='none' stroke='%2314213D' stroke-width='1.5' stroke-linecap='round'/%3E%3C/svg%3E\")",
             }}
           >
-            <option value="">What can we help with?</option>
-            {services.map((service) => (
+            <option value="">- Select -</option>
+            {subjectOptions.map((service) => (
               <option key={service.slug} value={service.slug}>
                 {service.title}
               </option>
             ))}
           </select>
-        </Field>
-      ) : null}
-
-      <Field label={requireSubject ? 'Subject*' : 'Subject'} name="subject" error={errors.subject}>
-        <Input {...field('subject')} />
+        ) : (
+          <Input {...field('subject')} />
+        )}
       </Field>
 
       <Field label={`${messageLabel}*`} name="message" error={errors.message}>

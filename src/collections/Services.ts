@@ -12,6 +12,8 @@ import { servicePageBlocks } from '../blocks/LandingPageBlocks'
 
 export const Services: CollectionConfig = {
   slug: 'services',
+  // Every save is kept (Version History): compare and restore any of the last 20.
+  versions: { maxPerDoc: 20 },
   admin: {
     group: 'Services',
     useAsTitle: 'title',
