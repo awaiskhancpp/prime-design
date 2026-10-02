@@ -22,6 +22,12 @@ export type Service = {
    * `image` when the CMS has none.
    */
   cardImage?: string
+  /**
+   * Photo for this service on the /services index. WordPress uses a third
+   * photo there, different from both the hero and the homepage card; falls
+   * back to `cardImage` and then `image` when the CMS has none.
+   */
+  listingImage?: string
   /** Payload "Featured on homepage" checkbox. */
   featured?: boolean
   showInConsultationForm?: boolean
@@ -244,6 +250,7 @@ type PayloadServiceRecord = {
   /** The Overview section's heading; see the field's note in Services.ts. */
   introHeading?: string | null
   featuredImage?: PayloadMedia | number | null
+  listingImage?: number | PayloadMedia | null
   featured?: boolean | null
   /** Populated to a full doc at `depth: 2`; a bare id otherwise. */
   parentService?: { slug?: string | null } | number | null
@@ -696,6 +703,7 @@ export async function resolveServices(): Promise<Service[]> {
     excerpt: record.excerpt || undefined,
     image: payloadImageUrl(record.hero?.image) || '',
     cardImage: payloadImageUrl(record.featuredImage) || undefined,
+    listingImage: payloadImageUrl(record.listingImage) || undefined,
     featured: Boolean(record.featured),
     showInConsultationForm: record.showInConsultationForm ?? true,
   }))

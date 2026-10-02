@@ -264,10 +264,40 @@ export const Services: CollectionConfig = {
               name: 'featuredImage',
               type: 'upload',
               relationTo: 'media',
-              label: 'Featured image',
+              label: 'Homepage card image',
               admin: {
                 description:
-                  'The photo used when this service is shown as a card (homepage "Our Services"). WordPress picks a different image here from the page hero; falls back to the hero image when empty.',
+                  'The photo used when this service is shown as a card on the HOMEPAGE ("Our Services"). WordPress picks a different image here from the page hero; falls back to the hero image when empty.',
+              },
+            },
+            {
+              /**
+               * The services index uses a third photo again.
+               *
+               * WordPress gives the same service a different picture on each
+               * surface, and the three are genuinely independent choices —
+               * not one featured image reused. Checked against the export:
+               * Kitchen Remodeling is attachment 2407 on its own hero, 2123
+               * on the homepage card and 481 on the /services card; Bathroom
+               * Remodeling is 2487 / 1938 / 510. Attachment 2422 is the
+               * homepage's Home Remodeling card *and* the /services page's
+               * Complete Renovation card, so the choices do not even line up
+               * service-for-service.
+               *
+               * The listing page had no field of its own and fell back to
+               * the hero image, which is why every card on /services showed
+               * the wrong photo. This mirrors what the copy fields already
+               * do — `shortDescription` for the listing, `excerpt` for the
+               * homepage — so each surface now owns both its words and its
+               * picture.
+               */
+              name: 'listingImage',
+              type: 'upload',
+              relationTo: 'media',
+              label: 'Services page card image',
+              admin: {
+                description:
+                  'The photo used when this service is shown as a card on the SERVICES INDEX (/services). WordPress uses a third photo here, different from both the hero and the homepage card; falls back to the homepage card, then the hero, when empty.',
               },
             },
             {

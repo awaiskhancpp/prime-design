@@ -1309,9 +1309,13 @@ export interface Service {
    */
   introHeading?: string | null;
   /**
-   * The photo used when this service is shown as a card (homepage "Our Services"). WordPress picks a different image here from the page hero; falls back to the hero image when empty.
+   * The photo used when this service is shown as a card on the HOMEPAGE ("Our Services"). WordPress picks a different image here from the page hero; falls back to the hero image when empty.
    */
   featuredImage?: (number | null) | Media;
+  /**
+   * The photo used when this service is shown as a card on the SERVICES INDEX (/services). WordPress uses a third photo here, different from both the hero and the homepage card; falls back to the homepage card, then the hero, when empty.
+   */
+  listingImage?: (number | null) | Media;
   /**
    * Full overview text describing this service.
    */
@@ -5569,6 +5573,7 @@ export interface ServicesSelect<T extends boolean = true> {
   excerpt?: T;
   introHeading?: T;
   featuredImage?: T;
+  listingImage?: T;
   description?: T;
   overview?:
     | T

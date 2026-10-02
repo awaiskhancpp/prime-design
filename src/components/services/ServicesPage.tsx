@@ -53,7 +53,14 @@ export async function ServicesPage() {
                         overlay that rises from inside it. */}
                     <div className="relative aspect-[3/4] overflow-hidden bg-paper-2">
                       <Image
-                        src={service.image}
+                        // The index's own photo. WordPress gives a service a
+                        // different picture on each surface, so this card is
+                        // not the hero and not the homepage card — it used to
+                        // render `service.image`, the hero, which is why every
+                        // card here showed the wrong photo. Falls back through
+                        // the homepage card to the hero for a service the CMS
+                        // has no listing photo for.
+                        src={service.listingImage || service.cardImage || service.image}
                         // Decorative: the card's link already takes its name
                         // from the title below, which would otherwise be read
                         // twice ("Kitchen Remodeling Kitchen Remodeling").
